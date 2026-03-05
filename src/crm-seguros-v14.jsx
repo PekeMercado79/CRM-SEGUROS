@@ -2077,7 +2077,7 @@ function Polizas({ polizas, setPolizas, clientes, subagentes, setSubagentes }) {
             <div style={{fontWeight:600}}>Sin pólizas que coincidan</div>
           </div>
         )}
-      </div>
+      </div>}
 
       {/* Modal detalle */}
       {polizaDetalle&&(

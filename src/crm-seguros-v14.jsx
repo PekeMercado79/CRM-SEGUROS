@@ -1963,7 +1963,7 @@ function ScanPoliza({ onClose, onExtracted }) {
       const block=fileData.type==="application/pdf"
         ?{type:"document",source:{type:"base64",media_type:"application/pdf",data:fileData.base64}}
         :{type:"image",source:{type:"base64",media_type:fileData.type,data:fileData.base64}};
-      const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:[block,{type:"text",text:`Extrae TODOS los datos de esta póliza. Responde SOLO JSON sin markdown:\n{"numero":"","cliente":"","aseguradora":"","ramo":"Autos/Vida/Gastos Médicos/Daños","subramo":"","prima":0,"frecuencia":"Anual","inicio":"YYYY-MM-DD","vencimiento":"YYYY-MM-DD","status":"activa","coberturas":[],"notas":""}`}]}]})});
+      const res=await fetch("/api/anthropic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:[block,{type:"text",text:`Extrae TODOS los datos de esta póliza. Responde SOLO JSON sin markdown:\n{"numero":"","cliente":"","aseguradora":"","ramo":"Autos/Vida/Gastos Médicos/Daños","subramo":"","prima":0,"frecuencia":"Anual","inicio":"YYYY-MM-DD","vencimiento":"YYYY-MM-DD","status":"activa","coberturas":[],"notas":""}`}]}]})});
       const data=await res.json();
       if(!res.ok)throw new Error(data.error?.message);
       const text=data.content.map(b=>b.text||"").join("");
@@ -2187,7 +2187,7 @@ function PAI({ paiMetas, setPaiMetas }) {
     setShowAlerta(true);setLoadingAlerta(true);setAlertaTexto("");
     try{
       const resumen=paiMetas.map(m=>`Ramo ${m.ramo}: meta $${m.metaBono.toLocaleString()}, cobrado $${m.cobrado.toLocaleString()} (${Math.round(m.cobrado/m.metaBono*100)}%), falta $${(m.metaBono-m.cobrado).toLocaleString()}. Periodo: ${m.periodo}.`).join("\n");
-      const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:`Eres asistente de un agente de seguros en México. Genera un reporte semanal PAI basado en:\n\n${resumen}\n\nIncluye: saludo motivacional, avance global, ramos en riesgo, 3 acciones concretas esta semana y frase de cierre. Español, máximo 260 palabras, emojis con moderación.`}]})});
+      const res=await fetch("/api/anthropic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:`Eres asistente de un agente de seguros en México. Genera un reporte semanal PAI basado en:\n\n${resumen}\n\nIncluye: saludo motivacional, avance global, ramos en riesgo, 3 acciones concretas esta semana y frase de cierre. Español, máximo 260 palabras, emojis con moderación.`}]})});
       const data=await res.json();
       setAlertaTexto(data.content.map(b=>b.text||"").join(""));
     }catch{setAlertaTexto("No se pudo conectar. Verifica tu conexión.");}
@@ -2954,7 +2954,7 @@ function ModalRenovar({ poliza, onGuardar, onClose }) {
         ? { type:"document", source:{ type:"base64", media_type:"application/pdf", data:docFileData.base64 }}
         : { type:"image",    source:{ type:"base64", media_type:docFileData.type,  data:docFileData.base64 }};
 
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("/api/anthropic", {
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify({

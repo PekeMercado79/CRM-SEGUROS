@@ -1619,7 +1619,20 @@ function Polizas({ polizas, setPolizas, clientes, subagentes, setSubagentes }) {
     .filter(p => !busqueda || p.numero?.toLowerCase().includes(busqueda.toLowerCase()) || p.cliente?.toLowerCase().includes(busqueda.toLowerCase()));
 
   const onGuardar = (data) => setPolizas(prev => [...prev, data]);
-  const onExtracted = (data) => { setPolizas(prev => [...prev, {...FORM_POLIZA_INIT, ...data, id:Date.now()}]); setShowScan(false); };
+  const onExtracted = (data) => {
+    const mapped = {
+      ...FORM_POLIZA_INIT,
+      ...data,
+      id: Date.now(),
+      prima: data.primaTotal || data.prima || 0,
+      primaNeta: data.primaNeta || data.prima || 0,
+      primaTotal: data.primaTotal || data.prima || 0,
+      gastosExpedicion: data.gastosExpedicion || 0,
+      coberturas: Array.isArray(data.coberturas) ? data.coberturas : [],
+    };
+    setPolizas(prev => [...prev, mapped]);
+    setShowScan(false);
+  };
 
   const cancelarPoliza = (id) => {
     if (!window.confirm("¿Cancelar esta póliza? Esta acción no se puede deshacer.")) return;
@@ -1958,16 +1971,38 @@ function ScanPoliza({ onClose, onExtracted }) {
   const processFile=(file)=>{if(!file)return;setFileName(file.name);const r=new FileReader();r.onload=e=>setFileData({base64:e.target.result.split(",")[1],type:file.type});r.readAsDataURL(file);};
 
   const analyze=async()=>{
-    if(!fileData)return;setStep("analyzing");
+    if(!fileData)return;setStep("analyzing");setError("");
     try{
       const block=fileData.type==="application/pdf"
         ?{type:"document",source:{type:"base64",media_type:"application/pdf",data:fileData.base64}}
         :{type:"image",source:{type:"base64",media_type:fileData.type,data:fileData.base64}};
-      const res=await fetch("/api/anthropic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:[block,{type:"text",text:`Extrae TODOS los datos de esta póliza. Responde SOLO JSON sin markdown:\n{"numero":"","cliente":"","aseguradora":"","ramo":"Autos/Vida/Gastos Médicos/Daños","subramo":"","prima":0,"frecuencia":"Anual","inicio":"YYYY-MM-DD","vencimiento":"YYYY-MM-DD","status":"activa","coberturas":[],"notas":""}`}]}]})});
+
+      const prompt = [
+        "Eres un extractor de datos de polizas de seguros mexicanas.",
+        "Extrae los datos del documento y responde UNICAMENTE con un objeto JSON valido.",
+        "NO uses markdown, NO uses comillas especiales, NO agregues texto antes ni despues del JSON.",
+        "Usa solo caracteres ASCII en los valores cuando sea posible.",
+        "Formato exacto:",
+        '{"numero":"","cliente":"","aseguradora":"","ramo":"Autos/Vida/Gastos Medicos/Danos","subramo":"","primaNeta":0,"primaTotal":0,"gastosExpedicion":0,"frecuencia":"Anual","inicio":"YYYY-MM-DD","vencimiento":"YYYY-MM-DD","coberturas":["cobertura1","cobertura2"],"notas":""}'
+      ].join(" ");
+
+      const res=await fetch("/api/anthropic",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          model:"claude-sonnet-4-20250514",
+          max_tokens:1500,
+          messages:[{role:"user",content:[block,{type:"text",text:prompt}]}]
+        })
+      });
       const data=await res.json();
-      if(!res.ok)throw new Error(data.error?.message);
+      if(!res.ok)throw new Error(data.error?.message||"Error en API");
       const text=data.content.map(b=>b.text||"").join("");
-      setResult(JSON.parse(text.replace(/```json|```/g,"").trim()));
+      // Extraer JSON robusto — busca el primer { hasta el ultimo }
+      const match = text.match(/\{[\s\S]*\}/);
+      if(!match) throw new Error("La IA no devolvio un JSON valido");
+      const parsed = JSON.parse(match[0]);
+      setResult(parsed);
       setStep("result");
     }catch(e){setError("Error: "+e.message);setStep("upload");}
   };
@@ -2006,7 +2041,7 @@ function ScanPoliza({ onClose, onExtracted }) {
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           <div style={{background:"#f0fdf4",borderRadius:10,padding:"10px 14px",color:"#065f46",fontWeight:600,fontSize:13}}>✅ Datos extraídos — revisa y confirma</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
-            {[["Número",result.numero],["Cliente",result.cliente],["Aseguradora",result.aseguradora],["Ramo",result.ramo],["Subramo",result.subramo],["Prima",result.prima?`$${Number(result.prima).toLocaleString()}`:""],["Frecuencia",result.frecuencia],["Inicio",result.inicio],["Vencimiento",result.vencimiento]].map(([l,v])=>v?(
+            {[["Número",result.numero],["Cliente",result.cliente],["Aseguradora",result.aseguradora],["Ramo",result.ramo],["Subramo",result.subramo],["Prima Total",result.primaTotal?`$${Number(result.primaTotal).toLocaleString()}`:(result.prima?`$${Number(result.prima).toLocaleString()}`:"")],["Frecuencia",result.frecuencia],["Inicio",result.inicio],["Vencimiento",result.vencimiento]].map(([l,v])=>v?(
               <div key={l} style={{background:"#f9fafb",borderRadius:9,padding:"9px 11px"}}>
                 <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:2}}>{l.toUpperCase()}</div>
                 <div style={{fontSize:13,fontWeight:600}}>{v}</div>

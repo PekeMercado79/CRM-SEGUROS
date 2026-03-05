@@ -903,7 +903,7 @@ function Clientes({ clientes, setClientes, polizas=[] }) {
           </div>
         </Modal>
 
-    </div>
+  
   );
 }
 

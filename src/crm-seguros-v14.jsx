@@ -1858,13 +1858,19 @@ function Polizas({ polizas, setPolizas, clientes, subagentes, setSubagentes }) {
       id: Date.now() + 1,
       clienteId,
       cliente: clienteNombre,
+      rfc: data.rfcCliente || "",
+      formaPago: data.formaPago || data.frecuencia || "Anual",
       prima: data.primaTotal || data.prima || 0,
-      primaNeta: data.primaNeta || data.prima || 0,
-      primaTotal: data.primaTotal || data.prima || 0,
-      gastosExpedicion: data.gastosExpedicion || 0,
+      primaNeta: parseFloat(data.primaNeta) || 0,
+      gastosExpedicion: parseFloat(data.gastosExpedicion) || 0,
+      recargoPago: parseFloat(data.recargoPago) || 0,
+      porcentajeIva: parseFloat(data.porcentajeIva) || 16,
+      montoIva: parseFloat(data.montoIva) || 0,
+      primaTotal: parseFloat(data.primaTotal) || parseFloat(data.prima) || 0,
+      moneda: data.moneda || "MXN",
+      gestorCobro: data.gestorCobro || "",
       coberturas: Array.isArray(data.coberturas) ? data.coberturas : [],
       pagos: [],
-      // Documento adjunto desde el escáner
       documentoPoliza: docData?.base64full || null,
       documentoNombre: docData?.nombre || "",
       documentoTipo: docData?.tipo || "",
@@ -2104,7 +2110,22 @@ function Polizas({ polizas, setPolizas, clientes, subagentes, setSubagentes }) {
 
             {/* Datos generales */}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
-              {[["Número/Endoso",`${polizaDetalle.numero}/${polizaDetalle.endoso||"0"}`],["Aseguradora",polizaDetalle.aseguradora||"—"],["Vigencia inicio",polizaDetalle.inicio||"—"],["Vigencia fin",polizaDetalle.vencimiento||"—"],["Prima neta",polizaDetalle.primaNeta?`$${Number(polizaDetalle.primaNeta).toLocaleString()}`:"—"],["Gastos expedición",polizaDetalle.gastosExpedicion?`$${Number(polizaDetalle.gastosExpedicion).toLocaleString()}`:"—"],["Forma de pago",polizaDetalle.formaPago||"—"],["Beneficiario",polizaDetalle.beneficiarioPreferente||"—"]].map(([l,v])=>(
+              {[
+                ["Número de Póliza", polizaDetalle.numero||"—"],
+                ["Endoso", polizaDetalle.endoso||"0"],
+                ["Aseguradora", polizaDetalle.aseguradora||"—"],
+                ["Forma de Pago", polizaDetalle.formaPago||polizaDetalle.frecuencia||"—"],
+                ["Moneda", polizaDetalle.moneda||"MXN"],
+                ["Gestor / Clave", polizaDetalle.gestorCobro||"—"],
+                ["Vigencia Inicio", polizaDetalle.inicio||"—"],
+                ["Vigencia Fin", polizaDetalle.vencimiento||"—"],
+                ["Prima Neta", polizaDetalle.primaNeta?`$${Number(polizaDetalle.primaNeta).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],
+                ["Gastos Expedición", polizaDetalle.gastosExpedicion?`$${Number(polizaDetalle.gastosExpedicion).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],
+                ["% IVA", polizaDetalle.porcentajeIva!=null?`${polizaDetalle.porcentajeIva}%`:"—"],
+                ["Monto IVA", polizaDetalle.montoIva?`$${Number(polizaDetalle.montoIva).toLocaleString("es-MX",{minimumFractionDigits:2})}`:(polizaDetalle.iva?`$${Number(polizaDetalle.iva).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—")],
+                ["Prima Total", polizaDetalle.primaTotal?`$${Number(polizaDetalle.primaTotal).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],
+                ["Beneficiario", polizaDetalle.beneficiarioPreferente||"—"],
+              ].map(([l,v])=>(
                 <div key={l} style={{background:"#f9fafb",borderRadius:9,padding:"9px 12px"}}>
                   <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>{l.toUpperCase()}</div>
                   <div style={{fontSize:13,fontWeight:600,color:"#111827"}}>{v}</div>
@@ -2328,6 +2349,26 @@ function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, 
           <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>GASTOS EXPEDICIÓN</div>
           <input value={er.gastosExpedicion||""} onChange={e=>upd("gastosExpedicion",e.target.value)} style={inpStyle} placeholder="0.00"/>
         </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>% IVA</div>
+          <input value={er.porcentajeIva||""} onChange={e=>upd("porcentajeIva",e.target.value)} style={inpStyle} placeholder="16"/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>MONTO IVA</div>
+          <input value={er.montoIva||""} onChange={e=>upd("montoIva",e.target.value)} style={inpStyle} placeholder="0.00"/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>RFC CLIENTE</div>
+          <input value={er.rfcCliente||""} onChange={e=>upd("rfcCliente",e.target.value)} style={inpStyle} placeholder="XXXX000000XXX"/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>GESTOR / CLAVE AGENTE</div>
+          <input value={er.gestorCobro||""} onChange={e=>upd("gestorCobro",e.target.value)} style={inpStyle} placeholder="12362"/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>MONEDA</div>
+          <input value={er.moneda||"MXN"} onChange={e=>upd("moneda",e.target.value)} style={inpStyle}/>
+        </div>
       </div>
       {er.coberturas?.length>0&&<div style={{background:"#f9fafb",borderRadius:9,padding:"10px 12px"}}>
         <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:7}}>COBERTURAS DETECTADAS</div>
@@ -2362,11 +2403,12 @@ function ScanPoliza({ onClose, onExtracted }) {
 
       const prompt = [
         "Eres un extractor de datos de polizas de seguros mexicanas.",
-        "Extrae los datos del documento y responde UNICAMENTE con un objeto JSON valido.",
+        "Extrae TODOS los datos del documento y responde UNICAMENTE con un objeto JSON valido.",
         "NO uses markdown, NO uses comillas especiales, NO agregues texto antes ni despues del JSON.",
         "Usa solo caracteres ASCII en los valores cuando sea posible.",
-        "Formato exacto:",
-        '{"numero":"","cliente":"","aseguradora":"","ramo":"Autos/Vida/Gastos Medicos/Danos","subramo":"","primaNeta":0,"primaTotal":0,"gastosExpedicion":0,"frecuencia":"Anual","inicio":"YYYY-MM-DD","vencimiento":"YYYY-MM-DD","coberturas":["cobertura1","cobertura2"],"notas":""}'
+        "Busca especificamente: numero de poliza, endoso, nombre completo del cliente, RFC del cliente, aseguradora, ramo, subramo, forma de pago (contado/anual/semestral/trimestral/mensual), prima neta, gastos de expedicion, porcentaje de IVA, monto de IVA, prima total (con IVA), fecha inicio vigencia, fecha fin vigencia, coberturas, gestor de cobro/clave agente, moneda, recargo pago fraccionado.",
+        "Formato JSON exacto a usar:",
+        '{"numero":"","endoso":"","cliente":"","rfcCliente":"","aseguradora":"","ramo":"Autos/Vida/Gastos Medicos/Danos/Accidentes","subramo":"","formaPago":"Contado","frecuencia":"Anual","moneda":"MXN","gestorCobro":"","primaNeta":0,"gastosExpedicion":0,"recargoPago":0,"porcentajeIva":16,"montoIva":0,"primaTotal":0,"inicio":"YYYY-MM-DD","vencimiento":"YYYY-MM-DD","coberturas":["cobertura1"],"notas":""}'
       ].join(" ");
 
       const res=await fetch("/api/anthropic",{

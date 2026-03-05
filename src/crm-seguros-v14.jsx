@@ -505,6 +505,106 @@ const FORM_CLIENTE_INIT = {
   calle:"", numero:"", colonia:"", cp:"", ciudad:"", estado:"",
 };
 
+// ═══════════════════════════════════════════════════════════════════
+// DETALLE CLIENTE MODAL
+// ═══════════════════════════════════════════════════════════════════
+function DetalleClienteModal({ cliente, polizas=[], onClose }) {
+  const polizasCliente = polizas.filter(p=>
+    p.clienteId===cliente.id || p.cliente===nombreCompleto(cliente)
+  );
+  const getStatusLocal = (p) => {
+    if(p.status==="cancelada") return "cancelada";
+    const hoy=new Date(); hoy.setHours(0,0,0,0);
+    if(!p.vencimiento) return p.status||"activa";
+    const fv=new Date(p.vencimiento.includes("/")?p.vencimiento.split("/").reverse().join("-"):p.vencimiento);
+    fv.setHours(0,0,0,0);
+    const diff=Math.round((fv-hoy)/86400000);
+    if(diff<0) return "vencida";
+    if(diff<=10) return "por vencer";
+    return "activa";
+  };
+  const stColors={activa:"#059669","por vencer":"#d97706",vencida:"#dc2626",cancelada:"#6b7280"};
+  const stLabels={activa:"✓ Vigente","por vencer":"⚠ Por vencer",vencida:"✗ Vencida",cancelada:"○ Cancelada"};
+
+  return(
+    <Modal title={nombreCompleto(cliente)} onClose={onClose} wide maxW={820}>
+      <div style={{display:"flex",flexDirection:"column",gap:18}}>
+        <div style={{background:"#f8fafc",borderRadius:12,padding:"16px 18px"}}>
+          <div style={{fontSize:11,fontWeight:800,color:"#6b7280",letterSpacing:"0.08em",marginBottom:12}}>INFORMACIÓN PERSONAL</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+            {[
+              ["Nombre",nombreCompleto(cliente)],
+              ["RFC",cliente.rfc||"—"],
+              ["Fecha de Nacimiento",cliente.fechaNacimiento||"—"],
+              ["Sexo",cliente.sexo==="M"?"Masculino":cliente.sexo==="F"?"Femenino":"—"],
+              ["Email",cliente.email||"—"],
+              ["Teléfono",cliente.telefono||"—"],
+              ["WhatsApp",cliente.whatsapp||"—"],
+              ["Ciudad",cliente.ciudad||"—"],
+              ["Estado",cliente.estado||"—"],
+            ].map(([l,v])=>(
+              <div key={l} style={{background:"#fff",borderRadius:9,padding:"9px 12px"}}>
+                <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>{l.toUpperCase()}</div>
+                <div style={{fontSize:12,fontWeight:600,color:"#111827"}}>{v}</div>
+              </div>
+            ))}
+          </div>
+          {cliente.whatsapp&&(
+            <div style={{marginTop:12}}>
+              <Btn onClick={()=>window.open("https://wa.me/52"+cliente.whatsapp.replace(/\D/g,""),"_blank")} color="#25d366" icon="whatsapp">
+                Abrir WhatsApp
+              </Btn>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <div style={{fontSize:11,fontWeight:800,color:"#6b7280",letterSpacing:"0.08em",marginBottom:10}}>
+            PÓLIZAS ({polizasCliente.length})
+          </div>
+          {polizasCliente.length===0?(
+            <div style={{background:"#f9fafb",borderRadius:10,padding:"24px",textAlign:"center",color:"#9ca3af",fontSize:13}}>
+              Este cliente no tiene pólizas registradas
+            </div>
+          ):(
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {polizasCliente.map(p=>{
+                const st=getStatusLocal(p);
+                const stColor=stColors[st]||"#6b7280";
+                const pagada=p.ultimoPago||p.comisionPagada;
+                return(
+                  <div key={p.id} style={{background:"#fff",borderRadius:10,border:"1.5px solid #e5e7eb",padding:"12px 15px",
+                    display:"grid",gridTemplateColumns:"auto 1fr auto auto auto",gap:12,alignItems:"center"}}>
+                    <div style={{width:10,height:10,borderRadius:"50%",background:stColor,flexShrink:0}}/>
+                    <div>
+                      <div style={{fontWeight:700,fontSize:12,color:"#111827",fontFamily:"monospace"}}>{p.numero||"Sin número"}</div>
+                      <div style={{fontSize:11,color:"#6b7280",marginTop:1}}>{p.ramo}{p.subramo?" · "+p.subramo:""} · {p.aseguradora}</div>
+                    </div>
+                    <div style={{textAlign:"right"}}>
+                      <div style={{fontSize:11,color:"#9ca3af"}}>Vigencia</div>
+                      <div style={{fontSize:11,fontWeight:600,color:"#374151"}}>{p.inicio||"—"} → {p.vencimiento||"—"}</div>
+                    </div>
+                    <div style={{textAlign:"right"}}>
+                      <div style={{fontSize:11,color:"#9ca3af"}}>Prima</div>
+                      <div style={{fontSize:12,fontWeight:700,color:"#059669"}}>{p.primaTotal?"$"+Number(p.primaTotal).toLocaleString():(p.prima?"$"+Number(p.prima).toLocaleString():"—")}</div>
+                    </div>
+                    <div style={{display:"flex",flexDirection:"column",gap:4,alignItems:"flex-end"}}>
+                      <span style={{background:stColor+"20",color:stColor,padding:"2px 8px",borderRadius:6,fontSize:10,fontWeight:700,whiteSpace:"nowrap"}}>{stLabels[st]}</span>
+                      <span style={{background:pagada?"#f0fdf4":"#fef2f2",color:pagada?"#059669":"#dc2626",padding:"2px 8px",borderRadius:6,fontSize:10,fontWeight:700}}>
+                        {pagada?"✓ Pagada":"⏳ Pendiente"}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
 function Clientes({ clientes, setClientes, polizas=[] }) {
   const [busqueda, setBusqueda] = useState("");
   const [viewModeC, setViewModeC] = useState("cards");
@@ -719,22 +819,11 @@ function Clientes({ clientes, setClientes, polizas=[] }) {
       )}
 
       {/* Detalle cliente */}
-      {showDetalle&&(()=>{
-        const polizasCliente = polizas.filter(p=>p.clienteId===showDetalle.id || p.cliente===nombreCompleto(showDetalle));
-        const getStatusLocal = (p) => {
-          if(p.status==="cancelada") return "cancelada";
-          const hoy=new Date(); hoy.setHours(0,0,0,0);
-          if(!p.vencimiento) return p.status||"activa";
-          const fv=new Date(p.vencimiento.includes("/")?p.vencimiento.split("/").reverse().join("-"):p.vencimiento);
-          fv.setHours(0,0,0,0);
-          const diff=Math.round((fv-hoy)/86400000);
-          if(diff<0) return "vencida";
-          if(diff<=10) return "por vencer";
-          return "activa";
-        };
-        const stColors={activa:"#059669","por vencer":"#d97706",vencida:"#dc2626",cancelada:"#6b7280"};
-        const stLabels={activa:"✓ Vigente","por vencer":"⚠ Por vencer",vencida:"✗ Vencida",cancelada:"○ Cancelada"};
-        return(
+      {showDetalle&&<DetalleClienteModal
+        cliente={showDetalle}
+        polizas={polizas}
+        onClose={()=>setShowDetalle(null)}
+      />}
         <Modal title={`${nombreCompleto(showDetalle)}`} onClose={()=>setShowDetalle(null)} wide maxW={820}>
           <div style={{display:"flex",flexDirection:"column",gap:18}}>
 
@@ -813,8 +902,7 @@ function Clientes({ clientes, setClientes, polizas=[] }) {
             </div>
           </div>
         </Modal>
-        );
-      })()}
+
     </div>
   );
 }
@@ -4148,56 +4236,62 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
       )}
 
       {/* ── MODAL REGISTRAR PAGO COMISIÓN ── */}
-      {showComision&&(()=>{
-        const sa = subagentes.find(s=>s.id===showComision.subagenteId);
-        const {bruta,isr,neta} = calcComision(showComision);
-        const [fecha, setFecha] = useState(new Date().toISOString().slice(0,10));
-        return (
-          <Modal title="Registrar Pago de Comisión" onClose={()=>setShowComision(null)}>
-            <div style={{display:"flex",flexDirection:"column",gap:14}}>
-              <div style={{background:"#faf5ff",borderRadius:10,padding:"12px 14px"}}>
-                <div style={{fontSize:11,color:"#9ca3af",fontWeight:700,marginBottom:4}}>SUBAGENTE</div>
-                <div style={{fontSize:14,fontWeight:800,color:"#5b21b6"}}>{sa?`${sa.nombre} ${sa.apellidoPaterno}`:""}</div>
-                <div style={{fontSize:12,color:"#7c3aed",marginTop:2}}>Póliza: {showComision.numero} · {showComision.cliente}</div>
-              </div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
-                {[["Com. Bruta",fmtMXN(bruta),"#374151"],["ISR (10%)","-"+fmtMXN(isr),"#dc2626"],["Com. Neta",fmtMXN(neta),"#059669"]].map(([l,v,c])=>(
-                  <div key={l} style={{textAlign:"center",background:"#f9fafb",borderRadius:9,padding:"10px"}}>
-                    <div style={{fontSize:15,fontWeight:900,color:c,fontFamily:"'Playfair Display',serif"}}>{v}</div>
-                    <div style={{fontSize:9,color:"#9ca3af",fontWeight:700}}>{l}</div>
-                  </div>
-                ))}
-              </div>
-              {!showComision.comisionPagada ? (
-                <>
-                  <div>
-                    <label style={{fontSize:12,fontWeight:700,color:"#374151",display:"block",marginBottom:5}}>Fecha de pago *</label>
-                    <input type="date" value={fecha} onChange={e=>setFecha(e.target.value)}
-                      style={{border:"1.5px solid #e5e7eb",borderRadius:9,padding:"8px 12px",fontSize:13,outline:"none",fontFamily:"inherit",width:"100%",boxSizing:"border-box"}}/>
-                  </div>
-                  <Btn onClick={()=>{
-                    setPolizas(prev => prev.map(p =>
-                      p.id===showComision.id
-                        ? {...p, comisionPagada:true, fechaPagoComision:fecha}
-                        : p
-                    ));
-                    setShowComision(null);
-                  }} color="#059669" icon="check" style={{width:"100%",justifyContent:"center"}}>
-                    ✓ Confirmar pago de {fmtMXN(neta)}
-                  </Btn>
-                </>
-              ) : (
-                <div style={{background:"#f0fdf4",borderRadius:10,padding:"12px 14px",textAlign:"center"}}>
-                  <div style={{fontSize:20,marginBottom:4}}>✅</div>
-                  <div style={{fontWeight:700,color:"#059669"}}>Comisión ya registrada como pagada</div>
-                  {showComision.fechaPagoComision&&<div style={{fontSize:12,color:"#6b7280",marginTop:4}}>Fecha: {showComision.fechaPagoComision}</div>}
-                </div>
-              )}
-            </div>
-          </Modal>
-        );
-      })()}
+      {showComision&&<ModalPagoComision
+        poliza={showComision}
+        subagentes={subagentes}
+        calcComision={calcComision}
+        fmtMXN={fmtMXN}
+        onPagar={(id,fecha)=>{
+          setPolizas(prev=>prev.map(p=>p.id===id?{...p,comisionPagada:true,fechaPagoComision:fecha}:p));
+          setShowComision(null);
+        }}
+        onClose={()=>setShowComision(null)}
+      />}
     </div>
+  );
+}
+
+// ─── Modal Pago Comisión ─────────────────────────────────────────
+function ModalPagoComision({ poliza, subagentes, calcComision, fmtMXN, onPagar, onClose }) {
+  const [fecha, setFecha] = useState(new Date().toISOString().slice(0,10));
+  const sa = subagentes.find(s=>s.id===poliza.subagenteId);
+  const {bruta,isr,neta} = calcComision(poliza);
+  return (
+    <Modal title="Registrar Pago de Comisión" onClose={onClose}>
+      <div style={{display:"flex",flexDirection:"column",gap:14}}>
+        <div style={{background:"#faf5ff",borderRadius:10,padding:"12px 14px"}}>
+          <div style={{fontSize:11,color:"#9ca3af",fontWeight:700,marginBottom:4}}>SUBAGENTE</div>
+          <div style={{fontSize:14,fontWeight:800,color:"#5b21b6"}}>{sa?sa.nombre+" "+sa.apellidoPaterno:""}</div>
+          <div style={{fontSize:12,color:"#7c3aed",marginTop:2}}>Póliza: {poliza.numero} · {poliza.cliente}</div>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
+          {[["Com. Bruta",fmtMXN(bruta),"#374151"],["ISR (10%)","-"+fmtMXN(isr),"#dc2626"],["Com. Neta",fmtMXN(neta),"#059669"]].map(([l,v,c])=>(
+            <div key={l} style={{textAlign:"center",background:"#f9fafb",borderRadius:9,padding:"10px"}}>
+              <div style={{fontSize:15,fontWeight:900,color:c,fontFamily:"'Playfair Display',serif"}}>{v}</div>
+              <div style={{fontSize:9,color:"#9ca3af",fontWeight:700}}>{l}</div>
+            </div>
+          ))}
+        </div>
+        {!poliza.comisionPagada ? (
+          <>
+            <div>
+              <label style={{fontSize:12,fontWeight:700,color:"#374151",display:"block",marginBottom:5}}>Fecha de pago *</label>
+              <input type="date" value={fecha} onChange={e=>setFecha(e.target.value)}
+                style={{border:"1.5px solid #e5e7eb",borderRadius:9,padding:"8px 12px",fontSize:13,outline:"none",fontFamily:"inherit",width:"100%",boxSizing:"border-box"}}/>
+            </div>
+            <Btn onClick={()=>onPagar(poliza.id,fecha)} color="#059669" icon="check" style={{width:"100%",justifyContent:"center"}}>
+              Confirmar pago de {fmtMXN(neta)}
+            </Btn>
+          </>
+        ) : (
+          <div style={{background:"#f0fdf4",borderRadius:10,padding:"12px 14px",textAlign:"center"}}>
+            <div style={{fontSize:20,marginBottom:4}}>✅</div>
+            <div style={{fontWeight:700,color:"#059669"}}>Comisión ya registrada como pagada</div>
+            {poliza.fechaPagoComision&&<div style={{fontSize:12,color:"#6b7280",marginTop:4}}>Fecha: {poliza.fechaPagoComision}</div>}
+          </div>
+        )}
+      </div>
+    </Modal>
   );
 }
 

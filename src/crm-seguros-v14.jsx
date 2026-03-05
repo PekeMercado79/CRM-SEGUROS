@@ -2254,12 +2254,100 @@ function Polizas({ polizas, setPolizas, clientes, subagentes, setSubagentes }) {
 
 
 // ── Lector IA ─────────────────────────────────────────────────────
+// ─── Resultado editable del escáner IA ──────────────────────────
+function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, onVolver, onConfirmar }) {
+  // Separar número y endoso si vienen juntos (ej: "2671100004205/24")
+  useEffect(()=>{
+    if(result && !editResult) {
+      const numRaw = result.numero||"";
+      const slashIdx = numRaw.indexOf("/");
+      const numSolo = slashIdx>=0 ? numRaw.slice(0,slashIdx) : numRaw;
+      const endosoSolo = slashIdx>=0 ? numRaw.slice(slashIdx+1) : (result.endoso||"");
+      setEditResult({
+        ...result,
+        numero: numSolo,
+        endoso: endosoSolo,
+        primaTotal: result.primaTotal||result.prima||0,
+      });
+    }
+  },[result]);
+
+  const er = editResult || result;
+  const upd = (k,v) => setEditResult(p=>({...(p||result),[k]:v}));
+  const inpStyle = {border:"1.5px solid #e5e7eb",borderRadius:8,padding:"7px 10px",fontSize:13,outline:"none",fontFamily:"inherit",width:"100%",boxSizing:"border-box",background:"#fff"};
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <div style={{background:"#f0fdf4",borderRadius:10,padding:"10px 14px",color:"#065f46",fontWeight:600,fontSize:13}}>✅ Datos extraídos — revisa y edita si es necesario</div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>NÚMERO DE PÓLIZA</div>
+          <input value={er.numero||""} onChange={e=>upd("numero",e.target.value)} style={inpStyle} placeholder="Número sin endoso"/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>ENDOSO</div>
+          <input value={er.endoso||""} onChange={e=>upd("endoso",e.target.value)} style={inpStyle} placeholder="0"/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>CLIENTE</div>
+          <input value={er.cliente||""} onChange={e=>upd("cliente",e.target.value)} style={inpStyle}/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>ASEGURADORA</div>
+          <input value={er.aseguradora||""} onChange={e=>upd("aseguradora",e.target.value)} style={inpStyle}/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>RAMO</div>
+          <input value={er.ramo||""} onChange={e=>upd("ramo",e.target.value)} style={inpStyle}/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>SUBRAMO</div>
+          <input value={er.subramo||""} onChange={e=>upd("subramo",e.target.value)} style={inpStyle}/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>PRIMA NETA</div>
+          <input value={er.primaNeta||""} onChange={e=>upd("primaNeta",e.target.value)} style={inpStyle} placeholder="0.00"/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>PRIMA TOTAL</div>
+          <input value={er.primaTotal||""} onChange={e=>upd("primaTotal",e.target.value)} style={inpStyle} placeholder="0.00"/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>INICIO VIGENCIA</div>
+          <input value={er.inicio||""} onChange={e=>upd("inicio",e.target.value)} style={inpStyle} placeholder="YYYY-MM-DD"/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>FIN VIGENCIA</div>
+          <input value={er.vencimiento||""} onChange={e=>upd("vencimiento",e.target.value)} style={inpStyle} placeholder="YYYY-MM-DD"/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>FORMA DE PAGO</div>
+          <input value={er.frecuencia||""} onChange={e=>upd("frecuencia",e.target.value)} style={inpStyle}/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>GASTOS EXPEDICIÓN</div>
+          <input value={er.gastosExpedicion||""} onChange={e=>upd("gastosExpedicion",e.target.value)} style={inpStyle} placeholder="0.00"/>
+        </div>
+      </div>
+      {er.coberturas?.length>0&&<div style={{background:"#f9fafb",borderRadius:9,padding:"10px 12px"}}>
+        <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:7}}>COBERTURAS DETECTADAS</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:5}}>{er.coberturas.map(c=><span key={c} style={{background:"#dbeafe",color:"#1e40af",fontSize:11,padding:"3px 9px",borderRadius:20}}>{c}</span>)}</div>
+      </div>}
+      <div style={{display:"flex",gap:10}}>
+        <button onClick={onVolver} style={{flex:1,background:"#f3f4f6",border:"none",borderRadius:9,padding:11,cursor:"pointer",fontFamily:"inherit",fontWeight:600,fontSize:13}}>← Volver</button>
+        <Btn onClick={()=>onConfirmar(er)} color="#059669" style={{flex:2,justifyContent:"center"}}>Confirmar y guardar ✓</Btn>
+      </div>
+    </div>
+  );
+}
+
 function ScanPoliza({ onClose, onExtracted }) {
   const [step,setStep]=useState("upload");
   const [dragOver,setDragOver]=useState(false);
   const [fileName,setFileName]=useState("");
   const [fileData,setFileData]=useState(null);
   const [result,setResult]=useState(null);
+  const [editResult,setEditResult]=useState(null);
   const [error,setError]=useState("");
   const fileRef=useRef();
 
@@ -2332,27 +2420,18 @@ function ScanPoliza({ onClose, onExtracted }) {
           </div>
         </div>
       )}
-      {step==="result"&&result&&(
-        <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          <div style={{background:"#f0fdf4",borderRadius:10,padding:"10px 14px",color:"#065f46",fontWeight:600,fontSize:13}}>✅ Datos extraídos — revisa y confirma</div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
-            {[["Número",result.numero],["Cliente",result.cliente],["Aseguradora",result.aseguradora],["Ramo",result.ramo],["Subramo",result.subramo],["Prima Total",result.primaTotal?`$${Number(result.primaTotal).toLocaleString()}`:(result.prima?`$${Number(result.prima).toLocaleString()}`:"")],["Frecuencia",result.frecuencia],["Inicio",result.inicio],["Vencimiento",result.vencimiento]].map(([l,v])=>v?(
-              <div key={l} style={{background:"#f9fafb",borderRadius:9,padding:"9px 11px"}}>
-                <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:2}}>{l.toUpperCase()}</div>
-                <div style={{fontSize:13,fontWeight:600}}>{v}</div>
-              </div>
-            ):null)}
-          </div>
-          {result.coberturas?.length>0&&<div style={{background:"#f9fafb",borderRadius:9,padding:"10px 12px"}}>
-            <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:7}}>COBERTURAS</div>
-            <div style={{display:"flex",flexWrap:"wrap",gap:5}}>{result.coberturas.map(c=><span key={c} style={{background:"#dbeafe",color:"#1e40af",fontSize:11,padding:"3px 9px",borderRadius:20}}>{c}</span>)}</div>
-          </div>}
-          <div style={{display:"flex",gap:10}}>
-            <button onClick={()=>setStep("upload")} style={{flex:1,background:"#f3f4f6",border:"none",borderRadius:9,padding:11,cursor:"pointer",fontFamily:"inherit",fontWeight:600,fontSize:13}}>← Volver</button>
-            <Btn onClick={()=>onExtracted(result, fileData ? {base64full: "data:"+fileData.type+";base64,"+fileData.base64, nombre: fileName, tipo: fileData.type} : null)} color="#059669" style={{flex:2,justifyContent:"center"}}>Confirmar y agregar ✓</Btn>
-          </div>
-        </div>
-      )}
+      {step==="result"&&result&&<ResultadoScan
+        result={result}
+        editResult={editResult}
+        setEditResult={setEditResult}
+        fileData={fileData}
+        fileName={fileName}
+        onVolver={()=>{setStep("upload");setEditResult(null);}}
+        onConfirmar={(er)=>{
+          onExtracted(er, fileData ? {base64full:"data:"+fileData.type+";base64,"+fileData.base64,nombre:fileName,tipo:fileData.type} : null);
+          setEditResult(null);
+        }}
+      />}
     </Modal>
   );
 }

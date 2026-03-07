@@ -1648,63 +1648,86 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
 // VISOR DE DOCUMENTO DE PÓLIZA
 // ═══════════════════════════════════════════════════════════════════
 function DocumentoVisor({ src, nombre, tipo }) {
-  const [expandido, setExpandido] = useState(false);
+  const [abierto, setAbierto] = useState(false);
   const esPDF = tipo === "application/pdf" || nombre?.toLowerCase().endsWith(".pdf");
   const esImagen = /image\//i.test(tipo) || /\.(jpg|jpeg|png|webp|gif)$/i.test(nombre||"");
+  const srcLimpio = esPDF ? `${src}#toolbar=0&navpanes=0&scrollbar=0&view=FitH` : src;
 
   return (
-    <div style={{background:"#f0f6ff",borderRadius:12,border:"1.5px solid #bfdbfe",overflow:"hidden"}}>
-      {/* Barra superior del visor */}
-      <div style={{background:"#1e40af",padding:"10px 16px",display:"flex",alignItems:"center",gap:10}}>
-        <span style={{fontSize:18}}>{esPDF?"📄":"🖼️"}</span>
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:12,fontWeight:700,color:"#fff",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{nombre||"Documento de póliza"}</div>
-          <div style={{fontSize:10,color:"#93c5fd"}}>{esPDF?"PDF":"Imagen"} · {expandido?"Vista completa":"Vista previa"}</div>
-        </div>
-        <div style={{display:"flex",gap:7,flexShrink:0}}>
-          <button onClick={()=>setExpandido(e=>!e)}
-            style={{background:"rgba(255,255,255,0.15)",border:"none",borderRadius:7,padding:"5px 12px",
-              fontSize:11,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
-            {expandido?"⊖ Reducir":"⊕ Expandir"}
-          </button>
-          <a href={src} download={nombre||"poliza"}
-            style={{background:"rgba(255,255,255,0.15)",borderRadius:7,padding:"5px 12px",
-              fontSize:11,fontWeight:700,color:"#fff",textDecoration:"none",display:"inline-flex",alignItems:"center",gap:4}}>
-            ⬇ Descargar
-          </a>
-        </div>
-      </div>
+    <>
+      {/* Botón ojo */}
+      <button
+        onClick={()=>setAbierto(true)}
+        title="Ver documento de póliza"
+        style={{display:"inline-flex",alignItems:"center",gap:8,background:"#eff6ff",
+          border:"1.5px solid #bfdbfe",borderRadius:9,padding:"8px 18px",cursor:"pointer",
+          fontFamily:"inherit",fontWeight:700,fontSize:13,color:"#1d4ed8"}}
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        Ver documento
+      </button>
 
-      {/* Contenido visor */}
-      <div style={{background:"#fff",position:"relative"}}>
-        {esPDF ? (
-          <iframe
-            src={src}
-            title={nombre||"Póliza"}
-            style={{width:"100%",height:expandido?"780px":"420px",border:"none",display:"block",transition:"height .3s"}}
-          />
-        ) : esImagen ? (
-          <div style={{padding:"12px",textAlign:"center",background:"#f9fafb"}}>
-            <img
-              src={src}
-              alt={nombre||"Póliza"}
-              style={{maxWidth:"100%",height:expandido?"auto":"380px",objectFit:"contain",borderRadius:8,
-                boxShadow:"0 2px 12px rgba(0,0,0,0.1)",transition:"height .3s",cursor:"pointer"}}
-              onClick={()=>setExpandido(e=>!e)}
-            />
-            {!expandido&&(
-              <div style={{fontSize:11,color:"#9ca3af",marginTop:6}}>Haz clic en la imagen para ampliar</div>
+      {/* Modal de pantalla completa */}
+      {abierto&&(
+        <div onClick={()=>setAbierto(false)}
+          style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.88)",zIndex:9999,
+            display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"16px"}}>
+
+          {/* Barra superior */}
+          <div onClick={e=>e.stopPropagation()}
+            style={{width:"100%",maxWidth:960,display:"flex",alignItems:"center",
+              justifyContent:"space-between",marginBottom:10,padding:"0 4px"}}>
+            <span style={{color:"#fff",fontWeight:700,fontSize:13,
+              overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:"65%"}}>
+              📄 {nombre||"Documento de póliza"}
+            </span>
+            <div style={{display:"flex",gap:8}}>
+              <a href={src} download={nombre||"poliza"}
+                style={{background:"rgba(255,255,255,0.15)",borderRadius:7,padding:"6px 14px",
+                  fontSize:12,fontWeight:700,color:"#fff",textDecoration:"none",
+                  display:"inline-flex",alignItems:"center",gap:4}}>
+                ⬇ Descargar
+              </a>
+              <button onClick={()=>setAbierto(false)}
+                style={{background:"rgba(255,255,255,0.15)",border:"none",borderRadius:7,
+                  padding:"6px 14px",fontSize:12,fontWeight:700,color:"#fff",
+                  cursor:"pointer",fontFamily:"inherit"}}>
+                ✕ Cerrar
+              </button>
+            </div>
+          </div>
+
+          {/* Visor */}
+          <div onClick={e=>e.stopPropagation()}
+            style={{width:"100%",maxWidth:960,height:"85vh",borderRadius:12,
+              overflow:"hidden",boxShadow:"0 20px 60px rgba(0,0,0,0.5)"}}>
+            {esPDF ? (
+              <iframe
+                src={srcLimpio}
+                title={nombre||"Póliza"}
+                style={{width:"100%",height:"100%",border:"none",display:"block"}}
+              />
+            ) : esImagen ? (
+              <div style={{height:"100%",background:"#111",display:"flex",
+                alignItems:"center",justifyContent:"center",padding:16}}>
+                <img src={src} alt={nombre||"Póliza"}
+                  style={{maxWidth:"100%",maxHeight:"100%",objectFit:"contain",borderRadius:8}}/>
+              </div>
+            ) : (
+              <div style={{height:"100%",background:"#fff",display:"flex",flexDirection:"column",
+                alignItems:"center",justifyContent:"center",gap:12,color:"#6b7280"}}>
+                <div style={{fontSize:40}}>📎</div>
+                <div style={{fontSize:14,fontWeight:600}}>No se puede previsualizar</div>
+                <a href={src} download={nombre} style={{color:"#2563eb",fontSize:13}}>Descargar archivo</a>
+              </div>
             )}
           </div>
-        ) : (
-          <div style={{padding:"30px",textAlign:"center",color:"#6b7280"}}>
-            <div style={{fontSize:32,marginBottom:8}}>📎</div>
-            <div style={{fontSize:13,fontWeight:600}}>Documento adjunto</div>
-            <a href={src} download={nombre} style={{color:"#2563eb",fontSize:12}}>Descargar archivo</a>
-          </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </>
   );
 }
 

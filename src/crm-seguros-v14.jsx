@@ -2090,6 +2090,30 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
               </div>
             )}
 
+            {/* GMM condiciones */}
+            {polizaDetalle.ramo==="Gastos Médicos"&&(polizaDetalle.planGMM||polizaDetalle.sumaAsegurada||polizaDetalle.deducibleGMM)&&(
+              <div style={{background:"#f0fdf4",borderRadius:10,padding:"12px 14px"}}>
+                <div style={{fontSize:10,fontWeight:800,color:"#065f46",marginBottom:10}}>🏥 CONDICIONES DEL PLAN</div>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+                  {[
+                    ["Plan",polizaDetalle.planGMM||"—"],
+                    ["Suma Asegurada",polizaDetalle.sumaAsegurada?`$${Number(polizaDetalle.sumaAsegurada).toLocaleString("es-MX")}`:polizaDetalle.sumaAsegurada||"—"],
+                    ["Deducible",polizaDetalle.deducibleGMM?`$${Number(polizaDetalle.deducibleGMM).toLocaleString("es-MX")}`:polizaDetalle.deducibleGMM||"—"],
+                    ["Coaseguro",polizaDetalle.coaseguroGMM?`${polizaDetalle.coaseguroGMM}%`:"—"],
+                    ["Tope Coaseguro",polizaDetalle.topeCoaseguroGMM?`$${Number(polizaDetalle.topeCoaseguroGMM).toLocaleString("es-MX")}`:polizaDetalle.topeCoaseguroGMM||"—"],
+                    ["Zona",polizaDetalle.zonaGMM||"—"],
+                    ["Red Hospitalaria",polizaDetalle.hospitalGMM||"—"],
+                    ["Tabulador",polizaDetalle.tabuladorGMM||"—"],
+                  ].map(([l,v])=>(
+                    <div key={l} style={{background:"#fff",borderRadius:8,padding:"8px 10px"}}>
+                      <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>{l.toUpperCase()}</div>
+                      <div style={{fontSize:12,fontWeight:700,color:"#065f46"}}>{v}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* GMM asegurados */}
             {polizaDetalle.ramo==="Gastos Médicos"&&polizaDetalle.aseguradosGMM?.length>0&&(
               <div style={{background:"#f0fdf4",borderRadius:10,padding:"12px 14px"}}>

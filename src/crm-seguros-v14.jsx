@@ -1697,7 +1697,7 @@ function DocumentoVisor({ src, nombre, tipo }) {
   );
 }
 
-function Polizas({ polizas, setPolizas, clientes, subagentes, setSubagentes }) {
+function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSubagentes }) {
   const [filtro, setFiltro] = useState("todas");
   const [filtroRamo, setFiltroRamo] = useState("todos");
   const [showModal, setShowModal] = useState(false);
@@ -4398,7 +4398,7 @@ export default function CRMSeguros() {
       <div style={{flex:1,overflowY:"auto",padding:"28px 32px"}}>
         {vista==="dashboard"&&<Dashboard clientes={clientes} polizas={polizas} pipeline={pipeline} tareas={tareas} paiMetas={paiMetas}/>}
         {vista==="clientes"&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas}/>}
-        {vista==="polizas"&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} subagentes={subagentes} setSubagentes={setSubagentes}/>}
+        {vista==="polizas"&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes}/>}
         {vista==="notificaciones"&&<Notificaciones polizas={polizas}/>}
         {vista==="pai"&&<PAI paiMetas={paiMetas} setPaiMetas={setPaiMetas}/>}
         {vista==="pipeline"&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}

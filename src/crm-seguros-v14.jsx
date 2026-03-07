@@ -1842,6 +1842,8 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
       primaTotal: parseFloat(data.primaTotal) || parseFloat(data.prima) || 0,
       moneda: data.moneda || "MXN",
       gestorCobro: data.gestorCobro || "",
+      agentePoliza: data.agentePoliza || "",
+      beneficiarioPreferente: data.beneficiarioPreferente || data.beneficiario || "",
       coberturas: Array.isArray(data.coberturas) ? data.coberturas : [],
       pagos: [],
       documentoPoliza: docData?.base64full || null,
@@ -2287,6 +2289,8 @@ function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, 
         numero: numSolo,
         endoso: endosoSolo,
         primaTotal: result.primaTotal||result.prima||0,
+        agentePoliza: result.agentePoliza||"",
+        beneficiarioPreferente: result.beneficiarioPreferente||result.beneficiario||"",
       });
     }
   },[result]);
@@ -2408,9 +2412,10 @@ function ScanPoliza({ onClose, onExtracted }) {
         "Extrae TODOS los datos del documento y responde UNICAMENTE con un objeto JSON valido.",
         "NO uses markdown, NO uses comillas especiales, NO agregues texto antes ni despues del JSON.",
         "Usa solo caracteres ASCII en los valores cuando sea posible.",
-        "Busca especificamente: numero de poliza, endoso, nombre completo del cliente, RFC del cliente, aseguradora, ramo, subramo, forma de pago (contado/anual/semestral/trimestral/mensual), prima neta, gastos de expedicion, porcentaje de IVA, monto de IVA, prima total (con IVA), fecha inicio vigencia, fecha fin vigencia, coberturas, gestor de cobro/clave agente, moneda, recargo pago fraccionado.",
-        "Formato JSON exacto a usar:",
-        '{"numero":"","endoso":"","cliente":"","rfcCliente":"","aseguradora":"","ramo":"Autos/Vida/Gastos Medicos/Danos/Accidentes","subramo":"","formaPago":"Contado","frecuencia":"Anual","moneda":"MXN","gestorCobro":"","primaNeta":0,"gastosExpedicion":0,"recargoPago":0,"porcentajeIva":16,"montoIva":0,"primaTotal":0,"inicio":"YYYY-MM-DD","vencimiento":"YYYY-MM-DD","coberturas":["cobertura1"],"notas":""}'
+        "IMPORTANTE: El numero de poliza suele aparecer como 'No. de Poliza', 'Poliza No.', 'Numero de Poliza', 'Policy Number' o similar. Busca bien ese campo.",
+        "Busca especificamente: numero de poliza, endoso, nombre completo del cliente/contratante, RFC del cliente, aseguradora, ramo (Autos/Vida/Gastos Medicos/Danos), subramo, forma de pago, prima neta, gastos de expedicion, porcentaje IVA, monto IVA, prima total con IVA, fecha inicio vigencia (YYYY-MM-DD), fecha fin vigencia (YYYY-MM-DD), coberturas, gestor de cobro o clave agente, nombre del agente, moneda, recargo pago fraccionado, beneficiario.",
+        "Formato JSON exacto:",
+        '{"numero":"","endoso":"","cliente":"","rfcCliente":"","aseguradora":"","ramo":"Autos/Vida/Gastos Medicos/Danos","subramo":"","formaPago":"Anual","moneda":"MXN","gestorCobro":"","agentePoliza":"","beneficiarioPreferente":"","primaNeta":0,"gastosExpedicion":0,"recargoPago":0,"porcentajeIva":16,"montoIva":0,"primaTotal":0,"inicio":"YYYY-MM-DD","vencimiento":"YYYY-MM-DD","coberturas":["cobertura1"],"notas":""}'
       ].join(" ");
 
       const res=await fetch("/api/anthropic",{

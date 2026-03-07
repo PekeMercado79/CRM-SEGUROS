@@ -2291,13 +2291,13 @@ function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, 
           <input value={er.moneda||"MXN"} onChange={e=>upd("moneda",e.target.value)} style={inpStyle}/>
         </div>
       </div>
-      {er.coberturas?.length>0&&<div style={{background:"#f9fafb",borderRadius:9,padding:"10px 12px"}}>
+      {(er.coberturas||[]).length>0&&<div style={{background:"#f9fafb",borderRadius:9,padding:"10px 12px"}}>
         <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:7}}>COBERTURAS DETECTADAS</div>
-        <div style={{display:"flex",flexWrap:"wrap",gap:5}}>{er.coberturas.map(c=><span key={c} style={{background:"#dbeafe",color:"#1e40af",fontSize:11,padding:"3px 9px",borderRadius:20}}>{c}</span>)}</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:5}}>{(er.coberturas||[]).map((c,i)=><span key={i} style={{background:"#dbeafe",color:"#1e40af",fontSize:11,padding:"3px 9px",borderRadius:20}}>{c}</span>)}</div>
       </div>}
       <div style={{display:"flex",gap:10}}>
         <button onClick={onVolver} style={{flex:1,background:"#f3f4f6",border:"none",borderRadius:9,padding:11,cursor:"pointer",fontFamily:"inherit",fontWeight:600,fontSize:13}}>← Volver</button>
-        <Btn onClick={()=>onConfirmar(er)} color="#059669" style={{flex:2,justifyContent:"center"}}>Confirmar y guardar ✓</Btn>
+        <Btn onClick={()=>onConfirmar(editResult || result)} color="#059669" style={{flex:2,justifyContent:"center"}}>Confirmar y guardar ✓</Btn>
       </div>
     </div>
   );

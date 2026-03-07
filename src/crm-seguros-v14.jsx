@@ -1737,6 +1737,26 @@ function DocumentoVisor({ src, nombre, tipo }) {
   );
 }
 
+function DocAdjunto({ poliza, onSubir }) {
+  const ref = useRef();
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:10,padding:"6px 0"}}>
+      {poliza.documentoPoliza ? (
+        <DocumentoVisor src={poliza.documentoPoliza} nombre={poliza.documentoNombre} tipo={poliza.documentoTipo}/>
+      ) : (
+        <>
+          <input type="file" accept=".pdf,image/*" style={{display:"none"}} ref={ref} onChange={e=>{if(e.target.files[0])onSubir(e.target.files[0]);}}/>
+          <button onClick={()=>ref.current.click()}
+            style={{display:"inline-flex",alignItems:"center",gap:8,background:"#f8fafc",border:"1.5px dashed #d1d5db",
+              borderRadius:9,padding:"8px 18px",cursor:"pointer",fontFamily:"inherit",fontWeight:600,fontSize:13,color:"#6b7280"}}>
+            📎 Adjuntar documento de póliza (PDF o imagen)
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSubagentes }) {
   const [filtro, setFiltro] = useState("todas");
   const [filtroRamo, setFiltroRamo] = useState("todos");
@@ -2095,11 +2115,11 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                 ["Agente", polizaDetalle.agentePoliza||"—"],
                 ["Vigencia Inicio", polizaDetalle.inicio||"—"],
                 ["Vigencia Fin", polizaDetalle.vencimiento||"—"],
-                ["Prima Neta", polizaDetalle.primaNeta?`$${Number(polizaDetalle.primaNeta).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],
-                ["Gastos Expedición", polizaDetalle.gastosExpedicion?`$${Number(polizaDetalle.gastosExpedicion).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],
-                ["% IVA", polizaDetalle.porcentajeIva!=null?`${polizaDetalle.porcentajeIva}%`:"—"],
-                ["Monto IVA", polizaDetalle.montoIva?`$${Number(polizaDetalle.montoIva).toLocaleString("es-MX",{minimumFractionDigits:2})}`:(polizaDetalle.iva?`$${Number(polizaDetalle.iva).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—")],
-                ["Prima Total", polizaDetalle.primaTotal?`$${Number(polizaDetalle.primaTotal).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],
+                ["Prima Neta", polizaDetalle.primaNeta!=null&&polizaDetalle.primaNeta!==""?`$${Number(polizaDetalle.primaNeta).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],
+                ["Gastos Expedición", polizaDetalle.gastosExpedicion!=null&&polizaDetalle.gastosExpedicion!==""?`$${Number(polizaDetalle.gastosExpedicion).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],
+                ["% IVA", polizaDetalle.porcentajeIva!=null&&polizaDetalle.porcentajeIva!==""?`${polizaDetalle.porcentajeIva}%`:"—"],
+                ["Monto IVA", polizaDetalle.montoIva!=null&&polizaDetalle.montoIva!==""?`$${Number(polizaDetalle.montoIva).toLocaleString("es-MX",{minimumFractionDigits:2})}`:(polizaDetalle.iva!=null&&polizaDetalle.iva!==""?`$${Number(polizaDetalle.iva).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—")],
+                ["Prima Total", polizaDetalle.primaTotal!=null&&polizaDetalle.primaTotal!==""?`$${Number(polizaDetalle.primaTotal).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],
                 ["Beneficiario", polizaDetalle.beneficiarioPreferente||"—"],
               ].map(([l,v])=>(
                 <div key={l} style={{background:"#f9fafb",borderRadius:9,padding:"9px 12px"}}>
@@ -2229,14 +2249,21 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
               <div style={{background:"#fffbeb",borderRadius:10,padding:"10px 13px",fontSize:13,color:"#92400e"}}>📝 {polizaDetalle.notas}</div>
             )}
 
-            {/* Visor documento de póliza */}
-            {polizaDetalle.documentoPoliza&&(
-              <DocumentoVisor
-                src={polizaDetalle.documentoPoliza}
-                nombre={polizaDetalle.documentoNombre}
-                tipo={polizaDetalle.documentoTipo}
-              />
-            )}
+            {/* Visor / subir documento de póliza */}
+            <DocAdjunto
+              poliza={polizaDetalle}
+              onSubir={(file)=>{
+                const r = new FileReader();
+                r.onload = ev => {
+                  setPolizas(prev => prev.map(p => p.id===polizaDetalle.id
+                    ? {...p, documentoPoliza:ev.target.result, documentoNombre:file.name, documentoTipo:file.type}
+                    : p
+                  ));
+                  setShowDetalle(d => ({...d, documentoPoliza:ev.target.result, documentoNombre:file.name, documentoTipo:file.type}));
+                };
+                r.readAsDataURL(file);
+              }}
+            />
 
             {/* Acciones del detalle */}
             {polizaDetalle._status!=="cancelada"&&(
@@ -2488,7 +2515,7 @@ function ScanPoliza({ onClose, onExtracted }) {
 // ═══════════════════════════════════════════════════════════════════
 // NOTIFICACIONES
 // ═══════════════════════════════════════════════════════════════════
-function Notificaciones({ polizas }) {
+function Notificaciones({ polizas, plantillas }) {
   const [tab,setTab]=useState("recordatorios");
   const [canal,setCanal]=useState("whatsapp");
   const [diasAntes,setDiasAntes]=useState(30);
@@ -2496,15 +2523,18 @@ function Notificaciones({ polizas }) {
   const [enviados,setEnviados]=useState([]);
   const [toast,setToast]=useState(null);
 
-  const proximasVencer=polizas.filter(p=>{
-    if(!p.vencimiento)return false;
-    const hoy=new Date();const venc=new Date(p.vencimiento);
-    const diff=Math.ceil((venc-hoy)/(1000*60*60*24));
-    return diff>=0&&diff<=diasAntes;
-  });
+  const aplicarVars = (tpl, p) => (tpl||"")
+    .replace(/{nombre}/g, p.cliente?.split(" ")[0]||p.cliente||"")
+    .replace(/{numero}/g, p.numero||"")
+    .replace(/{aseguradora}/g, p.aseguradora||"")
+    .replace(/{ramo}/g, p.subramo?`${p.ramo} › ${p.subramo}`:(p.ramo||""))
+    .replace(/{subramo}/g, p.subramo||"")
+    .replace(/{vencimiento}/g, p.vencimiento||"")
+    .replace(/{prima}/g, p.primaTotal?.toLocaleString()||p.prima?.toLocaleString()||"")
+    .replace(/{frecuencia}/g, p.formaPago||p.frecuencia||"");
 
-  const genWA=(p)=>`Hola ${p.cliente.split(" ")[0]} 👋,\n\nTe escribo de *SeguroCRM* para recordarte sobre tu póliza:\n\n📄 *Póliza:* ${p.numero}\n🏢 *Aseguradora:* ${p.aseguradora}\n🔖 *Ramo:* ${p.ramo}${p.subramo?` › ${p.subramo}`:""}\n📅 *Vencimiento:* ${p.vencimiento}\n💰 *Prima:* $${p.prima?.toLocaleString()} (${p.frecuencia})\n${p.coberturas?.length?`🛡️ *Coberturas:* ${p.coberturas.join(", ")}\n`:""}\nPara renovar contáctame 😊\n\n_Tu agente de seguros_`;
-  const genEmail=(p)=>`Estimado/a ${p.cliente},\n\nLe informamos que su póliza está próxima a vencer.\n\n══════════════════════\nDATOS DE SU PÓLIZA\n══════════════════════\n• Número: ${p.numero}\n• Aseguradora: ${p.aseguradora}\n• Ramo: ${p.ramo}${p.subramo?` › ${p.subramo}`:""}\n• Vencimiento: ${p.vencimiento}\n• Prima: $${p.prima?.toLocaleString()} (${p.frecuencia})\n${p.coberturas?.length?`• Coberturas:\n  - ${p.coberturas.join("\n  - ")}\n`:""}\nContáctenos para renovar y no quedar sin cobertura.\n\nAtentamente,\nSu Agente de Seguros — SeguroCRM`;
+  const genWA   = (p) => aplicarVars(plantillas?.vencimiento, p);
+  const genEmail= (p) => aplicarVars(plantillas?.vencimiento, p);
   const getMensaje=(p)=>canal==="whatsapp"?genWA(p):genEmail(p);
 
   const showToast=(msg)=>{setToast(msg);setTimeout(()=>setToast(null),3000);};
@@ -2617,6 +2647,152 @@ function Notificaciones({ polizas }) {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// WHATSAPP CONFIG — Módulo de plantillas de mensajes
+// ═══════════════════════════════════════════════════════════════════
+function WhatsAppConfig({ plantillas, setPlantillas, plantillasDefault, clientes, polizas }) {
+  const [activa, setActiva] = useState("vencimiento");
+  const [toast, setToast] = useState(null);
+  const [clienteDemo, setClienteDemo] = useState(null);
+
+  const showToast = (msg) => { setToast(msg); setTimeout(()=>setToast(null), 3000); };
+
+  const TIPOS = [
+    {key:"vencimiento",  label:"📅 Vencimiento",    color:"#d97706", bg:"#fffbeb", desc:"Se envía cuando una póliza está próxima a vencer"},
+    {key:"pago",         label:"💳 Pago recibido",   color:"#059669", bg:"#f0fdf4", desc:"Confirmación al registrar un pago"},
+    {key:"bienvenida",   label:"🎉 Bienvenida",      color:"#7c3aed", bg:"#f5f3ff", desc:"Al dar de alta a un cliente nuevo"},
+    {key:"renovacion",   label:"🔄 Renovación",      color:"#2563eb", bg:"#eff6ff", desc:"Al renovar una póliza"},
+    {key:"personalizado",label:"✏️ Personalizado",   color:"#6b7280", bg:"#f9fafb", desc:"Mensaje libre para cualquier ocasión"},
+  ];
+
+  const aplicarVars = (tpl, p) => (tpl||"")
+    .replace(/{nombre}/g,      p.cliente?.split(" ")[0]||"María")
+    .replace(/{numero}/g,      p.numero||"GNP-2024-001234")
+    .replace(/{aseguradora}/g, p.aseguradora||"GNP")
+    .replace(/{ramo}/g,        p.subramo?`${p.ramo} › ${p.subramo}`:(p.ramo||"Vida"))
+    .replace(/{subramo}/g,     p.subramo||"Vida Individual")
+    .replace(/{vencimiento}/g, p.vencimiento||"2025-01-15")
+    .replace(/{prima}/g,       p.primaTotal?.toLocaleString()||p.prima?.toLocaleString()||"8,400")
+    .replace(/{frecuencia}/g,  p.formaPago||p.frecuencia||"Anual");
+
+  const demoData = clienteDemo
+    ? polizas.find(p=>p.clienteId===clienteDemo.id) || {cliente:clienteDemo.nombre+" "+clienteDemo.apellidoPaterno}
+    : {cliente:"María González Ruiz",numero:"GNP-2024-001234",aseguradora:"GNP",ramo:"Vida",subramo:"Vida Individual",vencimiento:"2025-01-15",primaTotal:8400,formaPago:"Anual"};
+
+  const tipoActivo = TIPOS.find(t=>t.key===activa);
+  const vars = ["{nombre}","{numero}","{aseguradora}","{ramo}","{subramo}","{vencimiento}","{prima}","{frecuencia}"];
+
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:22}}>
+      {toast&&<div style={{position:"fixed",top:20,right:20,background:"#25d366",color:"#fff",padding:"12px 20px",borderRadius:12,fontSize:13,fontWeight:700,zIndex:9999,boxShadow:"0 8px 24px rgba(0,0,0,0.2)"}}>{toast}</div>}
+
+      <SectionTitle title="WhatsApp — Plantillas" sub="Configura los mensajes que se envían automáticamente a tus clientes"/>
+
+      <div style={{display:"grid",gridTemplateColumns:"260px 1fr",gap:20,alignItems:"start"}}>
+
+        {/* Panel izquierdo — lista de tipos */}
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {TIPOS.map(t=>(
+            <button key={t.key} onClick={()=>setActiva(t.key)}
+              style={{background:activa===t.key?t.bg:"#fff",border:`2px solid ${activa===t.key?t.color:"#e5e7eb"}`,
+                borderRadius:12,padding:"12px 14px",cursor:"pointer",fontFamily:"inherit",textAlign:"left",transition:"all .15s"}}>
+              <div style={{fontWeight:700,fontSize:13,color:activa===t.key?t.color:"#374151"}}>{t.label}</div>
+              <div style={{fontSize:11,color:"#9ca3af",marginTop:3}}>{t.desc}</div>
+            </button>
+          ))}
+
+          {/* Variables disponibles */}
+          <div style={{background:"#f8fafc",borderRadius:12,padding:"12px 14px",marginTop:8}}>
+            <div style={{fontSize:11,fontWeight:800,color:"#6b7280",marginBottom:8}}>VARIABLES DISPONIBLES</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
+              {vars.map(v=>(
+                <span key={v} onClick={()=>{
+                  const ta = document.getElementById("editor-plantilla");
+                  if(ta){const s=ta.selectionStart,e=ta.selectionEnd,val=plantillas[activa];
+                    const nuevo=val.slice(0,s)+v+val.slice(e);
+                    setPlantillas(p=>({...p,[activa]:nuevo}));
+                    setTimeout(()=>{ta.focus();ta.setSelectionRange(s+v.length,s+v.length)},10);}
+                }}
+                  style={{background:"#e0f2fe",color:"#0369a1",fontSize:10,padding:"2px 8px",borderRadius:6,
+                    fontFamily:"monospace",cursor:"pointer",fontWeight:600}}
+                  title="Clic para insertar">
+                  {v}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Panel derecho — editor + preview */}
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+
+          {/* Header del tipo activo */}
+          <div style={{background:tipoActivo.bg,borderRadius:12,padding:"14px 18px",border:`1.5px solid ${tipoActivo.color}30`}}>
+            <div style={{fontWeight:800,fontSize:15,color:tipoActivo.color}}>{tipoActivo.label}</div>
+            <div style={{fontSize:12,color:"#6b7280",marginTop:2}}>{tipoActivo.desc}</div>
+          </div>
+
+          {/* Editor */}
+          <div style={{background:"#fff",borderRadius:12,padding:16,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+            <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:8}}>EDITAR MENSAJE</div>
+            <textarea
+              id="editor-plantilla"
+              value={plantillas[activa]}
+              onChange={e=>setPlantillas(p=>({...p,[activa]:e.target.value}))}
+              rows={9}
+              style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:10,padding:"12px 14px",
+                fontSize:13,fontFamily:"inherit",lineHeight:1.7,outline:"none",
+                boxSizing:"border-box",resize:"vertical",color:"#374151"}}
+            />
+            <div style={{display:"flex",gap:10,marginTop:10}}>
+              <button onClick={()=>{setPlantillas(p=>({...p,[activa]:plantillasDefault[activa]}));showToast("Plantilla restaurada");}}
+                style={{background:"#f3f4f6",border:"none",borderRadius:8,padding:"8px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",color:"#6b7280"}}>
+                ↩ Restaurar default
+              </button>
+              <button onClick={()=>showToast("✅ Plantilla guardada")}
+                style={{background:"#25d366",border:"none",borderRadius:8,padding:"8px 22px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff",marginLeft:"auto"}}>
+                💾 Guardar
+              </button>
+            </div>
+          </div>
+
+          {/* Preview */}
+          <div style={{background:"#fff",borderRadius:12,padding:16,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+              <div style={{fontSize:11,fontWeight:700,color:"#6b7280"}}>👁 VISTA PREVIA</div>
+              <select value={clienteDemo?.id||""}
+                onChange={e=>{const c=clientes.find(x=>x.id===Number(e.target.value));setClienteDemo(c||null);}}
+                style={{border:"1.5px solid #e5e7eb",borderRadius:8,padding:"4px 10px",fontSize:12,outline:"none",fontFamily:"inherit",background:"#fff",color:"#374151"}}>
+                <option value="">Datos de ejemplo</option>
+                {clientes.map(c=><option key={c.id} value={c.id}>{c.nombre} {c.apellidoPaterno}</option>)}
+              </select>
+            </div>
+            {/* Burbuja estilo WhatsApp */}
+            <div style={{background:"#e9fbe9",borderRadius:"0 12px 12px 12px",padding:"12px 16px",maxWidth:"85%",boxShadow:"0 1px 3px rgba(0,0,0,0.1)"}}>
+              <pre style={{margin:0,fontSize:12,color:"#111",whiteSpace:"pre-wrap",fontFamily:"inherit",lineHeight:1.7}}>
+                {aplicarVars(plantillas[activa], demoData)}
+              </pre>
+              <div style={{fontSize:10,color:"#6b7280",textAlign:"right",marginTop:6}}>12:00 ✓✓</div>
+            </div>
+            {/* Botón abrir WA */}
+            {clienteDemo?.whatsapp&&(
+              <button onClick={()=>{
+                const msg=encodeURIComponent(aplicarVars(plantillas[activa],demoData));
+                const tel=(clienteDemo.whatsapp||"").replace(/\D/g,"");
+                window.open(`https://wa.me/52${tel}?text=${msg}`,"_blank");
+              }}
+                style={{marginTop:12,display:"inline-flex",alignItems:"center",gap:8,background:"#25d366",border:"none",
+                  borderRadius:9,padding:"9px 20px",fontSize:13,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
+                <Icon name="whatsapp" size={15}/> Enviar a {clienteDemo.nombre}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -4445,19 +4621,29 @@ export default function CRMSeguros() {
   const [paiMetas,setPaiMetas]=useState(PAI_METAS_INIT);
   const [subagentes,setSubagentes]=useState(SUBAGENTES_INIT);
 
+  const PLANTILLAS_DEFAULT = {
+    vencimiento:  `Hola {nombre} 👋,\n\nTe escribo de *SeguroCRM* para recordarte sobre tu póliza:\n\n📄 *Póliza:* {numero}\n🏢 *Aseguradora:* {aseguradora}\n🔖 *Ramo:* {ramo}\n📅 *Vencimiento:* {vencimiento}\n💰 *Prima:* ${"{prima}"} ({frecuencia})\n\nPara renovar contáctame 😊\n\n_Tu agente de seguros_`,
+    pago:         `Hola {nombre} 👋,\n\nConfirmamos la recepción de tu pago 💳\n\n📄 *Póliza:* {numero}\n🏢 *Aseguradora:* {aseguradora}\n📅 *Vigencia hasta:* {vencimiento}\n\nGracias por tu puntualidad ✅\n\n_Tu agente de seguros_`,
+    bienvenida:   `Hola {nombre} 👋,\n\n¡Bienvenido/a como cliente! 🎉\n\nTu póliza ha sido registrada exitosamente:\n\n📄 *Póliza:* {numero}\n🏢 *Aseguradora:* {aseguradora}\n🔖 *Ramo:* {ramo}\n📅 *Vigente hasta:* {vencimiento}\n\nEstoy a tus órdenes para cualquier duda 😊\n\n_Tu agente de seguros_`,
+    renovacion:   `Hola {nombre} 👋,\n\nTu póliza ha sido renovada exitosamente 🔄\n\n📄 *Póliza:* {numero}\n🏢 *Aseguradora:* {aseguradora}\n📅 *Nueva vigencia hasta:* {vencimiento}\n💰 *Prima:* ${"{prima}"} ({frecuencia})\n\n¡Sigues protegido/a! ✅\n\n_Tu agente de seguros_`,
+    personalizado:`Hola {nombre} 👋,\n\nTe contacto respecto a tu póliza *{numero}* de {aseguradora}.\n\n[Escribe aquí tu mensaje personalizado]\n\n_Tu agente de seguros_`,
+  };
+  const [plantillas, setPlantillas] = useState(PLANTILLAS_DEFAULT);
+
   const nav=[
-    {id:"dashboard",label:"Dashboard",icon:"dashboard"},
-    {id:"clientes",label:"Clientes",icon:"clients"},
-    {id:"polizas",label:"Pólizas",icon:"policies",badge:"IA"},
-    {id:"calendario",label:"Calendario",icon:"tasks",badge:"NEW"},
-    {id:"notificaciones",label:"Notificaciones",icon:"bell"},
-    {id:"pai",label:"PAI",icon:"trophy"},
-    {id:"pipeline",label:"Prospectos",icon:"pipeline"},
-    {id:"importar",label:"Importar BD",icon:"scan"},
-    {id:"subagentes",label:"Subagentes",icon:"users",badge:"NEW"},
-    {id:"usuarios",label:"Usuarios",icon:"users"},
+    {id:"dashboard",    label:"Dashboard",      icon:"dashboard"},
+    {id:"clientes",     label:"Clientes",        icon:"clients"},
+    {id:"polizas",      label:"Pólizas",         icon:"policies", badge:"IA"},
+    {id:"calendario",   label:"Calendario",      icon:"tasks",    badge:"NEW"},
+    {id:"notificaciones",label:"Notificaciones", icon:"bell"},
+    {id:"whatsapp",     label:"WhatsApp",        icon:"whatsapp", badge:"NEW"},
+    {id:"pai",          label:"PAI",             icon:"trophy"},
+    {id:"pipeline",     label:"Prospectos",      icon:"pipeline"},
+    {id:"importar",     label:"Importar BD",     icon:"scan"},
+    {id:"subagentes",   label:"Subagentes",      icon:"users"},
+    {id:"usuarios",     label:"Usuarios",        icon:"users"},
   ];
-  const badgeColors={IA:"#2563eb",NEW:"#dc2626"};
+  const badgeColors={IA:"#2563eb",NEW:"#25d366"};
 
   return(
     <div style={{display:"flex",height:"100vh",fontFamily:"'DM Sans','Segoe UI',sans-serif",background:"#f1f5f9"}}>
@@ -4494,12 +4680,12 @@ export default function CRMSeguros() {
         {vista==="dashboard"&&<Dashboard clientes={clientes} polizas={polizas} pipeline={pipeline} tareas={tareas} paiMetas={paiMetas}/>}
         {vista==="clientes"&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas}/>}
         {vista==="polizas"&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes}/>}
-        {vista==="notificaciones"&&<Notificaciones polizas={polizas}/>}
+        {vista==="notificaciones"&&<Notificaciones polizas={polizas} plantillas={plantillas}/>}
+        {vista==="whatsapp"&&<WhatsAppConfig plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes} polizas={polizas}/>}
         {vista==="pai"&&<PAI paiMetas={paiMetas} setPaiMetas={setPaiMetas}/>}
         {vista==="pipeline"&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}
         {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas}/>}
-        {vista==="calendario"&&<Calendario polizas={polizas} clientes={clientes}/>
-        }
+        {vista==="calendario"&&<Calendario polizas={polizas} clientes={clientes}/>}
         {vista==="importar"&&<Importador clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas}/>}
         {vista==="subagentes"&&<Subagentes subagentes={subagentes} setSubagentes={setSubagentes} polizas={polizas} setPolizas={setPolizas}/>}
         {vista==="usuarios"&&<Usuarios usuarios={usuarios} setUsuarios={setUsuarios}/>}

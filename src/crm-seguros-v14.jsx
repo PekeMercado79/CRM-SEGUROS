@@ -632,6 +632,17 @@ function Clientes({ clientes, setClientes, polizas=[] }) {
 
   const guardar = () => {
     if (!validar()) return;
+    const nombreNuevo = `${form.nombre} ${form.apellidoPaterno} ${form.apellidoMaterno||""}`.trim().toLowerCase();
+    const rfcNuevo = (form.rfc||"").trim().toUpperCase();
+    const duplicado = clientes.find(c => {
+      if (rfcNuevo && c.rfc) return c.rfc.trim().toUpperCase() === rfcNuevo;
+      return `${c.nombre} ${c.apellidoPaterno} ${c.apellidoMaterno||""}`.trim().toLowerCase() === nombreNuevo;
+    });
+    if (duplicado) {
+      const msg = rfcNuevo ? `RFC "${rfcNuevo}"` : `nombre "${nombreNuevo}"`;
+      alert(`⚠️ Ya existe un cliente con ${msg}. No se puede guardar duplicado.`);
+      return;
+    }
     setClientes(prev=>[...prev,{...form,id:Date.now(),polizas:0}]);
     setShowModal(false);
     setForm(FORM_CLIENTE_INIT);
@@ -1740,7 +1751,14 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
     .filter(p => filtroRamo === "todos" || p.ramo === filtroRamo)
     .filter(p => !busqueda || p.numero?.toLowerCase().includes(busqueda.toLowerCase()) || p.cliente?.toLowerCase().includes(busqueda.toLowerCase()));
 
-  const onGuardar = (data) => setPolizas(prev => [...prev, data]);
+  const onGuardar = (data) => {
+    const num = (data.numero||"").trim().toLowerCase();
+    if (num && polizas.some(p => (p.numero||"").trim().toLowerCase() === num)) {
+      alert(`⚠️ Ya existe una póliza con el número "${data.numero}". No se puede guardar duplicada.`);
+      return;
+    }
+    setPolizas(prev => [...prev, data]);
+  };
   const onExtracted = (data, docData) => {
     // 1. Crear cliente si no existe
     let clienteId = "";
@@ -1773,6 +1791,11 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
     }
 
     // 2. Guardar póliza con documento adjunto si se subió
+    const numNuevo = (data.numero||"").trim().toLowerCase();
+    if (numNuevo && polizas.some(p => (p.numero||"").trim().toLowerCase() === numNuevo)) {
+      alert(`⚠️ Ya existe una póliza con el número "${data.numero}". No se puede guardar duplicada.`);
+      return;
+    }
     const mapped = {
       ...FORM_POLIZA_INIT,
       ...data,
@@ -3014,6 +3037,12 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
       if(tipo==="clientes"){
         if(!reg.nombre?.trim()){errs.push(`Fila ${fila}: nombre vacío`);return;}
         if(!reg.apellidoPaterno?.trim()){errs.push(`Fila ${fila}: apellido paterno vacío`);return;}
+        const rfcImp=(reg.rfc||"").trim().toUpperCase();
+        const nombreImp=`${reg.nombre} ${reg.apellidoPaterno} ${reg.apellidoMaterno||""}`.trim().toLowerCase();
+        if(rfcImp&&clientes.some(c=>(c.rfc||"").trim().toUpperCase()===rfcImp)){errs.push(`Fila ${fila}: RFC "${rfcImp}" ya existe en el sistema`);return;}
+        if(!rfcImp&&clientes.some(c=>`${c.nombre} ${c.apellidoPaterno} ${c.apellidoMaterno||""}`.trim().toLowerCase()===nombreImp)){errs.push(`Fila ${fila}: cliente "${reg.nombre} ${reg.apellidoPaterno}" ya existe en el sistema`);return;}
+        if(rfcImp&&ok.some(c=>(c.rfc||"").trim().toUpperCase()===rfcImp)){errs.push(`Fila ${fila}: RFC "${rfcImp}" duplicado en el archivo`);return;}
+        if(!rfcImp&&ok.some(c=>`${c.nombre} ${c.apellidoPaterno} ${c.apellidoMaterno||""}`.trim().toLowerCase()===nombreImp)){errs.push(`Fila ${fila}: cliente "${reg.nombre} ${reg.apellidoPaterno}" duplicado en el archivo`);return;}
         ok.push({id:Date.now()+i,nombre:reg.nombre.trim(),apellidoPaterno:reg.apellidoPaterno.trim(),
           apellidoMaterno:(reg.apellidoMaterno||"").trim(),rfc:(reg.rfc||"").toUpperCase().trim(),
           fechaNacimiento:(reg.fechaNacimiento||"").trim(),sexo:(reg.sexo||"").toUpperCase().charAt(0),
@@ -3024,6 +3053,9 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
       } else {
         if(!reg.numero?.trim()){errs.push(`Fila ${fila}: número de póliza vacío`);return;}
         if(!reg.cliente?.trim()){errs.push(`Fila ${fila}: cliente vacío`);return;}
+        const numImp=(reg.numero||"").trim().toLowerCase();
+        if(polizas.some(p=>(p.numero||"").trim().toLowerCase()===numImp)){errs.push(`Fila ${fila}: número "${reg.numero}" ya existe en el sistema`);return;}
+        if(ok.some(p=>(p.numero||"").trim().toLowerCase()===numImp)){errs.push(`Fila ${fila}: número "${reg.numero}" duplicado en el archivo`);return;}
         ok.push({id:Date.now()+i,numero:reg.numero.trim(),cliente:reg.cliente.trim(),
           aseguradora:(reg.aseguradora||"").trim(),ramo:(reg.ramo||"").trim(),
           subramo:(reg.subramo||"").trim(),inicio:(reg.inicio||"").trim(),

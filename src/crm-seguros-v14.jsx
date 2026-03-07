@@ -287,12 +287,14 @@ const KPICard = ({ label, value, sub, icon, accent }) => (
 
 const Modal = ({ title, onClose, children, wide, maxW }) => (
   <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:20}} onClick={onClose}>
-    <div style={{background:"#fff",borderRadius:20,padding:28,width:"100%",maxWidth:maxW||(wide?760:500),maxHeight:"92vh",overflowY:"auto"}} onClick={e=>e.stopPropagation()}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:22}}>
+    <div style={{background:"#fff",borderRadius:20,width:"100%",maxWidth:maxW||(wide?760:500),maxHeight:"92vh",display:"flex",flexDirection:"column",overflow:"hidden"}} onClick={e=>e.stopPropagation()}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"20px 28px 16px",borderBottom:"1px solid #f3f4f6",flexShrink:0,background:"#fff",borderRadius:"20px 20px 0 0"}}>
         <h3 style={{margin:0,fontSize:17,fontWeight:700,fontFamily:"'Playfair Display',serif"}}>{title}</h3>
-        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:"#6b7280",display:"flex"}}><Icon name="x" size={22}/></button>
+        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:"#6b7280",display:"flex",flexShrink:0}}><Icon name="x" size={22}/></button>
       </div>
-      {children}
+      <div style={{overflowY:"auto",padding:"20px 28px 28px",flex:1}}>
+        {children}
+      </div>
     </div>
   </div>
 );
@@ -915,11 +917,12 @@ const FORM_POLIZA_INIT = {
   clienteId:"", cliente:"", emailCliente:"", telefonoCliente:"",
   // Paso 2 — Datos generales
   numero:"", endoso:"0", aseguradora:"", fechaEmision:"",
-  ramo:"", subramo:"",
+  ramo:"", subramo:"", agentePoliza:"",
   // Paso 3 — Vigencia
   inicio:"", vencimiento:"", status:"activa",
   // Paso 4 — Datos económicos
   formaPago:"Anual", primaNeta:"", gastosExpedicion:"", recargoPago:"", iva:"", primaTotal:"",
+  porcentajeIva:16, montoIva:"",
   // Paso 5 — Vehículo (solo Autos Individual)
   vehiculoDescripcion:"", vehiculoMarca:"", vehiculoSerie:"", vehiculoAnio:"", vehiculoUso:"Particular", vehiculoClase:"Automóvil",
   // Paso 5b — Coberturas Autos detalladas
@@ -1217,6 +1220,9 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
                 <option value="vencida">Vencida</option>
               </Sel>
             </div>
+            <div style={{marginTop:12}}>
+              <Inp label="Agente / Clave de Agente" value={form.agentePoliza} onChange={e=>sf("agentePoliza",e.target.value)} placeholder="Nombre o clave del agente"/>
+            </div>
           </SecBox>
 
           <SecBox title="RAMO Y SUBRAMO *" color="#7c3aed">
@@ -1295,10 +1301,10 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
               <Inp label="Fecha de Emisión (si aplica)" type="date" value={form.fechaEmision} onChange={e=>sf("fechaEmision",e.target.value)}/>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-              <Inp label="Prima Neta ($)" type="number" value={form.primaNeta} onChange={e=>{sf("primaNeta",e.target.value); setForm(p=>{const np={...p,primaNeta:e.target.value};return{...np,primaTotal:calcPrimaTotal(np)};});}} placeholder="11,188.49"/>
-              <Inp label="Gastos de Expedición ($)" type="number" value={form.gastosExpedicion} onChange={e=>{setForm(p=>{const np={...p,gastosExpedicion:e.target.value};return{...np,primaTotal:calcPrimaTotal(np)};});}} placeholder="790.00"/>
-              <Inp label="Recargo Pago Fraccionado ($)" type="number" value={form.recargoPago} onChange={e=>{setForm(p=>{const np={...p,recargoPago:e.target.value};return{...np,primaTotal:calcPrimaTotal(np)};});}} placeholder="839.14"/>
-              <Inp label="I.V.A. 16% (calculado)" value={form.primaNeta||form.gastosExpedicion||form.recargoPago ? `$${(((parseFloat(form.primaNeta)||0)+(parseFloat(form.gastosExpedicion)||0)+(parseFloat(form.recargoPago)||0))*0.16).toFixed(2)}` : ""} readOnly style={{background:"#f3f4f6",color:"#6b7280"}}/>
+              <Inp label="Prima Neta ($)" type="number" value={form.primaNeta} onChange={e=>{setForm(p=>{const np={...p,primaNeta:e.target.value};const mIva=(((parseFloat(np.primaNeta)||0)+(parseFloat(np.gastosExpedicion)||0)+(parseFloat(np.recargoPago)||0))*0.16).toFixed(2);return{...np,montoIva:mIva,primaTotal:calcPrimaTotal(np)};});}} placeholder="11,188.49"/>
+              <Inp label="Gastos de Expedición ($)" type="number" value={form.gastosExpedicion} onChange={e=>{setForm(p=>{const np={...p,gastosExpedicion:e.target.value};const mIva=(((parseFloat(np.primaNeta)||0)+(parseFloat(np.gastosExpedicion)||0)+(parseFloat(np.recargoPago)||0))*0.16).toFixed(2);return{...np,montoIva:mIva,primaTotal:calcPrimaTotal(np)};});}} placeholder="790.00"/>
+              <Inp label="Recargo Pago Fraccionado ($)" type="number" value={form.recargoPago} onChange={e=>{setForm(p=>{const np={...p,recargoPago:e.target.value};const mIva=(((parseFloat(np.primaNeta)||0)+(parseFloat(np.gastosExpedicion)||0)+(parseFloat(np.recargoPago)||0))*0.16).toFixed(2);return{...np,montoIva:mIva,primaTotal:calcPrimaTotal(np)};});}} placeholder="839.14"/>
+              <Inp label="I.V.A. 16% (calculado)" value={form.montoIva?`$${parseFloat(form.montoIva).toFixed(2)}`:""} readOnly style={{background:"#f3f4f6",color:"#6b7280"}}/>
             </div>
             <div style={{marginTop:14,background:"linear-gradient(135deg,#0f172a,#1e3a5f)",borderRadius:12,padding:"16px 18px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div style={{color:"#94a3b8",fontSize:13,fontWeight:600}}>PRIMA TOTAL A PAGAR</div>
@@ -2084,6 +2090,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                 ["Forma de Pago", polizaDetalle.formaPago||polizaDetalle.frecuencia||"—"],
                 ["Moneda", polizaDetalle.moneda||"MXN"],
                 ["Gestor / Clave", polizaDetalle.gestorCobro||"—"],
+                ["Agente", polizaDetalle.agentePoliza||"—"],
                 ["Vigencia Inicio", polizaDetalle.inicio||"—"],
                 ["Vigencia Fin", polizaDetalle.vencimiento||"—"],
                 ["Prima Neta", polizaDetalle.primaNeta?`$${Number(polizaDetalle.primaNeta).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],
@@ -2355,6 +2362,10 @@ function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, 
         <div>
           <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>GESTOR / CLAVE AGENTE</div>
           <input value={er.gestorCobro||""} onChange={e=>upd("gestorCobro",e.target.value)} style={inpStyle} placeholder="12362"/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>AGENTE</div>
+          <input value={er.agentePoliza||""} onChange={e=>upd("agentePoliza",e.target.value)} style={inpStyle} placeholder="Nombre del agente"/>
         </div>
         <div>
           <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>MONEDA</div>

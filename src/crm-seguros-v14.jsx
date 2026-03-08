@@ -1793,14 +1793,36 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
     .filter(p => filtroRamo === "todos" || p.ramo === filtroRamo)
     .filter(p => !busqueda || p.numero?.toLowerCase().includes(busqueda.toLowerCase()) || p.cliente?.toLowerCase().includes(busqueda.toLowerCase()));
 
+  const [polizaRecienGuardada, setPolizaRecienGuardada] = useState(null);
+
   const onGuardar = (data) => {
-    const num = (data.numero||"").trim().toLowerCase();
-    if (num && polizas.some(p => (p.numero||"").trim().toLowerCase() === num)) {
+    const normNum = (s) => (s||"").trim().toLowerCase().replace(/[\s\-_]/g,"");
+    const num = normNum(data.numero);
+    if (num && polizas.some(p => normNum(p.numero) === num)) {
       alert(`⚠️ Ya existe una póliza con el número "${data.numero}". No se puede guardar duplicada.`);
       return;
     }
-    setPolizas(prev => [...prev, data]);
+    const id = Date.now() + Math.floor(Math.random()*9999);
+    setPolizas(prev => [...prev, {...data, id}]);
+    setBusqueda("");
+    setFiltro("todas");
+    setFiltroRamo("todos");
+    setPolizaRecienGuardada(id);
+    setTimeout(()=>setPolizaRecienGuardada(null), 4000);
   };
+
+  // Normaliza fecha de cualquier formato a YYYY-MM-DD
+  const normalizarFecha = (f) => {
+    if(!f) return "";
+    // dd/mm/yyyy
+    if(/^\d{2}\/\d{2}\/\d{4}$/.test(f)) { const [d,m,y]=f.split("/"); return `${y}-${m}-${d}`; }
+    // dd-mm-yyyy
+    if(/^\d{2}-\d{2}-\d{4}$/.test(f)) { const [d,m,y]=f.split("-"); return `${y}-${m}-${d}`; }
+    // yyyy/mm/dd
+    if(/^\d{4}\/\d{2}\/\d{2}$/.test(f)) return f.replace(/\//g,"-");
+    return f; // ya es YYYY-MM-DD u otro
+  };
+
   const onExtracted = (data, docData) => {
     // 1. Crear cliente si no existe
     let clienteId = "";
@@ -1812,7 +1834,6 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
       if (yaExiste) {
         clienteId = yaExiste.id;
       } else {
-        // Crear nuevo cliente con datos de la póliza
         const partes = clienteNombre.trim().split(/\s+/);
         const nuevoCliente = {
           id: Date.now(),
@@ -1832,38 +1853,50 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
       }
     }
 
-    // 2. Guardar póliza con documento adjunto si se subió
-    const numNuevo = (data.numero||"").trim().toLowerCase();
-    if (numNuevo && polizas.some(p => (p.numero||"").trim().toLowerCase() === numNuevo)) {
+    // 2. Validar duplicado
+    const normNum = (s) => (s||"").trim().toLowerCase().replace(/[\s\-_]/g,"");
+    const numNuevo = normNum(data.numero);
+    if (numNuevo && polizas.some(p => normNum(p.numero) === numNuevo)) {
       alert(`⚠️ Ya existe una póliza con el número "${data.numero}". No se puede guardar duplicada.`);
       return;
     }
+
+    // 3. Construir póliza normalizando fechas
+    const id = Date.now() + Math.floor(Math.random()*9999);
     const mapped = {
       ...FORM_POLIZA_INIT,
       ...data,
-      id: Date.now() + 1,
+      id,
       clienteId,
       cliente: clienteNombre,
       rfc: data.rfcCliente || "",
+      inicio: normalizarFecha(data.inicio),
+      vencimiento: normalizarFecha(data.vencimiento),
       formaPago: data.formaPago || data.frecuencia || "Anual",
-      prima: data.primaTotal || data.prima || 0,
-      primaNeta: parseFloat(data.primaNeta) || 0,
-      gastosExpedicion: parseFloat(data.gastosExpedicion) || 0,
-      recargoPago: parseFloat(data.recargoPago) || 0,
-      porcentajeIva: parseFloat(data.porcentajeIva) || 16,
-      montoIva: parseFloat(data.montoIva) || 0,
-      primaTotal: parseFloat(data.primaTotal) || parseFloat(data.prima) || 0,
-      moneda: data.moneda || "MXN",
-      gestorCobro: data.gestorCobro || "",
-      agentePoliza: data.agentePoliza || "",
-      beneficiarioPreferente: data.beneficiarioPreferente || data.beneficiario || "",
-      coberturas: Array.isArray(data.coberturas) ? data.coberturas : [],
+      prima: parseFloat(data.primaTotal)||parseFloat(data.prima)||0,
+      primaNeta: parseFloat(data.primaNeta)||0,
+      gastosExpedicion: parseFloat(data.gastosExpedicion)||0,
+      recargoPago: parseFloat(data.recargoPago)||0,
+      porcentajeIva: parseFloat(data.porcentajeIva)||16,
+      montoIva: parseFloat(data.montoIva)||0,
+      primaTotal: parseFloat(data.primaTotal)||parseFloat(data.prima)||0,
+      moneda: data.moneda||"MXN",
+      gestorCobro: data.gestorCobro||"",
+      agentePoliza: data.agentePoliza||"",
+      beneficiarioPreferente: data.beneficiarioPreferente||data.beneficiario||"",
+      coberturas: Array.isArray(data.coberturas)?data.coberturas:[],
       pagos: [],
-      documentoPoliza: docData?.base64full || null,
-      documentoNombre: docData?.nombre || "",
-      documentoTipo: docData?.tipo || "",
+      documentoPoliza: docData?.base64full||null,
+      documentoNombre: docData?.nombre||"",
+      documentoTipo: docData?.tipo||"",
     };
+
     setPolizas(prev => [...prev, mapped]);
+    setBusqueda("");
+    setFiltro("todas");
+    setFiltroRamo("todos");
+    setPolizaRecienGuardada(id);
+    setTimeout(()=>setPolizaRecienGuardada(null), 4000);
     setShowScan(false);
   };
 
@@ -1935,6 +1968,17 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
         </div>
       </div>
 
+      {/* Banner póliza recién guardada */}
+      {polizaRecienGuardada&&(
+        <div style={{background:"#f0fdf4",border:"1.5px solid #86efac",borderRadius:12,padding:"12px 18px",display:"flex",alignItems:"center",gap:10,fontSize:13}}>
+          <span style={{fontSize:20}}>✅</span>
+          <div>
+            <div style={{fontWeight:800,color:"#065f46"}}>Póliza guardada correctamente</div>
+            <div style={{fontSize:11,color:"#16a34a",marginTop:2}}>Los filtros se han limpiado — la póliza aparece resaltada en verde</div>
+          </div>
+        </div>
+      )}
+
       {/* Vista tabla */}
       {viewMode==="table"&&(
         <div style={{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 1px 8px rgba(0,0,0,0.08)"}}>
@@ -1989,8 +2033,11 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
         {filtradas.map(p=>{
           const st = getStatus(p); const cfg = STATUS_CFG[st];
           const tienePago = p.ultimoPago;
+          const esNueva = polizaRecienGuardada === p.id;
           return (
-            <div key={p.id} style={{background:"#fff",borderRadius:16,overflow:"hidden",boxShadow:"0 1px 8px rgba(0,0,0,0.08)"}}>
+            <div key={p.id} style={{background:"#fff",borderRadius:16,overflow:"hidden",
+              boxShadow: esNueva ? "0 0 0 3px #059669, 0 4px 20px rgba(5,150,105,0.25)" : "0 1px 8px rgba(0,0,0,0.08)",
+              transition:"box-shadow .4s"}}>
               {/* Header ramo */}
               <div style={{background:`linear-gradient(135deg,${ramoColor(p.ramo)},${ramoColor(p.ramo)}cc)`,padding:"13px 16px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                 <div>

@@ -3056,7 +3056,7 @@ function PAI({ paiMetas, setPaiMetas }) {
                       <button onClick={e=>{const inp=e.currentTarget.previousSibling;actualizarCobrado(m.id,inp.value);inp.style.borderColor=c1;setTimeout(()=>inp.style.borderColor="#e5e7eb",900);}} style={{background:c1,color:"#fff",border:"none",borderRadius:8,padding:"7px 12px",fontWeight:700,cursor:"pointer",fontFamily:"inherit",fontSize:13}}>✓</button>
                     </div>
                   </div>
-                  <div style={{display:"flex",gap:8"}}>
+                  <div style={{display:"flex",gap:8}}>
                     <button onClick={()=>{ if(window.confirm(`¿Cerrar trimestre "${m.periodo}" para ${m.ramo}? Se guardará el resultado final.`)) cerrarTrimestre(m.id); }}
                       style={{flex:1,background:"#0f172a",color:"#fff",border:"none",borderRadius:8,padding:"8px 10px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
                       🏁 Cerrar Trimestre

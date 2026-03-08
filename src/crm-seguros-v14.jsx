@@ -2560,6 +2560,13 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
   const enviarWA=(p)=>{const msg=encodeURIComponent(genWA(p));const tel=(p.telefonoCliente||"").replace(/\D/g,"");window.open(`https://wa.me/${tel?`52${tel}`:""}?text=${msg}`,"_blank");marcar(p.id,"whatsapp");};
   const enviarEmail=(p)=>{window.open(`mailto:${p.emailCliente}?subject=${encodeURIComponent(`Recordatorio póliza ${p.numero}`)}&body=${encodeURIComponent(genEmail(p))}`,"_blank");marcar(p.id,"email");};
 
+  const proximasVencer=polizas.filter(p=>{
+    if(!p.vencimiento)return false;
+    const hoy=new Date();const venc=new Date(p.vencimiento);
+    const diff=Math.ceil((venc-hoy)/(1000*60*60*24));
+    return diff>=0&&diff<=diasAntes;
+  });
+
   return(
     <div style={{display:"flex",flexDirection:"column",gap:22}}>
       {toast&&<div style={{position:"fixed",top:20,right:20,background:"#111827",color:"#fff",padding:"12px 20px",borderRadius:12,fontSize:13,fontWeight:600,zIndex:9999,boxShadow:"0 8px 24px rgba(0,0,0,0.3)"}}>{toast}</div>}

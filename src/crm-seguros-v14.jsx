@@ -2537,6 +2537,7 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
     {key:"renovacion",label:"🔄 Renovación",color:"#2563eb",bg:"#eff6ff"},
     {key:"personalizado",label:"✏️ Personalizado",color:"#6b7280",bg:"#f9fafb"},
   ];
+  const [adjuntosEmail, setForm_adjuntos] = useState([]);
   const vars=["{nombre}","{numero}","{aseguradora}","{ramo}","{vencimiento}","{prima}","{frecuencia}"];
 
   const aplicarVars = (tpl, p) => (tpl||"")
@@ -2781,6 +2782,68 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
                       <div style={{fontSize:10,color:"#6b7280",textAlign:"right",marginTop:5}}>12:00 ✓✓</div>
                     </div>
                   )}
+
+                  {/* Botones de acción post-preview */}
+                  {!esMail && editandoTipo!=="personalizado" && clienteDemo?.whatsapp&&(
+                    <button onClick={()=>{
+                      const msg=encodeURIComponent(aplicarVarsDemo(plantillasActuales[editandoTipo]));
+                      const tel=(clienteDemo.whatsapp||"").replace(/\D/g,"");
+                      window.open(`https://wa.me/52${tel}?text=${msg}`,"_blank");
+                    }}
+                      style={{marginTop:10,display:"inline-flex",alignItems:"center",gap:8,background:"#25d366",border:"none",
+                        borderRadius:9,padding:"9px 18px",fontSize:12,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
+                      <Icon name="whatsapp" size={13}/> Enviar a {clienteDemo.nombre}
+                    </button>
+                  )}
+                  {!esMail && editandoTipo==="personalizado"&&(
+                    <div style={{marginTop:8,background:"#fffbeb",borderRadius:9,padding:"10px 13px",border:"1px solid #fde68a",fontSize:12,color:"#92400e"}}>
+                      💬 El mensaje personalizado debe enviarse manualmente desde WhatsApp.
+                    </div>
+                  )}
+
+                  {/* Adjuntos para email */}
+                  {esMail&&(
+                    <div style={{marginTop:10}}>
+                      <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:6}}>📎 ADJUNTAR ARCHIVOS O IMÁGENES</div>
+                      <label style={{display:"inline-flex",alignItems:"center",gap:8,background:"#eff6ff",border:"1.5px dashed #93c5fd",borderRadius:9,padding:"8px 16px",fontSize:12,fontWeight:600,color:"#1d4ed8",cursor:"pointer"}}>
+                        <input type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                          onChange={e=>{
+                            const files=Array.from(e.target.files);
+                            setForm_adjuntos(prev=>[...prev,...files.map(f=>({name:f.name,size:f.size,type:f.type}))]);
+                          }}
+                          style={{display:"none"}}/>
+                        📁 Seleccionar archivos
+                      </label>
+                      {adjuntosEmail.length>0&&(
+                        <div style={{display:"flex",flexWrap:"wrap",gap:7,marginTop:8}}>
+                          {adjuntosEmail.map((a,i)=>(
+                            <div key={i} style={{background:"#f0f9ff",border:"1px solid #bae6fd",borderRadius:8,padding:"5px 10px",fontSize:11,display:"flex",alignItems:"center",gap:6}}>
+                              <span>{a.type.startsWith("image/")?"🖼":"📄"}</span>
+                              <span style={{fontWeight:600,color:"#0369a1",maxWidth:130,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.name}</span>
+                              <span style={{color:"#94a3b8"}}>({(a.size/1024).toFixed(0)}kb)</span>
+                              <button onClick={()=>setForm_adjuntos(prev=>prev.filter((_,j)=>j!==i))}
+                                style={{background:"none",border:"none",color:"#dc2626",cursor:"pointer",fontSize:14,padding:0,lineHeight:1}}>×</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {editandoTipo==="personalizado"?(
+                        <div style={{marginTop:8,background:"#fffbeb",borderRadius:9,padding:"10px 13px",border:"1px solid #fde68a",fontSize:12,color:"#92400e"}}>
+                          📧 El correo personalizado debe enviarse manualmente desde tu cliente de email con los archivos adjuntos.
+                        </div>
+                      ):clienteDemo?.email&&(
+                        <button onClick={()=>{
+                          const asunto=encodeURIComponent(`${TIPOS_PLANTILLA.find(t=>t.key===editandoTipo)?.label.replace(/[^\w ]/g,"")||""}`);
+                          const cuerpo=encodeURIComponent(aplicarVarsDemo(plantillasActuales[editandoTipo]));
+                          window.open(`mailto:${clienteDemo.email}?subject=${asunto}&body=${cuerpo}`,"_blank");
+                        }}
+                          style={{marginTop:8,display:"inline-flex",alignItems:"center",gap:8,background:"#2563eb",border:"none",
+                            borderRadius:9,padding:"9px 18px",fontSize:12,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
+                          📧 Enviar correo a {clienteDemo.nombre}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -2918,8 +2981,8 @@ function WhatsAppConfig({ plantillas, setPlantillas, plantillasDefault, clientes
               </pre>
               <div style={{fontSize:10,color:"#6b7280",textAlign:"right",marginTop:6}}>12:00 ✓✓</div>
             </div>
-            {/* Botón abrir WA */}
-            {clienteDemo?.whatsapp&&(
+            {/* Botón abrir WA — solo si no es personalizado */}
+            {clienteDemo?.whatsapp && activa!=="personalizado" &&(
               <button onClick={()=>{
                 const msg=encodeURIComponent(aplicarVars(plantillas[activa],demoData));
                 const tel=(clienteDemo.whatsapp||"").replace(/\D/g,"");
@@ -2929,6 +2992,11 @@ function WhatsAppConfig({ plantillas, setPlantillas, plantillasDefault, clientes
                   borderRadius:9,padding:"9px 20px",fontSize:13,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
                 <Icon name="whatsapp" size={15}/> Enviar a {clienteDemo.nombre}
               </button>
+            )}
+            {activa==="personalizado"&&(
+              <div style={{marginTop:10,background:"#fffbeb",borderRadius:9,padding:"10px 13px",border:"1px solid #fde68a",fontSize:12,color:"#92400e"}}>
+                💬 El mensaje personalizado debe enviarse manualmente. Copia el texto y ábrelo en WhatsApp.
+              </div>
             )}
           </div>
         </div>
@@ -5001,11 +5069,20 @@ function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios,
   const [tab, setTab] = useState("empresa");
   const [form, setForm] = useState({...config});
   const [saved, setSaved] = useState(false);
+  const logoRef = useRef();
 
   const guardar = () => {
     setConfig(form);
     setSaved(true);
     setTimeout(()=>setSaved(false), 2500);
+  };
+
+  const handleLogo = (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setForm(p=>({...p, logo: ev.target.result}));
+    reader.readAsDataURL(file);
   };
 
   return(
@@ -5019,9 +5096,36 @@ function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios,
       </div>
 
       {tab==="empresa"&&(
-        <div style={{background:"#fff",borderRadius:16,padding:24,boxShadow:"0 1px 6px rgba(0,0,0,0.07)",maxWidth:600}}>
+        <div style={{background:"#fff",borderRadius:16,padding:24,boxShadow:"0 1px 6px rgba(0,0,0,0.07)",maxWidth:620}}>
           <div style={{fontSize:13,fontWeight:700,color:"#374151",marginBottom:16}}>Datos del Agente o Empresa</div>
-          <div style={{display:"flex",flexDirection:"column",gap:12}}>
+          <div style={{display:"flex",flexDirection:"column",gap:14}}>
+
+            {/* Logo */}
+            <div style={{display:"flex",alignItems:"center",gap:18,padding:"14px 16px",background:"#f8fafc",borderRadius:12,border:"1.5px dashed #cbd5e1"}}>
+              <div style={{width:72,height:72,borderRadius:12,background:"#e2e8f0",overflow:"hidden",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                {form.logo
+                  ? <img src={form.logo} alt="logo" style={{width:"100%",height:"100%",objectFit:"contain"}}/>
+                  : <span style={{fontSize:28}}>🏢</span>}
+              </div>
+              <div style={{flex:1}}>
+                <div style={{fontSize:12,fontWeight:700,color:"#374151",marginBottom:4}}>Logo de la empresa / agente</div>
+                <div style={{fontSize:11,color:"#9ca3af",marginBottom:8}}>PNG, JPG o SVG · Recomendado 200×200 px</div>
+                <div style={{display:"flex",gap:8}}>
+                  <input ref={logoRef} type="file" accept="image/*" onChange={handleLogo} style={{display:"none"}}/>
+                  <button onClick={()=>logoRef.current.click()}
+                    style={{background:"#0f172a",color:"#fff",border:"none",borderRadius:8,padding:"7px 16px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                    📁 Subir logo
+                  </button>
+                  {form.logo&&(
+                    <button onClick={()=>setForm(p=>({...p,logo:null}))}
+                      style={{background:"#fef2f2",color:"#dc2626",border:"1.5px solid #fecaca",borderRadius:8,padding:"7px 12px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>
+                      🗑 Quitar
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
               <Inp label="Nombre del Agente / Empresa *" value={form.nombre||""} onChange={e=>setForm(p=>({...p,nombre:e.target.value}))} placeholder="Ej: García Seguros"/>
               <Inp label="RFC" value={form.rfc||""} onChange={e=>setForm(p=>({...p,rfc:e.target.value}))} placeholder="GARC800101XXX"/>
@@ -5035,12 +5139,11 @@ function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios,
               <Inp label="Teléfono de contacto" value={form.telefono||""} onChange={e=>setForm(p=>({...p,telefono:e.target.value}))} placeholder="81 0000 0000"/>
               <Inp label="Correo de contacto" type="email" value={form.email||""} onChange={e=>setForm(p=>({...p,email:e.target.value}))} placeholder="contacto@agencia.com"/>
             </div>
-            <Inp label="Sitio web" value={form.web||""} onChange={e=>setForm(p=>({...p,web:e.target.value}))} placeholder="https://www.agencia.com"/>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-              <Inp label="Licencia / Cédula" value={form.licencia||""} onChange={e=>setForm(p=>({...p,licencia:e.target.value}))} placeholder="Número de cédula AMB"/>
+              <Inp label="Sitio web" value={form.web||""} onChange={e=>setForm(p=>({...p,web:e.target.value}))} placeholder="https://www.agencia.com"/>
               <Inp label="Aseguradora principal" value={form.aseguradoraPrincipal||""} onChange={e=>setForm(p=>({...p,aseguradoraPrincipal:e.target.value}))} placeholder="Ej: GNP, Sura, AXA"/>
             </div>
-            <div style={{marginTop:8,display:"flex",gap:10,alignItems:"center"}}>
+            <div style={{marginTop:4,display:"flex",gap:10,alignItems:"center"}}>
               <button onClick={guardar} style={{background:"#0f172a",color:"#fff",border:"none",borderRadius:9,padding:"10px 26px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
                 💾 Guardar cambios
               </button>

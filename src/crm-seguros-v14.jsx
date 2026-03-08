@@ -134,17 +134,10 @@ const TAREAS_INIT = [
 ];
 
 const USUARIOS_INIT = [
-  { id:1, nombre:"Agente García", email:"garcia@seguros.com", rol:"admin", status:"activo", telefono:"5500001111", clave:"AGT-001", polizasAsignadas:4 },
-  { id:2, nombre:"Laura Pérez", email:"lperez@seguros.com", rol:"agente", status:"activo", telefono:"5522223333", clave:"AGT-002", polizasAsignadas:2 },
-  { id:3, nombre:"Marco Ruiz", email:"mruiz@seguros.com", rol:"asistente", status:"inactivo", telefono:"5544445555", clave:"AGT-003", polizasAsignadas:0 },
+  { id:1, nombre:"Administrador", username:"admin", password:"admin123", email:"admin@seguros.com", rol:"admin", status:"activo", telefono:"", clave:"AGT-001" },
 ];
 
-const PAI_METAS_INIT = [
-  { id:1, ramo:"Vida", periodo:"Q1 2025", metaBono:50000, cobrado:32400, fechaInicio:"2025-01-01", fechaFin:"2025-03-31", activa:true },
-  { id:2, ramo:"Gastos Médicos", periodo:"Q1 2025", metaBono:80000, cobrado:48000, fechaInicio:"2025-01-01", fechaFin:"2025-03-31", activa:true },
-  { id:3, ramo:"Autos", periodo:"Q1 2025", metaBono:30000, cobrado:11800, fechaInicio:"2025-01-01", fechaFin:"2025-03-31", activa:true },
-  { id:4, ramo:"Daños", periodo:"Q1 2025", metaBono:20000, cobrado:7600, fechaInicio:"2025-01-01", fechaFin:"2025-03-31", activa:true },
-];
+const PAI_METAS_INIT = [];
 
 // ═══════════════════════════════════════════════════════════════════
 // HELPERS
@@ -2515,13 +2508,36 @@ function ScanPoliza({ onClose, onExtracted }) {
 // ═══════════════════════════════════════════════════════════════════
 // NOTIFICACIONES
 // ═══════════════════════════════════════════════════════════════════
-function Notificaciones({ polizas, plantillas }) {
+function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault, clientes }) {
   const [tab,setTab]=useState("recordatorios");
   const [canal,setCanal]=useState("whatsapp");
   const [diasAntes,setDiasAntes]=useState(30);
   const [previewPoliza,setPreviewPoliza]=useState(null);
   const [enviados,setEnviados]=useState([]);
   const [toast,setToast]=useState(null);
+  // Plantillas
+  const [editandoTipo,setEditandoTipo]=useState("vencimiento");
+  const [editandoCanal,setEditandoCanalPlantilla]=useState("whatsapp");
+  const [clienteDemo,setClienteDemo]=useState(null);
+
+  // Plantillas de email por defecto
+  const EMAIL_DEFAULT={
+    vencimiento:`Estimado/a {nombre},\n\nLe recordamos que su póliza está próxima a vencer:\n\n• Póliza: {numero}\n• Aseguradora: {aseguradora}\n• Ramo: {ramo}\n• Vencimiento: {vencimiento}\n• Prima: ${"{prima}"} ({frecuencia})\n\nPara renovar, contáctenos a la brevedad.\n\nAtentamente,\nSu Agente de Seguros`,
+    pago:`Estimado/a {nombre},\n\nConfirmamos la recepción de su pago:\n\n• Póliza: {numero}\n• Aseguradora: {aseguradora}\n• Vigencia hasta: {vencimiento}\n\nGracias por su puntualidad.\n\nAtentamente,\nSu Agente de Seguros`,
+    bienvenida:`Estimado/a {nombre},\n\n¡Bienvenido/a como cliente!\n\nSu póliza ha sido registrada:\n\n• Póliza: {numero}\n• Aseguradora: {aseguradora}\n• Ramo: {ramo}\n• Vigente hasta: {vencimiento}\n\nEstamos a sus órdenes.\n\nAtentamente,\nSu Agente de Seguros`,
+    renovacion:`Estimado/a {nombre},\n\nSu póliza ha sido renovada exitosamente:\n\n• Póliza: {numero}\n• Aseguradora: {aseguradora}\n• Nueva vigencia: {vencimiento}\n• Prima: ${"{prima}"} ({frecuencia})\n\nAtentamente,\nSu Agente de Seguros`,
+    personalizado:`Estimado/a {nombre},\n\nNos comunicamos con usted respecto a su póliza {numero}.\n\n[Escriba aquí su mensaje]\n\nAtentamente,\nSu Agente de Seguros`,
+  };
+  const [plantillasEmail,setPlantillasEmail]=useState(EMAIL_DEFAULT);
+
+  const TIPOS_PLANTILLA=[
+    {key:"vencimiento",label:"📅 Vencimiento",color:"#d97706",bg:"#fffbeb"},
+    {key:"pago",label:"💳 Pago recibido",color:"#059669",bg:"#f0fdf4"},
+    {key:"bienvenida",label:"🎉 Bienvenida",color:"#7c3aed",bg:"#f5f3ff"},
+    {key:"renovacion",label:"🔄 Renovación",color:"#2563eb",bg:"#eff6ff"},
+    {key:"personalizado",label:"✏️ Personalizado",color:"#6b7280",bg:"#f9fafb"},
+  ];
+  const vars=["{nombre}","{numero}","{aseguradora}","{ramo}","{vencimiento}","{prima}","{frecuencia}"];
 
   const aplicarVars = (tpl, p) => (tpl||"")
     .replace(/{nombre}/g, p.cliente?.split(" ")[0]||p.cliente||"")
@@ -2549,7 +2565,7 @@ function Notificaciones({ polizas, plantillas }) {
       {toast&&<div style={{position:"fixed",top:20,right:20,background:"#111827",color:"#fff",padding:"12px 20px",borderRadius:12,fontSize:13,fontWeight:600,zIndex:9999,boxShadow:"0 8px 24px rgba(0,0,0,0.3)"}}>{toast}</div>}
       <SectionTitle title="Notificaciones" sub="Envía recordatorios de pago por WhatsApp o correo"/>
       <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:11,padding:4,width:"fit-content"}}>
-        {[["recordatorios","📅 Recordatorios"],["historial","📋 Historial"]].map(([t,l])=>(
+        {[["recordatorios","📅 Recordatorios"],["historial","📋 Historial"],["plantillas","⚙️ Plantillas"]].map(([t,l])=>(
           <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?"#fff":"none",border:"none",borderRadius:8,padding:"7px 18px",fontSize:13,fontWeight:600,cursor:"pointer",color:tab===t?"#111827":"#6b7280",boxShadow:tab===t?"0 1px 4px rgba(0,0,0,0.1)":"none",fontFamily:"inherit"}}>{l}</button>
         ))}
       </div>
@@ -2650,6 +2666,120 @@ function Notificaciones({ polizas, plantillas }) {
           )}
         </div>
       )}
+
+      {tab==="plantillas"&&(()=>{
+        const esMail=editandoCanal==="email";
+        const plantillasActuales=esMail?plantillasEmail:plantillas;
+        const setPlantillasActuales=esMail?setPlantillasEmail:setPlantillas;
+        const defaultActuales=esMail?EMAIL_DEFAULT:plantillasDefault;
+        const demoPoliza=clienteDemo?polizas.find(p=>p.clienteId===clienteDemo.id)||{cliente:`${clienteDemo.nombre} ${clienteDemo.apellidoPaterno}`}
+          :{cliente:"María González Ruiz",numero:"GNP-2024-001234",aseguradora:"GNP",ramo:"Vida",subramo:"Vida Individual",vencimiento:"2025-01-15",primaTotal:8400,formaPago:"Anual"};
+
+        const aplicarVarsDemo=(tpl)=>(tpl||"")
+          .replace(/{nombre}/g,demoPoliza.cliente?.split(" ")[0]||"María")
+          .replace(/{numero}/g,demoPoliza.numero||"GNP-2024-001234")
+          .replace(/{aseguradora}/g,demoPoliza.aseguradora||"GNP")
+          .replace(/{ramo}/g,demoPoliza.ramo||"Vida")
+          .replace(/{vencimiento}/g,demoPoliza.vencimiento||"2025-01-15")
+          .replace(/{prima}/g,(demoPoliza.primaTotal||demoPoliza.prima||8400).toLocaleString())
+          .replace(/{frecuencia}/g,demoPoliza.formaPago||"Anual");
+
+        return(
+          <div style={{display:"flex",flexDirection:"column",gap:16}}>
+            {/* Selector WhatsApp / Email */}
+            <div style={{display:"flex",gap:8}}>
+              {[["whatsapp","💬 WhatsApp","#25d366","#f0fdf4","#15803d"],["email","📧 Correo electrónico","#2563eb","#eff6ff","#1d4ed8"]].map(([k,l,bc,bg,tc])=>(
+                <button key={k} onClick={()=>setEditandoCanalPlantilla(k)}
+                  style={{padding:"9px 20px",borderRadius:10,border:`2px solid ${editandoCanal===k?bc:"#e5e7eb"}`,
+                    background:editandoCanal===k?bg:"#fff",color:editandoCanal===k?tc:"#6b7280",
+                    fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:"inherit"}}>
+                  {l}
+                </button>
+              ))}
+            </div>
+
+            <div style={{display:"grid",gridTemplateColumns:"220px 1fr",gap:16,alignItems:"start"}}>
+              {/* Lista de tipos */}
+              <div style={{display:"flex",flexDirection:"column",gap:7}}>
+                {TIPOS_PLANTILLA.map(t=>(
+                  <button key={t.key} onClick={()=>setEditandoTipo(t.key)}
+                    style={{background:editandoTipo===t.key?t.bg:"#fff",border:`2px solid ${editandoTipo===t.key?t.color:"#e5e7eb"}`,
+                      borderRadius:10,padding:"10px 13px",cursor:"pointer",fontFamily:"inherit",textAlign:"left"}}>
+                    <div style={{fontWeight:700,fontSize:13,color:editandoTipo===t.key?t.color:"#374151"}}>{t.label}</div>
+                  </button>
+                ))}
+                {/* Variables */}
+                <div style={{background:"#f8fafc",borderRadius:10,padding:"10px 12px",marginTop:4}}>
+                  <div style={{fontSize:10,fontWeight:800,color:"#6b7280",marginBottom:6}}>VARIABLES</div>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
+                    {vars.map(v=>(
+                      <span key={v} onClick={()=>{
+                        const ta=document.getElementById("editor-notif-plantilla");
+                        if(ta){const s=ta.selectionStart,e=ta.selectionEnd,val=plantillasActuales[editandoTipo];
+                          const nv=val.slice(0,s)+v+val.slice(e);
+                          setPlantillasActuales(p=>({...p,[editandoTipo]:nv}));
+                          setTimeout(()=>{ta.focus();ta.setSelectionRange(s+v.length,s+v.length)},10);}
+                      }} style={{background:"#e0f2fe",color:"#0369a1",fontSize:10,padding:"2px 7px",borderRadius:5,fontFamily:"monospace",cursor:"pointer",fontWeight:600}}>{v}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Editor + preview */}
+              <div style={{display:"flex",flexDirection:"column",gap:12}}>
+                <div style={{background:"#fff",borderRadius:12,padding:16,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+                  <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:8}}>
+                    {esMail?"📧 PLANTILLA DE CORREO":"💬 PLANTILLA DE WHATSAPP"} — {TIPOS_PLANTILLA.find(t=>t.key===editandoTipo)?.label}
+                  </div>
+                  <textarea id="editor-notif-plantilla"
+                    value={plantillasActuales[editandoTipo]||""}
+                    onChange={e=>setPlantillasActuales(p=>({...p,[editandoTipo]:e.target.value}))}
+                    rows={8}
+                    style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:9,padding:"11px 13px",fontSize:13,fontFamily:"inherit",lineHeight:1.7,outline:"none",boxSizing:"border-box",resize:"vertical",color:"#374151"}}
+                  />
+                  <div style={{display:"flex",gap:9,marginTop:10}}>
+                    <button onClick={()=>setPlantillasActuales(p=>({...p,[editandoTipo]:defaultActuales[editandoTipo]}))}
+                      style={{background:"#f3f4f6",border:"none",borderRadius:8,padding:"8px 14px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",color:"#6b7280"}}>
+                      ↩ Restaurar
+                    </button>
+                    <button onClick={()=>showToast(esMail?"📧 Plantilla de correo guardada ✓":"💬 Plantilla WhatsApp guardada ✓")}
+                      style={{background:esMail?"#2563eb":"#25d366",border:"none",borderRadius:8,padding:"8px 20px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff",marginLeft:"auto"}}>
+                      💾 Guardar plantilla
+                    </button>
+                  </div>
+                </div>
+
+                {/* Preview */}
+                <div style={{background:esMail?"#eff6ff":"#f0fdf4",borderRadius:12,padding:14,border:`1.5px solid ${esMail?"#bfdbfe":"#bbf7d0"}`}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                    <div style={{fontSize:11,fontWeight:800,color:esMail?"#1e40af":"#065f46"}}>👁 VISTA PREVIA</div>
+                    <select value={clienteDemo?.id||""}
+                      onChange={e=>{const c=clientes?.find(x=>x.id===Number(e.target.value));setClienteDemo(c||null);}}
+                      style={{border:"1.5px solid #e5e7eb",borderRadius:7,padding:"4px 9px",fontSize:11,outline:"none",fontFamily:"inherit",background:"#fff"}}>
+                      <option value="">Datos de ejemplo</option>
+                      {(clientes||[]).map(c=><option key={c.id} value={c.id}>{c.nombre} {c.apellidoPaterno}</option>)}
+                    </select>
+                  </div>
+                  {esMail?(
+                    <div style={{background:"#fff",borderRadius:9,padding:"12px 14px",border:"1px solid #e5e7eb"}}>
+                      <pre style={{margin:0,fontSize:12,color:"#374151",whiteSpace:"pre-wrap",fontFamily:"inherit",lineHeight:1.7}}>
+                        {aplicarVarsDemo(plantillasActuales[editandoTipo])}
+                      </pre>
+                    </div>
+                  ):(
+                    <div style={{background:"#e9fbe9",borderRadius:"0 12px 12px 12px",padding:"11px 14px",maxWidth:"85%",boxShadow:"0 1px 3px rgba(0,0,0,0.08)"}}>
+                      <pre style={{margin:0,fontSize:12,color:"#111",whiteSpace:"pre-wrap",fontFamily:"inherit",lineHeight:1.7}}>
+                        {aplicarVarsDemo(plantillasActuales[editandoTipo])}
+                      </pre>
+                      <div style={{fontSize:10,color:"#6b7280",textAlign:"right",marginTop:5}}>12:00 ✓✓</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
@@ -2814,16 +2944,34 @@ function PAI({ paiMetas, setPaiMetas }) {
   const ramoGrad={Vida:["#7c3aed","#a78bfa"],"Gastos Médicos":["#059669","#34d399"],Autos:["#1d4ed8","#60a5fa"],Daños:["#d97706","#fbbf24"]};
   const totalMeta=paiMetas.reduce((a,m)=>a+m.metaBono,0);
   const totalCobrado=paiMetas.reduce((a,m)=>a+m.cobrado,0);
-  const pctGlobal=Math.round((totalCobrado/totalMeta)*100)||0;
+  const pctGlobal=totalMeta>0?Math.round((totalCobrado/totalMeta)*100):0;
 
-  const guardar=()=>{if(!form.metaBono)return;setPaiMetas(prev=>[...prev,{...form,id:Date.now(),metaBono:Number(form.metaBono),cobrado:Number(form.cobrado)||0,activa:true}]);setShowModal(false);setForm({ramo:"Vida",periodo:"",metaBono:"",fechaInicio:"",fechaFin:"",cobrado:""});};
+  const guardar=()=>{
+    if(!form.metaBono)return;
+    setPaiMetas(prev=>[...prev,{...form,id:Date.now(),metaBono:Number(form.metaBono),cobrado:Number(form.cobrado)||0,activa:true,cerrado:false}]);
+    setShowModal(false);
+    setForm({ramo:"Vida",periodo:"",metaBono:"",fechaInicio:"",fechaFin:"",cobrado:""});
+  };
   const actualizarCobrado=(id,v)=>setPaiMetas(prev=>prev.map(m=>m.id===id?{...m,cobrado:Number(v)}:m));
-  const getEstado=(pct)=>pct>=80?{label:"🟢 En camino",color:"#059669"}:pct>=50?{label:"🟡 En proceso",color:"#d97706"}:{label:"🔴 Atención",color:"#dc2626"};
+  const eliminarMeta=(id)=>setPaiMetas(prev=>prev.filter(m=>m.id!==id));
+  const cerrarTrimestre=(id)=>setPaiMetas(prev=>prev.map(m=>m.id===id?{...m,cerrado:true,activa:false}:m));
+  const getEstado=(pct)=>pct>=100?{label:"🏆 Alcanzado",color:"#059669"}:pct>=80?{label:"🟢 En camino",color:"#16a34a"}:pct>=50?{label:"🟡 En proceso",color:"#d97706"}:{label:"🔴 Atención",color:"#dc2626"};
+
+  const metasActivas=paiMetas.filter(m=>!m.cerrado);
+  const metasCerradas=paiMetas.filter(m=>m.cerrado);
+
+  // Agrupar cerradas por periodo para el resumen trimestral
+  const resumenTrimestrales = metasCerradas.reduce((acc,m)=>{
+    if(!acc[m.periodo]) acc[m.periodo]=[];
+    acc[m.periodo].push(m);
+    return acc;
+  },{});
 
   const generarAlertaIA=async()=>{
+    if(metasActivas.length===0)return;
     setShowAlerta(true);setLoadingAlerta(true);setAlertaTexto("");
     try{
-      const resumen=paiMetas.map(m=>`Ramo ${m.ramo}: meta $${m.metaBono.toLocaleString()}, cobrado $${m.cobrado.toLocaleString()} (${Math.round(m.cobrado/m.metaBono*100)}%), falta $${(m.metaBono-m.cobrado).toLocaleString()}. Periodo: ${m.periodo}.`).join("\n");
+      const resumen=metasActivas.map(m=>`Ramo ${m.ramo}: meta $${m.metaBono.toLocaleString()}, cobrado $${m.cobrado.toLocaleString()} (${Math.round(m.cobrado/m.metaBono*100)}%), falta $${(m.metaBono-m.cobrado).toLocaleString()}. Periodo: ${m.periodo}.`).join("\n");
       const res=await fetch("/api/anthropic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:`Eres asistente de un agente de seguros en México. Genera un reporte semanal PAI basado en:\n\n${resumen}\n\nIncluye: saludo motivacional, avance global, ramos en riesgo, 3 acciones concretas esta semana y frase de cierre. Español, máximo 260 palabras, emojis con moderación.`}]})});
       const data=await res.json();
       setAlertaTexto(data.content.map(b=>b.text||"").join(""));
@@ -2834,76 +2982,143 @@ function PAI({ paiMetas, setPaiMetas }) {
   return(
     <div style={{display:"flex",flexDirection:"column",gap:24}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-        <SectionTitle title="PAI — Plan de Acción Individual" sub="Metas de bono por ramo · Seguimiento semanal con IA"/>
+        <SectionTitle title="PAI — Plan de Acción Individual" sub="Metas de bono por ramo · Seguimiento trimestral"/>
         <div style={{display:"flex",gap:10}}>
-          <Btn onClick={generarAlertaIA} color="#7c3aed" icon="spark">Alerta Semanal IA</Btn>
+          {metasActivas.length>0&&<Btn onClick={generarAlertaIA} color="#7c3aed" icon="spark">Alerta Semanal IA</Btn>}
           <Btn onClick={()=>setShowModal(true)} color="#059669" icon="plus">Nueva Meta</Btn>
         </div>
       </div>
 
-      {/* KPI global oscuro */}
-      <div style={{background:"linear-gradient(135deg,#0f172a,#1e3a5f)",borderRadius:18,padding:"24px 28px",display:"flex",alignItems:"center",gap:28}}>
-        <div style={{flex:1}}>
-          <div style={{fontSize:10,color:"#60a5fa",fontWeight:700,letterSpacing:"0.1em",marginBottom:4}}>PROGRESO GLOBAL DE BONO</div>
-          <div style={{fontSize:40,fontWeight:900,fontFamily:"'Playfair Display',serif",color:pctGlobal>=80?"#4ade80":pctGlobal>=50?"#fbbf24":"#f87171",lineHeight:1}}>{pctGlobal}%</div>
-          <div style={{color:"#94a3b8",fontSize:13,marginTop:4}}>${totalCobrado.toLocaleString()} cobrado de ${totalMeta.toLocaleString()}</div>
-          <div style={{marginTop:12}}><ProgressBar value={totalCobrado} max={totalMeta} color={pctGlobal>=80?"#4ade80":pctGlobal>=50?"#fbbf24":"#f87171"} height={10}/></div>
+      {paiMetas.length===0&&(
+        <div style={{background:"#fff",borderRadius:16,padding:"48px 24px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+          <div style={{fontSize:44,marginBottom:12}}>🎯</div>
+          <div style={{fontWeight:800,fontSize:16,fontFamily:"'Playfair Display',serif",marginBottom:6}}>Sin metas PAI registradas</div>
+          <div style={{fontSize:13,color:"#6b7280",marginBottom:20}}>Agrega tu primera meta de bono por ramo para comenzar el seguimiento</div>
+          <Btn onClick={()=>setShowModal(true)} color="#059669" icon="plus">Crear primera meta</Btn>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
-          {[["Meta Total",`$${totalMeta.toLocaleString()}`],["Cobrado",`$${totalCobrado.toLocaleString()}`],["Faltante",`$${(totalMeta-totalCobrado).toLocaleString()}`],["Ramos",paiMetas.length]].map(([l,v])=>(
-            <div key={l} style={{background:"rgba(255,255,255,0.07)",borderRadius:11,padding:"11px 14px",textAlign:"center"}}>
-              <div style={{fontSize:9,color:"#64748b",fontWeight:700,marginBottom:3}}>{l.toUpperCase()}</div>
-              <div style={{fontSize:17,fontWeight:800,color:"#e2e8f0"}}>{v}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
 
-      {/* Tarjetas por ramo */}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(270px,1fr))",gap:15}}>
-        {paiMetas.map(m=>{
-          const pct=Math.round((m.cobrado/m.metaBono)*100)||0;
-          const faltante=m.metaBono-m.cobrado;
-          const estado=getEstado(pct);
-          const [c1,c2]=ramoGrad[m.ramo]||["#6b7280","#9ca3af"];
-          return(
-            <div key={m.id} style={{background:"#fff",borderRadius:17,overflow:"hidden",boxShadow:"0 2px 10px rgba(0,0,0,0.08)"}}>
-              <div style={{background:`linear-gradient(135deg,${c1},${c2})`,padding:"16px 18px",color:"#fff"}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-                  <div>
-                    <div style={{fontSize:10,opacity:.8,fontWeight:700,letterSpacing:"0.08em"}}>{m.periodo}</div>
-                    <div style={{fontSize:20,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>{m.ramo}</div>
-                  </div>
-                  <div style={{fontSize:30,fontWeight:900,fontFamily:"'Playfair Display',serif",opacity:.9}}>{pct}%</div>
-                </div>
-                <div style={{marginTop:10}}><div style={{background:"rgba(255,255,255,.3)",borderRadius:99,height:7}}><div style={{height:"100%",width:`${Math.min(pct,100)}%`,background:"#fff",borderRadius:99,transition:"width .6s"}}/></div></div>
+      {/* KPI global — solo si hay metas activas */}
+      {metasActivas.length>0&&(
+        <div style={{background:"linear-gradient(135deg,#0f172a,#1e3a5f)",borderRadius:18,padding:"24px 28px",display:"flex",alignItems:"center",gap:28}}>
+          <div style={{flex:1}}>
+            <div style={{fontSize:10,color:"#60a5fa",fontWeight:700,letterSpacing:"0.1em",marginBottom:4}}>PROGRESO GLOBAL DE BONO</div>
+            <div style={{fontSize:40,fontWeight:900,fontFamily:"'Playfair Display',serif",color:pctGlobal>=80?"#4ade80":pctGlobal>=50?"#fbbf24":"#f87171",lineHeight:1}}>{pctGlobal}%</div>
+            <div style={{color:"#94a3b8",fontSize:13,marginTop:4}}>${totalCobrado.toLocaleString()} cobrado de ${totalMeta.toLocaleString()}</div>
+            <div style={{marginTop:12}}><ProgressBar value={totalCobrado} max={totalMeta} color={pctGlobal>=80?"#4ade80":pctGlobal>=50?"#fbbf24":"#f87171"} height={10}/></div>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
+            {[["Meta Total",`$${totalMeta.toLocaleString()}`],["Cobrado",`$${totalCobrado.toLocaleString()}`],["Faltante",`$${(totalMeta-totalCobrado).toLocaleString()}`],["Ramos",metasActivas.length]].map(([l,v])=>(
+              <div key={l} style={{background:"rgba(255,255,255,0.07)",borderRadius:11,padding:"11px 14px",textAlign:"center"}}>
+                <div style={{fontSize:9,color:"#64748b",fontWeight:700,marginBottom:3}}>{l.toUpperCase()}</div>
+                <div style={{fontSize:17,fontWeight:800,color:"#e2e8f0"}}>{v}</div>
               </div>
-              <div style={{padding:"16px 18px",display:"flex",flexDirection:"column",gap:12}}>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                  {[["Meta",`$${m.metaBono.toLocaleString()}`],["Cobrado",`$${m.cobrado.toLocaleString()}`],["Faltante",`$${faltante.toLocaleString()}`],["Estado",estado.label]].map(([l,v])=>(
-                    <div key={l} style={{background:"#f9fafb",borderRadius:9,padding:"8px 10px"}}>
-                      <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>{l}</div>
-                      <div style={{fontSize:13,fontWeight:700,color:l==="Estado"?estado.color:"#111827"}}>{v}</div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Tarjetas activas */}
+      {metasActivas.length>0&&(
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(270px,1fr))",gap:15}}>
+          {metasActivas.map(m=>{
+            const pct=m.metaBono>0?Math.round((m.cobrado/m.metaBono)*100):0;
+            const faltante=m.metaBono-m.cobrado;
+            const estado=getEstado(pct);
+            const [c1,c2]=ramoGrad[m.ramo]||["#6b7280","#9ca3af"];
+            return(
+              <div key={m.id} style={{background:"#fff",borderRadius:17,overflow:"hidden",boxShadow:"0 2px 10px rgba(0,0,0,0.08)"}}>
+                <div style={{background:`linear-gradient(135deg,${c1},${c2})`,padding:"16px 18px",color:"#fff"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                    <div>
+                      <div style={{fontSize:10,opacity:.8,fontWeight:700,letterSpacing:"0.08em"}}>{m.periodo||"Sin período"}</div>
+                      <div style={{fontSize:20,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>{m.ramo}</div>
                     </div>
-                  ))}
+                    <div style={{textAlign:"right"}}>
+                      <div style={{fontSize:30,fontWeight:900,fontFamily:"'Playfair Display',serif",opacity:.9}}>{pct}%</div>
+                    </div>
+                  </div>
+                  <div style={{marginTop:10}}><div style={{background:"rgba(255,255,255,.3)",borderRadius:99,height:7}}><div style={{height:"100%",width:`${Math.min(pct,100)}%`,background:"#fff",borderRadius:99,transition:"width .6s"}}/></div></div>
                 </div>
-                <div style={{borderTop:"1px solid #f3f4f6",paddingTop:10}}>
-                  <div style={{fontSize:10,fontWeight:700,color:"#6b7280",marginBottom:5}}>ACTUALIZAR COBRADO</div>
-                  <div style={{display:"flex",gap:7}}>
-                    <input type="number" defaultValue={m.cobrado} onBlur={e=>actualizarCobrado(m.id,e.target.value)} style={{flex:1,border:"1.5px solid #e5e7eb",borderRadius:8,padding:"7px 10px",fontSize:13,outline:"none",fontFamily:"inherit"}}/>
-                    <button onClick={e=>{const inp=e.currentTarget.previousSibling;actualizarCobrado(m.id,inp.value);inp.style.borderColor=c1;setTimeout(()=>inp.style.borderColor="#e5e7eb",900);}} style={{background:c1,color:"#fff",border:"none",borderRadius:8,padding:"7px 12px",fontWeight:700,cursor:"pointer",fontFamily:"inherit",fontSize:13}}>✓</button>
+                <div style={{padding:"16px 18px",display:"flex",flexDirection:"column",gap:12}}>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                    {[["Meta",`$${m.metaBono.toLocaleString()}`],["Cobrado",`$${m.cobrado.toLocaleString()}`],["Faltante",`$${faltante.toLocaleString()}`],["Estado",estado.label]].map(([l,v])=>(
+                      <div key={l} style={{background:"#f9fafb",borderRadius:9,padding:"8px 10px"}}>
+                        <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>{l}</div>
+                        <div style={{fontSize:13,fontWeight:700,color:l==="Estado"?estado.color:"#111827"}}>{v}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{borderTop:"1px solid #f3f4f6",paddingTop:10}}>
+                    <div style={{fontSize:10,fontWeight:700,color:"#6b7280",marginBottom:5}}>ACTUALIZAR COBRADO</div>
+                    <div style={{display:"flex",gap:7}}>
+                      <input type="number" defaultValue={m.cobrado} onBlur={e=>actualizarCobrado(m.id,e.target.value)} style={{flex:1,border:"1.5px solid #e5e7eb",borderRadius:8,padding:"7px 10px",fontSize:13,outline:"none",fontFamily:"inherit"}}/>
+                      <button onClick={e=>{const inp=e.currentTarget.previousSibling;actualizarCobrado(m.id,inp.value);inp.style.borderColor=c1;setTimeout(()=>inp.style.borderColor="#e5e7eb",900);}} style={{background:c1,color:"#fff",border:"none",borderRadius:8,padding:"7px 12px",fontWeight:700,cursor:"pointer",fontFamily:"inherit",fontSize:13}}>✓</button>
+                    </div>
+                  </div>
+                  <div style={{display:"flex",gap:8"}}>
+                    <button onClick={()=>{ if(window.confirm(`¿Cerrar trimestre "${m.periodo}" para ${m.ramo}? Se guardará el resultado final.`)) cerrarTrimestre(m.id); }}
+                      style={{flex:1,background:"#0f172a",color:"#fff",border:"none",borderRadius:8,padding:"8px 10px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                      🏁 Cerrar Trimestre
+                    </button>
+                    <button onClick={()=>{ if(window.confirm("¿Eliminar esta meta?")) eliminarMeta(m.id); }}
+                      style={{background:"#fef2f2",color:"#dc2626",border:"1.5px solid #fecaca",borderRadius:8,padding:"8px 10px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                      🗑
+                    </button>
                   </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Resúmenes trimestrales cerrados */}
+      {Object.keys(resumenTrimestrales).length>0&&(
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+          <div style={{fontSize:13,fontWeight:800,color:"#374151",borderBottom:"2px solid #e5e7eb",paddingBottom:8}}>📊 Resultados por Trimestre</div>
+          {Object.entries(resumenTrimestrales).map(([periodo,metas])=>{
+            const metaTotal=metas.reduce((a,m)=>a+m.metaBono,0);
+            const cobradoTotal=metas.reduce((a,m)=>a+m.cobrado,0);
+            const pctPeriodo=metaTotal>0?Math.round((cobradoTotal/metaTotal)*100):0;
+            return(
+              <div key={periodo} style={{background:"#fff",borderRadius:16,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+                {/* Header del trimestre */}
+                <div style={{background:"#0f172a",padding:"14px 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <div style={{color:"#f1f5f9",fontWeight:800,fontSize:15,fontFamily:"'Playfair Display',serif"}}>📅 {periodo}</div>
+                  <div style={{display:"flex",alignItems:"center",gap:14}}>
+                    <div style={{color:"#94a3b8",fontSize:12}}>Meta: <strong style={{color:"#e2e8f0"}}>${metaTotal.toLocaleString()}</strong></div>
+                    <div style={{color:"#94a3b8",fontSize:12}}>Cobrado: <strong style={{color:"#4ade80"}}>${cobradoTotal.toLocaleString()}</strong></div>
+                    <div style={{background:pctPeriodo>=100?"#059669":pctPeriodo>=80?"#16a34a":pctPeriodo>=50?"#d97706":"#dc2626",color:"#fff",borderRadius:20,padding:"3px 12px",fontWeight:800,fontSize:13}}>{pctPeriodo}%</div>
+                  </div>
+                </div>
+                {/* Tabla de ramos */}
+                <div style={{display:"grid",gridTemplateColumns:`repeat(${metas.length},1fr)`,gap:0}}>
+                  {metas.map((m,i)=>{
+                    const pct=m.metaBono>0?Math.round((m.cobrado/m.metaBono)*100):0;
+                    const [c1]=ramoGrad[m.ramo]||["#6b7280","#9ca3af"];
+                    const alcanzado=pct>=100;
+                    return(
+                      <div key={m.id} style={{padding:"16px 18px",borderRight:i<metas.length-1?"1px solid #f3f4f6":"none",textAlign:"center"}}>
+                        <div style={{fontSize:11,fontWeight:800,color:c1,marginBottom:4}}>{m.ramo}</div>
+                        <div style={{fontSize:24,fontWeight:900,fontFamily:"'Playfair Display',serif",color:alcanzado?"#059669":c1}}>{pct}%</div>
+                        <div style={{fontSize:11,color:"#6b7280",marginTop:2}}>${m.cobrado.toLocaleString()} / ${m.metaBono.toLocaleString()}</div>
+                        <div style={{marginTop:8}}><div style={{height:5,background:"#f3f4f6",borderRadius:99}}><div style={{height:"100%",width:`${Math.min(pct,100)}%`,background:alcanzado?"#059669":c1,borderRadius:99}}/></div></div>
+                        <div style={{marginTop:6,fontSize:11,fontWeight:700,color:alcanzado?"#059669":"#9ca3af"}}>{alcanzado?"🏆 Meta alcanzada":"⬤ "+getEstado(pct).label.split(" ").slice(1).join(" ")}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {showModal&&(
         <Modal title="Nueva Meta PAI" onClose={()=>setShowModal(false)}>
           <div style={{display:"flex",flexDirection:"column",gap:13}}>
-            <div style={{background:"#eff6ff",borderRadius:9,padding:"10px 13px",fontSize:12,color:"#1e40af"}}>🎯 Define tu meta de bono. La IA analizará el avance semanalmente.</div>
+            <div style={{background:"#eff6ff",borderRadius:9,padding:"10px 13px",fontSize:12,color:"#1e40af"}}>🎯 Define tu meta de bono. Al cerrar el trimestre se guardará el resultado final.</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
               <Sel label="Ramo *" value={form.ramo} onChange={e=>setForm(p=>({...p,ramo:e.target.value}))}>
                 {ramos.map(r=><option key={r}>{r}</option>)}
@@ -2935,7 +3150,7 @@ function PAI({ paiMetas, setPaiMetas }) {
           ):(
             <div style={{display:"flex",flexDirection:"column",gap:14}}>
               <div style={{background:"#0f172a",borderRadius:10,padding:"12px 14px",display:"flex",gap:8,flexWrap:"wrap"}}>
-                {paiMetas.map(m=><span key={m.id} style={{background:"rgba(255,255,255,.1)",color:"#e2e8f0",padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600}}>{m.ramo}: {Math.round(m.cobrado/m.metaBono*100)}%</span>)}
+                {metasActivas.map(m=><span key={m.id} style={{background:"rgba(255,255,255,.1)",color:"#e2e8f0",padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600}}>{m.ramo}: {Math.round(m.cobrado/m.metaBono*100)}%</span>)}
               </div>
               <div style={{background:"#f8fafc",borderRadius:12,padding:"18px 20px",border:"1px solid #e2e8f0"}}>
                 <pre style={{margin:0,fontSize:13,color:"#1e293b",whiteSpace:"pre-wrap",fontFamily:"inherit",lineHeight:1.7}}>{alertaTexto}</pre>
@@ -2959,66 +3174,95 @@ function Pipeline({ pipeline, setPipeline }) {
   const etapas=["Contacto","Cotización","Propuesta","Negociación","Cierre"];
   const colors={Contacto:"#6b7280",Cotización:"#2563eb",Propuesta:"#7c3aed",Negociación:"#d97706",Cierre:"#059669"};
   const [showModal,setShowModal]=useState(false);
-  const [form,setForm]=useState({cliente:"",tipo:"",valor:"",etapa:"Contacto",probabilidad:20,seguimiento:""});
-  const total=pipeline.reduce((a,p)=>a+(p.valor*p.probabilidad/100),0);
-  const guardar=()=>{if(!form.cliente)return;setPipeline(prev=>[...prev,{...form,id:Date.now(),valor:Number(form.valor),probabilidad:Number(form.probabilidad)}]);setShowModal(false);setForm({cliente:"",tipo:"",valor:"",etapa:"Contacto",probabilidad:20,seguimiento:""});};
+  const [tab,setTab]=useState("kanban");
+  const [form,setForm]=useState({cliente:"",tipo:"",etapa:"Contacto",probabilidad:20,seguimiento:"",telefono:"",email:"",ciudad:"",edad:"",fuente:"Manual",landingUrl:"",redSocial:"",notas:""});
+  const fuenteOpts=["Manual","Landing Page","Facebook","Instagram","LinkedIn","Referido","WhatsApp","Otro"];
+  const fuenteColor={Manual:"#6b7280","Landing Page":"#2563eb",Facebook:"#1877f2",Instagram:"#e1306c",LinkedIn:"#0a66c2",Referido:"#059669",WhatsApp:"#25d366",Otro:"#6b7280"};
+  const guardar=()=>{if(!form.cliente)return;setPipeline(prev=>[...prev,{...form,id:Date.now(),probabilidad:Number(form.probabilidad),edad:Number(form.edad)||null,fechaAlta:new Date().toLocaleDateString("es-MX")}]);setShowModal(false);setForm({cliente:"",tipo:"",etapa:"Contacto",probabilidad:20,seguimiento:"",telefono:"",email:"",ciudad:"",edad:"",fuente:"Manual",landingUrl:"",redSocial:"",notas:""});};
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-        <SectionTitle title="Pipeline de Ventas" sub={`Potencial ponderado: $${total.toLocaleString("es-MX",{maximumFractionDigits:0})}`}/>
+        <SectionTitle title="Prospectos" sub={`${pipeline.length} prospectos registrados`}/>
         <Btn onClick={()=>setShowModal(true)} color="#7c3aed" icon="plus">Nuevo Prospecto</Btn>
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:11}}>
-        {etapas.map(etapa=>{const items=pipeline.filter(p=>p.etapa===etapa);return(
-          <div key={etapa} style={{background:"#f9fafb",borderRadius:13,padding:12,minHeight:260}}>
-            <div style={{marginBottom:9}}><div style={{fontSize:9,fontWeight:800,color:colors[etapa],letterSpacing:"0.08em"}}>{etapa.toUpperCase()}</div><div style={{fontSize:11,color:"#9ca3af"}}>{items.length}</div></div>
-            {items.map(item=>(
-              <div key={item.id} style={{background:"#fff",borderRadius:9,padding:"9px 11px",boxShadow:"0 1px 3px rgba(0,0,0,.05)",borderLeft:`3px solid ${colors[etapa]}`,marginBottom:7}}>
-                <div style={{fontSize:12,fontWeight:700}}>{item.cliente}</div>
-                <div style={{fontSize:11,color:"#6b7280"}}>{item.tipo}</div>
-                <div style={{fontSize:13,fontWeight:800,color:colors[etapa],margin:"3px 0"}}>${item.valor.toLocaleString()}</div>
-                <div style={{height:3,background:"#e5e7eb",borderRadius:2}}><div style={{height:"100%",width:`${item.probabilidad}%`,background:colors[etapa],borderRadius:2}}/></div>
-                <div style={{fontSize:10,color:"#9ca3af",marginTop:3}}>{item.probabilidad}%</div>
-              </div>
-            ))}
-          </div>
-        );})}
+      <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:11,padding:4,width:"fit-content"}}>
+        {[["kanban","🗂 Kanban"],["lista","📋 Lista"]].map(([t,l])=>(
+          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?"#fff":"none",border:"none",borderRadius:8,padding:"7px 18px",fontSize:13,fontWeight:600,cursor:"pointer",color:tab===t?"#111827":"#6b7280",boxShadow:tab===t?"0 1px 4px rgba(0,0,0,0.1)":"none",fontFamily:"inherit"}}>{l}</button>
+        ))}
       </div>
-      {showModal&&(<Modal title="Nuevo Prospecto" onClose={()=>setShowModal(false)}>
-  <div style={{display:"flex",flexDirection:"column",gap:12}}>
-    <Inp label="Nombre del Prospecto *" value={form.cliente} onChange={e=>setForm(p=>({...p,cliente:e.target.value}))} placeholder="Nombre completo"/>
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
-      <Inp label="Tipo de seguro" value={form.tipo} onChange={e=>setForm(p=>({...p,tipo:e.target.value}))} placeholder="Ej: Vida Individual"/>
-      <Inp label="Prima estimada ($)" type="number" value={form.valor} onChange={e=>setForm(p=>({...p,valor:e.target.value}))}/>
-    </div>
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
-      <Inp label="Teléfono / WhatsApp" value={form.telefono||""} onChange={e=>setForm(p=>({...p,telefono:e.target.value}))} placeholder="55 1234 5678"/>
-      <Inp label="Email" value={form.email||""} onChange={e=>setForm(p=>({...p,email:e.target.value}))} placeholder="correo@email.com"/>
-    </div>
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
-      <Sel label="Etapa" value={form.etapa} onChange={e=>setForm(p=>({...p,etapa:e.target.value}))}>{etapas.map(e=><option key={e}>{e}</option>)}</Sel>
-      <Inp label="Agente asignado" value={form.agente||""} onChange={e=>setForm(p=>({...p,agente:e.target.value}))} placeholder="Nombre del agente"/>
-    </div>
-    <div>
-      <label style={{fontSize:12,fontWeight:600,color:"#374151",display:"block",marginBottom:5}}>Probabilidad de cierre: {form.probabilidad}%</label>
-      <input type="range" min={0} max={100} step={5} value={form.probabilidad} onChange={e=>setForm(p=>({...p,probabilidad:Number(e.target.value)}))} style={{width:"100%"}}/>
-    </div>
-    <Inp label="Fecha de seguimiento" type="date" value={form.seguimiento} onChange={e=>setForm(p=>({...p,seguimiento:e.target.value}))}/>
-    <Inp label="Notas" value={form.notas||""} onChange={e=>setForm(p=>({...p,notas:e.target.value}))} placeholder="Notas adicionales..."/>
-    {/* Botones de notificación */}
-    {(form.telefono||form.email)&&form.agente&&(
-      <div style={{background:"#f0fdf4",borderRadius:10,padding:"10px 14px",fontSize:12,color:"#065f46"}}>
-        <div style={{fontWeight:700,marginBottom:6}}>📤 Notificar al agente al guardar:</div>
-        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-          {form.telefono&&<span style={{background:"#25d366",color:"#fff",padding:"3px 10px",borderRadius:6,fontSize:11}}>💬 WhatsApp disponible</span>}
-          {form.email&&<span style={{background:"#2563eb",color:"#fff",padding:"3px 10px",borderRadius:6,fontSize:11}}>✉️ Email disponible</span>}
+      {tab==="kanban"&&(
+        <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:11}}>
+          {etapas.map(etapa=>{const items=pipeline.filter(p=>p.etapa===etapa);return(
+            <div key={etapa} style={{background:"#f9fafb",borderRadius:13,padding:12,minHeight:260}}>
+              <div style={{marginBottom:9}}><div style={{fontSize:9,fontWeight:800,color:colors[etapa],letterSpacing:"0.08em"}}>{etapa.toUpperCase()}</div><div style={{fontSize:11,color:"#9ca3af"}}>{items.length}</div></div>
+              {items.map(item=>(
+                <div key={item.id} style={{background:"#fff",borderRadius:9,padding:"9px 11px",boxShadow:"0 1px 3px rgba(0,0,0,.05)",borderLeft:`3px solid ${colors[etapa]}`,marginBottom:7}}>
+                  <div style={{fontSize:12,fontWeight:700}}>{item.cliente}</div>
+                  <div style={{fontSize:11,color:"#6b7280"}}>{item.tipo}</div>
+                  {item.ciudad&&<div style={{fontSize:10,color:"#9ca3af"}}>📍 {item.ciudad}{item.edad?` · ${item.edad} años`:""}</div>}
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:4}}>
+                    <span style={{fontSize:10,background:(fuenteColor[item.fuente]||"#6b7280")+"20",color:fuenteColor[item.fuente]||"#6b7280",padding:"1px 6px",borderRadius:5,fontWeight:700}}>{item.fuente||"Manual"}</span>
+                    <div style={{height:3,background:"#e5e7eb",borderRadius:2,width:50}}><div style={{height:"100%",width:`${item.probabilidad}%`,background:colors[etapa],borderRadius:2}}/></div>
+                  </div>
+                  <div style={{fontSize:10,color:"#9ca3af",marginTop:2}}>{item.probabilidad}% · {item.seguimiento||"—"}</div>
+                </div>
+              ))}
+            </div>
+          );})}
         </div>
-        <div style={{fontSize:11,color:"#6b7280",marginTop:6}}>Se generará un mensaje con los datos del prospecto para {form.agente}</div>
-      </div>
-    )}
-    <Btn onClick={guardar} color="#7c3aed" style={{width:"100%",justifyContent:"center"}}>Guardar Prospecto</Btn>
-  </div>
-</Modal>)}
+      )}
+      {tab==="lista"&&(
+        <div style={{background:"#fff",borderRadius:14,boxShadow:"0 1px 6px rgba(0,0,0,0.07)",overflow:"hidden"}}>
+          <table style={{width:"100%",borderCollapse:"collapse"}}>
+            <thead><tr style={{background:"#f9fafb"}}>{["Nombre","Tipo","Ciudad","Edad","Fuente","Etapa","Seguimiento"].map(h=><th key={h} style={{padding:"10px 14px",textAlign:"left",fontSize:11,fontWeight:700,color:"#6b7280"}}>{h}</th>)}</tr></thead>
+            <tbody>{pipeline.map(p=>(
+              <tr key={p.id} style={{borderTop:"1px solid #f3f4f6"}}>
+                <td style={{padding:"11px 14px",fontWeight:700,fontSize:13}}>{p.cliente}</td>
+                <td style={{padding:"11px 14px",fontSize:12,color:"#6b7280"}}>{p.tipo||"—"}</td>
+                <td style={{padding:"11px 14px",fontSize:12}}>{p.ciudad||"—"}</td>
+                <td style={{padding:"11px 14px",fontSize:12}}>{p.edad?`${p.edad} años`:"—"}</td>
+                <td style={{padding:"11px 14px"}}><span style={{background:(fuenteColor[p.fuente]||"#6b7280")+"20",color:fuenteColor[p.fuente]||"#6b7280",padding:"2px 8px",borderRadius:6,fontSize:11,fontWeight:700}}>{p.fuente||"Manual"}</span></td>
+                <td style={{padding:"11px 14px"}}><span style={{background:(colors[p.etapa]||"#6b7280")+"20",color:colors[p.etapa]||"#6b7280",padding:"2px 8px",borderRadius:6,fontSize:11,fontWeight:700}}>{p.etapa}</span></td>
+                <td style={{padding:"11px 14px",fontSize:12,color:"#6b7280"}}>{p.seguimiento||"—"}</td>
+              </tr>
+            ))}</tbody>
+          </table>
+          {pipeline.length===0&&<div style={{textAlign:"center",padding:"32px",color:"#9ca3af",fontSize:13}}>Sin prospectos registrados</div>}
+        </div>
+      )}
+      {showModal&&(
+        <Modal title="Nuevo Prospecto" onClose={()=>setShowModal(false)} maxW={560}>
+          <div style={{display:"flex",flexDirection:"column",gap:12}}>
+            <Inp label="Nombre completo *" value={form.cliente} onChange={e=>setForm(p=>({...p,cliente:e.target.value}))} placeholder="Nombre completo"/>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
+              <Inp label="Tipo de seguro" value={form.tipo} onChange={e=>setForm(p=>({...p,tipo:e.target.value}))} placeholder="Ej: Vida Individual"/>
+              <Inp label="Ciudad de residencia" value={form.ciudad} onChange={e=>setForm(p=>({...p,ciudad:e.target.value}))} placeholder="Ej: Guadalajara"/>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
+              <Inp label="Teléfono / WhatsApp" value={form.telefono} onChange={e=>setForm(p=>({...p,telefono:e.target.value}))} placeholder="55 1234 5678"/>
+              <Inp label="Email" value={form.email} onChange={e=>setForm(p=>({...p,email:e.target.value}))} placeholder="correo@email.com"/>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
+              <Inp label="Edad" type="number" value={form.edad} onChange={e=>setForm(p=>({...p,edad:e.target.value}))} placeholder="Ej: 35"/>
+              <Sel label="Fuente / Origen" value={form.fuente} onChange={e=>setForm(p=>({...p,fuente:e.target.value}))}>{fuenteOpts.map(f=><option key={f}>{f}</option>)}</Sel>
+            </div>
+            {(form.fuente==="Landing Page"||form.fuente==="Facebook"||form.fuente==="Instagram"||form.fuente==="LinkedIn")&&(
+              <div style={{background:"#eff6ff",borderRadius:10,padding:"12px 14px",display:"flex",flexDirection:"column",gap:9}}>
+                <div style={{fontSize:11,fontWeight:700,color:"#1e40af"}}>🌐 Datos de captación digital</div>
+                {form.fuente==="Landing Page"&&<Inp label="URL landing page" value={form.landingUrl} onChange={e=>setForm(p=>({...p,landingUrl:e.target.value}))} placeholder="https://mipagina.com/cotizar"/>}
+                {(form.fuente==="Facebook"||form.fuente==="Instagram"||form.fuente==="LinkedIn")&&<Inp label={`Perfil en ${form.fuente}`} value={form.redSocial} onChange={e=>setForm(p=>({...p,redSocial:e.target.value}))} placeholder={`@usuario`}/>}
+              </div>
+            )}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
+              <Sel label="Etapa" value={form.etapa} onChange={e=>setForm(p=>({...p,etapa:e.target.value}))}>{etapas.map(e=><option key={e}>{e}</option>)}</Sel>
+              <Inp label="Fecha de seguimiento" type="date" value={form.seguimiento} onChange={e=>setForm(p=>({...p,seguimiento:e.target.value}))}/>
+            </div>
+            <div><label style={{fontSize:12,fontWeight:600,color:"#374151",display:"block",marginBottom:5}}>Probabilidad de cierre: {form.probabilidad}%</label><input type="range" min={0} max={100} step={5} value={form.probabilidad} onChange={e=>setForm(p=>({...p,probabilidad:Number(e.target.value)}))} style={{width:"100%"}}/></div>
+            <Inp label="Notas" value={form.notas} onChange={e=>setForm(p=>({...p,notas:e.target.value}))} placeholder="Notas adicionales..."/>
+            <Btn onClick={guardar} color="#7c3aed" style={{width:"100%",justifyContent:"center"}}>Guardar Prospecto</Btn>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
@@ -3054,16 +3298,148 @@ function Tareas({ tareas, setTareas }) {
 // ═══════════════════════════════════════════════════════════════════
 function Usuarios({ usuarios, setUsuarios }) {
   const [showModal,setShowModal]=useState(false);
-  const [form,setForm]=useState({nombre:"",email:"",telefono:"",rol:"agente",status:"activo"});
+  const [showConfirmBaja,setShowConfirmBaja]=useState(null);
+  const [form,setForm]=useState({nombre:"",username:"",password:"",email:"",telefono:"",rol:"agente"});
+  const [verPass,setVerPass]=useState({});
   const rolColor={admin:"#7c3aed",agente:"#2563eb",asistente:"#6b7280"};
-  const guardar=()=>{if(!form.nombre)return;const clave="AGT-"+String(usuarios.length+1).padStart(3,"0");setUsuarios(prev=>[...prev,{...form,id:Date.now(),clave,polizasAsignadas:0}]);setShowModal(false);setForm({nombre:"",email:"",telefono:"",rol:"agente",status:"activo"});};
+  const rolLabel={admin:"Administrador",agente:"Agente",asistente:"Asistente"};
+
+  const usernameExiste=(u)=>usuarios.some(x=>x.username.toLowerCase()===u.toLowerCase());
+
+  const guardar=()=>{
+    if(!form.nombre||!form.username||!form.password)return;
+    if(usernameExiste(form.username)){alert("El nombre de usuario ya existe. Elige otro.");return;}
+    const clave="AGT-"+String(usuarios.length+1).padStart(3,"0");
+    setUsuarios(prev=>[...prev,{...form,id:Date.now(),clave,status:"activo"}]);
+    setShowModal(false);
+    setForm({nombre:"",username:"",password:"",email:"",telefono:"",rol:"agente"});
+  };
+
+  const darDeBaja=(id)=>{
+    setUsuarios(prev=>prev.filter(u=>u.id!==id));
+    setShowConfirmBaja(null);
+  };
+
+  const adminCount=usuarios.filter(u=>u.rol==="admin").length;
+
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><SectionTitle title="Usuarios del Sistema" sub={`${usuarios.length} usuarios registrados`}/><Btn onClick={()=>setShowModal(true)} color="#7c3aed" icon="plus">Nuevo Usuario</Btn></div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(270px,1fr))",gap:14}}>
-        {usuarios.map(u=>(<div key={u.id} style={{background:"#fff",borderRadius:15,padding:18,boxShadow:"0 1px 6px rgba(0,0,0,.07)",borderTop:`3px solid ${rolColor[u.rol]||"#6b7280"}`}}><div style={{display:"flex",alignItems:"center",gap:11,marginBottom:13}}><div style={{width:42,height:42,borderRadius:"50%",background:`linear-gradient(135deg,${rolColor[u.rol]||"#6b7280"},${rolColor[u.rol]||"#6b7280"}88)`,color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:14,flexShrink:0}}>{u.nombre.split(" ").map(n=>n[0]).join("").slice(0,2)}</div><div style={{flex:1}}><div style={{fontWeight:700,fontSize:14}}>{u.nombre}</div><div style={{fontSize:12,color:"#6b7280"}}>{u.email}</div></div><span style={{background:(rolColor[u.rol]||"#6b7280")+"18",color:rolColor[u.rol]||"#6b7280",padding:"3px 9px",borderRadius:20,fontSize:12,fontWeight:700}}>{u.rol}</span></div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7,fontSize:12}}><div style={{background:"#f9fafb",borderRadius:8,padding:"7px 9px"}}><div style={{color:"#9ca3af",fontSize:10}}>Clave</div><div style={{fontWeight:700,fontFamily:"monospace"}}>{u.clave}</div></div><div style={{background:"#f9fafb",borderRadius:8,padding:"7px 9px"}}><div style={{color:"#9ca3af",fontSize:10}}>Pólizas</div><div style={{fontWeight:700}}>{u.polizasAsignadas}</div></div></div></div>))}
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <SectionTitle title="Usuarios del Sistema" sub={`${usuarios.length} usuarios registrados — Solo el administrador puede gestionar usuarios`}/>
+        <Btn onClick={()=>setShowModal(true)} color="#7c3aed" icon="plus">Nuevo Usuario</Btn>
       </div>
-      {showModal&&(<Modal title="Nuevo Usuario" onClose={()=>setShowModal(false)}><div style={{display:"flex",flexDirection:"column",gap:12}}><Inp label="Nombre *" value={form.nombre} onChange={e=>setForm(p=>({...p,nombre:e.target.value}))}/><Inp label="Email *" type="email" value={form.email} onChange={e=>setForm(p=>({...p,email:e.target.value}))}/><Inp label="Teléfono" value={form.telefono} onChange={e=>setForm(p=>({...p,telefono:e.target.value}))}/><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}><Sel label="Rol" value={form.rol} onChange={e=>setForm(p=>({...p,rol:e.target.value}))}><option value="admin">Administrador</option><option value="agente">Agente</option><option value="asistente">Asistente</option></Sel><Sel label="Estado" value={form.status} onChange={e=>setForm(p=>({...p,status:e.target.value}))}><option value="activo">Activo</option><option value="inactivo">Inactivo</option></Sel></div><Btn onClick={guardar} color="#7c3aed" style={{width:"100%",justifyContent:"center"}}>Crear</Btn></div></Modal>)}
+
+      <div style={{background:"#fef3c7",borderRadius:12,padding:"12px 16px",border:"1px solid #fde68a",fontSize:12,color:"#92400e"}}>
+        🔐 <strong>Área restringida.</strong> Solo el Administrador puede dar de alta, modificar o eliminar usuarios del sistema.
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:14}}>
+        {usuarios.map(u=>(
+          <div key={u.id} style={{background:"#fff",borderRadius:15,boxShadow:"0 1px 8px rgba(0,0,0,0.08)",borderTop:`3px solid ${rolColor[u.rol]||"#6b7280"}`,overflow:"hidden"}}>
+            <div style={{padding:"16px 18px"}}>
+              <div style={{display:"flex",alignItems:"center",gap:11,marginBottom:14}}>
+                <div style={{width:44,height:44,borderRadius:"50%",background:`linear-gradient(135deg,${rolColor[u.rol]||"#6b7280"},${rolColor[u.rol]||"#6b7280"}88)`,color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:15,flexShrink:0}}>
+                  {u.nombre.split(" ").map(n=>n[0]).join("").slice(0,2).toUpperCase()}
+                </div>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:800,fontSize:14}}>{u.nombre}</div>
+                  <div style={{fontSize:11,color:"#6b7280"}}>{u.email||"Sin email"}</div>
+                </div>
+                <span style={{background:(rolColor[u.rol]||"#6b7280")+"18",color:rolColor[u.rol]||"#6b7280",padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:700}}>
+                  {rolLabel[u.rol]||u.rol}
+                </span>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
+                <div style={{background:"#f9fafb",borderRadius:9,padding:"8px 10px"}}>
+                  <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>USUARIO</div>
+                  <div style={{fontSize:13,fontWeight:800,fontFamily:"monospace",color:"#374151"}}>@{u.username}</div>
+                </div>
+                <div style={{background:"#f9fafb",borderRadius:9,padding:"8px 10px"}}>
+                  <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>CONTRASEÑA</div>
+                  <div style={{display:"flex",alignItems:"center",gap:6}}>
+                    <div style={{fontSize:13,fontWeight:700,fontFamily:"monospace",color:"#374151",flex:1}}>
+                      {verPass[u.id]?u.password:"••••••••"}
+                    </div>
+                    <button onClick={()=>setVerPass(p=>({...p,[u.id]:!p[u.id]}))}
+                      style={{background:"none",border:"none",cursor:"pointer",color:"#9ca3af",fontSize:13,padding:0}}>
+                      {verPass[u.id]?"🙈":"👁"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              {u.telefono&&<div style={{fontSize:12,color:"#6b7280",marginBottom:10}}>📞 {u.telefono}</div>}
+            </div>
+            {/* Solo se puede dar de baja si no es el último admin */}
+            {!(u.rol==="admin"&&adminCount===1)&&(
+              <div style={{borderTop:"1px solid #f3f4f6",padding:"10px 18px"}}>
+                <button onClick={()=>setShowConfirmBaja(u)}
+                  style={{width:"100%",background:"#fef2f2",color:"#dc2626",border:"1.5px solid #fecaca",borderRadius:9,padding:"8px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                  🗑 Dar de baja y eliminar
+                </button>
+              </div>
+            )}
+            {u.rol==="admin"&&adminCount===1&&(
+              <div style={{borderTop:"1px solid #f3f4f6",padding:"10px 18px"}}>
+                <div style={{fontSize:11,color:"#9ca3af",textAlign:"center"}}>El último administrador no puede eliminarse</div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Modal Alta */}
+      {showModal&&(
+        <Modal title="Nuevo Usuario" onClose={()=>setShowModal(false)}>
+          <div style={{display:"flex",flexDirection:"column",gap:12}}>
+            <div style={{background:"#eff6ff",borderRadius:9,padding:"10px 13px",fontSize:12,color:"#1e40af"}}>
+              🔐 Define el nombre de usuario y contraseña para acceso al sistema.
+            </div>
+            <Inp label="Nombre completo *" value={form.nombre} onChange={e=>setForm(p=>({...p,nombre:e.target.value}))} placeholder="Ej: Laura Pérez García"/>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
+              <Inp label="Usuario (login) *" value={form.username} onChange={e=>setForm(p=>({...p,username:e.target.value.toLowerCase().replace(/\s/g,"")}))} placeholder="Ej: lperez"/>
+              <Inp label="Contraseña *" type="text" value={form.password} onChange={e=>setForm(p=>({...p,password:e.target.value}))} placeholder="Mínimo 6 caracteres"/>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
+              <Inp label="Email" type="email" value={form.email} onChange={e=>setForm(p=>({...p,email:e.target.value}))} placeholder="correo@empresa.com"/>
+              <Inp label="Teléfono" value={form.telefono} onChange={e=>setForm(p=>({...p,telefono:e.target.value}))} placeholder="55 0000 0000"/>
+            </div>
+            <Sel label="Rol" value={form.rol} onChange={e=>setForm(p=>({...p,rol:e.target.value}))}>
+              <option value="admin">Administrador</option>
+              <option value="agente">Agente</option>
+              <option value="asistente">Asistente</option>
+            </Sel>
+            {(!form.nombre||!form.username||!form.password)&&(
+              <div style={{fontSize:11,color:"#9ca3af"}}>* Nombre, usuario y contraseña son requeridos</div>
+            )}
+            <Btn onClick={guardar} color="#7c3aed" style={{width:"100%",justifyContent:"center"}} disabled={!form.nombre||!form.username||!form.password}>
+              Crear Usuario
+            </Btn>
+          </div>
+        </Modal>
+      )}
+
+      {/* Modal confirmación baja */}
+      {showConfirmBaja&&(
+        <Modal title="⚠️ Confirmar eliminación" onClose={()=>setShowConfirmBaja(null)}>
+          <div style={{display:"flex",flexDirection:"column",gap:16}}>
+            <div style={{background:"#fef2f2",borderRadius:10,padding:"14px 16px",border:"1px solid #fecaca"}}>
+              <div style={{fontWeight:700,color:"#991b1b",marginBottom:6}}>¿Eliminar este usuario del sistema?</div>
+              <div style={{fontSize:13,color:"#374151"}}>
+                <strong>@{showConfirmBaja.username}</strong> — {showConfirmBaja.nombre}
+              </div>
+              <div style={{fontSize:12,color:"#6b7280",marginTop:6}}>Esta acción no se puede deshacer. El usuario perderá acceso inmediatamente.</div>
+            </div>
+            <div style={{display:"flex",gap:10}}>
+              <button onClick={()=>setShowConfirmBaja(null)} style={{flex:1,background:"#f3f4f6",border:"none",borderRadius:9,padding:"10px",fontWeight:600,cursor:"pointer",fontFamily:"inherit",fontSize:13}}>
+                Cancelar
+              </button>
+              <button onClick={()=>darDeBaja(showConfirmBaja.id)} style={{flex:1,background:"#dc2626",color:"#fff",border:"none",borderRadius:9,padding:"10px",fontWeight:700,cursor:"pointer",fontFamily:"inherit",fontSize:13}}>
+                Sí, eliminar
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
@@ -4612,6 +4988,73 @@ function ModalPagoComision({ poliza, subagentes, calcComision, fmtMXN, onPagar, 
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// CONFIGURACIÓN
+// ═══════════════════════════════════════════════════════════════════
+function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios, setUsuarios, polizas, setPolizas }) {
+  const [tab, setTab] = useState("empresa");
+  const [form, setForm] = useState({...config});
+  const [saved, setSaved] = useState(false);
+
+  const guardar = () => {
+    setConfig(form);
+    setSaved(true);
+    setTimeout(()=>setSaved(false), 2500);
+  };
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:22}}>
+      <SectionTitle title="Configuración" sub="Personaliza el sistema y gestiona usuarios y subagentes"/>
+
+      <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:11,padding:4,width:"fit-content",flexWrap:"wrap"}}>
+        {[["empresa","🏢 Empresa / Agente"],["usuarios","👤 Usuarios"],["subagentes","🤝 Subagentes"]].map(([t,l])=>(
+          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?"#fff":"none",border:"none",borderRadius:8,padding:"7px 18px",fontSize:13,fontWeight:600,cursor:"pointer",color:tab===t?"#111827":"#6b7280",boxShadow:tab===t?"0 1px 4px rgba(0,0,0,0.1)":"none",fontFamily:"inherit"}}>{l}</button>
+        ))}
+      </div>
+
+      {tab==="empresa"&&(
+        <div style={{background:"#fff",borderRadius:16,padding:24,boxShadow:"0 1px 6px rgba(0,0,0,0.07)",maxWidth:600}}>
+          <div style={{fontSize:13,fontWeight:700,color:"#374151",marginBottom:16}}>Datos del Agente o Empresa</div>
+          <div style={{display:"flex",flexDirection:"column",gap:12}}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+              <Inp label="Nombre del Agente / Empresa *" value={form.nombre||""} onChange={e=>setForm(p=>({...p,nombre:e.target.value}))} placeholder="Ej: García Seguros"/>
+              <Inp label="RFC" value={form.rfc||""} onChange={e=>setForm(p=>({...p,rfc:e.target.value}))} placeholder="GARC800101XXX"/>
+            </div>
+            <Inp label="Domicilio" value={form.domicilio||""} onChange={e=>setForm(p=>({...p,domicilio:e.target.value}))} placeholder="Calle, Número, Colonia"/>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+              <Inp label="Ciudad" value={form.ciudad||""} onChange={e=>setForm(p=>({...p,ciudad:e.target.value}))} placeholder="Ej: Monterrey, N.L."/>
+              <Inp label="Código Postal" value={form.cp||""} onChange={e=>setForm(p=>({...p,cp:e.target.value}))} placeholder="64000"/>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+              <Inp label="Teléfono de contacto" value={form.telefono||""} onChange={e=>setForm(p=>({...p,telefono:e.target.value}))} placeholder="81 0000 0000"/>
+              <Inp label="Correo de contacto" type="email" value={form.email||""} onChange={e=>setForm(p=>({...p,email:e.target.value}))} placeholder="contacto@agencia.com"/>
+            </div>
+            <Inp label="Sitio web" value={form.web||""} onChange={e=>setForm(p=>({...p,web:e.target.value}))} placeholder="https://www.agencia.com"/>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+              <Inp label="Licencia / Cédula" value={form.licencia||""} onChange={e=>setForm(p=>({...p,licencia:e.target.value}))} placeholder="Número de cédula AMB"/>
+              <Inp label="Aseguradora principal" value={form.aseguradoraPrincipal||""} onChange={e=>setForm(p=>({...p,aseguradoraPrincipal:e.target.value}))} placeholder="Ej: GNP, Sura, AXA"/>
+            </div>
+            <div style={{marginTop:8,display:"flex",gap:10,alignItems:"center"}}>
+              <button onClick={guardar} style={{background:"#0f172a",color:"#fff",border:"none",borderRadius:9,padding:"10px 26px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                💾 Guardar cambios
+              </button>
+              {saved&&<span style={{color:"#059669",fontWeight:700,fontSize:13}}>✅ Guardado</span>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {tab==="usuarios"&&(
+        <Usuarios usuarios={usuarios} setUsuarios={setUsuarios}/>
+      )}
+
+      {tab==="subagentes"&&(
+        <Subagentes subagentes={subagentes} setSubagentes={setSubagentes} polizas={polizas} setPolizas={setPolizas}/>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // APP PRINCIPAL
 // ═══════════════════════════════════════════════════════════════════
 export default function CRMSeguros() {
@@ -4623,6 +5066,7 @@ export default function CRMSeguros() {
   const [usuarios,setUsuarios]=useState(USUARIOS_INIT);
   const [paiMetas,setPaiMetas]=useState(PAI_METAS_INIT);
   const [subagentes,setSubagentes]=useState(SUBAGENTES_INIT);
+  const [config,setConfig]=useState({nombre:"SeguroCRM",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:""});
 
   const PLANTILLAS_DEFAULT = {
     vencimiento:  `Hola {nombre} 👋,\n\nTe escribo de *SeguroCRM* para recordarte sobre tu póliza:\n\n📄 *Póliza:* {numero}\n🏢 *Aseguradora:* {aseguradora}\n🔖 *Ramo:* {ramo}\n📅 *Vencimiento:* {vencimiento}\n💰 *Prima:* ${"{prima}"} ({frecuencia})\n\nPara renovar contáctame 😊\n\n_Tu agente de seguros_`,
@@ -4639,12 +5083,10 @@ export default function CRMSeguros() {
     {id:"clientes",       label:"Clientes",        icon:"clients"},
     {id:"polizas",        label:"Pólizas",         icon:"policies", badge:"IA"},
     {id:"pipeline",       label:"Prospectos",      icon:"pipeline"},
-    {id:"subagentes",     label:"Subagentes",      icon:"users"},
     {id:"notificaciones", label:"Notificaciones",  icon:"bell"},
-    {id:"whatsapp",       label:"WhatsApp",        icon:"whatsapp", badge:"NEW"},
     {id:"importar",       label:"Importar BD",     icon:"scan"},
     {id:"pai",            label:"PAI",             icon:"trophy"},
-    {id:"usuarios",       label:"Usuarios",        icon:"users"},
+    {id:"configuracion",  label:"Configuración",   icon:"users", badge:"NEW"},
   ];
   const badgeColors={IA:"#2563eb",NEW:"#25d366"};
 
@@ -4672,8 +5114,13 @@ export default function CRMSeguros() {
         </nav>
         <div style={{padding:"12px 16px",borderTop:"1px solid #1e293b"}}>
           <div style={{display:"flex",alignItems:"center",gap:9}}>
-            <div style={{width:30,height:30,borderRadius:"50%",background:"linear-gradient(135deg,#2563eb,#7c3aed)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:700,fontSize:11}}>AG</div>
-            <div><div style={{color:"#e2e8f0",fontSize:12,fontWeight:600}}>Agente García</div><div style={{color:"#475569",fontSize:10}}>Administrador</div></div>
+            <div style={{width:30,height:30,borderRadius:"50%",background:"linear-gradient(135deg,#2563eb,#7c3aed)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:700,fontSize:11}}>
+              {(config.nombre||"SC").split(" ").map(n=>n[0]).join("").slice(0,2).toUpperCase()}
+            </div>
+            <div>
+              <div style={{color:"#e2e8f0",fontSize:12,fontWeight:600}}>{config.nombre||"SeguroCRM"}</div>
+              <div style={{color:"#475569",fontSize:10}}>Administrador</div>
+            </div>
           </div>
         </div>
       </div>
@@ -4683,15 +5130,13 @@ export default function CRMSeguros() {
         {vista==="dashboard"&&<Dashboard clientes={clientes} polizas={polizas} pipeline={pipeline} tareas={tareas} paiMetas={paiMetas}/>}
         {vista==="clientes"&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas}/>}
         {vista==="polizas"&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes}/>}
-        {vista==="notificaciones"&&<Notificaciones polizas={polizas} plantillas={plantillas}/>}
-        {vista==="whatsapp"&&<WhatsAppConfig plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes} polizas={polizas}/>}
+        {vista==="notificaciones"&&<Notificaciones polizas={polizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes}/>}
         {vista==="pai"&&<PAI paiMetas={paiMetas} setPaiMetas={setPaiMetas}/>}
         {vista==="pipeline"&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}
         {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas}/>}
         {vista==="calendario"&&<Calendario polizas={polizas} clientes={clientes}/>}
         {vista==="importar"&&<Importador clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas}/>}
-        {vista==="subagentes"&&<Subagentes subagentes={subagentes} setSubagentes={setSubagentes} polizas={polizas} setPolizas={setPolizas}/>}
-        {vista==="usuarios"&&<Usuarios usuarios={usuarios} setUsuarios={setUsuarios}/>}
+        {vista==="configuracion"&&<Configuracion config={config} setConfig={setConfig} subagentes={subagentes} setSubagentes={setSubagentes} usuarios={usuarios} setUsuarios={setUsuarios} polizas={polizas} setPolizas={setPolizas}/>}
       </div>
     </div>
   );

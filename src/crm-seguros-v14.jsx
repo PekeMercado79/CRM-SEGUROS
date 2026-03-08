@@ -2584,19 +2584,22 @@ function Notificaciones({ polizas, plantillas }) {
             <div style={{display:"flex",flexDirection:"column",gap:12}}>
               {proximasVencer.map(p=>{
                 const dias=Math.ceil((new Date(p.vencimiento)-new Date())/(1000*60*60*24));
+                const prima = p.primaTotal||p.prima||0;
+                const frecuencia = p.formaPago||p.frecuencia||"";
+                const rc = ramoColor(p.ramo||"");
                 return(
                   <div key={p.id} style={{background:"#fff",borderRadius:14,padding:18,boxShadow:"0 1px 6px rgba(0,0,0,0.07)",border:`1px solid ${dias<=7?"#fecaca":dias<=15?"#fde68a":"#e5e7eb"}`}}>
                     <div style={{display:"flex",alignItems:"flex-start",gap:16}}>
                       <div style={{flex:1}}>
                         <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
-                          <div style={{fontWeight:800,fontSize:14}}>{p.cliente}</div>
+                          <div style={{fontWeight:800,fontSize:14}}>{p.cliente||"—"}</div>
                           <div style={{background:dias<=7?"#fee2e2":dias<=15?"#fef3c7":"#dbeafe",color:dias<=7?"#991b1b":dias<=15?"#92400e":"#1e40af",padding:"2px 9px",borderRadius:20,fontSize:12,fontWeight:700}}>
                             {dias===0?"¡Hoy!":`${dias}d`}
                           </div>
-                          <span style={{background:ramoColor(p.ramo)+"15",color:ramoColor(p.ramo),padding:"2px 9px",borderRadius:20,fontSize:11,fontWeight:700}}>{p.ramo}{p.subramo?` · ${p.subramo}`:""}</span>
+                          {p.ramo&&<span style={{background:rc+"15",color:rc,padding:"2px 9px",borderRadius:20,fontSize:11,fontWeight:700}}>{p.ramo}{p.subramo?` · ${p.subramo}`:""}</span>}
                         </div>
                         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(120px,1fr))",gap:8}}>
-                          {[["Póliza",p.numero],["Aseguradora",p.aseguradora],["Prima",`$${p.prima?.toLocaleString()} ${p.frecuencia}`],["Vencimiento",p.vencimiento],["Email",p.emailCliente||"—"]].map(([l,v])=>(
+                          {[["Póliza",p.numero||"—"],["Aseguradora",p.aseguradora||"—"],["Prima",prima?`$${Number(prima).toLocaleString()} ${frecuencia}`:"—"],["Vencimiento",p.vencimiento||"—"],["Email",p.emailCliente||"—"]].map(([l,v])=>(
                             <div key={l}><div style={{fontSize:10,color:"#9ca3af",fontWeight:700}}>{l}</div><div style={{fontSize:12,fontWeight:600}}>{v}</div></div>
                           ))}
                         </div>
@@ -4631,17 +4634,17 @@ export default function CRMSeguros() {
   const [plantillas, setPlantillas] = useState(PLANTILLAS_DEFAULT);
 
   const nav=[
-    {id:"dashboard",    label:"Dashboard",      icon:"dashboard"},
-    {id:"clientes",     label:"Clientes",        icon:"clients"},
-    {id:"polizas",      label:"Pólizas",         icon:"policies", badge:"IA"},
-    {id:"calendario",   label:"Calendario",      icon:"tasks",    badge:"NEW"},
-    {id:"notificaciones",label:"Notificaciones", icon:"bell"},
-    {id:"whatsapp",     label:"WhatsApp",        icon:"whatsapp", badge:"NEW"},
-    {id:"pai",          label:"PAI",             icon:"trophy"},
-    {id:"pipeline",     label:"Prospectos",      icon:"pipeline"},
-    {id:"importar",     label:"Importar BD",     icon:"scan"},
-    {id:"subagentes",   label:"Subagentes",      icon:"users"},
-    {id:"usuarios",     label:"Usuarios",        icon:"users"},
+    {id:"dashboard",      label:"Dashboard",       icon:"dashboard"},
+    {id:"calendario",     label:"Calendario",      icon:"tasks"},
+    {id:"clientes",       label:"Clientes",        icon:"clients"},
+    {id:"polizas",        label:"Pólizas",         icon:"policies", badge:"IA"},
+    {id:"pipeline",       label:"Prospectos",      icon:"pipeline"},
+    {id:"subagentes",     label:"Subagentes",      icon:"users"},
+    {id:"notificaciones", label:"Notificaciones",  icon:"bell"},
+    {id:"whatsapp",       label:"WhatsApp",        icon:"whatsapp", badge:"NEW"},
+    {id:"importar",       label:"Importar BD",     icon:"scan"},
+    {id:"pai",            label:"PAI",             icon:"trophy"},
+    {id:"usuarios",       label:"Usuarios",        icon:"users"},
   ];
   const badgeColors={IA:"#2563eb",NEW:"#25d366"};
 

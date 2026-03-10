@@ -2990,67 +2990,80 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
                     </div>
                   )}
 
-                  {/* Botones de acción post-preview */}
-                  {!esMail && editandoTipo!=="personalizado" && clienteDemo?.whatsapp&&(
-                    <button onClick={()=>{
-                      const msg=encodeURIComponent(aplicarVarsDemo(plantillasActuales[editandoTipo]));
-                      const tel=(clienteDemo.whatsapp||"").replace(/\D/g,"");
-                      window.open(`https://wa.me/52${tel}?text=${msg}`,"_blank");
-                    }}
-                      style={{marginTop:10,display:"inline-flex",alignItems:"center",gap:8,background:"#25d366",border:"none",
-                        borderRadius:9,padding:"9px 18px",fontSize:12,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
-                      <Icon name="whatsapp" size={13}/> Enviar a {clienteDemo.nombre}
-                    </button>
-                  )}
-                  {!esMail && editandoTipo==="personalizado"&&(
-                    <div style={{marginTop:8,background:"#fffbeb",borderRadius:9,padding:"10px 13px",border:"1px solid #fde68a",fontSize:12,color:"#92400e"}}>
-                      💬 El mensaje personalizado debe enviarse manualmente desde WhatsApp.
-                    </div>
-                  )}
+                  {/* ── BOTONES DE ENVÍO — aparecen en todos los tipos ── */}
+                  <div style={{marginTop:12,display:"flex",flexDirection:"column",gap:10}}>
 
-                  {/* Adjuntos para email */}
-                  {esMail&&(
-                    <div style={{marginTop:10}}>
-                      <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:6}}>📎 ADJUNTAR ARCHIVOS O IMÁGENES</div>
-                      <label style={{display:"inline-flex",alignItems:"center",gap:8,background:"#eff6ff",border:"1.5px dashed #93c5fd",borderRadius:9,padding:"8px 16px",fontSize:12,fontWeight:600,color:"#1d4ed8",cursor:"pointer"}}>
-                        <input type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
-                          onChange={e=>{
-                            const files=Array.from(e.target.files);
-                            setForm_adjuntos(prev=>[...prev,...files.map(f=>({name:f.name,size:f.size,type:f.type}))]);
-                          }}
-                          style={{display:"none"}}/>
-                        📁 Seleccionar archivos
-                      </label>
-                      {adjuntosEmail.length>0&&(
-                        <div style={{display:"flex",flexWrap:"wrap",gap:7,marginTop:8}}>
-                          {adjuntosEmail.map((a,i)=>(
-                            <div key={i} style={{background:"#f0f9ff",border:"1px solid #bae6fd",borderRadius:8,padding:"5px 10px",fontSize:11,display:"flex",alignItems:"center",gap:6}}>
-                              <span>{a.type.startsWith("image/")?"🖼":"📄"}</span>
-                              <span style={{fontWeight:600,color:"#0369a1",maxWidth:130,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.name}</span>
-                              <span style={{color:"#94a3b8"}}>({(a.size/1024).toFixed(0)}kb)</span>
-                              <button onClick={()=>setForm_adjuntos(prev=>prev.filter((_,j)=>j!==i))}
-                                style={{background:"none",border:"none",color:"#dc2626",cursor:"pointer",fontSize:14,padding:0,lineHeight:1}}>×</button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      {editandoTipo==="personalizado"?(
-                        <div style={{marginTop:8,background:"#fffbeb",borderRadius:9,padding:"10px 13px",border:"1px solid #fde68a",fontSize:12,color:"#92400e"}}>
-                          📧 El correo personalizado debe enviarse manualmente desde tu cliente de email con los archivos adjuntos.
-                        </div>
-                      ):clienteDemo?.email&&(
+                    {!esMail&&(
+                      // ── WhatsApp ──
+                      clienteDemo?.whatsapp ? (
                         <button onClick={()=>{
-                          const asunto=encodeURIComponent(`${TIPOS_PLANTILLA.find(t=>t.key===editandoTipo)?.label.replace(/[^\w ]/g,"")||""}`);
-                          const cuerpo=encodeURIComponent(aplicarVarsDemo(plantillasActuales[editandoTipo]));
-                          window.open(`mailto:${clienteDemo.email}?subject=${asunto}&body=${cuerpo}`,"_blank");
+                          const msg=encodeURIComponent(aplicarVarsDemo(plantillasActuales[editandoTipo]));
+                          const tel=(clienteDemo.whatsapp||"").replace(/\D/g,"");
+                          window.open(`https://wa.me/52${tel}?text=${msg}`,"_blank");
                         }}
-                          style={{marginTop:8,display:"inline-flex",alignItems:"center",gap:8,background:"#2563eb",border:"none",
-                            borderRadius:9,padding:"9px 18px",fontSize:12,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
-                          📧 Enviar correo a {clienteDemo.nombre}
+                          style={{display:"inline-flex",alignItems:"center",gap:8,background:"#25d366",border:"none",
+                            borderRadius:9,padding:"10px 20px",fontSize:13,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit",width:"fit-content"}}>
+                          <Icon name="whatsapp" size={14}/> Enviar WhatsApp a {clienteDemo.nombre}
                         </button>
-                      )}
-                    </div>
-                  )}
+                      ) : (
+                        <div style={{background:"#f0fdf4",border:"1.5px dashed #86efac",borderRadius:9,padding:"10px 14px",fontSize:12,color:"#16a34a"}}>
+                          💬 <strong>Para enviar por WhatsApp:</strong> selecciona un cliente en "Vista previa" que tenga número de WhatsApp registrado.
+                        </div>
+                      )
+                    )}
+
+                    {esMail&&(
+                      // ── Correo ──
+                      <>
+                        {/* Adjuntos */}
+                        <div>
+                          <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:6}}>📎 Adjuntar archivos o imágenes (opcional)</div>
+                          <label style={{display:"inline-flex",alignItems:"center",gap:8,background:"#eff6ff",border:"1.5px dashed #93c5fd",
+                            borderRadius:9,padding:"8px 16px",fontSize:12,fontWeight:600,color:"#1d4ed8",cursor:"pointer"}}>
+                            <input type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                              onChange={e=>{
+                                const files=Array.from(e.target.files);
+                                setForm_adjuntos(prev=>[...prev,...files.map(f=>({name:f.name,size:f.size,type:f.type}))]);
+                              }}
+                              style={{display:"none"}}/>
+                            📁 Seleccionar archivos
+                          </label>
+                          {adjuntosEmail.length>0&&(
+                            <div style={{display:"flex",flexWrap:"wrap",gap:7,marginTop:8}}>
+                              {adjuntosEmail.map((a,i)=>(
+                                <div key={i} style={{background:"#f0f9ff",border:"1px solid #bae6fd",borderRadius:8,padding:"5px 10px",
+                                  fontSize:11,display:"flex",alignItems:"center",gap:6}}>
+                                  <span>{a.type.startsWith("image/")?"🖼":"📄"}</span>
+                                  <span style={{fontWeight:600,color:"#0369a1",maxWidth:130,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.name}</span>
+                                  <span style={{color:"#94a3b8"}}>({(a.size/1024).toFixed(0)}kb)</span>
+                                  <button onClick={()=>setForm_adjuntos(prev=>prev.filter((_,j)=>j!==i))}
+                                    style={{background:"none",border:"none",color:"#dc2626",cursor:"pointer",fontSize:14,padding:0,lineHeight:1}}>×</button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Botón enviar email */}
+                        {clienteDemo?.email ? (
+                          <button onClick={()=>{
+                            const tipo=TIPOS_PLANTILLA.find(t=>t.key===editandoTipo);
+                            const asunto=encodeURIComponent(`${tipo?.label.replace(/[^\w ]/g,"")||"Mensaje"} — Póliza`);
+                            const cuerpo=encodeURIComponent(aplicarVarsDemo(plantillasActuales[editandoTipo]));
+                            window.open(`mailto:${clienteDemo.email}?subject=${asunto}&body=${cuerpo}`,"_blank");
+                          }}
+                            style={{display:"inline-flex",alignItems:"center",gap:8,background:"#2563eb",border:"none",
+                              borderRadius:9,padding:"10px 20px",fontSize:13,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit",width:"fit-content"}}>
+                            📧 Enviar correo a {clienteDemo.nombre}
+                          </button>
+                        ) : (
+                          <div style={{background:"#eff6ff",border:"1.5px dashed #93c5fd",borderRadius:9,padding:"10px 14px",fontSize:12,color:"#1d4ed8"}}>
+                            📧 <strong>Para enviar correo:</strong> selecciona un cliente en "Vista previa" que tenga email registrado.
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

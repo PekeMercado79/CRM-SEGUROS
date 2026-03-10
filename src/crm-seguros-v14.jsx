@@ -2855,6 +2855,7 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
   const [editandoTipo,setEditandoTipo]=useState("vencimiento");
   const [editandoCanal,setEditandoCanalPlantilla]=useState("whatsapp");
   const [clienteDemo,setClienteDemo]=useState(null);
+  const [nombreManual,setNombreManual]=useState("");
 
   // Plantillas de email por defecto
   const EMAIL_DEFAULT={
@@ -3022,8 +3023,9 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
         const demoPoliza=clienteDemo?polizas.find(p=>p.clienteId===clienteDemo.id)||{cliente:`${clienteDemo.nombre} ${clienteDemo.apellidoPaterno}`}
           :{cliente:"María González Ruiz",numero:"GNP-2024-001234",aseguradora:"GNP",ramo:"Vida",subramo:"Vida Individual",vencimiento:"2025-01-15",primaTotal:8400,formaPago:"Anual"};
 
+        const nombreVars = nombreManual.trim() || demoPoliza.cliente?.split(" ")[0] || "María";
         const aplicarVarsDemo=(tpl)=>(tpl||"")
-          .replace(/{nombre}/g,demoPoliza.cliente?.split(" ")[0]||"María")
+          .replace(/{nombre}/g,nombreVars)
           .replace(/{numero}/g,demoPoliza.numero||"GNP-2024-001234")
           .replace(/{aseguradora}/g,demoPoliza.aseguradora||"GNP")
           .replace(/{ramo}/g,demoPoliza.ramo||"Vida")
@@ -3098,14 +3100,39 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
 
                 {/* Preview */}
                 <div style={{background:esMail?"#eff6ff":"#f0fdf4",borderRadius:12,padding:14,border:`1.5px solid ${esMail?"#bfdbfe":"#bbf7d0"}`}}>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-                    <div style={{fontSize:11,fontWeight:800,color:esMail?"#1e40af":"#065f46"}}>👁 VISTA PREVIA</div>
-                    <select value={clienteDemo?.id||""}
-                      onChange={e=>{const c=clientes?.find(x=>x.id===Number(e.target.value));setClienteDemo(c||null);}}
-                      style={{border:"1.5px solid #e5e7eb",borderRadius:7,padding:"4px 9px",fontSize:11,outline:"none",fontFamily:"inherit",background:"#fff"}}>
-                      <option value="">Datos de ejemplo</option>
-                      {(clientes||[]).map(c=><option key={c.id} value={c.id}>{c.nombre} {c.apellidoPaterno}</option>)}
-                    </select>
+                  <div style={{marginBottom:10}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+                      <div style={{fontSize:11,fontWeight:800,color:esMail?"#1e40af":"#065f46"}}>👁 VISTA PREVIA</div>
+                    </div>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                      <div>
+                        <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>SELECCIONAR CLIENTE</div>
+                        <select value={clienteDemo?.id||""}
+                          onChange={e=>{
+                            const c=clientes?.find(x=>x.id===Number(e.target.value));
+                            setClienteDemo(c||null);
+                            if(c) setNombreManual("");
+                          }}
+                          style={{border:"1.5px solid #e5e7eb",borderRadius:8,padding:"7px 10px",fontSize:12,outline:"none",fontFamily:"inherit",background:"#fff",width:"100%"}}>
+                          <option value="">— Datos de ejemplo —</option>
+                          {(clientes||[]).map(c=><option key={c.id} value={c.id}>{c.nombre} {c.apellidoPaterno}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>O ESCRIBE EL NOMBRE</div>
+                        <input
+                          value={nombreManual}
+                          onChange={e=>{setNombreManual(e.target.value); if(e.target.value) setClienteDemo(null);}}
+                          placeholder="Ej: Juan, María..."
+                          style={{border:"1.5px solid "+(nombreManual?"#2563eb":"#e5e7eb"),borderRadius:8,padding:"7px 10px",fontSize:12,outline:"none",fontFamily:"inherit",background:"#fff",width:"100%",boxSizing:"border-box",transition:"border-color .15s"}}
+                        />
+                      </div>
+                    </div>
+                    {(clienteDemo||nombreManual)&&(
+                      <div style={{marginTop:6,fontSize:11,color:"#059669",fontWeight:600}}>
+                        ✓ Vista previa con nombre: <strong>{nombreManual||clienteDemo?.nombre}</strong>
+                      </div>
+                    )}
                   </div>
                   {esMail?(
                     <div style={{background:"#fff",borderRadius:9,padding:"12px 14px",border:"1px solid #e5e7eb"}}>

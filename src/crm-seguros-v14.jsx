@@ -503,7 +503,20 @@ const FORM_CLIENTE_INIT = {
 // ═══════════════════════════════════════════════════════════════════
 // DETALLE CLIENTE MODAL
 // ═══════════════════════════════════════════════════════════════════
-function DetalleClienteModal({ cliente, polizas=[], onClose }) {
+function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
+  const [editando, setEditando] = useState(false);
+  const [form, setForm] = useState({...cliente});
+  const [guardado, setGuardado] = useState(false);
+
+  const upd = (k,v) => setForm(p=>({...p,[k]:v}));
+
+  const guardar = () => {
+    onGuardar(form);
+    setGuardado(true);
+    setTimeout(()=>setGuardado(false), 2500);
+    setEditando(false);
+  };
+
   const polizasCliente = polizas.filter(p=>
     p.clienteId===cliente.id || p.cliente===nombreCompleto(cliente)
   );
@@ -521,38 +534,181 @@ function DetalleClienteModal({ cliente, polizas=[], onClose }) {
   const stColors={activa:"#059669","por vencer":"#d97706",vencida:"#dc2626",cancelada:"#6b7280"};
   const stLabels={activa:"✓ Vigente","por vencer":"⚠ Por vencer",vencida:"✗ Vencida",cancelada:"○ Cancelada"};
 
+  const inpStyle={border:"1.5px solid #e5e7eb",borderRadius:8,padding:"7px 10px",fontSize:12,outline:"none",fontFamily:"inherit",width:"100%",boxSizing:"border-box",background:"#fff",color:"#111827"};
+  const inpFocusStyle="1.5px solid #2563eb";
+
   return(
-    <Modal title={nombreCompleto(cliente)} onClose={onClose} wide maxW={820}>
+    <Modal title={nombreCompleto(editando?form:cliente)} onClose={onClose} wide maxW={820}>
       <div style={{display:"flex",flexDirection:"column",gap:18}}>
-        <div style={{background:"#f8fafc",borderRadius:12,padding:"16px 18px"}}>
-          <div style={{fontSize:11,fontWeight:800,color:"#6b7280",letterSpacing:"0.08em",marginBottom:12}}>INFORMACIÓN PERSONAL</div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-            {[
-              ["Nombre",nombreCompleto(cliente)],
-              ["RFC",cliente.rfc||"—"],
-              ["Fecha de Nacimiento",cliente.fechaNacimiento||"—"],
-              ["Sexo",cliente.sexo==="M"?"Masculino":cliente.sexo==="F"?"Femenino":"—"],
-              ["Email",cliente.email||"—"],
-              ["Teléfono",cliente.telefono||"—"],
-              ["WhatsApp",cliente.whatsapp||"—"],
-              ["Ciudad",cliente.ciudad||"—"],
-              ["Estado",cliente.estado||"—"],
-            ].map(([l,v])=>(
-              <div key={l} style={{background:"#fff",borderRadius:9,padding:"9px 12px"}}>
-                <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>{l.toUpperCase()}</div>
-                <div style={{fontSize:12,fontWeight:600,color:"#111827"}}>{v}</div>
-              </div>
+
+        {/* Toggle Ver / Editar */}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:10,padding:3}}>
+            {[["ver","👁 Ver datos"],["edit","✏️ Editar"]].map(([m,l])=>(
+              <button key={m} onClick={()=>{ setEditando(m==="edit"); if(m==="edit") setForm({...cliente}); }}
+                style={{background:((m==="edit"&&editando)||(m==="ver"&&!editando))?"#fff":"none",border:"none",
+                  borderRadius:8,padding:"7px 20px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",
+                  color:((m==="edit"&&editando)||(m==="ver"&&!editando))?"#111827":"#6b7280",
+                  boxShadow:((m==="edit"&&editando)||(m==="ver"&&!editando))?"0 1px 4px rgba(0,0,0,0.1)":"none"}}>
+                {l}
+              </button>
             ))}
           </div>
-          {cliente.whatsapp&&(
-            <div style={{marginTop:12}}>
-              <Btn onClick={()=>window.open("https://wa.me/52"+cliente.whatsapp.replace(/\D/g,""),"_blank")} color="#25d366" icon="whatsapp">
-                Abrir WhatsApp
-              </Btn>
-            </div>
-          )}
+          {guardado&&<span style={{color:"#059669",fontWeight:700,fontSize:13}}>✅ Cambios guardados</span>}
         </div>
 
+        {/* MODO VER */}
+        {!editando&&(
+          <>
+            <div style={{background:"#f8fafc",borderRadius:12,padding:"16px 18px"}}>
+              <div style={{fontSize:11,fontWeight:800,color:"#6b7280",letterSpacing:"0.08em",marginBottom:12}}>INFORMACIÓN PERSONAL</div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+                {[
+                  ["Nombre",nombreCompleto(cliente)],
+                  ["RFC",cliente.rfc||"—"],
+                  ["Fecha de Nacimiento",cliente.fechaNacimiento||"—"],
+                  ["Sexo",cliente.sexo==="M"?"Masculino":cliente.sexo==="F"?"Femenino":"—"],
+                  ["Email",cliente.email||"—"],
+                  ["Teléfono",cliente.telefono||"—"],
+                  ["WhatsApp",cliente.whatsapp||"—"],
+                  ["Ciudad",cliente.ciudad||"—"],
+                  ["Estado",cliente.estado||"—"],
+                ].map(([l,v])=>(
+                  <div key={l} style={{background:"#fff",borderRadius:9,padding:"9px 12px"}}>
+                    <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>{l.toUpperCase()}</div>
+                    <div style={{fontSize:12,fontWeight:600,color:v==="—"?"#d1d5db":"#111827"}}>{v}</div>
+                  </div>
+                ))}
+              </div>
+              {(cliente.calle||cliente.colonia||cliente.cp)&&(
+                <div style={{marginTop:10,background:"#fff",borderRadius:9,padding:"9px 12px"}}>
+                  <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>DOMICILIO</div>
+                  <div style={{fontSize:12,fontWeight:600,color:"#111827"}}>
+                    {[cliente.calle,cliente.numero,cliente.colonia,cliente.cp].filter(Boolean).join(", ")||"—"}
+                  </div>
+                </div>
+              )}
+              {cliente.whatsapp&&(
+                <div style={{marginTop:12}}>
+                  <Btn onClick={()=>window.open("https://wa.me/52"+cliente.whatsapp.replace(/\D/g,""),"_blank")} color="#25d366" icon="whatsapp">
+                    Abrir WhatsApp
+                  </Btn>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* MODO EDITAR */}
+        {editando&&(
+          <div style={{background:"#f8fafc",borderRadius:12,padding:"16px 18px",display:"flex",flexDirection:"column",gap:12}}>
+            <div style={{fontSize:11,fontWeight:800,color:"#2563eb",letterSpacing:"0.08em",marginBottom:4}}>✏️ EDITAR INFORMACIÓN PERSONAL</div>
+
+            {/* Nombre */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
+              <div>
+                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>NOMBRE(S) *</div>
+                <input value={form.nombre||""} onChange={e=>upd("nombre",e.target.value)} style={inpStyle} placeholder="Nombre(s)"/>
+              </div>
+              <div>
+                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>APELLIDO PATERNO *</div>
+                <input value={form.apellidoPaterno||""} onChange={e=>upd("apellidoPaterno",e.target.value)} style={inpStyle} placeholder="Apellido paterno"/>
+              </div>
+              <div>
+                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>APELLIDO MATERNO</div>
+                <input value={form.apellidoMaterno||""} onChange={e=>upd("apellidoMaterno",e.target.value)} style={inpStyle} placeholder="Apellido materno"/>
+              </div>
+            </div>
+
+            {/* Datos personales */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
+              <div>
+                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>RFC</div>
+                <input value={form.rfc||""} onChange={e=>upd("rfc",e.target.value.toUpperCase())} style={inpStyle} placeholder="RFC"/>
+              </div>
+              <div>
+                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>FECHA DE NACIMIENTO</div>
+                <input type="date" value={form.fechaNacimiento||""} onChange={e=>upd("fechaNacimiento",e.target.value)} style={inpStyle}/>
+              </div>
+              <div>
+                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>SEXO</div>
+                <select value={form.sexo||""} onChange={e=>upd("sexo",e.target.value)} style={inpStyle}>
+                  <option value="">— Seleccionar —</option>
+                  <option value="M">Masculino</option>
+                  <option value="F">Femenino</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Contacto */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
+              <div>
+                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>EMAIL</div>
+                <input type="email" value={form.email||""} onChange={e=>upd("email",e.target.value)} style={inpStyle} placeholder="correo@email.com"/>
+              </div>
+              <div>
+                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>TELÉFONO</div>
+                <input value={form.telefono||""} onChange={e=>upd("telefono",e.target.value)} style={inpStyle} placeholder="55 0000 0000"/>
+              </div>
+              <div>
+                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>WHATSAPP</div>
+                <input value={form.whatsapp||""} onChange={e=>upd("whatsapp",e.target.value)} style={inpStyle} placeholder="55 0000 0000"/>
+              </div>
+            </div>
+
+            {/* Domicilio */}
+            <div style={{fontSize:10,color:"#6b7280",fontWeight:800,marginTop:4,marginBottom:2,letterSpacing:"0.06em"}}>DOMICILIO</div>
+            <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:10}}>
+              <div>
+                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>CALLE</div>
+                <input value={form.calle||""} onChange={e=>upd("calle",e.target.value)} style={inpStyle} placeholder="Nombre de calle"/>
+              </div>
+              <div>
+                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>NÚMERO EXT.</div>
+                <input value={form.numero||""} onChange={e=>upd("numero",e.target.value)} style={inpStyle} placeholder="123"/>
+              </div>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10}}>
+              <div>
+                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>COLONIA</div>
+                <input value={form.colonia||""} onChange={e=>upd("colonia",e.target.value)} style={inpStyle} placeholder="Colonia"/>
+              </div>
+              <div>
+                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>C.P.</div>
+                <input value={form.cp||""} onChange={e=>upd("cp",e.target.value)} style={inpStyle} placeholder="00000"/>
+              </div>
+              <div>
+                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>CIUDAD</div>
+                <input value={form.ciudad||""} onChange={e=>upd("ciudad",e.target.value)} style={inpStyle} placeholder="Ciudad"/>
+              </div>
+              <div>
+                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>ESTADO</div>
+                <input value={form.estado||""} onChange={e=>upd("estado",e.target.value)} style={inpStyle} placeholder="Estado"/>
+              </div>
+            </div>
+
+            {/* Notas */}
+            <div>
+              <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>NOTAS</div>
+              <textarea value={form.notas||""} onChange={e=>upd("notas",e.target.value)} rows={2}
+                placeholder="Observaciones, comentarios..." style={{...inpStyle,resize:"none",lineHeight:1.6}}/>
+            </div>
+
+            {/* Botones guardar */}
+            <div style={{display:"flex",gap:10,marginTop:4,paddingTop:12,borderTop:"1px solid #e5e7eb"}}>
+              <button onClick={()=>setEditando(false)}
+                style={{background:"#f3f4f6",border:"none",borderRadius:9,padding:"9px 22px",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit",color:"#6b7280"}}>
+                Cancelar
+              </button>
+              <button onClick={guardar}
+                style={{background:"#0f172a",color:"#fff",border:"none",borderRadius:9,padding:"9px 28px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",marginLeft:"auto"}}>
+                💾 Guardar cambios
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Pólizas — siempre visible */}
         <div>
           <div style={{fontSize:11,fontWeight:800,color:"#6b7280",letterSpacing:"0.08em",marginBottom:10}}>
             PÓLIZAS ({polizasCliente.length})
@@ -829,6 +985,10 @@ function Clientes({ clientes, setClientes, polizas=[] }) {
         cliente={showDetalle}
         polizas={polizas}
         onClose={()=>setShowDetalle(null)}
+        onGuardar={(clienteEditado)=>{
+          setClientes(prev=>prev.map(c=>c.id===clienteEditado.id?clienteEditado:c));
+          setShowDetalle(clienteEditado);
+        }}
       />}
     </div>
   );

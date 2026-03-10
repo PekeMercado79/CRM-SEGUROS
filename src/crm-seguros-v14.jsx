@@ -514,7 +514,6 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
           ))}
         </div>
       </div>
-    </div>
 
       {alertaDetalle&&(
         <Modal title={`Póliza ${alertaDetalle.numero}`} onClose={()=>setAlertaDetalle(null)} wide maxW={620}>
@@ -553,6 +552,7 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
           </div>
         </Modal>
       )}
+    </div>
   );
 }
 

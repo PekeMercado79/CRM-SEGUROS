@@ -528,7 +528,7 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
               </div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
-              {[["Aseguradora",alertaDetalle.aseguradora||"—"],["Forma de pago",alertaDetalle.formaPago||alertaDetalle.frecuencia||"—"],["Inicio vigencia",alertaDetalle.inicio||"—"],["Fin vigencia",alertaDetalle.vencimiento||"—"],["Prima neta",alertaDetalle.primaNeta?`$${Number(alertaDetalle.primaNeta).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],["Gestor / Clave",alertaDetalle.gestorCobro||"—"],["Agente",alertaDetalle.agentePoliza||"—"],["Moneda",alertaDetalle.moneda||"MXN"]].map(([l,v])=>(
+              {[["Aseguradora",alertaDetalle.aseguradora||"—"],["Forma de pago",alertaDetalle.formaPago||alertaDetalle.frecuencia||"—"],["Inicio vigencia",alertaDetalle.inicio||"—"],["Fin vigencia",alertaDetalle.vencimiento||"—"],["Prima neta",alertaDetalle.primaNeta?`$${Number(alertaDetalle.primaNeta).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],["Agente",alertaDetalle.agentePoliza||"—"],["Moneda",alertaDetalle.moneda||"MXN"]].map(([l,v])=>(
                 <div key={l} style={{background:"#f9fafb",borderRadius:9,padding:"9px 12px"}}>
                   <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>{l.toUpperCase()}</div>
                   <div style={{fontSize:13,fontWeight:600,color:"#111827"}}>{v}</div>
@@ -839,7 +839,7 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
               </div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
-              {[["Aseguradora",polizaVer.aseguradora||"—"],["Forma de Pago",polizaVer.formaPago||polizaVer.frecuencia||"—"],["Inicio Vigencia",polizaVer.inicio||"—"],["Fin Vigencia",polizaVer.vencimiento||"—"],["Prima Neta",polizaVer.primaNeta?`$${Number(polizaVer.primaNeta).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],["Gestor / Clave",polizaVer.gestorCobro||"—"],["Agente",polizaVer.agentePoliza||"—"],["Beneficiario",polizaVer.beneficiarioPreferente||"—"]].map(([l,v])=>(
+              {[["Aseguradora",polizaVer.aseguradora||"—"],["Forma de Pago",polizaVer.formaPago||polizaVer.frecuencia||"—"],["Inicio Vigencia",polizaVer.inicio||"—"],["Fin Vigencia",polizaVer.vencimiento||"—"],["Prima Neta",polizaVer.primaNeta?`$${Number(polizaVer.primaNeta).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],["Agente",polizaVer.agentePoliza||"—"],["Beneficiario",polizaVer.beneficiarioPreferente||"—"]].map(([l,v])=>(
                 <div key={l} style={{background:"#f9fafb",borderRadius:9,padding:"9px 12px"}}>
                   <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>{l.toUpperCase()}</div>
                   <div style={{fontSize:13,fontWeight:600,color:"#111827"}}>{v}</div>
@@ -2302,7 +2302,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
       rfc: data.rfcCliente || "",
       inicio: normalizarFecha(data.inicio),
       vencimiento: normalizarFecha(data.vencimiento),
-      formaPago: data.formaPago || data.frecuencia || "Anual",
+      formaPago: data.formaPago || data.frecuencia || "",
       prima: parseFloat(data.primaTotal)||parseFloat(data.prima)||0,
       primaNeta: parseFloat(data.primaNeta)||0,
       gastosExpedicion: parseFloat(data.gastosExpedicion)||0,
@@ -2312,7 +2312,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
       montoIva: parseFloat(data.montoIva)||0,
       primaTotal: parseFloat(data.primaTotal)||parseFloat(data.prima)||0,
       moneda: data.moneda||"MXN",
-      gestorCobro: data.gestorCobro||"",
+
       agentePoliza: data.agentePoliza||"",
       beneficiarioPreferente: data.beneficiarioPreferente||data.beneficiario||"",
       coberturas: Array.isArray(data.coberturas)?data.coberturas:[],
@@ -2582,7 +2582,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                 ["Aseguradora", polizaDetalle.aseguradora||"—"],
                 ["Forma de Pago", polizaDetalle.formaPago||polizaDetalle.frecuencia||"—"],
                 ["Moneda", polizaDetalle.moneda||"MXN"],
-                ["Gestor / Clave", polizaDetalle.gestorCobro||"—"],
+
                 ["Agente", polizaDetalle.agentePoliza||"—"],
                 ["Vigencia Inicio", polizaDetalle.inicio||"—"],
                 ["Vigencia Fin", polizaDetalle.vencimiento||"—"],
@@ -2875,11 +2875,21 @@ function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, 
         </div>
         <div>
           <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>FORMA DE PAGO</div>
-          <input value={er.frecuencia||""} onChange={e=>upd("frecuencia",e.target.value)} style={inpStyle}/>
+          <select value={er.formaPago||er.frecuencia||"Anual"} onChange={e=>upd("formaPago",e.target.value)} style={{...inpStyle,paddingRight:4}}>
+            {["Anual","Semestral","Trimestral","Mensual","Contado","Único"].map(f=><option key={f}>{f}</option>)}
+          </select>
         </div>
         <div>
           <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>GASTOS EXPEDICIÓN</div>
           <input value={er.gastosExpedicion||""} onChange={e=>upd("gastosExpedicion",e.target.value)} style={inpStyle} placeholder="0.00"/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>% RECARGO FRACC.</div>
+          <input value={er.porcentajeRecargo||""} onChange={e=>upd("porcentajeRecargo",e.target.value)} style={inpStyle} placeholder="7.5"/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>RECARGO PAGO FRACC. ($)</div>
+          <input value={er.recargoPago||""} onChange={e=>upd("recargoPago",e.target.value)} style={inpStyle} placeholder="0.00"/>
         </div>
         <div>
           <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>% IVA</div>
@@ -2892,10 +2902,6 @@ function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, 
         <div>
           <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>RFC CLIENTE</div>
           <input value={er.rfcCliente||""} onChange={e=>upd("rfcCliente",e.target.value)} style={inpStyle} placeholder="XXXX000000XXX"/>
-        </div>
-        <div>
-          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>GESTOR / CLAVE AGENTE</div>
-          <input value={er.gestorCobro||""} onChange={e=>upd("gestorCobro",e.target.value)} style={inpStyle} placeholder="12362"/>
         </div>
         <div>
           <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>AGENTE</div>
@@ -2968,9 +2974,10 @@ function ScanPoliza({ onClose, onExtracted }) {
         "- agentePoliza: nombre del agente",
         "- beneficiarioPreferente: nombre del beneficiario",
         "- notas: cualquier observacion relevante",
+        "IMPORTANTE: NO extraigas ni incluyas campo gestorCobro en el JSON.",
         "",
         "Formato JSON exacto (usa 0 si no encuentras el valor numerico, cadena vacia si no encuentras texto):",
-        '{"numero":"","endoso":"","cliente":"","rfcCliente":"","aseguradora":"","ramo":"","subramo":"","formaPago":"","moneda":"MXN","agentePoliza":"","beneficiarioPreferente":"","primaNeta":0,"gastosExpedicion":0,"porcentajeRecargo":0,"recargoPago":0,"porcentajeIva":16,"montoIva":0,"primaTotal":0,"inicio":"YYYY-MM-DD","vencimiento":"YYYY-MM-DD","coberturas":[],"notas":""}'
+        '{"numero":"","endoso":"","cliente":"","rfcCliente":"","aseguradora":"","ramo":"","subramo":"","formaPago":"Anual","moneda":"MXN","agentePoliza":"","beneficiarioPreferente":"","primaNeta":0,"gastosExpedicion":0,"porcentajeRecargo":0,"recargoPago":0,"porcentajeIva":16,"montoIva":0,"primaTotal":0,"inicio":"YYYY-MM-DD","vencimiento":"YYYY-MM-DD","coberturas":[],"notas":""}'
       ].join("\n");
 
       const res=await fetch("/api/anthropic",{

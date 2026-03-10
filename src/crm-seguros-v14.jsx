@@ -400,8 +400,6 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
 
       {/* KPIs */}
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(155px,1fr))",gap:11}}>
-        <KPICard label="Clientes" value={clientes.length} sub="En cartera" icon="clients" accent="#2563eb"/>
-        <KPICard label="Pólizas Vigentes" value={activas.length} sub={`${polizas.length} total`} icon="shield" accent="#059669"/>
         <KPICard label="Por Vencer" value={porVencer.length} sub="≤30 días" icon="shield" accent="#d97706"/>
         <KPICard label="Vencidas" value={vencidas.length} sub="Sin renovar" icon="shield" accent="#dc2626"/>
         <KPICard label="Prima Vigente" value={fmt(primaVigente)} sub="Pólizas activas" icon="trend" accent="#059669"/>
@@ -1203,7 +1201,7 @@ const FORM_POLIZA_INIT = {
   // Paso 3 — Vigencia
   inicio:"", vencimiento:"", status:"activa",
   // Paso 4 — Datos económicos
-  formaPago:"Anual", primaNeta:"", gastosExpedicion:"", recargoPago:"", iva:"", primaTotal:"",
+  formaPago:"Anual", moneda:"MXN", primaNeta:"", gastosExpedicion:"", porcentajeRecargo:0, recargoPago:"", iva:"", primaTotal:"",
   porcentajeIva:16, montoIva:"",
   // Paso 5 — Vehículo (solo Autos Individual)
   vehiculoDescripcion:"", vehiculoMarca:"", vehiculoSerie:"", vehiculoAnio:"", vehiculoUso:"Particular", vehiculoClase:"Automóvil",
@@ -1273,11 +1271,55 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
   };
 
   const calcPrimaTotal = (f) => {
-    const neta = parseFloat(f.primaNeta)||0;
-    const gasto = parseFloat(f.gastosExpedicion)||0;
+    const neta    = parseFloat(f.primaNeta)||0;
+    const gasto   = parseFloat(f.gastosExpedicion)||0;
     const recargo = parseFloat(f.recargoPago)||0;
-    const ivaBase = (neta + gasto + recargo) * 0.16;
+    const pctIva  = (parseFloat(f.porcentajeIva)||16)/100;
+    const ivaBase = (neta + gasto + recargo) * pctIva;
     return (neta + gasto + recargo + ivaBase).toFixed(2);
+  };
+
+  // Calcula el desglose de recibos según forma de pago
+  // Regla: en pago fraccionado el 1er recibo lleva gastos de expedición completos
+  // Recibos subsecuentes: solo fracción prima neta + fracción recargo + IVA de esa fracción
+  const calcRecibos = (f) => {
+    const neta    = parseFloat(f.primaNeta)||0;
+    const gasto   = parseFloat(f.gastosExpedicion)||0;
+    const recargo = parseFloat(f.recargoPago)||0;
+    const pctIva  = (parseFloat(f.porcentajeIva)||16)/100;
+    const fp      = f.formaPago||"Anual";
+
+    const numMap  = {Anual:1, Semestral:2, Trimestral:4, Mensual:12, Contado:1, "Único":1};
+    const n       = numMap[fp]||1;
+    const esFrac  = n > 1;
+
+    if (!esFrac) {
+      // Pago único / anual / contado — un solo recibo con todo
+      const total = parseFloat(calcPrimaTotal(f));
+      return [{ num:1, label:"Único", primaNeta:neta, gastos:gasto, recargo, iva:+(total - neta - gasto - recargo).toFixed(2), total:+total }];
+    }
+
+    // Fraccionado
+    const netaFrac    = +(neta   / n).toFixed(2);
+    const recargoFrac = +(recargo/ n).toFixed(2);
+    const recibos = [];
+
+    for (let i=1; i<=n; i++) {
+      const gastoEste = i===1 ? gasto : 0;            // Gastos solo en el 1er recibo
+      const base      = netaFrac + gastoEste + recargoFrac;
+      const ivaEste   = +(base * pctIva).toFixed(2);
+      const totalEste = +(base + ivaEste).toFixed(2);
+      recibos.push({
+        num:i,
+        label:i===1?"1er recibo":`Recibo ${i}`,
+        primaNeta:netaFrac,
+        gastos:gastoEste,
+        recargo:recargoFrac,
+        iva:ivaEste,
+        total:totalEste,
+      });
+    }
+    return recibos;
   };
 
   const guardar = () => {
@@ -1576,23 +1618,122 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
       {paso===4&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           <SecBox title="CONCEPTOS ECONÓMICOS" color="#d97706">
+
+            {/* Forma de pago + fecha emisión */}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
-              <Sel label="Forma de Pago" value={form.formaPago} onChange={e=>sf("formaPago",e.target.value)}>
-                {["Anual","Semestral","Trimestral","Mensual"].map(f=><option key={f}>{f}</option>)}
+              <Sel label="Forma de Pago" value={form.formaPago} onChange={e=>{
+                const fp=e.target.value;
+                setForm(p=>{
+                  const np={...p,formaPago:fp};
+                  const pctIva=(parseFloat(np.porcentajeIva)||16)/100;
+                  const mIva=(((parseFloat(np.primaNeta)||0)+(parseFloat(np.gastosExpedicion)||0)+(parseFloat(np.recargoPago)||0))*pctIva).toFixed(2);
+                  return {...np,montoIva:mIva,primaTotal:calcPrimaTotal({...np})};
+                });
+              }}>
+                {["Anual","Semestral","Trimestral","Mensual","Contado","Único"].map(f=><option key={f}>{f}</option>)}
               </Sel>
               <Inp label="Fecha de Emisión (si aplica)" type="date" value={form.fechaEmision} onChange={e=>sf("fechaEmision",e.target.value)}/>
             </div>
+
+            {/* Campos numéricos — todos recalculan automáticamente */}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-              <Inp label="Prima Neta ($)" type="number" value={form.primaNeta} onChange={e=>{setForm(p=>{const np={...p,primaNeta:e.target.value};const mIva=(((parseFloat(np.primaNeta)||0)+(parseFloat(np.gastosExpedicion)||0)+(parseFloat(np.recargoPago)||0))*0.16).toFixed(2);return{...np,montoIva:mIva,primaTotal:calcPrimaTotal(np)};});}} placeholder="11,188.49"/>
-              <Inp label="Gastos de Expedición ($)" type="number" value={form.gastosExpedicion} onChange={e=>{setForm(p=>{const np={...p,gastosExpedicion:e.target.value};const mIva=(((parseFloat(np.primaNeta)||0)+(parseFloat(np.gastosExpedicion)||0)+(parseFloat(np.recargoPago)||0))*0.16).toFixed(2);return{...np,montoIva:mIva,primaTotal:calcPrimaTotal(np)};});}} placeholder="790.00"/>
-              <Inp label="Recargo Pago Fraccionado ($)" type="number" value={form.recargoPago} onChange={e=>{setForm(p=>{const np={...p,recargoPago:e.target.value};const mIva=(((parseFloat(np.primaNeta)||0)+(parseFloat(np.gastosExpedicion)||0)+(parseFloat(np.recargoPago)||0))*0.16).toFixed(2);return{...np,montoIva:mIva,primaTotal:calcPrimaTotal(np)};});}} placeholder="839.14"/>
-              <Inp label="I.V.A. 16% (calculado)" value={form.montoIva?`$${parseFloat(form.montoIva).toFixed(2)}`:""} readOnly style={{background:"#f3f4f6",color:"#6b7280"}}/>
+              <Inp label="Prima Neta ($)" type="number" value={form.primaNeta}
+                onChange={e=>{setForm(p=>{
+                  const np={...p,primaNeta:e.target.value};
+                  const pctIva=(parseFloat(np.porcentajeIva)||16)/100;
+                  const mIva=(((parseFloat(np.primaNeta)||0)+(parseFloat(np.gastosExpedicion)||0)+(parseFloat(np.recargoPago)||0))*pctIva).toFixed(2);
+                  return{...np,montoIva:mIva,primaTotal:calcPrimaTotal(np)};
+                });}} placeholder="8,304.48"/>
+              <Inp label="Gastos de Expedición ($)" type="number" value={form.gastosExpedicion}
+                onChange={e=>{setForm(p=>{
+                  const np={...p,gastosExpedicion:e.target.value};
+                  const pctIva=(parseFloat(np.porcentajeIva)||16)/100;
+                  const mIva=(((parseFloat(np.primaNeta)||0)+(parseFloat(np.gastosExpedicion)||0)+(parseFloat(np.recargoPago)||0))*pctIva).toFixed(2);
+                  return{...np,montoIva:mIva,primaTotal:calcPrimaTotal(np)};
+                });}} placeholder="350.00"/>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                <Inp label="% Recargo Fraccionado" type="number" value={form.porcentajeRecargo}
+                  onChange={e=>setForm(p=>({...p,porcentajeRecargo:e.target.value}))}
+                  placeholder="7.5"/>
+                <Inp label="Recargo Pago Fracc. ($)" type="number" value={form.recargoPago}
+                  onChange={e=>{setForm(p=>{
+                    const np={...p,recargoPago:e.target.value};
+                    const pctIva=(parseFloat(np.porcentajeIva)||16)/100;
+                    const mIva=(((parseFloat(np.primaNeta)||0)+(parseFloat(np.gastosExpedicion)||0)+(parseFloat(np.recargoPago)||0))*pctIva).toFixed(2);
+                    return{...np,montoIva:mIva,primaTotal:calcPrimaTotal(np)};
+                  });}} placeholder="622.82"/>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                <Inp label="% I.V.A." type="number" value={form.porcentajeIva}
+                  onChange={e=>{setForm(p=>{
+                    const np={...p,porcentajeIva:e.target.value};
+                    const pctIva=(parseFloat(e.target.value)||16)/100;
+                    const mIva=(((parseFloat(np.primaNeta)||0)+(parseFloat(np.gastosExpedicion)||0)+(parseFloat(np.recargoPago)||0))*pctIva).toFixed(2);
+                    return{...np,montoIva:mIva,primaTotal:calcPrimaTotal(np)};
+                  });}} placeholder="16"/>
+                <Inp label="I.V.A. ($)" value={form.montoIva?`$${parseFloat(form.montoIva).toFixed(2)}`:""} readOnly style={{background:"#f3f4f6",color:"#6b7280"}}/>
+              </div>
             </div>
-            <div style={{marginTop:14,background:"linear-gradient(135deg,#0f172a,#1e3a5f)",borderRadius:12,padding:"16px 18px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <div style={{color:"#94a3b8",fontSize:13,fontWeight:600}}>PRIMA TOTAL A PAGAR</div>
-              <div style={{color:"#fff",fontSize:28,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>
+
+            {/* Prima total */}
+            <div style={{marginTop:14,background:"linear-gradient(135deg,#0f172a,#1e3a5f)",borderRadius:12,padding:"14px 18px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div>
+                <div style={{color:"#94a3b8",fontSize:12,fontWeight:600}}>PRIMA TOTAL A PAGAR</div>
+                <div style={{color:"#60a5fa",fontSize:11,marginTop:2}}>{form.formaPago||"Anual"} · {calcRecibos(form).length} recibo{calcRecibos(form).length>1?"s":""}</div>
+              </div>
+              <div style={{color:"#fff",fontSize:26,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>
                 ${parseFloat(calcPrimaTotal(form)).toLocaleString("es-MX",{minimumFractionDigits:2})}
               </div>
+            </div>
+          </SecBox>
+
+          {/* ── TABLA DE RECIBOS ── */}
+          <SecBox title="DESGLOSE DE RECIBOS" color="#7c3aed">
+            <div style={{fontSize:11,color:"#6b7280",marginBottom:12,background:"#f5f3ff",borderRadius:8,padding:"8px 12px",border:"1px solid #ede9fe"}}>
+              {calcRecibos(form).length===1
+                ? "✅ Pago en un solo recibo — incluye todos los conceptos."
+                : `📋 Pago fraccionado en ${calcRecibos(form).length} recibos. El primer recibo incluye los Gastos de Expedición completos.`}
+            </div>
+            <div style={{overflowX:"auto"}}>
+              <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+                <thead>
+                  <tr style={{background:"#f5f3ff"}}>
+                    {["Recibo","Prima Neta","Gastos Exp.","Recargo","I.V.A.","Total a Pagar"].map(h=>(
+                      <th key={h} style={{padding:"8px 10px",textAlign:h==="Recibo"?"center":"right",fontWeight:800,color:"#6d28d9",fontSize:10,borderBottom:"2px solid #ede9fe",whiteSpace:"nowrap"}}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {calcRecibos(form).map((r,i)=>(
+                    <tr key={i} style={{background:i===0?"#faf5ff":"#fff",borderBottom:"1px solid #f3f4f6"}}>
+                      <td style={{padding:"9px 10px",textAlign:"center",fontWeight:700,color:"#7c3aed"}}>
+                        <div style={{background:"#7c3aed",color:"#fff",borderRadius:20,padding:"2px 8px",fontSize:11,display:"inline-block"}}>{r.label}</div>
+                      </td>
+                      <td style={{padding:"9px 10px",textAlign:"right",color:"#374151"}}>${r.primaNeta.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>
+                      <td style={{padding:"9px 10px",textAlign:"right",color:r.gastos>0?"#059669":"#9ca3af",fontWeight:r.gastos>0?700:400}}>
+                        {r.gastos>0?`$${r.gastos.toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"}
+                      </td>
+                      <td style={{padding:"9px 10px",textAlign:"right",color:r.recargo>0?"#d97706":"#9ca3af"}}>
+                        {r.recargo>0?`$${r.recargo.toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"}
+                      </td>
+                      <td style={{padding:"9px 10px",textAlign:"right",color:"#6b7280"}}>${r.iva.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>
+                      <td style={{padding:"9px 10px",textAlign:"right",fontWeight:800,color:"#111827",background:i===0?"#ede9fe":"transparent",borderRadius:i===0?6:0}}>
+                        ${r.total.toLocaleString("es-MX",{minimumFractionDigits:2})}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr style={{borderTop:"2px solid #7c3aed"}}>
+                    <td style={{padding:"8px 10px",fontWeight:800,fontSize:11,color:"#6d28d9"}}>TOTAL</td>
+                    <td style={{padding:"8px 10px",textAlign:"right",fontWeight:700,fontSize:11}}>${(parseFloat(form.primaNeta)||0).toLocaleString("es-MX",{minimumFractionDigits:2})}</td>
+                    <td style={{padding:"8px 10px",textAlign:"right",fontWeight:700,fontSize:11}}>${(parseFloat(form.gastosExpedicion)||0).toLocaleString("es-MX",{minimumFractionDigits:2})}</td>
+                    <td style={{padding:"8px 10px",textAlign:"right",fontWeight:700,fontSize:11}}>${(parseFloat(form.recargoPago)||0).toLocaleString("es-MX",{minimumFractionDigits:2})}</td>
+                    <td style={{padding:"8px 10px",textAlign:"right",fontWeight:700,fontSize:11}}>${(parseFloat(form.montoIva)||0).toLocaleString("es-MX",{minimumFractionDigits:2})}</td>
+                    <td style={{padding:"8px 10px",textAlign:"right",fontWeight:900,fontSize:13,color:"#7c3aed"}}>${parseFloat(calcPrimaTotal(form)).toLocaleString("es-MX",{minimumFractionDigits:2})}</td>
+                  </tr>
+                </tfoot>
+              </table>
             </div>
           </SecBox>
         </div>
@@ -2165,6 +2306,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
       prima: parseFloat(data.primaTotal)||parseFloat(data.prima)||0,
       primaNeta: parseFloat(data.primaNeta)||0,
       gastosExpedicion: parseFloat(data.gastosExpedicion)||0,
+      porcentajeRecargo: parseFloat(data.porcentajeRecargo)||0,
       recargoPago: parseFloat(data.recargoPago)||0,
       porcentajeIva: parseFloat(data.porcentajeIva)||16,
       montoIva: parseFloat(data.montoIva)||0,
@@ -2540,6 +2682,38 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
               </div>
             )}
 
+            {/* Desglose de recibos */}
+            {polizaDetalle.recibos?.length>0&&(
+              <div style={{background:"#f5f3ff",borderRadius:10,padding:"12px 14px",border:"1px solid #ede9fe"}}>
+                <div style={{fontSize:10,fontWeight:800,color:"#6d28d9",marginBottom:8}}>
+                  📋 RECIBOS — {polizaDetalle.recibos.length===1?"Pago único":`${polizaDetalle.recibos.length} recibos · ${polizaDetalle.formaPago}`}
+                </div>
+                <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
+                  <thead><tr style={{background:"#ede9fe"}}>
+                    {["#","Prima Neta","Gastos","Recargo","IVA","Total"].map(h=>(
+                      <th key={h} style={{padding:"4px 7px",textAlign:h==="#"?"center":"right",fontWeight:800,color:"#6d28d9",fontSize:9,borderBottom:"1px solid #ddd8fe"}}>{h}</th>
+                    ))}
+                  </tr></thead>
+                  <tbody>
+                    {polizaDetalle.recibos.map((r,i)=>(
+                      <tr key={i} style={{background:i%2===0?"#faf5ff":"#fff",borderBottom:"1px solid #f3f0ff"}}>
+                        <td style={{padding:"5px 7px",textAlign:"center"}}><span style={{background:"#7c3aed",color:"#fff",borderRadius:20,padding:"1px 6px",fontSize:10,fontWeight:700}}>{r.num}</span></td>
+                        <td style={{padding:"5px 7px",textAlign:"right"}}>${(r.primaNeta||0).toLocaleString("es-MX",{minimumFractionDigits:2})}</td>
+                        <td style={{padding:"5px 7px",textAlign:"right",color:r.gastos>0?"#059669":"#d1d5db",fontWeight:r.gastos>0?700:400}}>{r.gastos>0?`$${r.gastos.toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"}</td>
+                        <td style={{padding:"5px 7px",textAlign:"right",color:r.recargo>0?"#d97706":"#d1d5db"}}>{r.recargo>0?`$${r.recargo.toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"}</td>
+                        <td style={{padding:"5px 7px",textAlign:"right",color:"#6b7280"}}>${(r.iva||0).toLocaleString("es-MX",{minimumFractionDigits:2})}</td>
+                        <td style={{padding:"5px 7px",textAlign:"right",fontWeight:800,color:"#7c3aed"}}>${(r.total||0).toLocaleString("es-MX",{minimumFractionDigits:2})}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot><tr style={{borderTop:"1.5px solid #7c3aed"}}>
+                    <td colSpan={5} style={{padding:"5px 7px",fontWeight:800,fontSize:10,color:"#6d28d9"}}>PRIMA TOTAL</td>
+                    <td style={{padding:"5px 7px",textAlign:"right",fontWeight:900,color:"#7c3aed",fontSize:12}}>${(parseFloat(polizaDetalle.primaTotal)||parseFloat(polizaDetalle.prima)||0).toLocaleString("es-MX",{minimumFractionDigits:2})}</td>
+                  </tr></tfoot>
+                </table>
+              </div>
+            )}
+
             {/* Coberturas */}
             {polizaDetalle.coberturas?.length>0&&polizaDetalle.coberturas[0]!=="Flotilla — ver incisos"&&(
               <div style={{background:"#f0fdf4",borderRadius:10,padding:"12px 14px"}}>
@@ -2764,15 +2938,40 @@ function ScanPoliza({ onClose, onExtracted }) {
         :{type:"image",source:{type:"base64",media_type:fileData.type,data:fileData.base64}};
 
       const prompt = [
-        "Eres un extractor de datos de polizas de seguros mexicanas.",
-        "Extrae TODOS los datos del documento y responde UNICAMENTE con un objeto JSON valido.",
-        "NO uses markdown, NO uses comillas especiales, NO agregues texto antes ni despues del JSON.",
-        "Usa solo caracteres ASCII en los valores cuando sea posible.",
-        "IMPORTANTE: El numero de poliza suele aparecer como 'No. de Poliza', 'Poliza No.', 'Numero de Poliza', 'Policy Number' o similar. Busca bien ese campo.",
-        "Busca especificamente: numero de poliza, endoso, nombre completo del cliente/contratante, RFC del cliente, aseguradora, ramo (Autos/Vida/Gastos Medicos/Danos), subramo, forma de pago, prima neta, gastos de expedicion, porcentaje IVA, monto IVA, prima total con IVA, fecha inicio vigencia (YYYY-MM-DD), fecha fin vigencia (YYYY-MM-DD), coberturas, gestor de cobro o clave agente, nombre del agente, moneda, recargo pago fraccionado, beneficiario.",
-        "Formato JSON exacto:",
-        '{"numero":"","endoso":"","cliente":"","rfcCliente":"","aseguradora":"","ramo":"Autos/Vida/Gastos Medicos/Danos","subramo":"","formaPago":"Anual","moneda":"MXN","gestorCobro":"","agentePoliza":"","beneficiarioPreferente":"","primaNeta":0,"gastosExpedicion":0,"recargoPago":0,"porcentajeIva":16,"montoIva":0,"primaTotal":0,"inicio":"YYYY-MM-DD","vencimiento":"YYYY-MM-DD","coberturas":["cobertura1"],"notas":""}'
-      ].join(" ");
+        "Eres un extractor experto de polizas de seguros mexicanas.",
+        "Extrae TODOS los datos del documento y responde UNICAMENTE con un objeto JSON valido, sin markdown ni texto adicional.",
+        "",
+        "CAMPOS OBLIGATORIOS A BUSCAR:",
+        "- numero: busca 'No. de Poliza', 'Poliza No.', 'Numero de Poliza', 'Policy Number', 'No. Poliza'",
+        "- endoso: numero de endoso si existe",
+        "- cliente: nombre completo del contratante o asegurado titular",
+        "- rfcCliente: RFC del contratante",
+        "- aseguradora: nombre de la compania aseguradora",
+        "- ramo: Autos, Vida, Gastos Medicos, Danos, Hogar, Negocio, Viaje",
+        "- subramo: tipo especifico dentro del ramo",
+        "- coberturas: lista de coberturas incluidas",
+        "- inicio: fecha inicio vigencia en formato YYYY-MM-DD",
+        "- vencimiento: fecha fin vigencia en formato YYYY-MM-DD",
+        "",
+        "CAMPOS ECONOMICOS — busca EXACTAMENTE estas etiquetas (pueden variar):",
+        "- formaPago: busca 'FORMA DE PAGO', 'Forma de Cobro', 'Frecuencia de Pago', 'Periodicidad'. Valores: Anual, Semestral, Trimestral, Mensual, Contado, Unico",
+        "- moneda: busca 'MONEDA', puede decir 'PESOS', 'DOLARES', 'UDI'. Devuelve: MXN, USD o UDI",
+        "- primaNeta: busca 'PRIMA NETA', 'Prima Neta', 'Net Premium'. Solo el numero sin simbolos",
+        "- gastosExpedicion: busca 'GASTO DE EXPEDICION', 'Gastos de Expedicion', 'Derechos de Poliza'. Solo el numero",
+        "- porcentajeRecargo: busca '% RECARGO PAGO FRACCIONADO', 'Porcentaje Recargo', 'Recargo %'. Solo el numero (ej: 7.5)",
+        "- recargoPago: busca 'RECARGO PAGO FRACCIONADO', 'Recargo por Pago Fraccionado', 'Recargo'. Solo el monto en pesos",
+        "- porcentajeIva: busca '% I.V.A.', '% IVA', 'Tasa IVA'. Solo el numero (ej: 16)",
+        "- montoIva: busca 'I.V.A.', 'IVA', 'Impuesto'. Solo el monto en pesos",
+        "- primaTotal: busca 'PRIMA TOTAL', 'Total a Pagar', 'Prima Total con IVA', 'Total Prima'. Solo el numero",
+        "",
+        "OTROS CAMPOS:",
+        "- agentePoliza: nombre del agente",
+        "- beneficiarioPreferente: nombre del beneficiario",
+        "- notas: cualquier observacion relevante",
+        "",
+        "Formato JSON exacto (usa 0 si no encuentras el valor numerico, cadena vacia si no encuentras texto):",
+        '{"numero":"","endoso":"","cliente":"","rfcCliente":"","aseguradora":"","ramo":"","subramo":"","formaPago":"","moneda":"MXN","agentePoliza":"","beneficiarioPreferente":"","primaNeta":0,"gastosExpedicion":0,"porcentajeRecargo":0,"recargoPago":0,"porcentajeIva":16,"montoIva":0,"primaTotal":0,"inicio":"YYYY-MM-DD","vencimiento":"YYYY-MM-DD","coberturas":[],"notas":""}'
+      ].join("\n");
 
       const res=await fetch("/api/anthropic",{
         method:"POST",

@@ -1021,7 +1021,6 @@ function Clientes({ clientes, setClientes, polizas=[] }) {
       </div>
 
       {/* Modal nuevo cliente */}
-      </>}
       {showModal&&(
         <Modal title="Nuevo Cliente" onClose={()=>{setShowModal(false);setErrores({});setForm(FORM_CLIENTE_INIT);}} wide>
           <div style={{display:"flex",flexDirection:"column",gap:18}}>
@@ -3878,6 +3877,8 @@ function Pipeline({ pipeline, setPipeline }) {
           {pipeline.length===0&&<div style={{textAlign:"center",padding:"32px",color:"#9ca3af",fontSize:13}}>Sin prospectos registrados</div>}
         </div>
       )}
+      </>
+      }
       {showModal&&(
         <Modal title="Nuevo Prospecto" onClose={()=>setShowModal(false)} maxW={560}>
           <div style={{display:"flex",flexDirection:"column",gap:12}}>

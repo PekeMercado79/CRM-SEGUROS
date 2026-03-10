@@ -3691,8 +3691,7 @@ function CapturaProspectos({ setPipeline }) {
     const telefono = telMatch ? telMatch[0].replace(/\D/g,"").slice(-10) : "";
     const emailMatch = txt.match(/[\w.+-]+@[\w-]+\.[a-z]{2,}/i);
     const email = emailMatch ? emailMatch[0] : "";
-    const lineas = txt.split(/[
-,]/).map(l=>l.trim()).filter(l=>l.length>2&&l.length<60&&!/[@:/0-9]/.test(l));
+    const lineas = txt.split(/[\n,]/).map(l=>l.trim()).filter(l=>l.length>2&&l.length<60&&!/[@:/0-9]/.test(l));
     const nombre = lineas[0]||"";
     const tiposMap = [["Autos","auto"],["Gastos Médicos","medico|gmm|salud|hospital"],["Vida","vida"],["Hogar","hogar|casa"],["Negocio","negocio|empresa"]];
     let tipo = "";

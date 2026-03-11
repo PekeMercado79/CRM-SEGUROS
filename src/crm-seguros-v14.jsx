@@ -2345,6 +2345,14 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
     setShowDetalle(prev => prev ? {...prev, pagos:[...(prev.pagos||[]), pago], ultimoPago:pago} : prev);
   };
 
+  const eliminarPago = (pagoId) => {
+    setPolizas(prev => prev.map(p => p.id === polizaDetalle?.id
+      ? {...p, pagos:(p.pagos||[]).filter(pg=>pg.id!==pagoId)}
+      : p
+    ));
+    setShowDetalle(prev => prev ? {...prev, pagos:(prev.pagos||[]).filter(pg=>pg.id!==pagoId)} : prev);
+  };
+
   const renovarPoliza = (nueva) => {
     setPolizas(prev => [...prev.map(p => p.id === showRenovar.id ? {...p, status:"vencida"} : p), nueva]);
     setShowDetalle(null);
@@ -2730,11 +2738,14 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                 <div style={{fontSize:10,fontWeight:800,color:"#065f46",marginBottom:10}}>💳 HISTORIAL DE PAGOS ({polizaDetalle.pagos.length})</div>
                 {polizaDetalle.pagos.map((pg,i)=>(
                   <div key={i} style={{display:"flex",gap:10,alignItems:"center",padding:"8px 10px",background:i%2===0?"#fff":"#f9fffe",borderRadius:8,marginBottom:4,border:"1px solid #d1fae5"}}>
-                    <div style={{fontSize:20}}>💳</div>
+                    <div style={{fontSize:18}}>💳</div>
                     <div style={{flex:1}}>
-                      <div style={{fontSize:12,fontWeight:700,color:"#065f46"}}>{pg.fechaPago} · {pg.formaPago}</div>
+                      <div style={{fontSize:12,fontWeight:700,color:"#065f46",display:"flex",alignItems:"center",gap:6}}>
+                        {pg.reciboNum&&<span style={{background:"#7c3aed",color:"#fff",borderRadius:20,padding:"1px 7px",fontSize:10,fontWeight:800}}>Recibo {pg.reciboNum}</span>}
+                        {pg.fechaPago} · {pg.formaPago}
+                      </div>
                       <div style={{fontSize:11,color:"#6b7280"}}>
-                        ${Number(pg.monto||0).toLocaleString()} {pg.referencia?`· Ref: ${pg.referencia}`:""}
+                        ${Number(pg.monto||0).toLocaleString("es-MX",{minimumFractionDigits:2})} {pg.referencia?`· Ref: ${pg.referencia}`:""}
                       </div>
                     </div>
                     {pg.comprobante&&(
@@ -2743,6 +2754,9 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                         📎 Ver
                       </a>
                     )}
+                    <button onClick={()=>{if(window.confirm("¿Eliminar este pago?"))eliminarPago(pg.id);}}
+                      style={{background:"#fef2f2",border:"1px solid #fecaca",borderRadius:7,padding:"4px 9px",fontSize:11,color:"#dc2626",cursor:"pointer",fontFamily:"inherit",fontWeight:700}}
+                      title="Eliminar pago">✕</button>
                   </div>
                 ))}
               </div>
@@ -4740,8 +4754,22 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
 // MODAL REGISTRAR PAGO
 // ═══════════════════════════════════════════════════════════════════
 function ModalPago({ poliza, onGuardar, onClose }) {
+  // Calcular recibos en tiempo real si la póliza no los tiene guardados
+  const calcRecibosLocal = (p) => {
+    const neta=parseFloat(p.primaNeta)||0, gasto=parseFloat(p.gastosExpedicion)||0, recargo=parseFloat(p.recargoPago)||0;
+    const pctIva=(parseFloat(p.porcentajeIva)||16)/100;
+    const numMap2={Anual:1,Semestral:2,Trimestral:4,Mensual:12,Contado:1,"Único":1};
+    const n=numMap2[p.formaPago]||1;
+    if(n<=1){const total=parseFloat(p.primaTotal)||parseFloat(p.prima)||0;return [{num:1,label:"Único",primaNeta:neta,gastos:gasto,recargo,iva:+(total-neta-gasto-recargo).toFixed(2),total}];}
+    return Array.from({length:n},(_,i)=>{
+      const gastoEste=i===0?gasto:0, nf=+(neta/n).toFixed(2), rf=+(recargo/n).toFixed(2);
+      const base=nf+gastoEste+rf, ivaEste=+(base*pctIva).toFixed(2);
+      return {num:i+1,label:i===0?"1er recibo":`Recibo ${i+1}`,primaNeta:nf,gastos:gastoEste,recargo:rf,iva:ivaEste,total:+(base+ivaEste).toFixed(2)};
+    });
+  };
+
   // Determinar recibos y cuáles ya están pagados
-  const recibos = poliza.recibos||[];
+  const recibos = (poliza.recibos&&poliza.recibos.length>0) ? poliza.recibos : calcRecibosLocal(poliza);
   const pagosRegistrados = poliza.pagos||[];
   const numMap = {Anual:1,Semestral:2,Trimestral:4,Mensual:12,Contado:1,"Único":1};
   const totalRecibos = recibos.length || numMap[poliza.formaPago]||1;

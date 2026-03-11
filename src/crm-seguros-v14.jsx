@@ -4740,16 +4740,47 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
 // MODAL REGISTRAR PAGO
 // ═══════════════════════════════════════════════════════════════════
 function ModalPago({ poliza, onGuardar, onClose }) {
+  // Determinar recibos y cuáles ya están pagados
+  const recibos = poliza.recibos||[];
+  const pagosRegistrados = poliza.pagos||[];
+  const numMap = {Anual:1,Semestral:2,Trimestral:4,Mensual:12,Contado:1,"Único":1};
+  const totalRecibos = recibos.length || numMap[poliza.formaPago]||1;
+  const tieneRecibos = recibos.length > 0;
+
+  // Primer recibo pendiente (no pagado)
+  const recibosPagadosNums = pagosRegistrados.map(p=>p.reciboNum).filter(Boolean);
+  const primerPendiente = tieneRecibos
+    ? (recibos.find(r=>!recibosPagadosNums.includes(r.num))?.num || 1)
+    : null;
+
+  const [reciboSel, setReciboSel] = useState(primerPendiente);
+
+  const montoRecibo = () => {
+    if (!tieneRecibos) return poliza.primaTotal||poliza.prima||"";
+    const r = recibos.find(x=>x.num===reciboSel);
+    return r ? r.total : "";
+  };
+
   const [form, setForm] = useState({
     fechaPago: new Date().toISOString().slice(0,10),
-    formaPago: poliza.formaPago||"Transferencia",
-    monto: poliza.primaTotal||poliza.prima||"",
+    formaPago: "Transferencia",
+    monto: "",
     referencia: "",
     comprobante: null,
     comprobanteName: "",
   });
-  const fileRef = useRef();
 
+  // Actualizar monto cuando cambia el recibo seleccionado
+  const handleReciboChange = (num) => {
+    setReciboSel(num);
+    const r = recibos.find(x=>x.num===num);
+    if(r) setForm(p=>({...p, monto:r.total}));
+  };
+
+  // Inicializar monto al montar
+  useState(()=>{ setForm(p=>({...p, monto:montoRecibo()})); },[]);
+
+  const fileRef = useRef();
   const leerComprobante = (file) => {
     if (!file) return;
     const r = new FileReader();
@@ -4758,29 +4789,93 @@ function ModalPago({ poliza, onGuardar, onClose }) {
   };
 
   const guardar = () => {
-    onGuardar({id:Date.now(),...form,polizaNumero:poliza.numero,fechaRegistro:new Date().toISOString().slice(0,10)});
+    onGuardar({
+      id:Date.now(),
+      ...form,
+      reciboNum: reciboSel,
+      polizaNumero: poliza.numero,
+      fechaRegistro: new Date().toISOString().slice(0,10),
+    });
     onClose();
   };
 
+  const inpS = {border:"1.5px solid #e5e7eb",borderRadius:9,padding:"8px 12px",fontSize:13,outline:"none",fontFamily:"inherit",width:"100%",boxSizing:"border-box"};
+
   return (
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
+
+      {/* Info póliza */}
       <div style={{background:"#f0fdf4",borderRadius:10,padding:"10px 14px",fontSize:12,color:"#065f46"}}>
         <strong>{poliza.cliente}</strong> · {poliza.aseguradora} · {poliza.ramo}
       </div>
+
+      {/* Selector de recibo */}
+      {tieneRecibos && (
+        <div>
+          <div style={{fontSize:12,fontWeight:700,color:"#374151",marginBottom:8}}>
+            Recibo a pagar
+            <span style={{marginLeft:8,background:"#7c3aed22",color:"#7c3aed",borderRadius:20,padding:"2px 10px",fontSize:11,fontWeight:700}}>
+              {poliza.formaPago} · {totalRecibos} recibo{totalRecibos>1?"s":""}
+            </span>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:`repeat(${Math.min(totalRecibos,6)},1fr)`,gap:6}}>
+            {recibos.map(r=>{
+              const pagado = recibosPagadosNums.includes(r.num);
+              const selec  = reciboSel===r.num;
+              return(
+                <button key={r.num} onClick={()=>!pagado&&handleReciboChange(r.num)}
+                  style={{
+                    border: selec?"2px solid #7c3aed":"1.5px solid "+(pagado?"#6ee7b7":"#e5e7eb"),
+                    borderRadius:10, padding:"8px 6px", cursor:pagado?"default":"pointer",
+                    background: pagado?"#f0fdf4":selec?"#f5f3ff":"#fff",
+                    fontFamily:"inherit", textAlign:"center", opacity:pagado?0.75:1,
+                    transition:"all .15s"
+                  }}>
+                  <div style={{fontSize:10,fontWeight:800,color:pagado?"#059669":selec?"#7c3aed":"#374151"}}>
+                    {pagado?"✓ ":""}{r.label}
+                  </div>
+                  <div style={{fontSize:12,fontWeight:900,color:pagado?"#059669":selec?"#7c3aed":"#111827",marginTop:2}}>
+                    ${(r.total||0).toLocaleString("es-MX",{minimumFractionDigits:2})}
+                  </div>
+                  {r.gastos>0&&r.num===1&&<div style={{fontSize:9,color:"#6b7280",marginTop:1}}>incl. gtos. exp.</div>}
+                </button>
+              );
+            })}
+          </div>
+          {reciboSel&&(()=>{
+            const r=recibos.find(x=>x.num===reciboSel);
+            if(!r) return null;
+            return(
+              <div style={{marginTop:8,background:"#f5f3ff",borderRadius:9,padding:"9px 12px",border:"1px solid #ede9fe",fontSize:11,display:"flex",gap:16,flexWrap:"wrap"}}>
+                <span>Prima neta: <strong>${(r.primaNeta||0).toLocaleString("es-MX",{minimumFractionDigits:2})}</strong></span>
+                {r.gastos>0&&<span style={{color:"#059669"}}>Gastos exp.: <strong>${r.gastos.toLocaleString("es-MX",{minimumFractionDigits:2})}</strong></span>}
+                {r.recargo>0&&<span style={{color:"#d97706"}}>Recargo: <strong>${r.recargo.toLocaleString("es-MX",{minimumFractionDigits:2})}</strong></span>}
+                <span style={{color:"#6b7280"}}>IVA: <strong>${(r.iva||0).toLocaleString("es-MX",{minimumFractionDigits:2})}</strong></span>
+                <span style={{fontWeight:800,color:"#7c3aed"}}>Total: <strong>${(r.total||0).toLocaleString("es-MX",{minimumFractionDigits:2})}</strong></span>
+              </div>
+            );
+          })()}
+        </div>
+      )}
+
+      {/* Fecha y forma de pago */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
         <div>
           <label style={{fontSize:12,fontWeight:700,color:"#374151",display:"block",marginBottom:5}}>Fecha de Pago *</label>
-          <input type="date" value={form.fechaPago} onChange={e=>setForm(p=>({...p,fechaPago:e.target.value}))}
-            style={{border:"1.5px solid #e5e7eb",borderRadius:9,padding:"8px 12px",fontSize:13,outline:"none",fontFamily:"inherit",width:"100%",boxSizing:"border-box"}}/>
+          <input type="date" value={form.fechaPago} onChange={e=>setForm(p=>({...p,fechaPago:e.target.value}))} style={inpS}/>
         </div>
         <Sel label="Forma de Pago *" value={form.formaPago} onChange={e=>setForm(p=>({...p,formaPago:e.target.value}))}>
           {["Transferencia","Depósito bancario","Tarjeta crédito","Tarjeta débito","Cheque","Efectivo","OXXO","Domiciliación"].map(f=><option key={f}>{f}</option>)}
         </Sel>
       </div>
+
+      {/* Monto y referencia */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
         <Inp label="Monto ($)" type="number" value={form.monto} onChange={e=>setForm(p=>({...p,monto:e.target.value}))} placeholder="0.00"/>
         <Inp label="Referencia / Folio" value={form.referencia} onChange={e=>setForm(p=>({...p,referencia:e.target.value}))} placeholder="Núm. operación"/>
       </div>
+
+      {/* Comprobante */}
       <div>
         <label style={{fontSize:12,fontWeight:700,color:"#374151",display:"block",marginBottom:6}}>Comprobante de pago</label>
         {form.comprobante ? (
@@ -4807,7 +4902,10 @@ function ModalPago({ poliza, onGuardar, onClose }) {
         )}
         <input ref={fileRef} type="file" accept=".pdf,.jpg,.jpeg,.png" style={{display:"none"}} onChange={e=>leerComprobante(e.target.files[0])}/>
       </div>
-      <Btn onClick={guardar} color="#059669" icon="check" style={{width:"100%",justifyContent:"center"}}>Registrar Pago</Btn>
+
+      <Btn onClick={guardar} color="#059669" icon="check" style={{width:"100%",justifyContent:"center"}}>
+        {reciboSel?`✓ Registrar Recibo ${reciboSel}`:"✓ Registrar Pago"}
+      </Btn>
     </div>
   );
 }

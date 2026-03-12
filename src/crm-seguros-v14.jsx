@@ -2351,6 +2351,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
       : p
     ));
     setShowDetalle(prev => prev ? {...prev, pagos:(prev.pagos||[]).filter(pg=>pg.id!==pagoId)} : prev);
+    setShowPago(prev => prev && prev.id===polizaId ? {...prev, pagos:(prev.pagos||[]).filter(pg=>pg.id!==pagoId)} : prev);
   };
 
   const renovarPoliza = (nueva) => {

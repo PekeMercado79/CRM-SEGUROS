@@ -2784,7 +2784,8 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                     <div style={{flex:1}}>
                       <div style={{fontSize:12,fontWeight:700,color:"#065f46",display:"flex",alignItems:"center",gap:6}}>
                         {pg.reciboNum&&<span style={{background:"#7c3aed",color:"#fff",borderRadius:20,padding:"1px 7px",fontSize:10,fontWeight:800}}>Recibo {pg.reciboNum}</span>}
-                        {pg.fechaPago} · {pg.formaPago}
+                        {pg.fechaEsperada&&pg.fechaEsperada!==pg.fechaPago&&<span style={{background:"#fef3c7",color:"#92400e",borderRadius:12,padding:"1px 6px",fontSize:9,fontWeight:700,marginRight:3}}>Vto: {pg.fechaEsperada}</span>}
+                        <span style={{fontWeight:700}}>{pg.fechaPago}</span> · {pg.formaPago}
                       </div>
                       <div style={{fontSize:11,color:"#6b7280"}}>
                         ${Number(pg.monto||0).toLocaleString("es-MX",{minimumFractionDigits:2})} {pg.referencia?`· Ref: ${pg.referencia}`:""}
@@ -4830,7 +4831,8 @@ function PagoRowEditable({ pg, onEliminar }) {
       <div style={{flex:1}}>
         <div style={{fontSize:12,fontWeight:700,color:"#374151",display:"flex",alignItems:"center",gap:6}}>
           {pg.reciboNum&&<span style={{background:"#7c3aed",color:"#fff",borderRadius:20,padding:"1px 7px",fontSize:10,fontWeight:800}}>Recibo {pg.reciboNum}</span>}
-          {pg.fechaPago} · {pg.formaPago}
+          {pg.fechaEsperada&&pg.fechaEsperada!==pg.fechaPago&&<span style={{background:"#fef3c7",color:"#92400e",borderRadius:12,padding:"1px 6px",fontSize:9,fontWeight:700}}>Vto: {pg.fechaEsperada}</span>}
+          <span style={{fontWeight:700}}>{pg.fechaPago}</span> · {pg.formaPago}
         </div>
         <div style={{fontSize:11,color:"#6b7280"}}>${Number(pg.monto||0).toLocaleString("es-MX",{minimumFractionDigits:2})}{pg.referencia?` · Ref: ${pg.referencia}`:""}</div>
       </div>
@@ -4851,11 +4853,14 @@ function ModalPago({ poliza, onGuardar, onEliminarPago, onClose }) {
     const pctIva=(parseFloat(p.porcentajeIva)||16)/100;
     const numMap2={Anual:1,Semestral:2,Trimestral:4,Mensual:12,Contado:1,"Único":1};
     const n=numMap2[p.formaPago]||1;
-    if(n<=1){const total=parseFloat(p.primaTotal)||parseFloat(p.prima)||0;return [{num:1,label:"Único",primaNeta:neta,gastos:gasto,recargo,iva:+(total-neta-gasto-recargo).toFixed(2),total}];}
+    const mesesL={Anual:12,Semestral:6,Trimestral:3,Mensual:1,Contado:12,"Único":12};
+    const mesL=mesesL[p.formaPago]||12;
+    const fRecL=(ini,i)=>{if(!ini)return "";const b=ini.includes("/")?ini.split("/").reverse().join("-"):ini;const d=new Date(b+"T12:00:00");d.setMonth(d.getMonth()+(i-1)*mesL);return d.toISOString().slice(0,10);};
+    if(n<=1){const total=parseFloat(p.primaTotal)||parseFloat(p.prima)||0;return [{num:1,label:"Único",fechaPago:fRecL(p.inicio,1),primaNeta:neta,gastos:gasto,recargo,iva:+(total-neta-gasto-recargo).toFixed(2),total}];}
     return Array.from({length:n},(_,i)=>{
       const gastoEste=i===0?gasto:0, nf=+(neta/n).toFixed(2), rf=+(recargo/n).toFixed(2);
       const base=nf+gastoEste+rf, ivaEste=+(base*pctIva).toFixed(2);
-      return {num:i+1,label:i===0?"1er recibo":`Recibo ${i+1}`,primaNeta:nf,gastos:gastoEste,recargo:rf,iva:ivaEste,total:+(base+ivaEste).toFixed(2)};
+      return {num:i+1,label:i===0?"1er recibo":`Recibo ${i+1}`,fechaPago:fRecL(p.inicio,i+1),primaNeta:nf,gastos:gastoEste,recargo:rf,iva:ivaEste,total:+(base+ivaEste).toFixed(2)};
     });
   };
 
@@ -4880,8 +4885,9 @@ function ModalPago({ poliza, onGuardar, onEliminarPago, onClose }) {
     return r ? r.total : "";
   };
 
+  const primerReciboPendiente = recibos.find(r=>!recibosPagadosNums.includes(r.num));
   const [form, setForm] = useState({
-    fechaPago: new Date().toISOString().slice(0,10),
+    fechaPago: primerReciboPendiente?.fechaPago || new Date().toISOString().slice(0,10),
     formaPago: "Transferencia",
     monto: "",
     referencia: "",
@@ -4893,7 +4899,7 @@ function ModalPago({ poliza, onGuardar, onEliminarPago, onClose }) {
   const handleReciboChange = (num) => {
     setReciboSel(num);
     const r = recibos.find(x=>x.num===num);
-    if(r) setForm(p=>({...p, monto:r.total}));
+    if(r) setForm(p=>({...p, monto:r.total, fechaPago: r.fechaPago||p.fechaPago}));
   };
 
   // Inicializar monto al montar
@@ -4908,10 +4914,12 @@ function ModalPago({ poliza, onGuardar, onEliminarPago, onClose }) {
   };
 
   const guardar = () => {
+    const recibo = recibos.find(r=>r.num===reciboSel);
     onGuardar({
       id:Date.now(),
       ...form,
       reciboNum: reciboSel,
+      fechaEsperada: recibo?.fechaPago||"",
       polizaNumero: poliza.numero,
       fechaRegistro: new Date().toISOString().slice(0,10),
     });
@@ -4953,6 +4961,7 @@ function ModalPago({ poliza, onGuardar, onEliminarPago, onClose }) {
                   <div style={{fontSize:10,fontWeight:800,color:pagado?"#059669":selec?"#7c3aed":"#374151"}}>
                     {pagado?"✓ ":""}{r.label}
                   </div>
+                  {r.fechaPago&&<div style={{fontSize:9,color:pagado?"#059669":selec?"#9333ea":"#6b7280",marginTop:1}}>{r.fechaPago}</div>}
                   <div style={{fontSize:12,fontWeight:900,color:pagado?"#059669":selec?"#7c3aed":"#111827",marginTop:2}}>
                     ${(r.total||0).toLocaleString("es-MX",{minimumFractionDigits:2})}
                   </div>

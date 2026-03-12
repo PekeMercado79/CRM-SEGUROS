@@ -2229,7 +2229,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
   const onGuardar = (data) => {
     const normNum = (s) => (s||"").trim().toLowerCase().replace(/[\s\-_]/g,"");
     const num = normNum(data.numero);
-    if (num && polizas.some(p => normNum(p.numero) === num)) {
+    if (num && polizas.some(p => normNum(p.numero) === num && p.status !== "cancelada")) {
       alert(`⚠️ Ya existe una póliza con el número "${data.numero}". No se puede guardar duplicada.`);
       return;
     }
@@ -2313,7 +2313,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
     // 2. Validar duplicado
     const normNum = (s) => (s||"").trim().toLowerCase().replace(/[\s\-_]/g,"");
     const numNuevo = normNum(data.numero);
-    if (numNuevo && polizas.some(p => normNum(p.numero) === numNuevo)) {
+    if (numNuevo && polizas.some(p => normNum(p.numero) === numNuevo && p.status !== "cancelada")) {
       alert(`⚠️ Ya existe una póliza con el número "${data.numero}". No se puede guardar duplicada.`);
       return;
     }

@@ -3227,7 +3227,7 @@ function ScanPoliza({ onClose, onExtracted }) {
 // ═══════════════════════════════════════════════════════════════════
 // NOTIFICACIONES
 // ═══════════════════════════════════════════════════════════════════
-function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault, clientes }) {
+function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault, clientes, configNotif:configNotifProp, setConfigNotif:setConfigNotifProp }) {
   const [tab,setTab]=useState("recordatorios");
   const [canal,setCanal]=useState("whatsapp");
   const [diasAntes,setDiasAntes]=useState(30);
@@ -3258,9 +3258,11 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
     {key:"personalizado",label:"✏️ Personalizado",color:"#6b7280",bg:"#f9fafb"},
   ];
   const [adjuntosEmail, setForm_adjuntos] = useState([]);
-  const [configNotif, setConfigNotif] = useState({
-    emailRemitente:"", nombreRemitente:"", celularWA:"", firmaWA:"", firmaEmail:""
-  });
+  const configNotif = configNotifProp || {emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""};
+  const setConfigNotif = (updater) => {
+    const vals = typeof updater === "function" ? updater(configNotif) : updater;
+    if(setConfigNotifProp) setConfigNotifProp(vals);
+  };
   const vars=["{nombre}","{numero}","{aseguradora}","{ramo}","{vencimiento}","{prima}","{frecuencia}"];
 
   const aplicarVars = (tpl, p) => (tpl||"")
@@ -3672,7 +3674,16 @@ Tel: 55 1234 5678_"
               📧 <strong>¿Cómo funciona?</strong> Al hacer clic en "Enviar correo" se abre tu cliente de email (Outlook, Gmail, etc.) con el destinatario, asunto y cuerpo prellenados usando estas configuraciones.
             </div>
             <div style={{marginTop:10,display:"flex",justifyContent:"flex-end"}}>
-              <button onClick={()=>showToast("✅ Configuración de notificaciones guardada")}
+              <button onClick={()=>{
+                setConfigNotif({
+                  emailRemitente: configNotif.emailRemitente,
+                  nombreRemitente: configNotif.nombreRemitente,
+                  firmaEmail: configNotif.firmaEmail,
+                  celularWA: configNotif.celularWA,
+                  firmaWA: configNotif.firmaWA,
+                });
+                showToast("✅ Configuración guardada correctamente");
+              }}
                 style={{background:"#0f172a",color:"#fff",border:"none",borderRadius:9,padding:"9px 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
                 💾 Guardar configuración
               </button>
@@ -6454,7 +6465,7 @@ export default function CRMSeguros() {
   const [usuarios,setUsuarios]=useState(USUARIOS_INIT);
   const [paiMetas,setPaiMetas]=useState(PAI_METAS_INIT);
   const [subagentes,setSubagentes]=useState(SUBAGENTES_INIT);
-  const [config,setConfig]=useState({nombre:"SeguroCRM",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:""});
+  const [config,setConfig]=useState({nombre:"SeguroCRM",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""});
 
   const PLANTILLAS_DEFAULT = {
     vencimiento:  `Hola {nombre} 👋,\n\nTe escribo de *SeguroCRM* para recordarte sobre tu póliza:\n\n📄 *Póliza:* {numero}\n🏢 *Aseguradora:* {aseguradora}\n🔖 *Ramo:* {ramo}\n📅 *Vencimiento:* {vencimiento}\n💰 *Prima:* ${"{prima}"} ({frecuencia})\n\nPara renovar contáctame 😊\n\n_Tu agente de seguros_`,
@@ -6518,7 +6529,7 @@ export default function CRMSeguros() {
         {vista==="dashboard"&&<Dashboard clientes={clientes} polizas={polizas} pipeline={pipeline} tareas={tareas} paiMetas={paiMetas}/>}
         {vista==="clientes"&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas}/>}
         {vista==="polizas"&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes} plantillas={plantillas}/>}
-        {vista==="notificaciones"&&<Notificaciones polizas={polizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes}/>}
+        {vista==="notificaciones"&&<Notificaciones polizas={polizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes} configNotif={config} setConfigNotif={(vals)=>setConfig(p=>({...p,...vals}))}/>}
         {vista==="pai"&&<PAI paiMetas={paiMetas} setPaiMetas={setPaiMetas}/>}
         {vista==="pipeline"&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}
         {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas}/>}

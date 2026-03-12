@@ -2800,7 +2800,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
       {/* Modal Registrar Pago */}
       {showPago&&(
         <Modal title={`Registrar Pago — ${showPago.numero}`} onClose={()=>setShowPago(null)}>
-          <ModalPago poliza={showPago} onGuardar={registrarPago} onClose={()=>setShowPago(null)}/>
+          <ModalPago poliza={showPago} onGuardar={registrarPago} onEliminarPago={(pgId)=>eliminarPago(showPago.id,pgId)} onClose={()=>setShowPago(null)}/>
         </Modal>
       )}
 
@@ -4753,7 +4753,30 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
 // ═══════════════════════════════════════════════════════════════════
 // MODAL REGISTRAR PAGO
 // ═══════════════════════════════════════════════════════════════════
-function ModalPago({ poliza, onGuardar, onClose }) {
+function PagoRowEditable({ pg, onEliminar }) {
+  const [sel, setSel] = useState(false);
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:8,padding:"7px 10px",background:sel?"#fef2f2":"#fff",borderRadius:8,marginBottom:4,border:`1.5px solid ${sel?"#fecaca":"#e5e7eb"}`,transition:"all .15s"}}>
+      <input type="checkbox" checked={sel} onChange={e=>setSel(e.target.checked)}
+        style={{width:15,height:15,accentColor:"#dc2626",cursor:"pointer",flexShrink:0}}/>
+      <div style={{flex:1}}>
+        <div style={{fontSize:12,fontWeight:700,color:"#374151",display:"flex",alignItems:"center",gap:6}}>
+          {pg.reciboNum&&<span style={{background:"#7c3aed",color:"#fff",borderRadius:20,padding:"1px 7px",fontSize:10,fontWeight:800}}>Recibo {pg.reciboNum}</span>}
+          {pg.fechaPago} · {pg.formaPago}
+        </div>
+        <div style={{fontSize:11,color:"#6b7280"}}>${Number(pg.monto||0).toLocaleString("es-MX",{minimumFractionDigits:2})}{pg.referencia?` · Ref: ${pg.referencia}`:""}</div>
+      </div>
+      {sel&&(
+        <button onClick={onEliminar}
+          style={{background:"#dc2626",border:"none",borderRadius:7,padding:"5px 12px",fontSize:11,color:"#fff",cursor:"pointer",fontFamily:"inherit",fontWeight:700}}>
+          🗑 Eliminar
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ModalPago({ poliza, onGuardar, onEliminarPago, onClose }) {
   // Calcular recibos en tiempo real si la póliza no los tiene guardados
   const calcRecibosLocal = (p) => {
     const neta=parseFloat(p.primaNeta)||0, gasto=parseFloat(p.gastosExpedicion)||0, recargo=parseFloat(p.recargoPago)||0;
@@ -4930,6 +4953,18 @@ function ModalPago({ poliza, onGuardar, onClose }) {
         )}
         <input ref={fileRef} type="file" accept=".pdf,.jpg,.jpeg,.png" style={{display:"none"}} onChange={e=>leerComprobante(e.target.files[0])}/>
       </div>
+
+      {/* Pagos ya registrados con opción de eliminar */}
+      {(poliza.pagos||[]).length>0&&(
+        <div style={{background:"#fafafa",border:"1.5px solid #e5e7eb",borderRadius:10,padding:"12px 14px"}}>
+          <div style={{fontSize:11,fontWeight:800,color:"#374151",marginBottom:8}}>
+            💳 Pagos registrados ({poliza.pagos.length})
+          </div>
+          {(poliza.pagos||[]).map((pg,i)=>(
+            <PagoRowEditable key={pg.id||i} pg={pg} onEliminar={()=>{if(window.confirm("¿Eliminar este pago?"))onEliminarPago(pg.id);}}/>
+          ))}
+        </div>
+      )}
 
       <div style={{display:"flex",gap:10}}>
         <button onClick={onClose} style={{flex:1,background:"#f3f4f6",border:"1.5px solid #e5e7eb",borderRadius:10,padding:"11px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#374151"}}>

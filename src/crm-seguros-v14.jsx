@@ -2357,6 +2357,10 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
     setShowDetalle(null);
   };
 
+  const recuperarPoliza = (id) => {
+    setPolizas(prev => prev.map(p => p.id === id ? {...p, status:"activa"} : p));
+  };
+
   const registrarPago = (pago) => {
     setPolizas(prev => prev.map(p => p.id === showPago.id
       ? {...p, pagos:[...(p.pagos||[]), pago], ultimoPago:pago}

@@ -2271,6 +2271,8 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
           apellidoPaterno: partes[1] || "",
           apellidoMaterno: partes[2] || "",
           rfc: data.rfcCliente || "",
+      fechaNacimiento: data.fechaNacimiento || "",
+      domicilio: data.domicilio || "",
           email: "", telefono: data.telefonoCliente || "",
           whatsapp: data.telefonoCliente || "",
           sexo: "F", fechaNacimiento: "",
@@ -2755,9 +2757,6 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                         📎 Ver
                       </a>
                     )}
-                    <button onClick={()=>{if(window.confirm("¿Eliminar este pago?"))eliminarPago(polizaDetalle.id, pg.id);}}
-                      style={{background:"#fef2f2",border:"1px solid #fecaca",borderRadius:7,padding:"4px 9px",fontSize:11,color:"#dc2626",cursor:"pointer",fontFamily:"inherit",fontWeight:700}}
-                      title="Eliminar pago">✕</button>
                   </div>
                 ))}
               </div>
@@ -2882,7 +2881,7 @@ function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, 
         </div>
         <div>
           <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>INICIO VIGENCIA</div>
-          <input value={er.inicio||""} onChange={e=>upd("inicio",e.target.value)} style={inpStyle} placeholder="YYYY-MM-DD"/>
+          <input value={er.inicio||""} onChange={e=>upd("inicio",e.target.value)} style={inpStyle} placeholder="DD/MM/AAAA"/>
         </div>
         <div>
           <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>FIN VIGENCIA</div>
@@ -2917,6 +2916,14 @@ function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, 
         <div>
           <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>RFC CLIENTE</div>
           <input value={er.rfcCliente||""} onChange={e=>upd("rfcCliente",e.target.value)} style={inpStyle} placeholder="XXXX000000XXX"/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>FECHA DE NACIMIENTO</div>
+          <input value={er.fechaNacimiento||""} onChange={e=>upd("fechaNacimiento",e.target.value)} style={inpStyle} placeholder="YYYY-MM-DD"/>
+        </div>
+        <div style={{gridColumn:"1/-1"}}>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>DOMICILIO</div>
+          <input value={er.domicilio||""} onChange={e=>upd("domicilio",e.target.value)} style={inpStyle} placeholder="Calle, No., Col., Ciudad, CP"/>
         </div>
         <div>
           <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>AGENTE</div>
@@ -2990,9 +2997,11 @@ function ScanPoliza({ onClose, onExtracted }) {
         "- beneficiarioPreferente: nombre del beneficiario",
         "- notas: cualquier observacion relevante",
         "IMPORTANTE: NO extraigas ni incluyas campo gestorCobro en el JSON.",
+        "FECHA DE NACIMIENTO: Si tienes el RFC del cliente (formato XXXXAAMMDD...), extrae la fecha de nacimiento de las posiciones 5-10 (AAMMDD) y conviertela a formato DD/MM/AAAA. Ejemplo: RFC MERC850312XXX = nacimiento 12/03/1985. Guarda en campo fechaNacimiento.",
+        "DIRECCION: Busca en el documento la direccion del contratante/asegurado. Puede aparecer como 'Domicilio', 'Direccion', 'Calle', 'Colonia', 'C.P.'. Concatena calle, numero, colonia, ciudad, CP en un solo string en campo domicilio.",
         "",
         "Formato JSON exacto (usa 0 si no encuentras el valor numerico, cadena vacia si no encuentras texto):",
-        '{"numero":"","endoso":"","cliente":"","rfcCliente":"","aseguradora":"","ramo":"","subramo":"","formaPago":"Anual","moneda":"MXN","agentePoliza":"","beneficiarioPreferente":"","primaNeta":0,"gastosExpedicion":0,"porcentajeRecargo":0,"recargoPago":0,"porcentajeIva":16,"montoIva":0,"primaTotal":0,"inicio":"YYYY-MM-DD","vencimiento":"YYYY-MM-DD","coberturas":[],"notas":""}'
+        '{"numero":"","endoso":"","cliente":"","rfcCliente":"","fechaNacimiento":"DD/MM/AAAA","domicilio":"","aseguradora":"","ramo":"","subramo":"","formaPago":"Anual","moneda":"MXN","agentePoliza":"","beneficiarioPreferente":"","primaNeta":0,"gastosExpedicion":0,"porcentajeRecargo":0,"recargoPago":0,"porcentajeIva":16,"montoIva":0,"primaTotal":0,"inicio":"YYYY-MM-DD","vencimiento":"YYYY-MM-DD","coberturas":[],"notas":""}'
       ].join("\n");
 
       const res=await fetch("/api/anthropic",{

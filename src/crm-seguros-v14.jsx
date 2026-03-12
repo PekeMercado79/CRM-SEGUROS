@@ -2233,6 +2233,10 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
       alert(`⚠️ Ya existe una póliza con el número "${data.numero}". No se puede guardar duplicada.`);
       return;
     }
+    // Si hay clienteId, vincular con cliente existente (evitar duplicados)
+    if (data.clienteId) {
+      setClientes(prev => prev.map(c => c.id===data.clienteId ? {...c, polizas:(c.polizas||0)+1} : c));
+    }
     const id = Date.now() + Math.floor(Math.random()*9999);
     setPolizas(prev => [...prev, {...data, id}]);
     setBusqueda("");
@@ -2259,9 +2263,12 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
     let clienteId = "";
     let clienteNombre = data.cliente || "";
     if (clienteNombre) {
-      const yaExiste = clientes.find(c =>
-        `${c.nombre} ${c.apellidoPaterno} ${c.apellidoMaterno||""}`.trim().toLowerCase() === clienteNombre.toLowerCase()
-      );
+      const normNom = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\s+/g," ").trim();
+      const yaExiste = clientes.find(c => {
+        const nomCompleto = normNom(`${c.nombre} ${c.apellidoPaterno} ${c.apellidoMaterno||""}`);
+        const rfcMatch = data.rfcCliente && c.rfc && data.rfcCliente.trim().toLowerCase()===c.rfc.trim().toLowerCase();
+        return rfcMatch || nomCompleto === normNom(clienteNombre);
+      });
       if (yaExiste) {
         clienteId = yaExiste.id;
         // Actualizar datos faltantes del cliente existente
@@ -2602,7 +2609,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
             <div style={{background:`linear-gradient(135deg,${ramoColor(polizaDetalle.ramo)},${ramoColor(polizaDetalle.ramo)}aa)`,borderRadius:12,padding:"16px 20px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
                 <div style={{fontSize:10,opacity:.8,fontWeight:700,letterSpacing:"0.08em"}}>{polizaDetalle.ramo?.toUpperCase()}{polizaDetalle.subramo?` · ${polizaDetalle.subramo}`:""} · {polizaDetalle.aseguradora}</div>
-                <div style={{fontSize:20,fontWeight:900,fontFamily:"'Playfair Display',serif",marginTop:2}}>{polizaDetalle.numero}</div>
+                <div style={{fontSize:20,fontWeight:800,letterSpacing:"0.03em",fontFamily:"'Inter','Segoe UI',system-ui,sans-serif",marginTop:2}}>{polizaDetalle.numero}</div>
                 <div style={{fontSize:13,opacity:.9,marginTop:4}}>{polizaDetalle.cliente}</div>
                 {polizaDetalle.renovadaDe&&<div style={{fontSize:10,opacity:.7,marginTop:2}}>🔄 Renovación de {polizaDetalle.renovadaDe}</div>}
                 {polizaDetalle.documentoPoliza&&<div style={{fontSize:10,opacity:.8,marginTop:3,display:"flex",alignItems:"center",gap:4}}>📎 <span>Póliza adjunta · ver abajo</span></div>}
@@ -2815,16 +2822,23 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
             />
 
             {/* Acciones del detalle */}
-            {polizaDetalle._status!=="cancelada"&&(
-              <div style={{display:"flex",gap:10,paddingTop:4,borderTop:"1px solid #f3f4f6"}}>
-                <Btn onClick={()=>{setShowPago(polizaDetalle);}} color="#059669" icon="check">💳 Registrar Pago</Btn>
-                <Btn onClick={()=>{setShowRenovar(polizaDetalle);}} color="#7c3aed">🔄 Renovar</Btn>
-                <button onClick={()=>cancelarPoliza(polizaDetalle.id)}
-                  style={{marginLeft:"auto",background:"#fef2f2",border:"1px solid #fecaca",borderRadius:9,padding:"8px 14px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#dc2626"}}>
-                  Cancelar póliza
+            <div style={{display:"flex",gap:10,paddingTop:4,borderTop:"1px solid #f3f4f6"}}>
+              {polizaDetalle._status!=="cancelada"?(
+                <>
+                  <Btn onClick={()=>{setShowPago(polizaDetalle);}} color="#059669" icon="check">💳 Registrar Pago</Btn>
+                  <Btn onClick={()=>{setShowRenovar(polizaDetalle);}} color="#7c3aed">🔄 Renovar</Btn>
+                  <button onClick={()=>cancelarPoliza(polizaDetalle.id)}
+                    style={{marginLeft:"auto",background:"#fef2f2",border:"1px solid #fecaca",borderRadius:9,padding:"8px 14px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#dc2626"}}>
+                    Cancelar póliza
+                  </button>
+                </>
+              ):(
+                <button onClick={()=>{recuperarPoliza(polizaDetalle.id);setShowDetalle(prev=>prev?{...prev,status:"activa"}:prev);}}
+                  style={{flex:1,background:"#f0fdf4",border:"1.5px solid #6ee7b7",borderRadius:9,padding:"10px 14px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#059669",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                  ↩️ Recuperar póliza
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </Modal>
       )}
@@ -5150,7 +5164,7 @@ function ModalEditarPoliza({ poliza, subagentes, onGuardar, onClose }) {
         <div>{lbl("Agente / Nombre")}<input value={form.agentePoliza} onChange={e=>upd("agentePoliza",e.target.value)} style={inpS}/></div>
         <div>{lbl("Beneficiario Preferente")}<input value={form.beneficiarioPreferente} onChange={e=>upd("beneficiarioPreferente",e.target.value)} style={inpS}/></div>
       </div>
-      <div>{lbl("Notas")}<input value={form.notas} onChange={e=>upd("notas",e.target.value)} style={inpS} placeholder="Observaciones adicionales"/></div>
+      <div>{lbl("Notas")}<textarea value={form.notas} onChange={e=>upd("notas",e.target.value)} style={{...inpS,minHeight:80,resize:"vertical"}} placeholder="Observaciones adicionales"/></div>
 
       <div style={{display:"flex",gap:10}}>
         <button onClick={onClose} style={{flex:1,background:"#f3f4f6",border:"1.5px solid #e5e7eb",borderRadius:10,padding:11,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#374151"}}>

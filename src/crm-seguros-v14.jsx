@@ -2268,7 +2268,6 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
           ...c,
           rfc: c.rfc || data.rfcCliente || "",
           fechaNacimiento: c.fechaNacimiento || data.fechaNacimiento || "",
-          calle: c.calle || data.domicilio || "",
         } : c));
       } else {
         // Dividir nombre: para apellido compuesto tomar últimas 2 palabras como apellidos
@@ -2289,7 +2288,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
           apellidoMaterno: pApellidoM,
           rfc: data.rfcCliente || "",
           fechaNacimiento: data.fechaNacimiento || "",
-          calle: data.domicilio || "",
+          calle: "",
           numero: "", colonia: "", cp: "", ciudad: "", estado: "",
           email: "",
           telefono: data.telefonoCliente || "",
@@ -2939,10 +2938,7 @@ function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, 
           <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>FECHA DE NACIMIENTO</div>
           <input value={er.fechaNacimiento||""} onChange={e=>upd("fechaNacimiento",e.target.value)} style={inpStyle} placeholder="YYYY-MM-DD"/>
         </div>
-        <div style={{gridColumn:"1/-1"}}>
-          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>DOMICILIO</div>
-          <input value={er.domicilio||""} onChange={e=>upd("domicilio",e.target.value)} style={inpStyle} placeholder="Calle, No., Col., Ciudad, CP"/>
-        </div>
+
         <div>
           <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>AGENTE</div>
           <input value={er.agentePoliza||""} onChange={e=>upd("agentePoliza",e.target.value)} style={inpStyle} placeholder="Nombre del agente"/>
@@ -3016,10 +3012,10 @@ function ScanPoliza({ onClose, onExtracted }) {
         "- notas: cualquier observacion relevante",
         "IMPORTANTE: NO extraigas ni incluyas campo gestorCobro en el JSON.",
         "FECHA DE NACIMIENTO: Si tienes el RFC del cliente (formato XXXXAAMMDD...), extrae la fecha de nacimiento de las posiciones 5-10 (AAMMDD) y conviertela a formato DD/MM/AAAA. Ejemplo: RFC MERC850312XXX = nacimiento 12/03/1985. Guarda en campo fechaNacimiento.",
-        "DIRECCION: Busca en el documento la direccion del contratante/asegurado. Puede aparecer como 'Domicilio', 'Direccion', 'Calle', 'Colonia', 'C.P.'. Concatena calle, numero, colonia, ciudad, CP en un solo string en campo domicilio.",
+        
         "",
         "Formato JSON exacto (usa 0 si no encuentras el valor numerico, cadena vacia si no encuentras texto):",
-        '{"numero":"","endoso":"","cliente":"","rfcCliente":"","fechaNacimiento":"DD/MM/AAAA","domicilio":"","aseguradora":"","ramo":"","subramo":"","formaPago":"Anual","moneda":"MXN","agentePoliza":"","beneficiarioPreferente":"","primaNeta":0,"gastosExpedicion":0,"porcentajeRecargo":0,"recargoPago":0,"porcentajeIva":16,"montoIva":0,"primaTotal":0,"inicio":"YYYY-MM-DD","vencimiento":"YYYY-MM-DD","coberturas":[],"notas":""}'
+        '{"numero":"","endoso":"","cliente":"","rfcCliente":"","fechaNacimiento":"DD/MM/AAAA","aseguradora":"","ramo":"","subramo":"","formaPago":"Anual","moneda":"MXN","agentePoliza":"","beneficiarioPreferente":"","primaNeta":0,"gastosExpedicion":0,"porcentajeRecargo":0,"recargoPago":0,"porcentajeIva":16,"montoIva":0,"primaTotal":0,"inicio":"YYYY-MM-DD","vencimiento":"YYYY-MM-DD","coberturas":[],"notas":""}'
       ].join("\n");
 
       const res=await fetch("/api/anthropic",{

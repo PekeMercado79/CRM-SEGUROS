@@ -2345,8 +2345,8 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
     setShowDetalle(prev => prev ? {...prev, pagos:[...(prev.pagos||[]), pago], ultimoPago:pago} : prev);
   };
 
-  const eliminarPago = (pagoId) => {
-    setPolizas(prev => prev.map(p => p.id === polizaDetalle?.id
+  const eliminarPago = (polizaId, pagoId) => {
+    setPolizas(prev => prev.map(p => p.id === polizaId
       ? {...p, pagos:(p.pagos||[]).filter(pg=>pg.id!==pagoId)}
       : p
     ));
@@ -2754,7 +2754,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                         📎 Ver
                       </a>
                     )}
-                    <button onClick={()=>{if(window.confirm("¿Eliminar este pago?"))eliminarPago(pg.id);}}
+                    <button onClick={()=>{if(window.confirm("¿Eliminar este pago?"))eliminarPago(polizaDetalle.id, pg.id);}}
                       style={{background:"#fef2f2",border:"1px solid #fecaca",borderRadius:7,padding:"4px 9px",fontSize:11,color:"#dc2626",cursor:"pointer",fontFamily:"inherit",fontWeight:700}}
                       title="Eliminar pago">✕</button>
                   </div>

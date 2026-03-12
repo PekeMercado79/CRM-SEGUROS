@@ -2945,8 +2945,8 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                   } else {
                     enviarBienvenidaEmail(p); setShowBienvenida(null);
                   }
-                }} style={{flex:2,background:config?.gmailToken?"#059669":"#2563eb",border:"none",borderRadius:10,padding:11,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-                  {config?.gmailToken ? "✉️ Enviar Gmail directo" : "✉️ Abrir cliente de correo"}
+                }} style={{flex:2,background:"#059669",border:"none",borderRadius:10,padding:11,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+                  ✉️ Enviar correo
                 </button>
               )}
             </div>
@@ -2955,11 +2955,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                 📤 Enviar por ambos canales
               </button>
             )}
-            {!config?.gmailToken&&showBienvenida.tieneEmail&&(
-              <div style={{fontSize:11,color:"#9ca3af",textAlign:"center"}}>
-                💡 Conecta Gmail en <strong>Configuración → Gmail</strong> para envío directo sin abrir otra app
-              </div>
-            )}
+
           </div>
         </Modal>
       )}
@@ -3318,28 +3314,12 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
   const yaEnviado=(id,tipo)=>enviados.some(e=>e.id===id&&e.tipo===tipo);
 
   const enviarWA=(p)=>{const msg=encodeURIComponent(genWA(p));const tel=(p.telefonoCliente||"").replace(/\D/g,"");window.open(`https://wa.me/${tel?`52${tel}`:""}?text=${msg}`,"_blank");marcar(p.id,"whatsapp");};
-  const gmailConectado = !!gmailToken;
-  const gmailSendNotif = async (to, subject, body) => {
-    if(!gmailToken) return false;
-    const from = gmailNombre ? `"${gmailNombre}" <${gmailEmail}>` : gmailEmail;
-    const raw = btoa(unescape(encodeURIComponent(
-      `From: ${from}\r\nTo: ${to}\r\nSubject: ${subject}\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n${body}`
-    ))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
-    const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send",{
-      method:"POST",
-      headers:{Authorization:"Bearer "+gmailToken,"Content-Type":"application/json"},
-      body:JSON.stringify({raw})
-    });
-    if(res.status===401&&setConfig){ setConfig(p=>({...p,gmailToken:"",gmailEmail:""})); return false; }
-    return res.ok;
-  };
+
   const enviarEmail=async(p)=>{
     const subject = `Recordatorio póliza ${p.numero}`;
     const body = genEmail(p);
-    if(gmailToken){
-      const ok = await gmailSendNotif(p.emailCliente, subject, body);
-      if(ok){ marcar(p.id,"email"); showToast("✅ Correo enviado por Gmail"); return; }
-    }
+    const ok = await emailJSSend({to:p.emailCliente, subject, message:body, fromName:gmailNombre||"CRM Seguros"});
+    if(ok){ marcar(p.id,"email"); showToast("✅ Correo enviado"); return; }
     window.open(`mailto:${p.emailCliente}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,"_blank");
     marcar(p.id,"email");
   };
@@ -6638,7 +6618,7 @@ export default function CRMSeguros() {
   const [usuarios,setUsuarios]=useState(USUARIOS_INIT);
   const [paiMetas,setPaiMetas]=useState(PAI_METAS_INIT);
   const [subagentes,setSubagentes]=useState(SUBAGENTES_INIT);
-  const [config,setConfig]=useState({nombre:"SeguroCRM",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:"",gmailToken:"",gmailEmail:""});
+  const [config,setConfig]=useState({nombre:"SeguroCRM",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""});
 
   const PLANTILLAS_DEFAULT = {
     vencimiento:  `Hola {nombre} 👋,\n\nTe escribo de *SeguroCRM* para recordarte sobre tu póliza:\n\n📄 *Póliza:* {numero}\n🏢 *Aseguradora:* {aseguradora}\n🔖 *Ramo:* {ramo}\n📅 *Vencimiento:* {vencimiento}\n💰 *Prima:* ${"{prima}"} ({frecuencia})\n\nPara renovar contáctame 😊\n\n_Tu agente de seguros_`,

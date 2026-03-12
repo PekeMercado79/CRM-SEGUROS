@@ -2193,6 +2193,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
   const [showDetalle, setShowDetalle] = useState(null);
   const [showPago, setShowPago] = useState(null);
   const [showRenovar, setShowRenovar] = useState(null);
+  const [showEditar, setShowEditar] = useState(null);
   const [busqueda, setBusqueda] = useState("");
   const [viewMode, setViewMode] = useState("cards"); // "cards" | "table"
   const ramosDisponibles = Object.keys(RAMOS_SUBRAMOS);
@@ -2501,7 +2502,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
               <div style={{background:`linear-gradient(135deg,${ramoColor(p.ramo)},${ramoColor(p.ramo)}cc)`,padding:"13px 16px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                 <div>
                   <div style={{fontSize:9,fontWeight:800,opacity:.8,letterSpacing:"0.1em"}}>{p.ramo?.toUpperCase()}{p.subramo?` · ${p.subramo.toUpperCase()}`:""}</div>
-                  <div style={{fontSize:12,fontWeight:800,fontFamily:"monospace",marginTop:2}}>{p.numero}</div>
+                  <div style={{fontSize:12,fontWeight:700,letterSpacing:"0.04em",marginTop:2,fontFamily:"'Inter','Segoe UI',system-ui,sans-serif"}}>{p.numero}</div>
                 </div>
                 <span style={{background:cfg.badge,color:cfg.color,padding:"2px 9px",borderRadius:20,fontSize:10,fontWeight:800}}>
                   {cfg.label}
@@ -2551,20 +2552,30 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                   </div>
                 )}
                 {/* Botones acción */}
-                <div style={{display:"flex",gap:6,marginTop:8}}>
-                  <button onClick={()=>setShowDetalle(p)} style={{flex:1,background:"#f3f4f6",border:"none",borderRadius:8,padding:"6px",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"inherit",color:"#374151",display:"flex",alignItems:"center",justifyContent:"center",gap:4}}>
+                <div style={{display:"flex",gap:6,marginTop:8,flexWrap:"wrap"}}>
+                  <button onClick={()=>setShowDetalle(p)} style={{flex:1,minWidth:80,background:"#f3f4f6",border:"none",borderRadius:8,padding:"6px",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"inherit",color:"#374151",display:"flex",alignItems:"center",justifyContent:"center",gap:4}}>
                     {p.documentoPoliza&&<span title="Tiene documento adjunto">📎</span>}
                     Ver detalle
                   </button>
                   {st!=="cancelada"&&(
                     <>
-                      <button onClick={(e)=>{e.stopPropagation();setShowPago(p);}} style={{flex:1,background:"#f0fdf4",border:"1px solid #d1fae5",borderRadius:8,padding:"6px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#059669"}}>
+                      <button onClick={(e)=>{e.stopPropagation();setShowPago(p);}} style={{flex:1,minWidth:60,background:"#f0fdf4",border:"1px solid #d1fae5",borderRadius:8,padding:"6px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#059669"}}>
                         💳 Pago
                       </button>
-                      <button onClick={(e)=>{e.stopPropagation();setShowRenovar(p);}} style={{flex:1,background:"#faf5ff",border:"1px solid #e9d5ff",borderRadius:8,padding:"6px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#7c3aed"}}>
+                      <button onClick={(e)=>{e.stopPropagation();setShowRenovar(p);}} style={{flex:1,minWidth:60,background:"#faf5ff",border:"1px solid #e9d5ff",borderRadius:8,padding:"6px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#7c3aed"}}>
                         🔄 Renovar
                       </button>
                     </>
+                  )}
+                </div>
+                <div style={{display:"flex",gap:6,marginTop:5}}>
+                  <button onClick={(e)=>{e.stopPropagation();setShowEditar(p);}} style={{flex:1,background:"#eff6ff",border:"1px solid #bfdbfe",borderRadius:8,padding:"5px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#2563eb"}}>
+                    ✏️ Editar
+                  </button>
+                  {st!=="cancelada"&&(
+                    <button onClick={(e)=>{e.stopPropagation();if(window.confirm("¿Cancelar esta póliza?"))cancelarPoliza(p.id);}} style={{flex:1,background:"#fef2f2",border:"1px solid #fecaca",borderRadius:8,padding:"5px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#dc2626"}}>
+                      ✕ Cancelar
+                    </button>
                   )}
                 </div>
               </div>
@@ -2825,6 +2836,21 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
       {showRenovar&&(
         <Modal title={`Renovar Póliza — ${showRenovar.numero}`} onClose={()=>setShowRenovar(null)} wide>
           <ModalRenovar poliza={showRenovar} onGuardar={renovarPoliza} onClose={()=>setShowRenovar(null)}/>
+        </Modal>
+      )}
+
+      {/* Modal Editar Póliza */}
+      {showEditar&&(
+        <Modal title={`Editar Póliza — ${showEditar.numero}`} onClose={()=>setShowEditar(null)} wide>
+          <ModalEditarPoliza
+            poliza={showEditar}
+            subagentes={subagentes}
+            onGuardar={(data)=>{
+              setPolizas(prev=>prev.map(p=>p.id===showEditar.id?{...p,...data}:p));
+              setShowEditar(null);
+            }}
+            onClose={()=>setShowEditar(null)}
+          />
         </Modal>
       )}
 
@@ -5005,6 +5031,135 @@ function ModalPago({ poliza, onGuardar, onEliminarPago, onClose }) {
 // ═══════════════════════════════════════════════════════════════════
 // MODAL RENOVAR PÓLIZA
 // ═══════════════════════════════════════════════════════════════════
+function ModalEditarPoliza({ poliza, subagentes, onGuardar, onClose }) {
+  const [form, setForm] = useState({
+    numero:       poliza.numero||"",
+    aseguradora:  poliza.aseguradora||"",
+    ramo:         poliza.ramo||"",
+    subramo:      poliza.subramo||"",
+    inicio:       poliza.inicio||"",
+    vencimiento:  poliza.vencimiento||"",
+    formaPago:    poliza.formaPago||"Anual",
+    primaNeta:    poliza.primaNeta||"",
+    gastosExpedicion: poliza.gastosExpedicion||"",
+    porcentajeRecargo: poliza.porcentajeRecargo||"",
+    recargoPago:  poliza.recargoPago||"",
+    porcentajeIva: poliza.porcentajeIva||16,
+    montoIva:     poliza.montoIva||"",
+    primaTotal:   poliza.primaTotal||poliza.prima||"",
+    moneda:       poliza.moneda||"MXN",
+    agentePoliza: poliza.agentePoliza||"",
+    beneficiarioPreferente: poliza.beneficiarioPreferente||"",
+    subagenteId:  poliza.subagenteId||"",
+    subagente:    poliza.subagente||"",
+    comisionSubagente: poliza.comisionSubagente||"",
+    notas:        poliza.notas||"",
+  });
+
+  const upd = (k,v) => setForm(p=>({...p,[k]:v}));
+  const inpS = {border:"1.5px solid #e5e7eb",borderRadius:9,padding:"8px 12px",fontSize:13,outline:"none",fontFamily:"inherit",width:"100%",boxSizing:"border-box"};
+  const lbl = (t) => <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:4}}>{t}</div>;
+
+  const guardar = () => {
+    onGuardar({
+      ...form,
+      primaNeta: parseFloat(form.primaNeta)||0,
+      gastosExpedicion: parseFloat(form.gastosExpedicion)||0,
+      recargoPago: parseFloat(form.recargoPago)||0,
+      porcentajeIva: parseFloat(form.porcentajeIva)||16,
+      montoIva: parseFloat(form.montoIva)||0,
+      primaTotal: parseFloat(form.primaTotal)||0,
+      prima: parseFloat(form.primaTotal)||0,
+    });
+  };
+
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <div style={{background:"#eff6ff",borderRadius:10,padding:"9px 14px",fontSize:12,color:"#1e40af",fontWeight:600}}>
+        ✏️ Edita los campos que necesites completar o corregir
+      </div>
+
+      {/* Datos generales */}
+      <div style={{background:"#f9fafb",borderRadius:10,padding:"12px 14px",border:"1px solid #e5e7eb"}}>
+        <div style={{fontSize:11,fontWeight:800,color:"#374151",marginBottom:10,textTransform:"uppercase",letterSpacing:".05em"}}>📋 Datos Generales</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+          <div>{lbl("Número de Póliza")}<input value={form.numero} onChange={e=>upd("numero",e.target.value)} style={inpS}/></div>
+          <div>{lbl("Aseguradora")}<input value={form.aseguradora} onChange={e=>upd("aseguradora",e.target.value)} style={inpS}/></div>
+          <div>{lbl("Ramo")}<input value={form.ramo} onChange={e=>upd("ramo",e.target.value)} style={inpS}/></div>
+          <div>{lbl("Subramo")}<input value={form.subramo} onChange={e=>upd("subramo",e.target.value)} style={inpS}/></div>
+          <div>{lbl("Inicio Vigencia")}<input type="date" value={form.inicio} onChange={e=>upd("inicio",e.target.value)} style={inpS}/></div>
+          <div>{lbl("Fin Vigencia")}<input type="date" value={form.vencimiento} onChange={e=>upd("vencimiento",e.target.value)} style={inpS}/></div>
+        </div>
+      </div>
+
+      {/* Datos económicos */}
+      <div style={{background:"#f9fafb",borderRadius:10,padding:"12px 14px",border:"1px solid #e5e7eb"}}>
+        <div style={{fontSize:11,fontWeight:800,color:"#374151",marginBottom:10,textTransform:"uppercase",letterSpacing:".05em"}}>💰 Datos Económicos</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+          <div>
+            {lbl("Forma de Pago")}
+            <select value={form.formaPago} onChange={e=>upd("formaPago",e.target.value)} style={inpS}>
+              {["Anual","Semestral","Trimestral","Mensual","Contado","Único"].map(f=><option key={f}>{f}</option>)}
+            </select>
+          </div>
+          <div>
+            {lbl("Moneda")}
+            <select value={form.moneda} onChange={e=>upd("moneda",e.target.value)} style={inpS}>
+              {["MXN","USD","UDI"].map(f=><option key={f}>{f}</option>)}
+            </select>
+          </div>
+          <div>{lbl("Prima Neta ($)")}<input type="number" value={form.primaNeta} onChange={e=>upd("primaNeta",e.target.value)} style={inpS}/></div>
+          <div>{lbl("Gastos de Expedición ($)")}<input type="number" value={form.gastosExpedicion} onChange={e=>upd("gastosExpedicion",e.target.value)} style={inpS}/></div>
+          <div>{lbl("% Recargo Fracc.")}<input type="number" value={form.porcentajeRecargo} onChange={e=>upd("porcentajeRecargo",e.target.value)} style={inpS}/></div>
+          <div>{lbl("Recargo Fracc. ($)")}<input type="number" value={form.recargoPago} onChange={e=>upd("recargoPago",e.target.value)} style={inpS}/></div>
+          <div>{lbl("% IVA")}<input type="number" value={form.porcentajeIva} onChange={e=>upd("porcentajeIva",e.target.value)} style={inpS}/></div>
+          <div>{lbl("Monto IVA ($)")}<input type="number" value={form.montoIva} onChange={e=>upd("montoIva",e.target.value)} style={inpS}/></div>
+          <div style={{gridColumn:"1/-1",background:"linear-gradient(135deg,#0f172a,#1e3a5f)",borderRadius:10,padding:"10px 14px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div style={{color:"#94a3b8",fontSize:12,fontWeight:700}}>PRIMA TOTAL</div>
+            <input type="number" value={form.primaTotal} onChange={e=>upd("primaTotal",e.target.value)}
+              style={{background:"transparent",border:"none",color:"#fff",fontSize:20,fontWeight:900,textAlign:"right",width:160,outline:"none",fontFamily:"inherit"}}/>
+          </div>
+        </div>
+      </div>
+
+      {/* Subagente */}
+      <div style={{background:"#f9fafb",borderRadius:10,padding:"12px 14px",border:"1px solid #e5e7eb"}}>
+        <div style={{fontSize:11,fontWeight:800,color:"#374151",marginBottom:10,textTransform:"uppercase",letterSpacing:".05em"}}>🤝 Subagente (si aplica)</div>
+        <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:10}}>
+          <div>
+            {lbl("Subagente")}
+            <select value={form.subagenteId} onChange={e=>{
+              const sa = subagentes.find(s=>s.id===Number(e.target.value));
+              upd("subagenteId", e.target.value);
+              upd("subagente", sa?.nombre||"");
+            }} style={inpS}>
+              <option value="">— Sin subagente —</option>
+              {(subagentes||[]).map(s=><option key={s.id} value={s.id}>{s.nombre}</option>)}
+            </select>
+          </div>
+          <div>{lbl("Comisión (%)")}<input type="number" value={form.comisionSubagente} onChange={e=>upd("comisionSubagente",e.target.value)} style={inpS} placeholder="0"/></div>
+        </div>
+      </div>
+
+      {/* Otros */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+        <div>{lbl("Agente / Nombre")}<input value={form.agentePoliza} onChange={e=>upd("agentePoliza",e.target.value)} style={inpS}/></div>
+        <div>{lbl("Beneficiario Preferente")}<input value={form.beneficiarioPreferente} onChange={e=>upd("beneficiarioPreferente",e.target.value)} style={inpS}/></div>
+      </div>
+      <div>{lbl("Notas")}<input value={form.notas} onChange={e=>upd("notas",e.target.value)} style={inpS} placeholder="Observaciones adicionales"/></div>
+
+      <div style={{display:"flex",gap:10}}>
+        <button onClick={onClose} style={{flex:1,background:"#f3f4f6",border:"1.5px solid #e5e7eb",borderRadius:10,padding:11,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#374151"}}>
+          Cancelar
+        </button>
+        <button onClick={guardar} style={{flex:2,background:"#2563eb",border:"none",borderRadius:10,padding:11,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff"}}>
+          💾 Guardar cambios
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ModalRenovar({ poliza, onGuardar, onClose }) {
   const sumarAnio = (s) => {
     if (!s) return "";

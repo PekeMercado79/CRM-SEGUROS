@@ -4931,9 +4931,14 @@ function ModalPago({ poliza, onGuardar, onClose }) {
         <input ref={fileRef} type="file" accept=".pdf,.jpg,.jpeg,.png" style={{display:"none"}} onChange={e=>leerComprobante(e.target.files[0])}/>
       </div>
 
-      <Btn onClick={guardar} color="#059669" icon="check" style={{width:"100%",justifyContent:"center"}}>
-        {reciboSel?`✓ Registrar Recibo ${reciboSel}`:"✓ Registrar Pago"}
-      </Btn>
+      <div style={{display:"flex",gap:10}}>
+        <button onClick={onClose} style={{flex:1,background:"#f3f4f6",border:"1.5px solid #e5e7eb",borderRadius:10,padding:"11px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#374151"}}>
+          Cancelar
+        </button>
+        <Btn onClick={guardar} color="#059669" icon="check" style={{flex:2,justifyContent:"center"}}>
+          {reciboSel?`✓ Registrar Recibo ${reciboSel}`:"✓ Registrar Pago"}
+        </Btn>
+      </div>
     </div>
   );
 }

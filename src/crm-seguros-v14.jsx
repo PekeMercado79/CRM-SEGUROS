@@ -2180,7 +2180,7 @@ function DocAdjunto({ poliza, onSubir }) {
   );
 }
 
-function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSubagentes }) {
+function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSubagentes, plantillas }) {
   const [filtro, setFiltro] = useState("todas");
   const [filtroRamo, setFiltroRamo] = useState("todos");
   const [showModal, setShowModal] = useState(false);
@@ -2225,6 +2225,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
     .filter(p => !busqueda || p.numero?.toLowerCase().includes(busqueda.toLowerCase()) || p.cliente?.toLowerCase().includes(busqueda.toLowerCase()));
 
   const [polizaRecienGuardada, setPolizaRecienGuardada] = useState(null);
+  const [showBienvenida, setShowBienvenida] = useState(null); // {poliza, tieneWA, tieneEmail}
 
   const onGuardar = (data) => {
     const normNum = (s) => (s||"").trim().toLowerCase().replace(/[\s\-_]/g,"");
@@ -2238,12 +2239,19 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
       setClientes(prev => prev.map(c => c.id===data.clienteId ? {...c, polizas:(c.polizas||0)+1} : c));
     }
     const id = Date.now() + Math.floor(Math.random()*9999);
-    setPolizas(prev => [...prev, {...data, id}]);
+    const nuevaPoliza = {...data, id};
+    setPolizas(prev => [...prev, nuevaPoliza]);
     setBusqueda("");
     setFiltro("todas");
     setFiltroRamo("todos");
     setPolizaRecienGuardada(id);
     setTimeout(()=>setPolizaRecienGuardada(null), 4000);
+    // Disparar bienvenida si hay WhatsApp o email
+    const tieneWA = !!(data.telefonoCliente||data.whatsappCliente||"").replace(/\D/g,"");
+    const tieneEmail = !!(data.emailCliente||"").trim();
+    if (tieneWA || tieneEmail) {
+      setTimeout(()=>setShowBienvenida({poliza:nuevaPoliza, tieneWA, tieneEmail}), 600);
+    }
   };
 
   // Normaliza fecha de cualquier formato a YYYY-MM-DD
@@ -2391,6 +2399,30 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
   };
 
   const polizaDetalle = showDetalle ? {...showDetalle, _status: getStatus(showDetalle)} : null;
+
+  // Bienvenida automática
+  const aplicarVarsBienvenida = (tpl, p) => (tpl||"")
+    .replace(/{nombre}/g, p.cliente?.split(" ")[0]||p.cliente||"")
+    .replace(/{numero}/g, p.numero||"")
+    .replace(/{aseguradora}/g, p.aseguradora||"")
+    .replace(/{ramo}/g, p.subramo?`${p.ramo} › ${p.subramo}`:(p.ramo||""))
+    .replace(/{vencimiento}/g, p.vencimiento||"")
+    .replace(/{prima}/g, Number(p.primaTotal||p.prima||0).toLocaleString("es-MX"))
+    .replace(/{frecuencia}/g, p.formaPago||p.frecuencia||"");
+
+  const enviarBienvenidaWA = (p) => {
+    const tpl = plantillas?.bienvenida || `Hola {nombre} 👋,\n\n¡Bienvenido/a como cliente! 🎉\n\nTu póliza ha sido registrada:\n\n📄 *Póliza:* {numero}\n🏢 *Aseguradora:* {aseguradora}\n🔖 *Ramo:* {ramo}\n📅 *Vigente hasta:* {vencimiento}\n\nEstoy a tus órdenes 😊`;
+    const msg = encodeURIComponent(aplicarVarsBienvenida(tpl, p));
+    const tel = (p.telefonoCliente||p.whatsappCliente||"").replace(/\D/g,"");
+    window.open(`https://wa.me/${tel?`52${tel}`:""  }?text=${msg}`,"_blank");
+  };
+
+  const enviarBienvenidaEmail = (p) => {
+    const tpl = plantillas?.bienvenida || `Estimado/a {nombre},\n\n¡Bienvenido/a como cliente!\n\nSu póliza ha sido registrada:\n\n• Póliza: {numero}\n• Aseguradora: {aseguradora}\n• Ramo: {ramo}\n• Vigente hasta: {vencimiento}\n\nEstamos a sus órdenes.\n\nAtentamente,\nSu Agente de Seguros`;
+    const body = encodeURIComponent(aplicarVarsBienvenida(tpl, p));
+    const subject = encodeURIComponent(`¡Bienvenido/a! Póliza ${p.numero} registrada`);
+    window.open(`mailto:${p.emailCliente}?subject=${subject}&body=${body}`,"_blank");
+  };
 
   // Contadores por estado
   const counts = { activa:0, "por vencer":0, vencida:0, cancelada:0 };
@@ -2855,6 +2887,46 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
       {showRenovar&&(
         <Modal title={`Renovar Póliza — ${showRenovar.numero}`} onClose={()=>setShowRenovar(null)} wide>
           <ModalRenovar poliza={showRenovar} onGuardar={renovarPoliza} onClose={()=>setShowRenovar(null)}/>
+        </Modal>
+      )}
+
+      {/* Modal Bienvenida automática */}
+      {showBienvenida&&(
+        <Modal title="🎉 Póliza registrada — Enviar bienvenida" onClose={()=>setShowBienvenida(null)}>
+          <div style={{display:"flex",flexDirection:"column",gap:14}}>
+            <div style={{background:"#f0fdf4",borderRadius:10,padding:"12px 16px",border:"1.5px solid #6ee7b7"}}>
+              <div style={{fontSize:13,fontWeight:700,color:"#065f46",marginBottom:4}}>✅ Póliza guardada correctamente</div>
+              <div style={{fontSize:12,color:"#374151"}}>
+                <strong>{showBienvenida.poliza.cliente}</strong> · {showBienvenida.poliza.numero} · {showBienvenida.poliza.aseguradora}
+              </div>
+            </div>
+            <div style={{fontSize:13,color:"#374151",fontWeight:600}}>
+              ¿Deseas enviar el mensaje de bienvenida al cliente?
+            </div>
+            <div style={{background:"#f9fafb",borderRadius:10,padding:"12px 14px",fontSize:12,color:"#6b7280",whiteSpace:"pre-line",maxHeight:160,overflowY:"auto",border:"1px solid #e5e7eb"}}>
+              {aplicarVarsBienvenida(plantillas?.bienvenida||`Hola {nombre} 👋,\n\n¡Bienvenido/a! Tu póliza {numero} de {aseguradora} fue registrada.\nVigente hasta: {vencimiento}\n\nEstoy a tus órdenes 😊`, showBienvenida.poliza)}
+            </div>
+            <div style={{display:"flex",gap:10}}>
+              <button onClick={()=>setShowBienvenida(null)} style={{flex:1,background:"#f3f4f6",border:"1.5px solid #e5e7eb",borderRadius:10,padding:11,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#374151"}}>
+                Omitir
+              </button>
+              {showBienvenida.tieneWA&&(
+                <button onClick={()=>{enviarBienvenidaWA(showBienvenida.poliza);setShowBienvenida(null);}} style={{flex:2,background:"#25d366",border:"none",borderRadius:10,padding:11,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+                  💬 Enviar por WhatsApp
+                </button>
+              )}
+              {showBienvenida.tieneEmail&&(
+                <button onClick={()=>{enviarBienvenidaEmail(showBienvenida.poliza);setShowBienvenida(null);}} style={{flex:2,background:"#2563eb",border:"none",borderRadius:10,padding:11,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+                  ✉️ Enviar por Email
+                </button>
+              )}
+            </div>
+            {showBienvenida.tieneWA&&showBienvenida.tieneEmail&&(
+              <button onClick={()=>{enviarBienvenidaWA(showBienvenida.poliza);enviarBienvenidaEmail(showBienvenida.poliza);setShowBienvenida(null);}} style={{background:"#0f172a",border:"none",borderRadius:10,padding:10,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff"}}>
+                📤 Enviar por ambos canales
+              </button>
+            )}
+          </div>
         </Modal>
       )}
 
@@ -6423,7 +6495,7 @@ export default function CRMSeguros() {
       <div style={{flex:1,overflowY:"auto",padding:"28px 32px"}}>
         {vista==="dashboard"&&<Dashboard clientes={clientes} polizas={polizas} pipeline={pipeline} tareas={tareas} paiMetas={paiMetas}/>}
         {vista==="clientes"&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas}/>}
-        {vista==="polizas"&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes}/>}
+        {vista==="polizas"&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes} plantillas={plantillas}/>}
         {vista==="notificaciones"&&<Notificaciones polizas={polizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes}/>}
         {vista==="pai"&&<PAI paiMetas={paiMetas} setPaiMetas={setPaiMetas}/>}
         {vista==="pipeline"&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}

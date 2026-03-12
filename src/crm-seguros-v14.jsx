@@ -3065,6 +3065,28 @@ function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, 
           <input value={er.moneda||"MXN"} onChange={e=>upd("moneda",e.target.value)} style={inpStyle}/>
         </div>
       </div>
+      {/* Contacto del cliente */}
+      <div style={{background:"#eff6ff",borderRadius:10,padding:"12px 14px",border:"1.5px solid #bfdbfe"}}>
+        <div style={{fontSize:11,fontWeight:800,color:"#1e40af",marginBottom:10,display:"flex",alignItems:"center",gap:6}}>
+          👤 Datos de contacto del cliente
+          <span style={{fontSize:10,fontWeight:600,color:"#3b82f6"}}>(se guardarán en el perfil del cliente)</span>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:9}}>
+          <div>
+            <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:3}}>CORREO ELECTRÓNICO</div>
+            <input value={er.emailCliente||""} onChange={e=>upd("emailCliente",e.target.value)} style={{...inpStyle,borderColor:"#bfdbfe"}} placeholder="correo@ejemplo.com"/>
+          </div>
+          <div>
+            <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:3}}>TELÉFONO</div>
+            <input value={er.telefonoCliente||""} onChange={e=>upd("telefonoCliente",e.target.value)} style={{...inpStyle,borderColor:"#bfdbfe"}} placeholder="10 dígitos"/>
+          </div>
+          <div>
+            <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:3}}>WHATSAPP</div>
+            <input value={er.whatsappCliente||""} onChange={e=>upd("whatsappCliente",e.target.value)} style={{...inpStyle,borderColor:"#bfdbfe"}} placeholder="10 dígitos"/>
+          </div>
+        </div>
+      </div>
+
       {(er.coberturas||[]).length>0&&<div style={{background:"#f9fafb",borderRadius:9,padding:"10px 12px"}}>
         <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:7}}>COBERTURAS DETECTADAS</div>
         <div style={{display:"flex",flexWrap:"wrap",gap:5}}>{(er.coberturas||[]).map((c,i)=><span key={i} style={{background:"#dbeafe",color:"#1e40af",fontSize:11,padding:"3px 9px",borderRadius:20}}>{c}</span>)}</div>

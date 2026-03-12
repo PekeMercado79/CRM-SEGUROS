@@ -2263,20 +2263,38 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
       );
       if (yaExiste) {
         clienteId = yaExiste.id;
+        // Actualizar datos faltantes del cliente existente
+        setClientes(prev => prev.map(c => c.id === yaExiste.id ? {
+          ...c,
+          rfc: c.rfc || data.rfcCliente || "",
+          fechaNacimiento: c.fechaNacimiento || data.fechaNacimiento || "",
+          calle: c.calle || data.domicilio || "",
+        } : c));
       } else {
+        // Dividir nombre: para apellido compuesto tomar últimas 2 palabras como apellidos
         const partes = clienteNombre.trim().split(/\s+/);
+        let pNombre = "", pApellidoP = "", pApellidoM = "";
+        if (partes.length === 1) { pNombre = partes[0]; }
+        else if (partes.length === 2) { pNombre = partes[0]; pApellidoP = partes[1]; }
+        else if (partes.length === 3) { pNombre = partes[0]; pApellidoP = partes[1]; pApellidoM = partes[2]; }
+        else {
+          pApellidoM = partes[partes.length-1];
+          pApellidoP = partes[partes.length-2];
+          pNombre = partes.slice(0, partes.length-2).join(" ");
+        }
         const nuevoCliente = {
           id: Date.now(),
-          nombre: partes[0] || "",
-          apellidoPaterno: partes[1] || "",
-          apellidoMaterno: partes[2] || "",
+          nombre: pNombre,
+          apellidoPaterno: pApellidoP,
+          apellidoMaterno: pApellidoM,
           rfc: data.rfcCliente || "",
-      fechaNacimiento: data.fechaNacimiento || "",
-      domicilio: data.domicilio || "",
-          email: "", telefono: data.telefonoCliente || "",
+          fechaNacimiento: data.fechaNacimiento || "",
+          calle: data.domicilio || "",
+          numero: "", colonia: "", cp: "", ciudad: "", estado: "",
+          email: "",
+          telefono: data.telefonoCliente || "",
           whatsapp: data.telefonoCliente || "",
-          sexo: "F", fechaNacimiento: "",
-          calle: "", numero: "", colonia: "", cp: "", ciudad: "", estado: "",
+          sexo: "",
           polizas: 1,
           _autoCreado: true,
         };

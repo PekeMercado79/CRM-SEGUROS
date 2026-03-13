@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, RadialBarChart, RadialBar } from "recharts";
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
-// CATÃÂLOGO RAMOS / SUBRAMOS
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
+// CATÁLOGO RAMOS / SUBRAMOS
+// ═══════════════════════════════════════════════════════════════════
 const RAMOS_SUBRAMOS = {
   Autos: ["Individual", "Flotilla"],
   Vida: ["Vida Individual", "Vida Grupo", "Vida Universal"],
@@ -12,35 +12,35 @@ const RAMOS_SUBRAMOS = {
 };
 
 const ASEGURADORAS = ["GNP","AXA","HDI","SURA","Citibanamex","Qualitas","Zurich","Mapfre","Allianz","MetLife","Inbursa","Atlas","Bupa","Monterrey","Chubb","BBVA Seguros"];
-const ESTADOS_MX = ["Aguascalientes","Baja California","Baja California Sur","Campeche","Chiapas","Chihuahua","Ciudad de México","Coahuila","Colima","Durango","Estado de México","Guanajuato","Guerrero","Hidalgo","Jalisco","Michoacán","Morelos","Nayarit","Nuevo León","Oaxaca","Puebla","Querétaro","Quintana Roo","San Luis PotosÃÂ­","Sinaloa","Sonora","Tabasco","Tamaulipas","Tlaxcala","Veracruz","Yucatán","Zacatecas"];
+const ESTADOS_MX = ["Aguascalientes","Baja California","Baja California Sur","Campeche","Chiapas","Chihuahua","Ciudad de México","Coahuila","Colima","Durango","Estado de México","Guanajuato","Guerrero","Hidalgo","Jalisco","Michoacán","Morelos","Nayarit","Nuevo León","Oaxaca","Puebla","Querétaro","Quintana Roo","San Luis Potosí","Sinaloa","Sonora","Tabasco","Tamaulipas","Tlaxcala","Veracruz","Yucatán","Zacatecas"];
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 // DATOS INICIALES
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 const CLIENTES_INIT = [
-  { id:1, nombre:"MarÃÂ­a", apellidoPaterno:"González", apellidoMaterno:"Ruiz", rfc:"GORM850312HDF", email:"maria@email.com", telefono:"5512345678", whatsapp:"5512345678", sexo:"F", fechaNacimiento:"12/03/1985", calle:"Insurgentes Sur", numero:"1234", colonia:"Del Valle", cp:"03100", ciudad:"Benito Juárez", estado:"Ciudad de México", polizas:3 },
+  { id:1, nombre:"María", apellidoPaterno:"González", apellidoMaterno:"Ruiz", rfc:"GORM850312HDF", email:"maria@email.com", telefono:"5512345678", whatsapp:"5512345678", sexo:"F", fechaNacimiento:"12/03/1985", calle:"Insurgentes Sur", numero:"1234", colonia:"Del Valle", cp:"03100", ciudad:"Benito Juárez", estado:"Ciudad de México", polizas:3 },
   { id:2, nombre:"Carlos", apellidoPaterno:"Mendoza", apellidoMaterno:"López", rfc:"MELC780901HNL", email:"carlos@email.com", telefono:"8198765432", whatsapp:"8198765432", sexo:"M", fechaNacimiento:"01/09/1978", calle:"Av. Constitución", numero:"456", colonia:"Centro", cp:"64000", ciudad:"Monterrey", estado:"Nuevo León", polizas:1 },
-  { id:3, nombre:"Ana SofÃÂ­a", apellidoPaterno:"Torres", apellidoMaterno:"Vega", rfc:"TOSA920415MDF", email:"ana@email.com", telefono:"3355551234", whatsapp:"3355551234", sexo:"F", fechaNacimiento:"15/04/1992", calle:"López Mateos", numero:"789", colonia:"Jardines", cp:"44100", ciudad:"Guadalajara", estado:"Jalisco", polizas:0 },
+  { id:3, nombre:"Ana Sofía", apellidoPaterno:"Torres", apellidoMaterno:"Vega", rfc:"TOSA920415MDF", email:"ana@email.com", telefono:"3355551234", whatsapp:"3355551234", sexo:"F", fechaNacimiento:"15/04/1992", calle:"López Mateos", numero:"789", colonia:"Jardines", cp:"44100", ciudad:"Guadalajara", estado:"Jalisco", polizas:0 },
   { id:4, nombre:"Roberto", apellidoPaterno:"Sánchez", apellidoMaterno:"Vega", rfc:"SAVR670820HDF", email:"roberto@email.com", telefono:"5588889999", whatsapp:"5588889999", sexo:"M", fechaNacimiento:"20/08/1967", calle:"Reforma", numero:"100", colonia:"Lomas", cp:"11000", ciudad:"Miguel Hidalgo", estado:"Ciudad de México", polizas:2 },
-  { id:5, nombre:"LucÃÂ­a", apellidoPaterno:"RamÃÂ­rez", apellidoMaterno:"Flores", rfc:"RAFL910305MNL", email:"lucia@email.com", telefono:"8177773333", whatsapp:"8177773333", sexo:"F", fechaNacimiento:"05/03/1991", calle:"San Pedro", numero:"321", colonia:"Contry", cp:"64860", ciudad:"Monterrey", estado:"Nuevo León", polizas:2 },
-  // Ã¢ââ¬Ã¢ââ¬ Clientes reales importados de pólizas MAPFRE Ã¢ââ¬Ã¢ââ¬
-  { id:6, nombre:"Guadalupe Nadyna", apellidoPaterno:"Gutiérrez", apellidoMaterno:"RodrÃÂ­guez", rfc:"GURG600714G32", email:"", telefono:"8112859048", whatsapp:"8112859048", sexo:"F", fechaNacimiento:"14/07/1960", calle:"Av. Olimpia", numero:"1514", colonia:"Nueva Lindavista", cp:"67110", ciudad:"Guadalupe", estado:"Nuevo León", polizas:1 },
-  { id:7, nombre:"Cristina", apellidoPaterno:"RodrÃÂ­guez", apellidoMaterno:"Sánchez", rfc:"ROSC660724D91", email:"", telefono:"8712197590", whatsapp:"8712197590", sexo:"F", fechaNacimiento:"24/07/1966", calle:"Blvd. Revolución Pte.", numero:"1818 Bis", colonia:"Centro", cp:"27000", ciudad:"Torreón", estado:"Coahuila", polizas:2 },
+  { id:5, nombre:"Lucía", apellidoPaterno:"Ramírez", apellidoMaterno:"Flores", rfc:"RAFL910305MNL", email:"lucia@email.com", telefono:"8177773333", whatsapp:"8177773333", sexo:"F", fechaNacimiento:"05/03/1991", calle:"San Pedro", numero:"321", colonia:"Contry", cp:"64860", ciudad:"Monterrey", estado:"Nuevo León", polizas:2 },
+  // ── Clientes reales importados de pólizas MAPFRE ──
+  { id:6, nombre:"Guadalupe Nadyna", apellidoPaterno:"Gutiérrez", apellidoMaterno:"Rodríguez", rfc:"GURG600714G32", email:"", telefono:"8112859048", whatsapp:"8112859048", sexo:"F", fechaNacimiento:"14/07/1960", calle:"Av. Olimpia", numero:"1514", colonia:"Nueva Lindavista", cp:"67110", ciudad:"Guadalupe", estado:"Nuevo León", polizas:1 },
+  { id:7, nombre:"Cristina", apellidoPaterno:"Rodríguez", apellidoMaterno:"Sánchez", rfc:"ROSC660724D91", email:"", telefono:"8712197590", whatsapp:"8712197590", sexo:"F", fechaNacimiento:"24/07/1966", calle:"Blvd. Revolución Pte.", numero:"1818 Bis", colonia:"Centro", cp:"27000", ciudad:"Torreón", estado:"Coahuila", polizas:2 },
   { id:8, nombre:"Lucero Paloma", apellidoPaterno:"Simental", apellidoMaterno:"Aldaba", rfc:"SIAL780112K89", email:"", telefono:"6182111402", whatsapp:"6182111402", sexo:"F", fechaNacimiento:"12/01/1978", calle:"Calle San Marcos", numero:"S/N", colonia:"Fracc. San Antonio", cp:"35015", ciudad:"Gómez Palacio", estado:"Durango", polizas:1 },
 ];
 
 const POLIZAS_INIT = [
-  { id:1, clienteId:1, cliente:"MarÃÂ­a González Ruiz", emailCliente:"maria@email.com", telefonoCliente:"5512345678", numero:"GNP-2024-001234", aseguradora:"GNP", ramo:"Vida", subramo:"Vida Individual", prima:8400, frecuencia:"Anual", inicio:"2024-01-15", vencimiento:"2025-01-15", status:"activa", coberturas:["Muerte natural","Muerte accidental","Invalidez total"] },
-  { id:2, clienteId:1, cliente:"MarÃÂ­a González Ruiz", emailCliente:"maria@email.com", telefonoCliente:"5512345678", numero:"AXA-2023-998877", aseguradora:"AXA", ramo:"Gastos Médicos", subramo:"Tradicional", prima:24000, frecuencia:"Anual", inicio:"2023-06-01", vencimiento:"2025-06-01", status:"activa", coberturas:["Hospitalización","CirugÃÂ­a","Maternidad","Urgencias"] },
+  { id:1, clienteId:1, cliente:"María González Ruiz", emailCliente:"maria@email.com", telefonoCliente:"5512345678", numero:"GNP-2024-001234", aseguradora:"GNP", ramo:"Vida", subramo:"Vida Individual", prima:8400, frecuencia:"Anual", inicio:"2024-01-15", vencimiento:"2025-01-15", status:"activa", coberturas:["Muerte natural","Muerte accidental","Invalidez total"] },
+  { id:2, clienteId:1, cliente:"María González Ruiz", emailCliente:"maria@email.com", telefonoCliente:"5512345678", numero:"AXA-2023-998877", aseguradora:"AXA", ramo:"Gastos Médicos", subramo:"Tradicional", prima:24000, frecuencia:"Anual", inicio:"2023-06-01", vencimiento:"2025-06-01", status:"activa", coberturas:["Hospitalización","Cirugía","Maternidad","Urgencias"] },
   { id:3, clienteId:2, cliente:"Carlos Mendoza López", emailCliente:"carlos@email.com", telefonoCliente:"8198765432", numero:"HDI-2024-445566", aseguradora:"HDI", ramo:"Autos", subramo:"Individual", prima:6200, frecuencia:"Semestral", inicio:"2024-03-10", vencimiento:"2024-09-10", status:"vencida", coberturas:["Daños materiales","Robo total","RC"] },
   { id:4, clienteId:4, cliente:"Roberto Sánchez Vega", emailCliente:"roberto@email.com", telefonoCliente:"5588889999", numero:"SURA-2024-112233", aseguradora:"SURA", ramo:"Daños", subramo:"Hogar", prima:3800, frecuencia:"Anual", inicio:"2024-02-20", vencimiento:"2025-02-20", status:"activa", coberturas:["Incendio","Robo con violencia","Daños por agua"] },
-  { id:5, clienteId:5, cliente:"LucÃÂ­a RamÃÂ­rez Flores", emailCliente:"lucia@email.com", telefonoCliente:"8177773333", numero:"BANAMEX-2024-667788", aseguradora:"Citibanamex", ramo:"Vida", subramo:"Vida Universal", prima:12000, frecuencia:"Anual", inicio:"2024-04-05", vencimiento:"2025-04-05", status:"activa", coberturas:["Muerte natural","Muerte accidental","Enfermedades graves"] },
-  { id:6, clienteId:1, cliente:"MarÃÂ­a González Ruiz", emailCliente:"maria@email.com", telefonoCliente:"5512345678", numero:"GNP-2024-339900", aseguradora:"GNP", ramo:"Autos", subramo:"Individual", prima:5600, frecuencia:"Semestral", inicio:"2024-07-01", vencimiento:"2025-01-01", status:"por vencer", coberturas:["Daños materiales","Robo total","RC","Asistencia vial"] },
+  { id:5, clienteId:5, cliente:"Lucía Ramírez Flores", emailCliente:"lucia@email.com", telefonoCliente:"8177773333", numero:"BANAMEX-2024-667788", aseguradora:"Citibanamex", ramo:"Vida", subramo:"Vida Universal", prima:12000, frecuencia:"Anual", inicio:"2024-04-05", vencimiento:"2025-04-05", status:"activa", coberturas:["Muerte natural","Muerte accidental","Enfermedades graves"] },
+  { id:6, clienteId:1, cliente:"María González Ruiz", emailCliente:"maria@email.com", telefonoCliente:"5512345678", numero:"GNP-2024-339900", aseguradora:"GNP", ramo:"Autos", subramo:"Individual", prima:5600, frecuencia:"Semestral", inicio:"2024-07-01", vencimiento:"2025-01-01", status:"por vencer", coberturas:["Daños materiales","Robo total","RC","Asistencia vial"] },
 
-  // Ã¢ââ¬Ã¢ââ¬ Pólizas reales MAPFRE Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬
+  // ── Pólizas reales MAPFRE ──────────────────────────────────────────
   {
     id:7, clienteId:6,
-    cliente:"Guadalupe Nadyna Gutiérrez RodrÃÂ­guez",
+    cliente:"Guadalupe Nadyna Gutiérrez Rodríguez",
     emailCliente:"", telefonoCliente:"8112859048",
     numero:"2832600000315", endoso:"0",
     aseguradora:"Mapfre", ramo:"Gastos Médicos", subramo:"Accidentes Personales",
@@ -55,12 +55,12 @@ const POLIZAS_INIT = [
       "Asistencia médica emergencia 50,000 USD","Traslado médico 20,000 USD",
       "Cancelación de viaje 1,000 USD","Pérdida de equipaje 1,200 USD"
     ],
-    notas:"Plan Silver ÃÂ· Origen: México ÃÂ· Destino: Mundial ÃÂ· 17 dÃÂ­as de vigencia",
+    notas:"Plan Silver · Origen: México · Destino: Mundial · 17 días de vigencia",
     documentoPoliza:null, documentoNombre:"", documentoTipo:"", pagos:[]
   },
   {
     id:8, clienteId:7,
-    cliente:"Cristina RodrÃÂ­guez Sánchez",
+    cliente:"Cristina Rodríguez Sánchez",
     emailCliente:"", telefonoCliente:"8712197590",
     numero:"1002000005366", endoso:"6",
     aseguradora:"Mapfre", ramo:"Vida", subramo:"Vida Individual",
@@ -72,12 +72,12 @@ const POLIZAS_INIT = [
     coberturas:[
       "Vida $400,000 (15 años, pago 15 años)","Servicios funerarios (amparada)","Exención pago primas por invalidez total y permanente"
     ],
-    notas:"Plan Tiempo Seguro 20 MN ÃÂ· Folio 1200739033398 ÃÂ· Cliente Mapfre: 231CRS",
+    notas:"Plan Tiempo Seguro 20 MN · Folio 1200739033398 · Cliente Mapfre: 231CRS",
     documentoPoliza:null, documentoNombre:"", documentoTipo:"", pagos:[]
   },
   {
     id:9, clienteId:7,
-    cliente:"Cristina RodrÃÂ­guez Sánchez",
+    cliente:"Cristina Rodríguez Sánchez",
     emailCliente:"", telefonoCliente:"8712197590",
     numero:"1042000001328", endoso:"6",
     aseguradora:"Mapfre", ramo:"Vida", subramo:"Vida Individual",
@@ -89,7 +89,7 @@ const POLIZAS_INIT = [
     coberturas:[
       "Vida $600,000 (47 años, pagos limitados 10 años)","Exención pago primas por invalidez total y permanente por accidente"
     ],
-    notas:"Plan Vida Entera Pagos Limitados 10 Constante MN ÃÂ· Folio 1200739038176 ÃÂ· Cliente Mapfre: 215AOR",
+    notas:"Plan Vida Entera Pagos Limitados 10 Constante MN · Folio 1200739038176 · Cliente Mapfre: 215AOR",
     documentoPoliza:null, documentoNombre:"", documentoTipo:"", pagos:[]
   },
   {
@@ -107,7 +107,7 @@ const POLIZAS_INIT = [
       "Muerte accidental $30,000","Reembolso gastos médicos $25,000 (ded. $200)","Fractura de huesos por accidente $20,000",
       "Contact Center","Asistencia Visión","Asistencia Funeraria"
     ],
-    notas:"APC Simplificada Escolar ÃÂ· Plan GuarderÃÂ­as ÃÂ· 98 asegurados ÃÂ· Administración simplificada",
+    notas:"APC Simplificada Escolar · Plan Guarderías · 98 asegurados · Administración simplificada",
     documentoPoliza:null, documentoNombre:"", documentoTipo:"", pagos:[]
   },
 ];
@@ -118,11 +118,11 @@ const SUBAGENTES_INIT = [
 ];
 
 const PIPELINE_INIT = [
-  { id:1, cliente:"Ana SofÃÂ­a Torres", tipo:"Gastos Médicos Familiar", valor:18000, etapa:"Cotización", probabilidad:40, seguimiento:"2025-01-20", agente:"MarÃÂ­a Teresa RodrÃÂ­guez", telefono:"3355551234", email:"ana@email.com", notas:"" },
-  { id:2, cliente:"Juan Pablo Reyes", tipo:"Vida Universal", valor:35000, etapa:"Propuesta", probabilidad:65, seguimiento:"2025-01-18", agente:"MarÃÂ­a Teresa RodrÃÂ­guez", telefono:"", email:"", notas:"" },
+  { id:1, cliente:"Ana Sofía Torres", tipo:"Gastos Médicos Familiar", valor:18000, etapa:"Cotización", probabilidad:40, seguimiento:"2025-01-20", agente:"María Teresa Rodríguez", telefono:"3355551234", email:"ana@email.com", notas:"" },
+  { id:2, cliente:"Juan Pablo Reyes", tipo:"Vida Universal", valor:35000, etapa:"Propuesta", probabilidad:65, seguimiento:"2025-01-18", agente:"María Teresa Rodríguez", telefono:"", email:"", notas:"" },
   { id:3, cliente:"Diana Morales", tipo:"Autos Individual", valor:7200, etapa:"Contacto", probabilidad:20, seguimiento:"2025-01-22", agente:"", telefono:"", email:"", notas:"" },
-  { id:4, cliente:"Fernando Castro", tipo:"Daños + Vida", valor:15000, etapa:"Negociación", probabilidad:80, seguimiento:"2025-01-17", agente:"MarÃÂ­a Teresa RodrÃÂ­guez", telefono:"5588889999", email:"fernando@email.com", notas:"Muy interesado, recontactar viernes" },
-  { id:5, cliente:"Valeria Gutiérrez", tipo:"GMM Individual", valor:9600, etapa:"Cierre", probabilidad:95, seguimiento:"2025-01-16", agente:"MarÃÂ­a Teresa RodrÃÂ­guez", telefono:"5511112222", email:"valeria@email.com", notas:"Listo para firmar" },
+  { id:4, cliente:"Fernando Castro", tipo:"Daños + Vida", valor:15000, etapa:"Negociación", probabilidad:80, seguimiento:"2025-01-17", agente:"María Teresa Rodríguez", telefono:"5588889999", email:"fernando@email.com", notas:"Muy interesado, recontactar viernes" },
+  { id:5, cliente:"Valeria Gutiérrez", tipo:"GMM Individual", valor:9600, etapa:"Cierre", probabilidad:95, seguimiento:"2025-01-16", agente:"María Teresa Rodríguez", telefono:"5511112222", email:"valeria@email.com", notas:"Listo para firmar" },
 ];
 
 const TAREAS_INIT = [
@@ -139,19 +139,19 @@ const USUARIOS_INIT = [
 
 const PAI_METAS_INIT = [];
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 // HELPERS
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 const nombreCompleto = (c) => `${c.nombre} ${c.apellidoPaterno} ${c.apellidoMaterno || ""}`.trim();
 
 const RAMO_COLORS = { Vida:"#7c3aed", "Gastos Médicos":"#059669", Autos:"#2563eb", Daños:"#d97706", default:"#6b7280" };
 const ramoColor = (r) => RAMO_COLORS[r] || RAMO_COLORS.default;
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
-// RFC AUTOMÃÂTICO Ã¢â¬â reglas SAT México
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
+// RFC AUTOMÁTICO — reglas SAT México
+// ═══════════════════════════════════════════════════════════════════
 const PALABRAS_VACIAS = ["DE","DEL","LA","LAS","LOS","Y","EL","EN","CON","POR","AL","MI"];
-const CONSONANTES = /[BCDFGHJKLMNÃâPQRSTVWXYZ]/i;
+const CONSONANTES = /[BCDFGHJKLMNÑPQRSTVWXYZ]/i;
 const VOCALES = /[AEIOU]/i;
 
 function generarRFC(nombre, apellidoP, apellidoM, fechaNacimiento) {
@@ -161,13 +161,13 @@ function generarRFC(nombre, apellidoP, apellidoM, fechaNacimiento) {
   // Limpiar y normalizar
   const norm = (s) => (s||"").toUpperCase()
     .normalize("NFD").replace(/[\u0300-\u036f]/g,"") // quitar tildes
-    .replace(/[^A-ZÃâ\s]/g,"").trim();
+    .replace(/[^A-ZÑ\s]/g,"").trim();
 
   const apP = norm(apellidoP);
   const apM = norm(apellidoM);
   const nom = norm(nombre).split(/\s+/)[0]; // primer nombre
 
-  // Filtrar palabras vacÃÂ­as en apellidos
+  // Filtrar palabras vacías en apellidos
   const filtrarVacia = (s) => {
     const partes = s.split(/\s+/);
     const filtrado = partes.filter(p => !PALABRAS_VACIAS.includes(p));
@@ -177,7 +177,7 @@ function generarRFC(nombre, apellidoP, apellidoM, fechaNacimiento) {
   const ap1 = filtrarVacia(apP);
   const ap2 = filtrarVacia(apM||"X");
 
-  // Reglas: 1ÃÂª letra del ApP + 1ÃÂª vocal interna ApP + 1ÃÂª letra ApM + 1ÃÂª letra Nombre
+  // Reglas: 1ª letra del ApP + 1ª vocal interna ApP + 1ª letra ApM + 1ª letra Nombre
   let parte1 = "";
   if (ap1.length >= 2) {
     // Primera letra del ApP
@@ -191,7 +191,7 @@ function generarRFC(nombre, apellidoP, apellidoM, fechaNacimiento) {
   parte1 += (ap2[0] || "X");
   parte1 += (nom[0] || "X");
 
-  // Palabras inconvenientes Ã¢â â sustituir 4ÃÂª letra por X
+  // Palabras inconvenientes → sustituir 4ª letra por X
   const INCONVENIENTES = ["BACA","BAKA","BUEI","BUEY","CACA","CACO","CAGA","CAGO","CAKA","CAKO","COGE","COGI","COJA","COJE","COJI","COJO","COLA","CULO","FALO","FETO","GETA","GUEI","GUEY","JETA","JOTO","KACA","KACO","KAGA","KAGO","KAKA","KAKO","KOGE","KOGI","KOJA","KOJE","KOJI","KOJO","KOLA","KULO","LELO","LOCA","LOCO","LOKA","LOKO","MAME","MAMO","MEAR","MEAS","MEON","MIAR","MION","MOCO","MOKO","MULA","MULO","NACA","NACO","PEDA","PEDO","PENE","PIPI","PITO","POPO","PUTA","PUTO","QULO","RATA","ROBA","ROBE","ROBO","RUIN","SENO","TETA","VACA","VAGA","VAGO","VAKA","VUEI","VUEY","WUEI","WUEY"];
   if (INCONVENIENTES.includes(parte1)) parte1 = parte1.slice(0,3) + "X";
 
@@ -218,9 +218,9 @@ function formatearFechaInput(raw) {
   return digits.slice(0,2)+"/"+digits.slice(2,4)+"/"+digits.slice(4);
 }
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 // COMPONENTES BASE
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 const Icon = ({ name, size=18 }) => {
   const paths = {
     dashboard:<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>,
@@ -328,9 +328,9 @@ const SectionTitle = ({ title, sub }) => (
   </div>
 );
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 // DASHBOARD con gráficas
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza }) {
   const getStDash = (p) => {
     if(p.status==="cancelada") return "cancelada";
@@ -360,7 +360,7 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
   // Data gráfica cobrado vs vencido por ramo
   const ramos = [...new Set(polizas.map(p=>p.ramo))];
   const barData = ramos.map(r => ({
-    ramo: r.length > 10 ? r.slice(0,9)+"Ã¢â¬Â¦" : r,
+    ramo: r.length > 10 ? r.slice(0,9)+"…" : r,
     cobrado: polizas.filter(p=>p.ramo===r&&p.status==="activa").reduce((a,p)=>a+p.prima,0),
     vencido: polizas.filter(p=>p.ramo===r&&p.status==="vencida").reduce((a,p)=>a+p.prima,0),
     "por vencer": polizas.filter(p=>p.ramo===r&&p.status==="por vencer").reduce((a,p)=>a+p.prima,0),
@@ -368,7 +368,7 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
 
   // Data gráfica PAI
   const paiData = paiMetas.map(m => ({
-    ramo: m.ramo.length>10?m.ramo.slice(0,9)+"Ã¢â¬Â¦":m.ramo,
+    ramo: m.ramo.length>10?m.ramo.slice(0,9)+"…":m.ramo,
     meta: m.metaBono,
     cobrado: m.cobrado,
     faltante: m.metaBono-m.cobrado,
@@ -395,12 +395,12 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
     <div style={{display:"flex",flexDirection:"column",gap:24}}>
       <div>
         <h2 style={{margin:0,fontSize:24,fontWeight:800,fontFamily:"'Playfair Display',serif",color:"#111827"}}>Panel Principal</h2>
-        <p style={{margin:"3px 0 0",color:"#6b7280",fontSize:13}}>Resumen operativo Ã¢â¬â 2025</p>
+        <p style={{margin:"3px 0 0",color:"#6b7280",fontSize:13}}>Resumen operativo — 2025</p>
       </div>
 
       {/* KPIs */}
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(155px,1fr))",gap:11}}>
-        <KPICard label="Por Vencer" value={porVencer.length} sub="Ã¢â°Â¤30 dÃÂ­as" icon="shield" accent="#d97706"/>
+        <KPICard label="Por Vencer" value={porVencer.length} sub="≤30 días" icon="shield" accent="#d97706"/>
         <KPICard label="Vencidas" value={vencidas.length} sub="Sin renovar" icon="shield" accent="#dc2626"/>
         <KPICard label="Prima Vigente" value={fmt(primaVigente)} sub="Pólizas activas" icon="trend" accent="#059669"/>
         <KPICard label="Prima Por Vencer" value={fmt(primaPorVencer)} sub="En riesgo" icon="trend" accent="#d97706"/>
@@ -408,13 +408,13 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
         <KPICard label="Prima Cobrada" value={fmt(primaCobrada)} sub="Con pago confirmado" icon="trend" accent="#7c3aed"/>
       </div>
 
-      {/* GRÃÂFICAS ROW 1 */}
+      {/* GRÁFICAS ROW 1 */}
       <div style={{display:"grid",gridTemplateColumns:"1.6fr 1fr",gap:18}}>
 
         {/* Barra: cobrado vs vencido por ramo */}
         <div style={{background:"#fff",borderRadius:16,padding:"22px 20px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
           <div style={{marginBottom:18}}>
-            <div style={{fontSize:14,fontWeight:700,color:"#111827"}}>Prima por Ramo Ã¢â¬â Cobrado vs Vencido</div>
+            <div style={{fontSize:14,fontWeight:700,color:"#111827"}}>Prima por Ramo — Cobrado vs Vencido</div>
             <div style={{fontSize:12,color:"#9ca3af"}}>Distribución de cartera por estado</div>
           </div>
           <ResponsiveContainer width="100%" height={220}>
@@ -456,12 +456,12 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
         </div>
       </div>
 
-      {/* GRÃÂFICA PAI */}
+      {/* GRÁFICA PAI */}
       <div style={{background:"#fff",borderRadius:16,padding:"22px 20px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
         <div style={{marginBottom:18,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div>
-            <div style={{fontSize:14,fontWeight:700,color:"#111827"}}>Ã°Å¸Ââ  Avance de Bono PAI por Ramo Ã¢â¬â Q1 2025</div>
-            <div style={{fontSize:12,color:"#9ca3af"}}>Meta vs cobrado acumulado en el perÃÂ­odo</div>
+            <div style={{fontSize:14,fontWeight:700,color:"#111827"}}>🏆 Avance de Bono PAI por Ramo — Q1 2025</div>
+            <div style={{fontSize:12,color:"#9ca3af"}}>Meta vs cobrado acumulado en el período</div>
           </div>
           <div style={{background:"linear-gradient(135deg,#0f172a,#1e3a5f)",borderRadius:12,padding:"8px 16px",color:"#fff",textAlign:"center"}}>
             <div style={{fontSize:10,color:"#94a3b8",letterSpacing:"0.05em"}}>GLOBAL</div>
@@ -484,25 +484,25 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
       {/* Alertas y tareas */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:18}}>
         <div style={{background:"#fff",borderRadius:16,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-          <h3 style={{margin:"0 0 14px",fontSize:14,fontWeight:700}}>Ã¢Å¡Â Ã¯Â¸Â Alertas de Pólizas</h3>
+          <h3 style={{margin:"0 0 14px",fontSize:14,fontWeight:700}}>⚠️ Alertas de Pólizas</h3>
           {polizas.filter(p=>["por vencer","vencida"].includes(getStDash(p))).map(p=>(
             <div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",background:getStDash(p)==="vencida"?"#fef2f2":"#fffbeb",borderRadius:10,marginBottom:7}}>
               <div style={{flex:1}}>
                 <div style={{fontWeight:600,fontSize:12}}>{p.numero}</div>
-                <div style={{fontSize:11,color:"#6b7280"}}>{p.cliente} ÃÂ· {p.aseguradora} ÃÂ· {p.vencimiento}</div>
-                <div style={{fontSize:11,color:"#9ca3af"}}>{p.ramo}{p.subramo?" ÃÂ· "+p.subramo:""} ÃÂ· Prima: ${(parseFloat(p.primaTotal)||parseFloat(p.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
+                <div style={{fontSize:11,color:"#6b7280"}}>{p.cliente} · {p.aseguradora} · {p.vencimiento}</div>
+                <div style={{fontSize:11,color:"#9ca3af"}}>{p.ramo}{p.subramo?" · "+p.subramo:""} · Prima: ${(parseFloat(p.primaTotal)||parseFloat(p.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
               </div>
               <Badge status={getStDash(p)}/>
               <button onClick={()=>setAlertaDetalle(p)} title="Ver detalle"
                 style={{background:"#eff6ff",border:"1px solid #bfdbfe",borderRadius:8,width:30,height:30,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontSize:15}}>
-                Ã°Å¸âÂ
+                👁
               </button>
             </div>
           ))}
-          {!polizas.filter(p=>["por vencer","vencida"].includes(getStDash(p))).length&&<div style={{color:"#9ca3af",fontSize:13,textAlign:"center",padding:"20px 0"}}>Sin alertas activas Ã¢Åâ¦</div>}
+          {!polizas.filter(p=>["por vencer","vencida"].includes(getStDash(p))).length&&<div style={{color:"#9ca3af",fontSize:13,textAlign:"center",padding:"20px 0"}}>Sin alertas activas ✅</div>}
         </div>
         <div style={{background:"#fff",borderRadius:16,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-          <h3 style={{margin:"0 0 14px",fontSize:14,fontWeight:700}}>Ã°Å¸ââ¹ Tareas Urgentes</h3>
+          <h3 style={{margin:"0 0 14px",fontSize:14,fontWeight:700}}>📋 Tareas Urgentes</h3>
           {tareas.filter(t=>!t.done&&t.prioridad==="alta").slice(0,4).map(t=>(
             <div key={t.id} style={{display:"flex",alignItems:"center",gap:9,padding:"9px 12px",background:"#fef2f2",borderRadius:10,marginBottom:7}}>
               <div style={{width:7,height:7,borderRadius:"50%",background:"#dc2626",flexShrink:0}}/>
@@ -518,7 +518,7 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
           <div style={{display:"flex",flexDirection:"column",gap:12}}>
             <div style={{background:`linear-gradient(135deg,${ramoColor(alertaDetalle.ramo)},${ramoColor(alertaDetalle.ramo)}bb)`,borderRadius:12,padding:"14px 18px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
-                <div style={{fontSize:10,opacity:.8,fontWeight:700}}>{alertaDetalle.ramo?.toUpperCase()}{alertaDetalle.subramo?" ÃÂ· "+alertaDetalle.subramo.toUpperCase():""} ÃÂ· {alertaDetalle.aseguradora}</div>
+                <div style={{fontSize:10,opacity:.8,fontWeight:700}}>{alertaDetalle.ramo?.toUpperCase()}{alertaDetalle.subramo?" · "+alertaDetalle.subramo.toUpperCase():""} · {alertaDetalle.aseguradora}</div>
                 <div style={{fontSize:18,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>{alertaDetalle.numero}</div>
                 <div style={{fontSize:12,opacity:.9,marginTop:2}}>{alertaDetalle.cliente}</div>
               </div>
@@ -528,7 +528,7 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
               </div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
-              {[["Aseguradora",alertaDetalle.aseguradora||"Ã¢â¬â"],["Forma de pago",alertaDetalle.formaPago||alertaDetalle.frecuencia||"Ã¢â¬â"],["Inicio vigencia",alertaDetalle.inicio||"Ã¢â¬â"],["Fin vigencia",alertaDetalle.vencimiento||"Ã¢â¬â"],["Prima neta",alertaDetalle.primaNeta?`$${Number(alertaDetalle.primaNeta).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"Ã¢â¬â"],["Agente",alertaDetalle.agentePoliza||"Ã¢â¬â"],["Moneda",alertaDetalle.moneda||"MXN"]].map(([l,v])=>(
+              {[["Aseguradora",alertaDetalle.aseguradora||"—"],["Forma de pago",alertaDetalle.formaPago||alertaDetalle.frecuencia||"—"],["Inicio vigencia",alertaDetalle.inicio||"—"],["Fin vigencia",alertaDetalle.vencimiento||"—"],["Prima neta",alertaDetalle.primaNeta?`$${Number(alertaDetalle.primaNeta).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],["Agente",alertaDetalle.agentePoliza||"—"],["Moneda",alertaDetalle.moneda||"MXN"]].map(([l,v])=>(
                 <div key={l} style={{background:"#f9fafb",borderRadius:9,padding:"9px 12px"}}>
                   <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>{l.toUpperCase()}</div>
                   <div style={{fontSize:13,fontWeight:600,color:"#111827"}}>{v}</div>
@@ -544,7 +544,7 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
             {alertaDetalle.documentoPoliza&&(
               <a href={alertaDetalle.documentoPoliza} download={alertaDetalle.documentoNombre||"poliza.pdf"}
                 style={{display:"inline-flex",alignItems:"center",gap:8,background:"#2563eb",color:"#fff",padding:"9px 18px",borderRadius:9,fontSize:12,fontWeight:700,textDecoration:"none",width:"fit-content"}}>
-                Ã°Å¸ââ Ver / Descargar póliza adjunta
+                📄 Ver / Descargar póliza adjunta
               </a>
             )}
           </div>
@@ -554,9 +554,9 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
   );
 }
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
-// CLIENTES Ã¢â¬â campo a campo completo
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
+// CLIENTES — campo a campo completo
+// ═══════════════════════════════════════════════════════════════════
 const FORM_CLIENTE_INIT = {
   nombre:"", apellidoPaterno:"", apellidoMaterno:"",
   rfc:"", email:"", telefono:"", whatsapp:"",
@@ -564,9 +564,9 @@ const FORM_CLIENTE_INIT = {
   calle:"", numero:"", colonia:"", cp:"", ciudad:"", estado:"",
 };
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 // DETALLE CLIENTE MODAL
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
   const [editando, setEditando] = useState(false);
   const [form, setForm] = useState({...cliente});
@@ -597,7 +597,7 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
     return "activa";
   };
   const stColors={activa:"#059669","por vencer":"#d97706",vencida:"#dc2626",cancelada:"#6b7280"};
-  const stLabels={activa:"Ã¢Åâ Vigente","por vencer":"Ã¢Å¡Â  Por vencer",vencida:"Ã¢Åâ Vencida",cancelada:"Ã¢ââ¹ Cancelada"};
+  const stLabels={activa:"✓ Vigente","por vencer":"⚠ Por vencer",vencida:"✗ Vencida",cancelada:"○ Cancelada"};
 
   const inpStyle={border:"1.5px solid #e5e7eb",borderRadius:8,padding:"7px 10px",fontSize:12,outline:"none",fontFamily:"inherit",width:"100%",boxSizing:"border-box",background:"#fff",color:"#111827"};
   const inpFocusStyle="1.5px solid #2563eb";
@@ -609,7 +609,7 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
         {/* Toggle Ver / Editar */}
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:10,padding:3}}>
-            {[["ver","Ã°Å¸âÂ Ver datos"],["edit","Ã¢ÅÂÃ¯Â¸Â Editar"]].map(([m,l])=>(
+            {[["ver","👁 Ver datos"],["edit","✏️ Editar"]].map(([m,l])=>(
               <button key={m} onClick={()=>{ setEditando(m==="edit"); if(m==="edit") setForm({...cliente}); }}
                 style={{background:((m==="edit"&&editando)||(m==="ver"&&!editando))?"#fff":"none",border:"none",
                   borderRadius:8,padding:"7px 20px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",
@@ -619,29 +619,29 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
               </button>
             ))}
           </div>
-          {guardado&&<span style={{color:"#059669",fontWeight:700,fontSize:13}}>Ã¢Åâ¦ Cambios guardados</span>}
+          {guardado&&<span style={{color:"#059669",fontWeight:700,fontSize:13}}>✅ Cambios guardados</span>}
         </div>
 
         {/* MODO VER */}
         {!editando&&(
           <>
             <div style={{background:"#f8fafc",borderRadius:12,padding:"16px 18px"}}>
-              <div style={{fontSize:11,fontWeight:800,color:"#6b7280",letterSpacing:"0.08em",marginBottom:12}}>INFORMACIÃâN PERSONAL</div>
+              <div style={{fontSize:11,fontWeight:800,color:"#6b7280",letterSpacing:"0.08em",marginBottom:12}}>INFORMACIÓN PERSONAL</div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
                 {[
                   ["Nombre",nombreCompleto(cliente)],
-                  ["RFC",cliente.rfc||"Ã¢â¬â"],
-                  ["Fecha de Nacimiento",cliente.fechaNacimiento||"Ã¢â¬â"],
-                  ["Sexo",cliente.sexo==="M"?"Masculino":cliente.sexo==="F"?"Femenino":"Ã¢â¬â"],
-                  ["Email",cliente.email||"Ã¢â¬â"],
-                  ["Teléfono",cliente.telefono||"Ã¢â¬â"],
-                  ["WhatsApp",cliente.whatsapp||"Ã¢â¬â"],
-                  ["Ciudad",cliente.ciudad||"Ã¢â¬â"],
-                  ["Estado",cliente.estado||"Ã¢â¬â"],
+                  ["RFC",cliente.rfc||"—"],
+                  ["Fecha de Nacimiento",cliente.fechaNacimiento||"—"],
+                  ["Sexo",cliente.sexo==="M"?"Masculino":cliente.sexo==="F"?"Femenino":"—"],
+                  ["Email",cliente.email||"—"],
+                  ["Teléfono",cliente.telefono||"—"],
+                  ["WhatsApp",cliente.whatsapp||"—"],
+                  ["Ciudad",cliente.ciudad||"—"],
+                  ["Estado",cliente.estado||"—"],
                 ].map(([l,v])=>(
                   <div key={l} style={{background:"#fff",borderRadius:9,padding:"9px 12px"}}>
                     <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>{l.toUpperCase()}</div>
-                    <div style={{fontSize:12,fontWeight:600,color:v==="Ã¢â¬â"?"#d1d5db":"#111827"}}>{v}</div>
+                    <div style={{fontSize:12,fontWeight:600,color:v==="—"?"#d1d5db":"#111827"}}>{v}</div>
                   </div>
                 ))}
               </div>
@@ -649,7 +649,7 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
                 <div style={{marginTop:10,background:"#fff",borderRadius:9,padding:"9px 12px"}}>
                   <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>DOMICILIO</div>
                   <div style={{fontSize:12,fontWeight:600,color:"#111827"}}>
-                    {[cliente.calle,cliente.numero,cliente.colonia,cliente.cp].filter(Boolean).join(", ")||"Ã¢â¬â"}
+                    {[cliente.calle,cliente.numero,cliente.colonia,cliente.cp].filter(Boolean).join(", ")||"—"}
                   </div>
                 </div>
               )}
@@ -667,7 +667,7 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
         {/* MODO EDITAR */}
         {editando&&(
           <div style={{background:"#f8fafc",borderRadius:12,padding:"16px 18px",display:"flex",flexDirection:"column",gap:12}}>
-            <div style={{fontSize:11,fontWeight:800,color:"#2563eb",letterSpacing:"0.08em",marginBottom:4}}>Ã¢ÅÂÃ¯Â¸Â EDITAR INFORMACIÃâN PERSONAL</div>
+            <div style={{fontSize:11,fontWeight:800,color:"#2563eb",letterSpacing:"0.08em",marginBottom:4}}>✏️ EDITAR INFORMACIÓN PERSONAL</div>
 
             {/* Nombre */}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
@@ -698,7 +698,7 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
               <div>
                 <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>SEXO</div>
                 <select value={form.sexo||""} onChange={e=>upd("sexo",e.target.value)} style={inpStyle}>
-                  <option value="">Ã¢â¬â Seleccionar Ã¢â¬â</option>
+                  <option value="">— Seleccionar —</option>
                   <option value="M">Masculino</option>
                   <option value="F">Femenino</option>
                 </select>
@@ -712,7 +712,7 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
                 <input type="email" value={form.email||""} onChange={e=>upd("email",e.target.value)} style={inpStyle} placeholder="correo@email.com"/>
               </div>
               <div>
-                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>TELÃâ°FONO</div>
+                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>TELÉFONO</div>
                 <input value={form.telefono||""} onChange={e=>upd("telefono",e.target.value)} style={inpStyle} placeholder="55 0000 0000"/>
               </div>
               <div>
@@ -729,7 +729,7 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
                 <input value={form.calle||""} onChange={e=>upd("calle",e.target.value)} style={inpStyle} placeholder="Nombre de calle"/>
               </div>
               <div>
-                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>NÃÅ¡MERO EXT.</div>
+                <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>NÚMERO EXT.</div>
                 <input value={form.numero||""} onChange={e=>upd("numero",e.target.value)} style={inpStyle} placeholder="123"/>
               </div>
             </div>
@@ -767,16 +767,16 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
               </button>
               <button onClick={guardar}
                 style={{background:"#0f172a",color:"#fff",border:"none",borderRadius:9,padding:"9px 28px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",marginLeft:"auto"}}>
-                Ã°Å¸âÂ¾ Guardar cambios
+                💾 Guardar cambios
               </button>
             </div>
           </div>
         )}
 
-        {/* Pólizas Ã¢â¬â siempre visible */}
+        {/* Pólizas — siempre visible */}
         <div>
           <div style={{fontSize:11,fontWeight:800,color:"#6b7280",letterSpacing:"0.08em",marginBottom:10}}>
-            PÃâLIZAS ({polizasCliente.length})
+            PÓLIZAS ({polizasCliente.length})
           </div>
           {polizasCliente.length===0?(
             <div style={{background:"#f9fafb",borderRadius:10,padding:"24px",textAlign:"center",color:"#9ca3af",fontSize:13}}>
@@ -793,26 +793,26 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
                     display:"grid",gridTemplateColumns:"auto 1fr auto auto auto",gap:12,alignItems:"center"}}>
                     <div style={{width:10,height:10,borderRadius:"50%",background:stColor,flexShrink:0}}/>
                     <div>
-                      <div style={{fontWeight:700,fontSize:12,color:"#111827",fontFamily:"monospace"}}>{p.numero||"Sin nÃÂºmero"}</div>
-                      <div style={{fontSize:11,color:"#6b7280",marginTop:1}}>{p.ramo}{p.subramo?" ÃÂ· "+p.subramo:""} ÃÂ· {p.aseguradora}</div>
+                      <div style={{fontWeight:700,fontSize:12,color:"#111827",fontFamily:"monospace"}}>{p.numero||"Sin número"}</div>
+                      <div style={{fontSize:11,color:"#6b7280",marginTop:1}}>{p.ramo}{p.subramo?" · "+p.subramo:""} · {p.aseguradora}</div>
                     </div>
                     <div style={{textAlign:"right"}}>
                       <div style={{fontSize:11,color:"#9ca3af"}}>Vigencia</div>
-                      <div style={{fontSize:11,fontWeight:600,color:"#374151"}}>{p.inicio||"Ã¢â¬â"} Ã¢â â {p.vencimiento||"Ã¢â¬â"}</div>
+                      <div style={{fontSize:11,fontWeight:600,color:"#374151"}}>{p.inicio||"—"} → {p.vencimiento||"—"}</div>
                     </div>
                     <div style={{textAlign:"right"}}>
                       <div style={{fontSize:11,color:"#9ca3af"}}>Prima</div>
-                      <div style={{fontSize:12,fontWeight:700,color:"#059669"}}>{p.primaTotal?"$"+Number(p.primaTotal).toLocaleString():(p.prima?"$"+Number(p.prima).toLocaleString():"Ã¢â¬â")}</div>
+                      <div style={{fontSize:12,fontWeight:700,color:"#059669"}}>{p.primaTotal?"$"+Number(p.primaTotal).toLocaleString():(p.prima?"$"+Number(p.prima).toLocaleString():"—")}</div>
                     </div>
                     <div style={{display:"flex",flexDirection:"column",gap:4,alignItems:"flex-end"}}>
                       <span style={{background:stColor+"20",color:stColor,padding:"2px 8px",borderRadius:6,fontSize:10,fontWeight:700,whiteSpace:"nowrap"}}>{stLabels[st]}</span>
                       <span style={{background:pagada?"#f0fdf4":"#fef2f2",color:pagada?"#059669":"#dc2626",padding:"2px 8px",borderRadius:6,fontSize:10,fontWeight:700}}>
-                        {pagada?"Ã¢Åâ Pagada":"Ã¢ÂÂ³ Pendiente"}
+                        {pagada?"✓ Pagada":"⏳ Pendiente"}
                       </span>
                       <button onClick={()=>setPolizaVer(p)}
                         title="Ver detalle y documento de póliza"
                         style={{background:"#eff6ff",border:"1px solid #bfdbfe",borderRadius:7,padding:"3px 8px",fontSize:11,fontWeight:700,cursor:"pointer",color:"#1d4ed8",display:"flex",alignItems:"center",gap:4,fontFamily:"inherit"}}>
-                        Ã°Å¸âÂ Ver póliza
+                        👁 Ver póliza
                       </button>
                     </div>
                   </div>
@@ -828,7 +828,7 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
           <div style={{display:"flex",flexDirection:"column",gap:12}}>
             <div style={{background:`linear-gradient(135deg,${ramoColor(polizaVer.ramo)},${ramoColor(polizaVer.ramo)}bb)`,borderRadius:12,padding:"14px 18px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
-                <div style={{fontSize:10,opacity:.8,fontWeight:700}}>{polizaVer.ramo?.toUpperCase()}{polizaVer.subramo?" ÃÂ· "+polizaVer.subramo.toUpperCase():""} ÃÂ· {polizaVer.aseguradora}</div>
+                <div style={{fontSize:10,opacity:.8,fontWeight:700}}>{polizaVer.ramo?.toUpperCase()}{polizaVer.subramo?" · "+polizaVer.subramo.toUpperCase():""} · {polizaVer.aseguradora}</div>
                 <div style={{fontSize:18,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>{polizaVer.numero}</div>
                 <div style={{fontSize:12,opacity:.9,marginTop:2}}>{polizaVer.cliente}</div>
               </div>
@@ -839,7 +839,7 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
               </div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
-              {[["Aseguradora",polizaVer.aseguradora||"Ã¢â¬â"],["Forma de Pago",polizaVer.formaPago||polizaVer.frecuencia||"Ã¢â¬â"],["Inicio Vigencia",polizaVer.inicio||"Ã¢â¬â"],["Fin Vigencia",polizaVer.vencimiento||"Ã¢â¬â"],["Prima Neta",polizaVer.primaNeta?`$${Number(polizaVer.primaNeta).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"Ã¢â¬â"],["Agente",polizaVer.agentePoliza||"Ã¢â¬â"],["Beneficiario",polizaVer.beneficiarioPreferente||"Ã¢â¬â"]].map(([l,v])=>(
+              {[["Aseguradora",polizaVer.aseguradora||"—"],["Forma de Pago",polizaVer.formaPago||polizaVer.frecuencia||"—"],["Inicio Vigencia",polizaVer.inicio||"—"],["Fin Vigencia",polizaVer.vencimiento||"—"],["Prima Neta",polizaVer.primaNeta?`$${Number(polizaVer.primaNeta).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],["Agente",polizaVer.agentePoliza||"—"],["Beneficiario",polizaVer.beneficiarioPreferente||"—"]].map(([l,v])=>(
                 <div key={l} style={{background:"#f9fafb",borderRadius:9,padding:"9px 12px"}}>
                   <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>{l.toUpperCase()}</div>
                   <div style={{fontSize:13,fontWeight:600,color:"#111827"}}>{v}</div>
@@ -854,26 +854,26 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
             )}
             {polizaVer.documentoPoliza?(
               <div style={{background:"#eff6ff",borderRadius:12,padding:14,border:"1.5px solid #bfdbfe"}}>
-                <div style={{fontSize:11,fontWeight:800,color:"#1e40af",marginBottom:10}}>Ã°Å¸ââ DOCUMENTO DE PÃâLIZA ADJUNTO</div>
+                <div style={{fontSize:11,fontWeight:800,color:"#1e40af",marginBottom:10}}>📄 DOCUMENTO DE PÓLIZA ADJUNTO</div>
                 {polizaVer.documentoTipo?.startsWith("image/")?(
                   <img src={polizaVer.documentoPoliza} alt="Póliza" style={{maxWidth:"100%",borderRadius:9,border:"1px solid #e5e7eb"}}/>
                 ):(
                   <div style={{display:"flex",alignItems:"center",gap:12,background:"#fff",borderRadius:10,padding:"12px 16px",border:"1px solid #e5e7eb"}}>
-                    <span style={{fontSize:36}}>Ã°Å¸ââ</span>
+                    <span style={{fontSize:36}}>📄</span>
                     <div style={{flex:1}}>
                       <div style={{fontWeight:700,fontSize:13,color:"#111827"}}>{polizaVer.documentoNombre||"Documento de póliza"}</div>
                       <div style={{fontSize:11,color:"#6b7280",marginTop:2}}>{polizaVer.documentoTipo}</div>
                     </div>
                     <a href={polizaVer.documentoPoliza} download={polizaVer.documentoNombre||"poliza.pdf"}
                       style={{background:"#2563eb",color:"#fff",padding:"8px 16px",borderRadius:9,fontSize:12,fontWeight:700,textDecoration:"none",display:"inline-flex",alignItems:"center",gap:6}}>
-                      Ã¢Â¬â¡ Descargar
+                      ⬇ Descargar
                     </a>
                   </div>
                 )}
               </div>
             ):(
               <div style={{background:"#f9fafb",borderRadius:10,padding:"12px 16px",border:"1px dashed #d1d5db",fontSize:12,color:"#9ca3af",textAlign:"center"}}>
-                Ã°Å¸âÅ½ No hay documento digital adjunto para esta póliza
+                📎 No hay documento digital adjunto para esta póliza
               </div>
             )}
           </div>
@@ -918,7 +918,7 @@ function Clientes({ clientes, setClientes, polizas=[] }) {
     });
     if (duplicado) {
       const msg = rfcNuevo ? `RFC "${rfcNuevo}"` : `nombre "${nombreNuevo}"`;
-      alert(`Ã¢Å¡Â Ã¯Â¸Â Ya existe un cliente con ${msg}. No se puede guardar duplicado.`);
+      alert(`⚠️ Ya existe un cliente con ${msg}. No se puede guardar duplicado.`);
       return;
     }
     setClientes(prev=>[...prev,{...form,id:Date.now(),polizas:0}]);
@@ -940,7 +940,7 @@ function Clientes({ clientes, setClientes, polizas=[] }) {
         <div style={{padding:"12px 18px",borderBottom:"1px solid #f3f4f6",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
           <Icon name="search"/><input value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="Buscar por nombre o email..." autoComplete="off" style={{border:"none",outline:"none",fontSize:14,flex:1,fontFamily:"inherit",background:"transparent"}}/>
           <div style={{display:"flex",gap:3,marginLeft:8}}>
-            {[["cards","Ã¢Å Å¾"],["table","Ã¢ËÂ°"]].map(([m,ic])=>(
+            {[["cards","⊞"],["table","☰"]].map(([m,ic])=>(
               <button key={m} onClick={()=>setViewModeC(m)} style={{padding:"3px 9px",borderRadius:6,border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:13,
                 background:viewModeC===m?"#e0e7ff":"transparent",color:viewModeC===m?"#1d4ed8":"#9ca3af",fontWeight:viewModeC===m?700:400}}>{ic}</button>
             ))}
@@ -967,7 +967,7 @@ function Clientes({ clientes, setClientes, polizas=[] }) {
                     {c.polizas||0} póliza{c.polizas!==1?"s":""}
                   </span>
                 </div>
-                {c.ciudad&&<div style={{fontSize:11,color:"#9ca3af",marginTop:6}}>Ã°Å¸âÂ {c.ciudad}, {c.estado}</div>}
+                {c.ciudad&&<div style={{fontSize:11,color:"#9ca3af",marginTop:6}}>📍 {c.ciudad}, {c.estado}</div>}
               </div>
             ))}
             {filtrados.length===0&&<div style={{gridColumn:"1/-1",padding:32,textAlign:"center",color:"#9ca3af"}}>No se encontraron clientes</div>}
@@ -989,21 +989,21 @@ function Clientes({ clientes, setClientes, polizas=[] }) {
                     </div>
                     <div>
                       <div style={{fontWeight:700,fontSize:13,color:"#111827"}}>{nombreCompleto(c)}</div>
-                      <div style={{fontSize:11,color:"#9ca3af"}}>{c.sexo==="F"?"Ã¢â¢â¬ Femenino":c.sexo==="M"?"Ã¢â¢â Masculino":""}</div>
+                      <div style={{fontSize:11,color:"#9ca3af"}}>{c.sexo==="F"?"♀ Femenino":c.sexo==="M"?"♂ Masculino":""}</div>
                     </div>
                   </div>
                 </td>
-                <td style={{padding:"13px 14px",fontSize:12,color:"#6b7280",fontFamily:"monospace"}}>{c.rfc||"Ã¢â¬â"}</td>
+                <td style={{padding:"13px 14px",fontSize:12,color:"#6b7280",fontFamily:"monospace"}}>{c.rfc||"—"}</td>
                 <td style={{padding:"13px 14px"}}>
-                  <div style={{fontSize:12,color:"#374151"}}>{c.email||"Ã¢â¬â"}</div>
-                  <div style={{fontSize:12,color:"#374151"}}>Ã°Å¸âÅ¾ {c.telefono||"Ã¢â¬â"}</div>
-                  {c.whatsapp&&<div style={{fontSize:12,color:"#15803d"}}>Ã°Å¸âÂ¬ {c.whatsapp}</div>}
+                  <div style={{fontSize:12,color:"#374151"}}>{c.email||"—"}</div>
+                  <div style={{fontSize:12,color:"#374151"}}>📞 {c.telefono||"—"}</div>
+                  {c.whatsapp&&<div style={{fontSize:12,color:"#15803d"}}>💬 {c.whatsapp}</div>}
                 </td>
                 <td style={{padding:"13px 14px",fontSize:12,color:"#374151",maxWidth:160}}>
-                  {c.calle?<div>{c.calle} {c.numero}, {c.colonia}</div>:<div style={{color:"#9ca3af"}}>Ã¢â¬â</div>}
+                  {c.calle?<div>{c.calle} {c.numero}, {c.colonia}</div>:<div style={{color:"#9ca3af"}}>—</div>}
                   {c.ciudad&&<div style={{color:"#6b7280"}}>{c.cp} {c.ciudad}, {c.estado}</div>}
                 </td>
-                <td style={{padding:"13px 14px",fontSize:12,color:"#374151"}}>{c.fechaNacimiento||"Ã¢â¬â"}</td>
+                <td style={{padding:"13px 14px",fontSize:12,color:"#374151"}}>{c.fechaNacimiento||"—"}</td>
                 <td style={{padding:"13px 14px"}}>
                   <span style={{background:"#dbeafe",color:"#1d4ed8",borderRadius:20,padding:"2px 10px",fontSize:12,fontWeight:700}}>{c.polizas}</span>
                 </td>
@@ -1032,7 +1032,7 @@ function Clientes({ clientes, setClientes, polizas=[] }) {
                     const v=e.target.value;
                     const rfc=generarRFC(v,form.apellidoPaterno,form.apellidoMaterno,form.fechaNacimiento);
                     setForm(p=>({...p,nombre:v,rfc}));
-                  }} placeholder="MarÃÂ­a"/>
+                  }} placeholder="María"/>
                   <ErrMsg k="nombre"/>
                 </div>
                 <div>
@@ -1069,7 +1069,7 @@ function Clientes({ clientes, setClientes, polizas=[] }) {
                   <Inp label="RFC (auto-generado)" value={form.rfc}
                     onChange={e=>f("rfc")(e.target.value.toUpperCase())}
                     placeholder="Se genera automáticamente"/>
-                  <div style={{fontSize:10,color:"#059669",marginTop:3}}>Ã¢Åâ Generado por nombre + fecha</div>
+                  <div style={{fontSize:10,color:"#059669",marginTop:3}}>✓ Generado por nombre + fecha</div>
                 </div>
               </div>
             </div>
@@ -1086,10 +1086,10 @@ function Clientes({ clientes, setClientes, polizas=[] }) {
 
             {/* Dirección */}
             <div style={{background:"#f8fafc",borderRadius:12,padding:"16px 18px"}}>
-              <div style={{fontSize:11,fontWeight:800,color:"#6b7280",letterSpacing:"0.08em",marginBottom:12}}>DIRECCIÃâN</div>
+              <div style={{fontSize:11,fontWeight:800,color:"#6b7280",letterSpacing:"0.08em",marginBottom:12}}>DIRECCIÓN</div>
               <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:12,marginBottom:12}}>
                 <Inp label="Calle" value={form.calle} onChange={e=>f("calle")(e.target.value)} placeholder="Insurgentes Sur"/>
-                <Inp label="NÃÂºmero" value={form.numero} onChange={e=>f("numero")(e.target.value)} placeholder="1234"/>
+                <Inp label="Número" value={form.numero} onChange={e=>f("numero")(e.target.value)} placeholder="1234"/>
               </div>
               <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 2fr",gap:12}}>
                 <Inp label="Colonia" value={form.colonia} onChange={e=>f("colonia")(e.target.value)} placeholder="Del Valle"/>
@@ -1121,10 +1121,10 @@ function Clientes({ clientes, setClientes, polizas=[] }) {
   );
 }
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
-// PÃâLIZAS Ã¢â¬â ramo + subramo dinámico
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
-// Ã¢ââ¬Ã¢ââ¬ Coberturas Autos predefinidas Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬
+// ═══════════════════════════════════════════════════════════════════
+// PÓLIZAS — ramo + subramo dinámico
+// ═══════════════════════════════════════════════════════════════════
+// ── Coberturas Autos predefinidas ─────────────────────────────────
 const COBERTURAS_AUTOS = [
   {key:"danosMateriales", label:"Daños Materiales", deducible:"5%"},
   {key:"espejos", label:"Espejos Laterales", deducible:"30%"},
@@ -1135,15 +1135,15 @@ const COBERTURAS_AUTOS = [
   {key:"gastosMedicos", label:"Gastos Médicos Ocupantes", deducible:"N/A"},
   {key:"accidentesConductor", label:"Accidentes al Conductor", deducible:"N/A"},
   {key:"asistencia", label:"Asistencia Vial", deducible:"N/A"},
-  {key:"defensaJuridica", label:"Defensa JurÃÂ­dica", deducible:"N/A"},
+  {key:"defensaJuridica", label:"Defensa Jurídica", deducible:"N/A"},
   {key:"rcCatastrofica", label:"RC Catastrófica Muerte Accidental", deducible:"N/A"},
   {key:"cobIntExtranjero", label:"Cobertura Integral en el Extranjero", deducible:"N/A"},
 ];
 
-// Ã¢ââ¬Ã¢ââ¬ Catálogos GMM Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬
+// ── Catálogos GMM ─────────────────────────────────────────────────
 const PLANES_GMM = {
-  "Tradicional": ["Básico","Plus","Platino","Ãâ°lite"],
-  "PMM (Plan Médico Mayor)": ["Esencial","Alta Protección","Máxima Protección","Ãâptima"],
+  "Tradicional": ["Básico","Plus","Platino","Élite"],
+  "PMM (Plan Médico Mayor)": ["Esencial","Alta Protección","Máxima Protección","Óptima"],
   "Accidentes Personales": ["Básico","Amplio"],
   "Seguviaje": ["Nacional","Internacional"],
 };
@@ -1151,7 +1151,7 @@ const PLANES_GMM = {
 const PARENTESCOS_GMM = ["Titular","Cónyuge","Hijo(a)","Padre","Madre","Contratante","Dependiente"];
 
 const ZONAS_GMM = ["1","2","3","4","5","Nacional"];
-const HOSPITALES_GMM = ["A","B","C","BC","BC+","Ãâptima","Premium"];
+const HOSPITALES_GMM = ["A","B","C","BC","BC+","Óptima","Premium"];
 
 const COBERTURAS_GMM_BASE = [
   { key:"coberturBasica",    label:"Cobertura Básica",               tipo:"deducible" },
@@ -1175,8 +1175,8 @@ const COBERTURAS_PMM_BASE = [
   { key:"ambulancia",        label:"Ambulancia",                      tipo:"amparada" },
   { key:"redHospitalaria",   label:"Red Hospitalaria",                tipo:"plan" },
   { key:"complicacionesNC",  label:"Complicaciones de gastos no cubiertos", tipo:"suma" },
-  { key:"preexistDeclared",  label:"RecaÃÂ­das preexistentes declarados", tipo:"amparada" },
-  { key:"preexistNoDeclared",label:"RecaÃÂ­das preexistentes no declarados", tipo:"suma" },
+  { key:"preexistDeclared",  label:"Recaídas preexistentes declarados", tipo:"amparada" },
+  { key:"preexistNoDeclared",label:"Recaídas preexistentes no declarados", tipo:"suma" },
   { key:"emergExtranjer",    label:"Emergencia en el Extranjero",     tipo:"usd" },
   { key:"reducDedAccidente", label:"Reducción de deducible por accidente", tipo:"suma" },
   { key:"asistTelefonica",   label:"Asistencia Telefónica",           tipo:"amparada" },
@@ -1193,29 +1193,29 @@ const ASEGURADO_GMM_INIT = {
 };
 
 const FORM_POLIZA_INIT = {
-  // Paso 1 Ã¢â¬â Cliente
+  // Paso 1 — Cliente
   clienteId:"", cliente:"", emailCliente:"", telefonoCliente:"",
-  // Paso 2 Ã¢â¬â Datos generales
+  // Paso 2 — Datos generales
   numero:"", endoso:"0", aseguradora:"", fechaEmision:"",
   ramo:"", subramo:"", agentePoliza:"",
-  // Paso 3 Ã¢â¬â Vigencia
+  // Paso 3 — Vigencia
   inicio:"", vencimiento:"", status:"activa",
-  // Paso 4 Ã¢â¬â Datos económicos
+  // Paso 4 — Datos económicos
   formaPago:"Anual", moneda:"MXN", primaNeta:"", gastosExpedicion:"", porcentajeRecargo:0, recargoPago:"", iva:"", primaTotal:"",
   porcentajeIva:16, montoIva:"",
-  // Paso 5 Ã¢â¬â VehÃÂ­culo (solo Autos Individual)
+  // Paso 5 — Vehículo (solo Autos Individual)
   vehiculoDescripcion:"", vehiculoMarca:"", vehiculoSerie:"", vehiculoAnio:"", vehiculoUso:"Particular", vehiculoClase:"Automóvil",
-  // Paso 5b Ã¢â¬â Coberturas Autos detalladas
+  // Paso 5b — Coberturas Autos detalladas
   coberturasAutos:{},
-  // Paso 5c Ã¢â¬â Coberturas otros ramos
+  // Paso 5c — Coberturas otros ramos
   coberturas:[],
-  // Flotilla Ã¢â¬â lista de incisos
+  // Flotilla — lista de incisos
   incisos:[],
-  // GMM Ã¢â¬â campos especÃÂ­ficos
+  // GMM — campos específicos
   planGMM:"", sumaAsegurada:"", deducibleGMM:"", coaseguroGMM:"10", topeCoaseguroGMM:"",
   zonaGMM:"", hospitalGMM:"", tabuladorGMM:"", aseguradosGMM:[],
   coberturasGMM:{},
-  // Paso 6 Ã¢â¬â Datos adicionales
+  // Paso 6 — Datos adicionales
   beneficiarioPreferente:"", notas:"",
   // Documento adjunto
   documentoPoliza:null, documentoNombre:"", documentoTipo:"",
@@ -1246,20 +1246,20 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
   const cobertBaseGMM = esPMM ? COBERTURAS_PMM_BASE : COBERTURAS_GMM_BASE;
 
   // Pasos:
-  // Autos Individual (6): Cliente Ã¢â â Póliza Ã¢â â Vigencia Ã¢â â Importes Ã¢â â VehÃÂ­culo Ã¢â â Coberturas
-  // Autos Flotilla  (5): Cliente Ã¢â â Póliza Ã¢â â Vigencia Ã¢â â Importes Ã¢â â Incisos
-  // GMM Trad/PMM   (6): Cliente Ã¢â â Póliza Ã¢â â Vigencia Ã¢â â Importes Ã¢â â Asegurados Ã¢â â Coberturas
-  // Otros          (5): Cliente Ã¢â â Póliza Ã¢â â Vigencia Ã¢â â Importes Ã¢â â Coberturas
+  // Autos Individual (6): Cliente → Póliza → Vigencia → Importes → Vehículo → Coberturas
+  // Autos Flotilla  (5): Cliente → Póliza → Vigencia → Importes → Incisos
+  // GMM Trad/PMM   (6): Cliente → Póliza → Vigencia → Importes → Asegurados → Coberturas
+  // Otros          (5): Cliente → Póliza → Vigencia → Importes → Coberturas
   const totalPasos = (esIndividual || esGMM) ? 6 : 5;
   const pasosLabels = esIndividual
-    ? ["Cliente","Póliza","Vigencia","Importes","VehÃÂ­culo","Coberturas"]
+    ? ["Cliente","Póliza","Vigencia","Importes","Vehículo","Coberturas"]
     : esFlotilla
       ? ["Cliente","Póliza","Vigencia","Importes","Incisos"]
       : esGMM
         ? ["Cliente","Póliza","Vigencia","Importes","Asegurados","Coberturas"]
         : ["Cliente","Póliza","Vigencia","Importes","Coberturas"];
 
-  // Filtra clientes por bÃÂºsqueda
+  // Filtra clientes por búsqueda
   const clientesFiltrados = clientes.filter(c => {
     const nc = nombreCompleto(c).toLowerCase();
     return busqCliente === "" || nc.includes(busqCliente.toLowerCase()) || (c.rfc||"").toLowerCase().includes(busqCliente.toLowerCase());
@@ -1279,7 +1279,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
     return (neta + gasto + recargo + ivaBase).toFixed(2);
   };
 
-  // Calcula el desglose de recibos segÃÂºn forma de pago
+  // Calcula el desglose de recibos según forma de pago
   // Regla: en pago fraccionado el 1er recibo lleva gastos de expedición completos
   // Recibos subsecuentes: solo fracción prima neta + fracción recargo + IVA de esa fracción
   const calcRecibos = (f) => {
@@ -1289,14 +1289,14 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
     const pctIva  = (parseFloat(f.porcentajeIva)||16)/100;
     const fp      = f.formaPago||"Anual";
 
-    const numMap  = {Anual:1, Semestral:2, Trimestral:4, Mensual:12, Contado:1, "ÃÅ¡nico":1};
+    const numMap  = {Anual:1, Semestral:2, Trimestral:4, Mensual:12, Contado:1, "Único":1};
     const n       = numMap[fp]||1;
     const esFrac  = n > 1;
 
     if (!esFrac) {
-      // Pago ÃÂºnico / anual / contado Ã¢â¬â un solo recibo con todo
+      // Pago único / anual / contado — un solo recibo con todo
       const total = parseFloat(calcPrimaTotal(f));
-      return [{ num:1, label:"ÃÅ¡nico", primaNeta:neta, gastos:gasto, recargo, iva:+(total - neta - gasto - recargo).toFixed(2), total:+total }];
+      return [{ num:1, label:"Único", primaNeta:neta, gastos:gasto, recargo, iva:+(total - neta - gasto - recargo).toFixed(2), total:+total }];
     }
 
     // Fraccionado
@@ -1325,7 +1325,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
   const guardar = () => {
     let coberturasFinales = [];
     if (esFlotilla) {
-      coberturasFinales = ["Flotilla Ã¢â¬â ver incisos"];
+      coberturasFinales = ["Flotilla — ver incisos"];
     } else if (esIndividual) {
       coberturasFinales = Object.entries(form.coberturasAutos).filter(([,v])=>v.amparada).map(([k])=> COBERTURAS_AUTOS.find(c=>c.key===k)?.label||k);
     } else if (esGMM) {
@@ -1410,7 +1410,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
               <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,flex:1}}>
                 <div style={{width:28,height:28,borderRadius:"50%",background:hecho?"#059669":activo?"#2563eb":"#e5e7eb",color:hecho||activo?"#fff":"#9ca3af",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,cursor:hecho?"pointer":"default"}}
                   onClick={()=>hecho&&setPaso(n)}>
-                  {hecho?"Ã¢Åâ":n}
+                  {hecho?"✓":n}
                 </div>
                 <div style={{fontSize:9,fontWeight:600,color:activo?"#2563eb":hecho?"#059669":"#9ca3af",letterSpacing:"0.04em",textAlign:"center"}}>{l.toUpperCase()}</div>
               </div>
@@ -1420,19 +1420,19 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
         })}
       </div>
 
-      {/* Ã¢ââ¬Ã¢ââ¬ PASO 1: CLIENTE Ã¢ââ¬Ã¢ââ¬ */}
+      {/* ── PASO 1: CLIENTE ── */}
       {paso===1&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           {/* Opción lectura IA */}
           <div style={{background:"linear-gradient(135deg,#1e40af,#7c3aed)",borderRadius:12,padding:"13px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
             <div>
-              <div style={{color:"#fff",fontWeight:800,fontSize:13}}>Ã¢Å¡Â¡ ÃÂ¿Tienes el documento PDF?</div>
+              <div style={{color:"#fff",fontWeight:800,fontSize:13}}>⚡ ¿Tienes el documento PDF?</div>
               <div style={{color:"#bfdbfe",fontSize:11,marginTop:2}}>La IA lee la póliza y llena todos los datos automáticamente</div>
             </div>
             <button onClick={()=>{onClose();setTimeout(()=>document.dispatchEvent(new CustomEvent("openScan")),100);}}
               style={{background:"rgba(255,255,255,.15)",border:"1px solid rgba(255,255,255,.3)",borderRadius:9,padding:"8px 16px",
                 color:"#fff",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",flexShrink:0,whiteSpace:"nowrap"}}>
-              Ã°Å¸ââ Leer con IA
+              📄 Leer con IA
             </button>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
@@ -1442,7 +1442,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
           </div>
           <SecBox title="CLIENTE ASEGURADO" color="#1e40af">
             <div style={{background:"#eff6ff",borderRadius:9,padding:"10px 13px",fontSize:12,color:"#1e40af",marginBottom:12}}>
-              Ã¢âÂ¹Ã¯Â¸Â El cliente debe estar previamente registrado en el módulo de <strong>Clientes</strong>
+              ℹ️ El cliente debe estar previamente registrado en el módulo de <strong>Clientes</strong>
             </div>
             <div style={{position:"relative",marginBottom:10}}>
               <div style={{position:"absolute",left:11,top:10,color:"#9ca3af"}}><Icon name="search" size={15}/></div>
@@ -1465,7 +1465,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
                       </div>
                       <div>
                         <div style={{fontWeight:700,fontSize:13}}>{nombreCompleto(c)}</div>
-                        <div style={{fontSize:11,color:"#6b7280"}}>{c.rfc||"Sin RFC"} ÃÂ· {c.telefono||"Sin tel."}</div>
+                        <div style={{fontSize:11,color:"#6b7280"}}>{c.rfc||"Sin RFC"} · {c.telefono||"Sin tel."}</div>
                       </div>
                     </div>
                   ))
@@ -1474,10 +1474,10 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
             )}
             {form.clienteId&&(
               <div style={{background:"#f0fdf4",border:"1px solid #bbf7d0",borderRadius:9,padding:"12px 14px",display:"flex",alignItems:"center",gap:12}}>
-                <div style={{width:36,height:36,borderRadius:"50%",background:"#059669",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:13,flexShrink:0}}>Ã¢Åâ</div>
+                <div style={{width:36,height:36,borderRadius:"50%",background:"#059669",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:13,flexShrink:0}}>✓</div>
                 <div>
                   <div style={{fontWeight:700,fontSize:14,color:"#065f46"}}>{form.cliente}</div>
-                  <div style={{fontSize:12,color:"#059669"}}>{form.emailCliente} ÃÂ· Ã°Å¸âÅ¾ {form.telefonoCliente}</div>
+                  <div style={{fontSize:12,color:"#059669"}}>{form.emailCliente} · 📞 {form.telefonoCliente}</div>
                 </div>
                 <button onClick={()=>{setForm(p=>({...p,clienteId:"",cliente:""}));setBusqCliente("");}}
                   style={{marginLeft:"auto",background:"none",border:"none",cursor:"pointer",color:"#6b7280"}}><Icon name="x" size={16}/></button>
@@ -1495,7 +1495,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
                   if(sa) sf("subagenteId",sa.id),sf("subagente",`${sa.nombre} ${sa.apellidoPaterno} ${sa.apellidoMaterno||""}`.trim());
                   else sf("subagenteId",""),sf("subagente","");
                 }} style={{border:"1.5px solid #e9d5ff",borderRadius:9,padding:"9px 12px",fontSize:13,outline:"none",fontFamily:"inherit",background:"#fff",color:"#374151"}}>
-                  <option value="">Ã¢â¬â Ninguno / Venta directa Ã¢â¬â</option>
+                  <option value="">— Ninguno / Venta directa —</option>
                   {subagentes.filter(s=>s.activo).map(s=>(
                     <option key={s.id} value={s.id}>{s.nombre} {s.apellidoPaterno} {s.apellidoMaterno||""}</option>
                   ))}
@@ -1511,7 +1511,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
                   <div style={{fontSize:11,color:"#7c3aed"}}>Subagente asignado a esta póliza</div>
                 </div>
                 <button onClick={()=>{sf("subagenteId","");sf("subagente","");sf("comisionSubagente","");}}
-                  style={{background:"none",border:"none",cursor:"pointer",color:"#9ca3af",fontSize:16}}>Ã¢Åâ¢</button>
+                  style={{background:"none",border:"none",cursor:"pointer",color:"#9ca3af",fontSize:16}}>✕</button>
               </div>
             )}
             {form.subagenteId&&(
@@ -1524,12 +1524,12 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
         </div>
       )}
 
-      {/* Ã¢ââ¬Ã¢ââ¬ PASO 2: DATOS DE PÃâLIZA Ã¢ââ¬Ã¢ââ¬ */}
+      {/* ── PASO 2: DATOS DE PÓLIZA ── */}
       {paso===2&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          <SecBox title="DATOS GENERALES DE LA PÃâLIZA" color="#2563eb">
+          <SecBox title="DATOS GENERALES DE LA PÓLIZA" color="#2563eb">
             <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr",gap:12,marginBottom:12}}>
-              <Inp label="NÃÂºmero de Póliza *" value={form.numero} onChange={e=>sf("numero",e.target.value)} placeholder="4102600041030"/>
+              <Inp label="Número de Póliza *" value={form.numero} onChange={e=>sf("numero",e.target.value)} placeholder="4102600041030"/>
               <Inp label="Endoso" value={form.endoso} onChange={e=>sf("endoso",e.target.value)} placeholder="0"/>
               <Inp label="Fecha de Emisión" type="date" value={form.fechaEmision} onChange={e=>sf("fechaEmision",e.target.value)}/>
             </div>
@@ -1555,7 +1555,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
                 {ramosDisponibles.map(r=>(
                   <button key={r} onClick={()=>sf("ramo",r)}
                     style={{background:ramoColor(r)+"15",color:ramoColor(r),border:`2px solid ${ramoColor(r)}`,borderRadius:12,padding:"14px 10px",fontWeight:800,fontSize:13,cursor:"pointer",fontFamily:"inherit",display:"flex",flexDirection:"column",alignItems:"center",gap:6}}>
-                    <span style={{fontSize:24}}>{r==="Autos"?"Ã°Å¸Å¡â":r==="Vida"?"Ã¢ÂÂ¤Ã¯Â¸Â":r==="Gastos Médicos"?"Ã°Å¸ÂÂ¥":"Ã°Å¸ÂÂ "}</span>
+                    <span style={{fontSize:24}}>{r==="Autos"?"🚗":r==="Vida"?"❤️":r==="Gastos Médicos"?"🏥":"🏠"}</span>
                     {r}
                   </button>
                 ))}
@@ -1565,7 +1565,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
               <div>
                 <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
                   <div style={{background:ramoColor(form.ramo)+"15",color:ramoColor(form.ramo),border:`2px solid ${ramoColor(form.ramo)}`,borderRadius:10,padding:"7px 16px",fontWeight:800,fontSize:13}}>
-                    {form.ramo==="Autos"?"Ã°Å¸Å¡â":form.ramo==="Vida"?"Ã¢ÂÂ¤Ã¯Â¸Â":form.ramo==="Gastos Médicos"?"Ã°Å¸ÂÂ¥":"Ã°Å¸ÂÂ "} {form.ramo}
+                    {form.ramo==="Autos"?"🚗":form.ramo==="Vida"?"❤️":form.ramo==="Gastos Médicos"?"🏥":"🏠"} {form.ramo}
                   </div>
                   <button onClick={()=>setForm(p=>({...p,ramo:"",subramo:""}))} style={{background:"none",border:"1px solid #e5e7eb",borderRadius:8,padding:"5px 10px",cursor:"pointer",fontSize:12,color:"#6b7280",fontFamily:"inherit"}}>Cambiar</button>
                 </div>
@@ -1583,29 +1583,29 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
         </div>
       )}
 
-      {/* Ã¢ââ¬Ã¢ââ¬ PASO 3: VIGENCIA Ã¢ââ¬Ã¢ââ¬ */}
+      {/* ── PASO 3: VIGENCIA ── */}
       {paso===3&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          <SecBox title="VIGENCIA DE LA PÃâLIZA" color="#059669">
+          <SecBox title="VIGENCIA DE LA PÓLIZA" color="#059669">
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
               <div>
                 <label style={{fontSize:12,fontWeight:700,color:"#374151",display:"block",marginBottom:5}}>Inicio de vigencia *</label>
                 <Inp type="date" value={form.inicio} onChange={e=>sf("inicio",e.target.value)}/>
-                <div style={{fontSize:11,color:"#9ca3af",marginTop:4}}>Desde las 12:00 hrs. del dÃÂ­a indicado</div>
+                <div style={{fontSize:11,color:"#9ca3af",marginTop:4}}>Desde las 12:00 hrs. del día indicado</div>
               </div>
               <div>
                 <label style={{fontSize:12,fontWeight:700,color:"#374151",display:"block",marginBottom:5}}>Fin de vigencia *</label>
                 <Inp type="date" value={form.vencimiento} onChange={e=>sf("vencimiento",e.target.value)}/>
-                <div style={{fontSize:11,color:"#9ca3af",marginTop:4}}>Hasta las 12:00 hrs. del dÃÂ­a indicado</div>
+                <div style={{fontSize:11,color:"#9ca3af",marginTop:4}}>Hasta las 12:00 hrs. del día indicado</div>
               </div>
             </div>
             {form.inicio&&form.vencimiento&&(
               <div style={{marginTop:14,background:"#f0fdf4",borderRadius:9,padding:"12px 14px",display:"flex",alignItems:"center",gap:10}}>
-                <div style={{fontSize:20}}>Ã°Å¸ââ¦</div>
+                <div style={{fontSize:20}}>📅</div>
                 <div>
                   <div style={{fontWeight:700,fontSize:13,color:"#065f46"}}>Vigencia calculada</div>
                   <div style={{fontSize:12,color:"#059669"}}>
-                    {Math.round((new Date(form.vencimiento)-new Date(form.inicio))/(1000*60*60*24))} dÃÂ­as ÃÂ· {form.inicio} Ã¢â â {form.vencimiento}
+                    {Math.round((new Date(form.vencimiento)-new Date(form.inicio))/(1000*60*60*24))} días · {form.inicio} → {form.vencimiento}
                   </div>
                 </div>
               </div>
@@ -1614,10 +1614,10 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
         </div>
       )}
 
-      {/* Ã¢ââ¬Ã¢ââ¬ PASO 4: IMPORTES Ã¢ââ¬Ã¢ââ¬ */}
+      {/* ── PASO 4: IMPORTES ── */}
       {paso===4&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          <SecBox title="CONCEPTOS ECONÃâMICOS" color="#d97706">
+          <SecBox title="CONCEPTOS ECONÓMICOS" color="#d97706">
 
             {/* Forma de pago + fecha emisión */}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
@@ -1630,12 +1630,12 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
                   return {...np,montoIva:mIva,primaTotal:calcPrimaTotal({...np})};
                 });
               }}>
-                {["Anual","Semestral","Trimestral","Mensual","Contado","ÃÅ¡nico"].map(f=><option key={f}>{f}</option>)}
+                {["Anual","Semestral","Trimestral","Mensual","Contado","Único"].map(f=><option key={f}>{f}</option>)}
               </Sel>
               <Inp label="Fecha de Emisión (si aplica)" type="date" value={form.fechaEmision} onChange={e=>sf("fechaEmision",e.target.value)}/>
             </div>
 
-            {/* Campos numéricos Ã¢â¬â todos recalculan automáticamente */}
+            {/* Campos numéricos — todos recalculan automáticamente */}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
               <Inp label="Prima Neta ($)" type="number" value={form.primaNeta}
                 onChange={e=>{setForm(p=>{
@@ -1679,7 +1679,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
             <div style={{marginTop:14,background:"linear-gradient(135deg,#0f172a,#1e3a5f)",borderRadius:12,padding:"14px 18px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
                 <div style={{color:"#94a3b8",fontSize:12,fontWeight:600}}>PRIMA TOTAL A PAGAR</div>
-                <div style={{color:"#60a5fa",fontSize:11,marginTop:2}}>{form.formaPago||"Anual"} ÃÂ· {calcRecibos(form).length} recibo{calcRecibos(form).length>1?"s":""}</div>
+                <div style={{color:"#60a5fa",fontSize:11,marginTop:2}}>{form.formaPago||"Anual"} · {calcRecibos(form).length} recibo{calcRecibos(form).length>1?"s":""}</div>
               </div>
               <div style={{color:"#fff",fontSize:26,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>
                 ${parseFloat(calcPrimaTotal(form)).toLocaleString("es-MX",{minimumFractionDigits:2})}
@@ -1687,12 +1687,12 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
             </div>
           </SecBox>
 
-          {/* Ã¢ââ¬Ã¢ââ¬ TABLA DE RECIBOS Ã¢ââ¬Ã¢ââ¬ */}
+          {/* ── TABLA DE RECIBOS ── */}
           <SecBox title="DESGLOSE DE RECIBOS" color="#7c3aed">
             <div style={{fontSize:11,color:"#6b7280",marginBottom:12,background:"#f5f3ff",borderRadius:8,padding:"8px 12px",border:"1px solid #ede9fe"}}>
               {calcRecibos(form).length===1
-                ? "Ã¢Åâ¦ Pago en un solo recibo Ã¢â¬â incluye todos los conceptos."
-                : `Ã°Å¸ââ¹ Pago fraccionado en ${calcRecibos(form).length} recibos. El primer recibo incluye los Gastos de Expedición completos.`}
+                ? "✅ Pago en un solo recibo — incluye todos los conceptos."
+                : `📋 Pago fraccionado en ${calcRecibos(form).length} recibos. El primer recibo incluye los Gastos de Expedición completos.`}
             </div>
             <div style={{overflowX:"auto"}}>
               <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
@@ -1711,10 +1711,10 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
                       </td>
                       <td style={{padding:"9px 10px",textAlign:"right",color:"#374151"}}>${r.primaNeta.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>
                       <td style={{padding:"9px 10px",textAlign:"right",color:r.gastos>0?"#059669":"#9ca3af",fontWeight:r.gastos>0?700:400}}>
-                        {r.gastos>0?`$${r.gastos.toLocaleString("es-MX",{minimumFractionDigits:2})}`:"Ã¢â¬â"}
+                        {r.gastos>0?`$${r.gastos.toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"}
                       </td>
                       <td style={{padding:"9px 10px",textAlign:"right",color:r.recargo>0?"#d97706":"#9ca3af"}}>
-                        {r.recargo>0?`$${r.recargo.toLocaleString("es-MX",{minimumFractionDigits:2})}`:"Ã¢â¬â"}
+                        {r.recargo>0?`$${r.recargo.toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"}
                       </td>
                       <td style={{padding:"9px 10px",textAlign:"right",color:"#6b7280"}}>${r.iva.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>
                       <td style={{padding:"9px 10px",textAlign:"right",fontWeight:800,color:"#111827",background:i===0?"#ede9fe":"transparent",borderRadius:i===0?6:0}}>
@@ -1739,17 +1739,17 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
         </div>
       )}
 
-      {/* Ã¢ââ¬Ã¢ââ¬ PASO 5: VEHÃÂCULO (solo Autos Individual) Ã¢ââ¬Ã¢ââ¬ */}
+      {/* ── PASO 5: VEHÍCULO (solo Autos Individual) ── */}
       {paso===5&&esIndividual&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          <SecBox title="CARACTERÃÂSTICAS DEL VEHÃÂCULO ASEGURADO" color="#2563eb">
+          <SecBox title="CARACTERÍSTICAS DEL VEHÍCULO ASEGURADO" color="#2563eb">
             <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:12,marginBottom:12}}>
               <Inp label="Descripción / Modelo" value={form.vehiculoDescripcion} onChange={e=>sf("vehiculoDescripcion",e.target.value)} placeholder="MG5 EXCITE 1.5L TA"/>
               <Inp label="Año de Fabricación" value={form.vehiculoAnio} onChange={e=>sf("vehiculoAnio",e.target.value)} placeholder="2024"/>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
               <Inp label="Marca" value={form.vehiculoMarca} onChange={e=>sf("vehiculoMarca",e.target.value)} placeholder="MG"/>
-              <Inp label="NÃÂºmero de Serie (VIN)" value={form.vehiculoSerie} onChange={e=>sf("vehiculoSerie",e.target.value)} placeholder="LSJA36E96RZ083169"/>
+              <Inp label="Número de Serie (VIN)" value={form.vehiculoSerie} onChange={e=>sf("vehiculoSerie",e.target.value)} placeholder="LSJA36E96RZ083169"/>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
               <Sel label="Uso" value={form.vehiculoUso} onChange={e=>sf("vehiculoUso",e.target.value)}>
@@ -1763,18 +1763,18 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
         </div>
       )}
 
-      {/* Ã¢ââ¬Ã¢ââ¬ PASO 5: INCISOS (Flotilla) Ã¢ââ¬Ã¢ââ¬ */}
+      {/* ── PASO 5: INCISOS (Flotilla) ── */}
       {paso===5&&esFlotilla&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          <SecBox title="RESUMEN DE RIESGOS Ã¢â¬â INCISOS DE FLOTILLA" color="#2563eb">
+          <SecBox title="RESUMEN DE RIESGOS — INCISOS DE FLOTILLA" color="#2563eb">
             <div style={{background:"#eff6ff",borderRadius:9,padding:"10px 13px",fontSize:12,color:"#1e40af",marginBottom:14}}>
-              Ã°Å¸Å¡â Agrega cada vehÃÂ­culo de la flotilla como un inciso independiente con sus propios datos y prima.
+              🚗 Agrega cada vehículo de la flotilla como un inciso independiente con sus propios datos y prima.
             </div>
             {(form.incisos||[]).map((inc,idx)=>(
               <div key={inc.id||idx} style={{border:"1.5px solid #e5e7eb",borderRadius:11,padding:"14px 14px 10px",marginBottom:12,background:"#fafafa"}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-                  <div style={{fontWeight:800,fontSize:13,color:"#1e40af"}}>Ã°Å¸âÂ¹ Inciso {inc.numero}</div>
-                  <button onClick={()=>delInciso(idx)} style={{background:"#fef2f2",border:"1px solid #fecaca",borderRadius:7,padding:"4px 10px",fontSize:11,color:"#dc2626",cursor:"pointer",fontFamily:"inherit"}}>Ã¢Åâ¢ Eliminar</button>
+                  <div style={{fontWeight:800,fontSize:13,color:"#1e40af"}}>🔹 Inciso {inc.numero}</div>
+                  <button onClick={()=>delInciso(idx)} style={{background:"#fef2f2",border:"1px solid #fecaca",borderRadius:7,padding:"4px 10px",fontSize:11,color:"#dc2626",cursor:"pointer",fontFamily:"inherit"}}>✕ Eliminar</button>
                 </div>
                 <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr",gap:10,marginBottom:8}}>
                   <Inp label="Descripción / Modelo" value={inc.descripcion} onChange={e=>updInciso(idx,"descripcion",e.target.value)} placeholder="JETTA HIGHLINE 1.4L 150HP TIP"/>
@@ -1782,7 +1782,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
                   <Inp label="Año" value={inc.anio} onChange={e=>updInciso(idx,"anio",e.target.value)} placeholder="2019"/>
                 </div>
                 <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr",gap:10,marginBottom:8}}>
-                  <Inp label="NÃÂºmero de Serie (VIN)" value={inc.serie} onChange={e=>updInciso(idx,"serie",e.target.value)} placeholder="3VWTP6BU7KM266575"/>
+                  <Inp label="Número de Serie (VIN)" value={inc.serie} onChange={e=>updInciso(idx,"serie",e.target.value)} placeholder="3VWTP6BU7KM266575"/>
                   <Sel label="Uso" value={inc.uso} onChange={e=>updInciso(idx,"uso",e.target.value)}>
                     {["Particular","Comercial"].map(u=><option key={u}>{u}</option>)}
                   </Sel>
@@ -1820,7 +1820,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
             {(form.incisos||[]).length > 0 && (
               <div style={{marginTop:12,background:"linear-gradient(135deg,#0f172a,#1e3a5f)",borderRadius:10,padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <div style={{color:"#94a3b8",fontSize:12}}>
-                  <div style={{fontWeight:700}}>{form.incisos.length} VehÃÂ­culos ÃÂ· Prima total flotilla</div>
+                  <div style={{fontWeight:700}}>{form.incisos.length} Vehículos · Prima total flotilla</div>
                   <div style={{fontSize:10,marginTop:2}}>Suma de todas las primas con IVA</div>
                 </div>
                 <div style={{color:"#fff",fontSize:24,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>
@@ -1832,7 +1832,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
         </div>
       )}
 
-      {/* Ã¢ââ¬Ã¢ââ¬ PASO 5: ASEGURADOS (GMM) Ã¢ââ¬Ã¢ââ¬ */}
+      {/* ── PASO 5: ASEGURADOS (GMM) ── */}
       {paso===5&&esGMM&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           <SecBox title="PLAN Y CONDICIONES GENERALES" color="#059669">
@@ -1841,7 +1841,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
                 <option value="">Seleccionar plan</option>
                 {(PLANES_GMM[form.subramo]||[]).map(p=><option key={p}>{p}</option>)}
               </Sel>
-              <Inp label="Suma Asegurada ($)" value={form.sumaAsegurada} onChange={e=>sf("sumaAsegurada",e.target.value)} placeholder={esPMM?"40,000,000":"Sin lÃÂ­mite"}/>
+              <Inp label="Suma Asegurada ($)" value={form.sumaAsegurada} onChange={e=>sf("sumaAsegurada",e.target.value)} placeholder={esPMM?"40,000,000":"Sin límite"}/>
               <Inp label="Deducible ($)" value={form.deducibleGMM} onChange={e=>sf("deducibleGMM",e.target.value)} placeholder={esPMM?"60,000":"30,000"}/>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:12}}>
@@ -1865,7 +1865,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
 
           <SecBox title="LISTA DE ASEGURADOS" color="#059669">
             <div style={{background:"#f0fdf4",borderRadius:9,padding:"9px 12px",fontSize:12,color:"#065f46",marginBottom:12}}>
-              Ã°Å¸âÂ¨Ã¢â¬ÂÃ°Å¸âÂ©Ã¢â¬ÂÃ°Å¸âÂ§ Agrega a todos los asegurados de la póliza con su parentesco y fecha de nacimiento.
+              👨‍👩‍👧 Agrega a todos los asegurados de la póliza con su parentesco y fecha de nacimiento.
             </div>
             {(form.aseguradosGMM||[]).map((a,idx)=>(
               <div key={a.id||idx} style={{border:"1.5px solid #d1fae5",borderRadius:11,padding:"12px 13px 8px",marginBottom:10,background:"#f9fffe"}}>
@@ -1875,10 +1875,10 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
                       {idx+1}
                     </div>
                     <div style={{fontWeight:700,fontSize:12,color:"#065f46"}}>
-                      {a.parentesco||"Asegurado"}{a.edad?` ÃÂ· ${a.edad} años`:""}
+                      {a.parentesco||"Asegurado"}{a.edad?` · ${a.edad} años`:""}
                     </div>
                   </div>
-                  <button onClick={()=>delAseguradoGMM(idx)} style={{background:"#fef2f2",border:"1px solid #fecaca",borderRadius:7,padding:"3px 9px",fontSize:11,color:"#dc2626",cursor:"pointer",fontFamily:"inherit"}}>Ã¢Åâ¢</button>
+                  <button onClick={()=>delAseguradoGMM(idx)} style={{background:"#fef2f2",border:"1px solid #fecaca",borderRadius:7,padding:"3px 9px",fontSize:11,color:"#dc2626",cursor:"pointer",fontFamily:"inherit"}}>✕</button>
                 </div>
                 <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:9,marginBottom:8}}>
                   <Inp label="Nombre completo" value={a.nombre} onChange={e=>updAseguradoGMM(idx,"nombre",e.target.value)} placeholder="SERGIO RENATO CANTU LOZANO"/>
@@ -1895,7 +1895,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
                   <div style={{display:"flex",flexDirection:"column",gap:4}}>
                     <label style={{fontSize:12,fontWeight:700,color:"#374151"}}>Edad</label>
                     <div style={{border:"1.5px solid #e5e7eb",borderRadius:9,padding:"8px 12px",fontSize:13,background:"#f3f4f6",color:"#374151",fontWeight:600,minHeight:38}}>
-                      {a.edad||"Ã¢â¬â"}
+                      {a.edad||"—"}
                     </div>
                   </div>
                   <Sel label="Sexo" value={a.sexo} onChange={e=>updAseguradoGMM(idx,"sexo",e.target.value)}>
@@ -1920,15 +1920,15 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
         </div>
       )}
 
-      {/* Ã¢ââ¬Ã¢ââ¬ PASO 5 (no autos / flotilla / GMM) / PASO 6 (autos individual o GMM): COBERTURAS Ã¢ââ¬Ã¢ââ¬ */}
+      {/* ── PASO 5 (no autos / flotilla / GMM) / PASO 6 (autos individual o GMM): COBERTURAS ── */}
       {((paso===5&&!esAutos&&!esGMM)||((paso===6&&(esIndividual||esGMM))))&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           {esIndividual ? (
-            <SecBox title="COBERTURAS AMPARADAS Ã¢â¬â AUTOS" color="#2563eb">
+            <SecBox title="COBERTURAS AMPARADAS — AUTOS" color="#2563eb">
               <div style={{display:"flex",flexDirection:"column",gap:0}}>
                 <div style={{display:"grid",gridTemplateColumns:"2.5fr 1.5fr 1fr",padding:"6px 10px",background:"#f3f4f6",borderRadius:"8px 8px 0 0",marginBottom:1}}>
                   <div style={{fontSize:10,fontWeight:800,color:"#6b7280"}}>COBERTURA</div>
-                  <div style={{fontSize:10,fontWeight:800,color:"#6b7280"}}>LÃÂMITE / SUMA</div>
+                  <div style={{fontSize:10,fontWeight:800,color:"#6b7280"}}>LÍMITE / SUMA</div>
                   <div style={{fontSize:10,fontWeight:800,color:"#6b7280"}}>AMPARADA</div>
                 </div>
                 {COBERTURAS_AUTOS.map((cob,i)=>{
@@ -1946,7 +1946,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
                       <div style={{textAlign:"center"}}>
                         <button onClick={()=>setForm(p=>({...p,coberturasAutos:{...p.coberturasAutos,[cob.key]:{...val,amparada:!amparada}}}))}
                           style={{background:amparada?"#059669":"#e5e7eb",color:amparada?"#fff":"#9ca3af",border:"none",borderRadius:20,padding:"4px 12px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                          {amparada?"Ã¢Åâ SÃÂ­":"No"}
+                          {amparada?"✓ Sí":"No"}
                         </button>
                       </div>
                     </div>
@@ -1958,11 +1958,11 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
               </div>
             </SecBox>
           ): esGMM ? (
-            <SecBox title={`COBERTURAS AMPARADAS Ã¢â¬â ${esPMM?"PROTECCIÃâN MÃâ°DICA A TU MEDIDA":"GMM"}`} color="#059669">
+            <SecBox title={`COBERTURAS AMPARADAS — ${esPMM?"PROTECCIÓN MÉDICA A TU MEDIDA":"GMM"}`} color="#059669">
               {/* Encabezado tabla */}
               <div style={{display:"grid",gridTemplateColumns:"2.2fr 1.5fr 1fr 1fr",padding:"6px 10px",background:"#d1fae5",borderRadius:"8px 8px 0 0",marginBottom:1}}>
                 <div style={{fontSize:10,fontWeight:800,color:"#065f46"}}>COBERTURA</div>
-                <div style={{fontSize:10,fontWeight:800,color:"#065f46"}}>SUMA / LÃÂMITE</div>
+                <div style={{fontSize:10,fontWeight:800,color:"#065f46"}}>SUMA / LÍMITE</div>
                 <div style={{fontSize:10,fontWeight:800,color:"#065f46"}}>DEDUCIBLE</div>
                 <div style={{fontSize:10,fontWeight:800,color:"#065f46"}}>AMPARADA</div>
               </div>
@@ -1974,23 +1974,23 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
                   <div key={cob.key} style={{display:"grid",gridTemplateColumns:"2.2fr 1.5fr 1fr 1fr",padding:"8px 10px",background:i%2===0?"#fff":"#f0fdf4",borderBottom:"1px solid #d1fae5",alignItems:"center"}}>
                     <div style={{fontSize:12,fontWeight:600,color:"#111827"}}>{cob.label}</div>
                     {esSoloAmparada
-                      ? <div style={{fontSize:11,color:"#9ca3af",fontStyle:"italic"}}>Ã¢â¬â</div>
+                      ? <div style={{fontSize:11,color:"#9ca3af",fontStyle:"italic"}}>—</div>
                       : <input value={val.suma||""}
                           onChange={e=>updCobGMM(cob.key,"suma",e.target.value)}
-                          placeholder={cob.tipo==="usd"?"USD 50,000":cob.tipo==="plan"?"Básico / Ãâptima":"$30,000"}
+                          placeholder={cob.tipo==="usd"?"USD 50,000":cob.tipo==="plan"?"Básico / Óptima":"$30,000"}
                           style={{border:"1.5px solid #d1fae5",borderRadius:7,padding:"4px 8px",fontSize:11,outline:"none",fontFamily:"inherit",width:"100%",boxSizing:"border-box"}}/>
                     }
                     {esSoloAmparada
-                      ? <div style={{fontSize:11,color:"#9ca3af",fontStyle:"italic"}}>Ã¢â¬â</div>
+                      ? <div style={{fontSize:11,color:"#9ca3af",fontStyle:"italic"}}>—</div>
                       : <input value={val.deducible||""}
                           onChange={e=>updCobGMM(cob.key,"deducible",e.target.value)}
-                          placeholder={cob.tipo==="usd"?"USD 50":cob.tipo==="amparada"?"Ã¢â¬â":"$30,000"}
+                          placeholder={cob.tipo==="usd"?"USD 50":cob.tipo==="amparada"?"—":"$30,000"}
                           style={{border:"1.5px solid #d1fae5",borderRadius:7,padding:"4px 8px",fontSize:11,outline:"none",fontFamily:"inherit",width:"90%",boxSizing:"border-box"}}/>
                     }
                     <div style={{textAlign:"center"}}>
                       <button onClick={()=>updCobGMM(cob.key,"amparada",!amparada)}
                         style={{background:amparada?"#059669":"#e5e7eb",color:amparada?"#fff":"#9ca3af",border:"none",borderRadius:20,padding:"4px 11px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                        {amparada?"Ã¢Åâ SÃÂ­":"No"}
+                        {amparada?"✓ Sí":"No"}
                       </button>
                     </div>
                   </div>
@@ -2008,16 +2008,16 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
               </div>
             </SecBox>
           )}
-          <SecBox title="DOCUMENTO DE PÃâLIZA" color="#2563eb">
+          <SecBox title="DOCUMENTO DE PÓLIZA" color="#2563eb">
             <div style={{fontSize:12,color:"#374151",marginBottom:10}}>
               Sube el PDF o imagen de la póliza para consultarla directamente desde el detalle.
             </div>
             {form.documentoPoliza ? (
               <div style={{background:"#eff6ff",border:"1.5px solid #93c5fd",borderRadius:11,padding:"12px 15px",display:"flex",alignItems:"center",gap:12}}>
-                <span style={{fontSize:28}}>{form.documentoTipo==="application/pdf"?"Ã°Å¸ââ":"Ã°Å¸âÂ¼Ã¯Â¸Â"}</span>
+                <span style={{fontSize:28}}>{form.documentoTipo==="application/pdf"?"📄":"🖼️"}</span>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:13,fontWeight:700,color:"#1e40af",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{form.documentoNombre}</div>
-                  <div style={{fontSize:11,color:"#3b82f6",marginTop:2}}>Ã¢Åâ Documento cargado ÃÂ· listo para guardar</div>
+                  <div style={{fontSize:11,color:"#3b82f6",marginTop:2}}>✓ Documento cargado · listo para guardar</div>
                 </div>
                 <button onClick={()=>sf("documentoPoliza",null)}
                   style={{background:"#fef2f2",border:"1px solid #fecaca",borderRadius:7,padding:"5px 11px",fontSize:11,color:"#dc2626",cursor:"pointer",fontFamily:"inherit",flexShrink:0}}>
@@ -2029,7 +2029,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
                 style={{border:"2px dashed #93c5fd",borderRadius:11,padding:"24px 20px",textAlign:"center",cursor:"pointer",background:"#f8faff",transition:"all .2s"}}
                 onMouseEnter={e=>e.currentTarget.style.background="#eff6ff"}
                 onMouseLeave={e=>e.currentTarget.style.background="#f8faff"}>
-                <div style={{fontSize:32,marginBottom:8}}>Ã°Å¸âÅ½</div>
+                <div style={{fontSize:32,marginBottom:8}}>📎</div>
                 <div style={{fontWeight:700,fontSize:13,color:"#1e40af",marginBottom:4}}>Arrastra o haz clic para subir</div>
                 <div style={{display:"flex",justifyContent:"center",gap:6,marginTop:6}}>
                   {["PDF","JPG","PNG"].map(f=>(
@@ -2059,12 +2059,12 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
       {/* Navegación */}
       <div style={{display:"flex",justifyContent:"space-between",marginTop:20,paddingTop:16,borderTop:"1px solid #f3f4f6"}}>
         <button onClick={()=>paso>1?setPaso(p=>p-1):onClose()} style={{background:"#f3f4f6",border:"none",borderRadius:9,padding:"10px 20px",fontWeight:600,fontSize:13,cursor:"pointer",fontFamily:"inherit",color:"#374151"}}>
-          {paso===1?"Cancelar":"Ã¢â Â Anterior"}
+          {paso===1?"Cancelar":"← Anterior"}
         </button>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
           <span style={{fontSize:12,color:"#9ca3af"}}>Paso {paso} de {totalPasos}</span>
           {paso<totalPasos
-            ? <Btn onClick={()=>canNext()&&setPaso(p=>p+1)} disabled={!canNext()} color="#2563eb">Siguiente Ã¢â â</Btn>
+            ? <Btn onClick={()=>canNext()&&setPaso(p=>p+1)} disabled={!canNext()} color="#2563eb">Siguiente →</Btn>
             : <Btn onClick={guardar} color="#059669" icon="check">Guardar Póliza</Btn>
           }
         </div>
@@ -2073,9 +2073,9 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
   );
 }
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
-// VISOR DE DOCUMENTO DE PÃâLIZA
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
+// VISOR DE DOCUMENTO DE PÓLIZA
+// ═══════════════════════════════════════════════════════════════════
 function DocumentoVisor({ src, nombre, tipo }) {
   const [abierto, setAbierto] = useState(false);
   const esPDF = tipo === "application/pdf" || nombre?.toLowerCase().endsWith(".pdf");
@@ -2111,20 +2111,20 @@ function DocumentoVisor({ src, nombre, tipo }) {
               justifyContent:"space-between",marginBottom:10,padding:"0 4px"}}>
             <span style={{color:"#fff",fontWeight:700,fontSize:13,
               overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:"65%"}}>
-              Ã°Å¸ââ {nombre||"Documento de póliza"}
+              📄 {nombre||"Documento de póliza"}
             </span>
             <div style={{display:"flex",gap:8}}>
               <a href={src} download={nombre||"poliza"}
                 style={{background:"rgba(255,255,255,0.15)",borderRadius:7,padding:"6px 14px",
                   fontSize:12,fontWeight:700,color:"#fff",textDecoration:"none",
                   display:"inline-flex",alignItems:"center",gap:4}}>
-                Ã¢Â¬â¡ Descargar
+                ⬇ Descargar
               </a>
               <button onClick={()=>setAbierto(false)}
                 style={{background:"rgba(255,255,255,0.15)",border:"none",borderRadius:7,
                   padding:"6px 14px",fontSize:12,fontWeight:700,color:"#fff",
                   cursor:"pointer",fontFamily:"inherit"}}>
-                Ã¢Åâ¢ Cerrar
+                ✕ Cerrar
               </button>
             </div>
           </div>
@@ -2148,7 +2148,7 @@ function DocumentoVisor({ src, nombre, tipo }) {
             ) : (
               <div style={{height:"100%",background:"#fff",display:"flex",flexDirection:"column",
                 alignItems:"center",justifyContent:"center",gap:12,color:"#6b7280"}}>
-                <div style={{fontSize:40}}>Ã°Å¸âÅ½</div>
+                <div style={{fontSize:40}}>📎</div>
                 <div style={{fontSize:14,fontWeight:600}}>No se puede previsualizar</div>
                 <a href={src} download={nombre} style={{color:"#2563eb",fontSize:13}}>Descargar archivo</a>
               </div>
@@ -2172,7 +2172,7 @@ function DocAdjunto({ poliza, onSubir }) {
           <button onClick={()=>ref.current.click()}
             style={{display:"inline-flex",alignItems:"center",gap:8,background:"#f8fafc",border:"1.5px dashed #d1d5db",
               borderRadius:9,padding:"8px 18px",cursor:"pointer",fontFamily:"inherit",fontWeight:600,fontSize:13,color:"#6b7280"}}>
-            Ã°Å¸âÅ½ Adjuntar documento de póliza (PDF o imagen)
+            📎 Adjuntar documento de póliza (PDF o imagen)
           </button>
         </>
       )}
@@ -2213,10 +2213,10 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
   };
 
   const STATUS_CFG = {
-    activa:      { color:"#059669", bg:"#f0fdf4", label:"Ã¢âÂ Vigente",     badge:"#d1fae5" },
-    "por vencer":{ color:"#d97706", bg:"#fffbeb", label:"Ã¢Å¡Â  Por vencer",  badge:"#fef3c7" },
-    vencida:     { color:"#dc2626", bg:"#fef2f2", label:"Ã¢Åâ Vencida",     badge:"#fee2e2" },
-    cancelada:   { color:"#6b7280", bg:"#f9fafb", label:"Ã¢ââ¹ Cancelada",   badge:"#f3f4f6" },
+    activa:      { color:"#059669", bg:"#f0fdf4", label:"● Vigente",     badge:"#d1fae5" },
+    "por vencer":{ color:"#d97706", bg:"#fffbeb", label:"⚠ Por vencer",  badge:"#fef3c7" },
+    vencida:     { color:"#dc2626", bg:"#fef2f2", label:"✗ Vencida",     badge:"#fee2e2" },
+    cancelada:   { color:"#6b7280", bg:"#f9fafb", label:"○ Cancelada",   badge:"#f3f4f6" },
   };
 
   const filtradas = polizas
@@ -2231,7 +2231,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
     const normNum = (s) => (s||"").trim().toLowerCase().replace(/[\s\-_]/g,"");
     const num = normNum(data.numero);
     if (num && polizas.some(p => normNum(p.numero) === num && p.status !== "cancelada")) {
-      alert(`Ã¢Å¡Â Ã¯Â¸Â Ya existe una póliza con el nÃÂºmero "${data.numero}". No se puede guardar duplicada.`);
+      alert(`⚠️ Ya existe una póliza con el número "${data.numero}". No se puede guardar duplicada.`);
       return;
     }
     // Si hay clienteId, vincular con cliente existente (evitar duplicados)
@@ -2271,7 +2271,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
     let clienteId = "";
     let clienteNombre = data.cliente || "";
     if (clienteNombre) {
-      const normNom = s => s.toLowerCase().normalize("NFD").replace(/[Ãâ¬-ÃÂ¯]/g,"").replace(/\s+/g," ").trim();
+      const normNom = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\s+/g," ").trim();
       const yaExiste = clientes.find(c => {
         const nomCompleto = normNom(`${c.nombre} ${c.apellidoPaterno} ${c.apellidoMaterno||""}`);
         const rfcMatch = data.rfcCliente && c.rfc && data.rfcCliente.trim().toLowerCase()===c.rfc.trim().toLowerCase();
@@ -2286,7 +2286,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
           fechaNacimiento: c.fechaNacimiento || data.fechaNacimiento || "",
         } : c));
       } else {
-        // Dividir nombre: para apellido compuesto tomar ÃÂºltimas 2 palabras como apellidos
+        // Dividir nombre: para apellido compuesto tomar últimas 2 palabras como apellidos
         const partes = clienteNombre.trim().split(/\s+/);
         let pNombre = "", pApellidoP = "", pApellidoM = "";
         if (partes.length === 1) { pNombre = partes[0]; }
@@ -2322,7 +2322,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
     const normNum = (s) => (s||"").trim().toLowerCase().replace(/[\s\-_]/g,"");
     const numNuevo = normNum(data.numero);
     if (numNuevo && polizas.some(p => normNum(p.numero) === numNuevo && p.status !== "cancelada")) {
-      alert(`Ã¢Å¡Â Ã¯Â¸Â Ya existe una póliza con el nÃÂºmero "${data.numero}". No se puede guardar duplicada.`);
+      alert(`⚠️ Ya existe una póliza con el número "${data.numero}". No se puede guardar duplicada.`);
       return;
     }
 
@@ -2367,7 +2367,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
   };
 
   const cancelarPoliza = (id) => {
-    if (!window.confirm("ÃÂ¿Cancelar esta póliza? Esta acción no se puede deshacer.")) return;
+    if (!window.confirm("¿Cancelar esta póliza? Esta acción no se puede deshacer.")) return;
     setPolizas(prev => prev.map(p => p.id === id ? {...p, status:"cancelada"} : p));
     setShowDetalle(null);
   };
@@ -2401,28 +2401,43 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
   const polizaDetalle = showDetalle ? {...showDetalle, _status: getStatus(showDetalle)} : null;
 
   // Bienvenida automática
-  // Bienvenida automatica
+  // Helper para enviar con Gmail desde cualquier componente
+  const gmailSend = async ({to, subject, body}) => {
+    if(!config?.gmailToken) return false;
+    const fromName = config.nombreRemitente||config.nombre||"";
+    const from = fromName ? `"${fromName}" <${config.gmailEmail}>` : config.gmailEmail;
+    const raw = btoa(unescape(encodeURIComponent(
+      `From: ${from}\r\nTo: ${to}\r\nSubject: ${subject}\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n${body}`
+    ))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+    const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send",{
+      method:"POST",
+      headers:{Authorization:"Bearer "+config.gmailToken,"Content-Type":"application/json"},
+      body:JSON.stringify({raw})
+    });
+    if(res.status===401){ setConfig(p=>({...p,gmailToken:"",gmailEmail:""})); return false; }
+    return res.ok;
+  };
 
   const aplicarVarsBienvenida = (tpl, p) => (tpl||"")
     .replace(/{nombre}/g, p.cliente?.split(" ")[0]||p.cliente||"")
     .replace(/{numero}/g, p.numero||"")
     .replace(/{aseguradora}/g, p.aseguradora||"")
-    .replace(/{ramo}/g, p.subramo?`${p.ramo} Ã¢â¬Âº ${p.subramo}`:(p.ramo||""))
+    .replace(/{ramo}/g, p.subramo?`${p.ramo} › ${p.subramo}`:(p.ramo||""))
     .replace(/{vencimiento}/g, p.vencimiento||"")
     .replace(/{prima}/g, Number(p.primaTotal||p.prima||0).toLocaleString("es-MX"))
     .replace(/{frecuencia}/g, p.formaPago||p.frecuencia||"");
 
   const enviarBienvenidaWA = (p) => {
-    const tpl = plantillas?.bienvenida || `Hola {nombre} Ã°Å¸ââ¹,\n\nÃÂ¡Bienvenido/a como cliente! Ã°Å¸Å½â°\n\nTu póliza ha sido registrada:\n\nÃ°Å¸ââ *Póliza:* {numero}\nÃ°Å¸ÂÂ¢ *Aseguradora:* {aseguradora}\nÃ°Å¸ââ *Ramo:* {ramo}\nÃ°Å¸ââ¦ *Vigente hasta:* {vencimiento}\n\nEstoy a tus órdenes Ã°Å¸ËÅ `;
+    const tpl = plantillas?.bienvenida || `Hola {nombre} 👋,\n\n¡Bienvenido/a como cliente! 🎉\n\nTu póliza ha sido registrada:\n\n📄 *Póliza:* {numero}\n🏢 *Aseguradora:* {aseguradora}\n🔖 *Ramo:* {ramo}\n📅 *Vigente hasta:* {vencimiento}\n\nEstoy a tus órdenes 😊`;
     const msg = encodeURIComponent(aplicarVarsBienvenida(tpl, p));
     const tel = (p.telefonoCliente||p.whatsappCliente||"").replace(/\D/g,"");
     window.open(`https://wa.me/${tel?`52${tel}`:""  }?text=${msg}`,"_blank");
   };
 
   const enviarBienvenidaEmail = (p) => {
-    const tpl = plantillas?.bienvenida || `Estimado/a {nombre},\n\nÃÂ¡Bienvenido/a como cliente!\n\nSu póliza ha sido registrada:\n\nÃ¢â¬Â¢ Póliza: {numero}\nÃ¢â¬Â¢ Aseguradora: {aseguradora}\nÃ¢â¬Â¢ Ramo: {ramo}\nÃ¢â¬Â¢ Vigente hasta: {vencimiento}\n\nEstamos a sus órdenes.\n\nAtentamente,\nSu Agente de Seguros`;
+    const tpl = plantillas?.bienvenida || `Estimado/a {nombre},\n\n¡Bienvenido/a como cliente!\n\nSu póliza ha sido registrada:\n\n• Póliza: {numero}\n• Aseguradora: {aseguradora}\n• Ramo: {ramo}\n• Vigente hasta: {vencimiento}\n\nEstamos a sus órdenes.\n\nAtentamente,\nSu Agente de Seguros`;
     const body = encodeURIComponent(aplicarVarsBienvenida(tpl, p));
-    const subject = encodeURIComponent(`ÃÂ¡Bienvenido/a! Póliza ${p.numero} registrada`);
+    const subject = encodeURIComponent(`¡Bienvenido/a! Póliza ${p.numero} registrada`);
     window.open(`mailto:${p.emailCliente}?subject=${subject}&body=${body}`,"_blank");
   };
 
@@ -2442,7 +2457,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
 
       {/* Tarjetas resumen estado */}
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
-        {[["activa","Ã°Å¸Å¸Â¢"],["por vencer","Ã¢Å¡Â Ã¯Â¸Â"],["vencida","Ã°Å¸âÂ´"],["cancelada","Ã¢Å¡Â«"]].map(([s,ic])=>{
+        {[["activa","🟢"],["por vencer","⚠️"],["vencida","🔴"],["cancelada","⚫"]].map(([s,ic])=>{
           const cfg = STATUS_CFG[s];
           return (
             <div key={s} onClick={()=>setFiltro(filtro===s?"todas":s)}
@@ -2450,7 +2465,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                 border:`2px solid ${filtro===s?cfg.color:"#e5e7eb"}`,boxShadow:"0 1px 4px rgba(0,0,0,.05)",transition:"all .15s"}}>
               <div style={{fontSize:20,marginBottom:4}}>{ic}</div>
               <div style={{fontSize:22,fontWeight:900,color:cfg.color,fontFamily:"'Playfair Display',serif"}}>{counts[s]}</div>
-              <div style={{fontSize:11,fontWeight:600,color:"#6b7280"}}>{cfg.label.replace(/[Ã¢âÂÃ¢Å¡Â Ã¢ÅâÃ¢ââ¹] /,"")}</div>
+              <div style={{fontSize:11,fontWeight:600,color:"#6b7280"}}>{cfg.label.replace(/[●⚠✗○] /,"")}</div>
             </div>
           );
         })}
@@ -2462,10 +2477,10 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
           <button key={v} onClick={()=>setFiltroRamo(v)} style={{background:filtroRamo===v?ramoColor(v)||"#1d4ed8":"#fff",color:filtroRamo===v?"#fff":"#374151",border:"1.5px solid",borderColor:filtroRamo===v?ramoColor(v)||"#1d4ed8":"#e5e7eb",borderRadius:9,padding:"6px 13px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>{l}</button>
         ))}
         <div style={{flex:1,background:"#fff",borderRadius:10,padding:"7px 13px",display:"flex",alignItems:"center",gap:8,boxShadow:"0 1px 4px rgba(0,0,0,0.05)",minWidth:200}}>
-          <Icon name="search" size={14}/><input value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="Buscar nÃÂºmero, cliente..." autoComplete="off" style={{border:"none",outline:"none",fontSize:13,flex:1,fontFamily:"inherit",background:"transparent"}}/>
+          <Icon name="search" size={14}/><input value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="Buscar número, cliente..." autoComplete="off" style={{border:"none",outline:"none",fontSize:13,flex:1,fontFamily:"inherit",background:"transparent"}}/>
         </div>
         <div style={{display:"flex",gap:4,background:"#f3f4f6",borderRadius:9,padding:3}}>
-          {[["cards","Ã¢Å Å¾"],["table","Ã¢ËÂ°"]].map(([m,ic])=>(
+          {[["cards","⊞"],["table","☰"]].map(([m,ic])=>(
             <button key={m} onClick={()=>setViewMode(m)} style={{padding:"5px 12px",borderRadius:7,border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:14,
               background:viewMode===m?"#fff":"transparent",color:viewMode===m?"#1d4ed8":"#6b7280",
               boxShadow:viewMode===m?"0 1px 4px rgba(0,0,0,0.1)":"none",fontWeight:viewMode===m?700:400}}>{ic}</button>
@@ -2476,10 +2491,10 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
       {/* Banner póliza recién guardada */}
       {polizaRecienGuardada&&(
         <div style={{background:"#f0fdf4",border:"1.5px solid #86efac",borderRadius:12,padding:"12px 18px",display:"flex",alignItems:"center",gap:10,fontSize:13}}>
-          <span style={{fontSize:20}}>Ã¢Åâ¦</span>
+          <span style={{fontSize:20}}>✅</span>
           <div>
             <div style={{fontWeight:800,color:"#065f46"}}>Póliza guardada correctamente</div>
-            <div style={{fontSize:11,color:"#16a34a",marginTop:2}}>Los filtros se han limpiado Ã¢â¬â la póliza aparece resaltada en verde</div>
+            <div style={{fontSize:11,color:"#16a34a",marginTop:2}}>Los filtros se han limpiado — la póliza aparece resaltada en verde</div>
           </div>
         </div>
       )}
@@ -2490,7 +2505,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
           <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
             <thead>
               <tr style={{background:"#f8fafc",borderBottom:"2px solid #e5e7eb"}}>
-                {["NÃÂºmero","Cliente","Aseguradora","Ramo","Prima Total","Inicio","Vencimiento","Estado","Pago","Acciones"].map(h=>(
+                {["Número","Cliente","Aseguradora","Ramo","Prima Total","Inicio","Vencimiento","Estado","Pago","Acciones"].map(h=>(
                   <th key={h} style={{padding:"10px 12px",textAlign:"left",fontWeight:700,color:"#374151",fontSize:11,whiteSpace:"nowrap"}}>{h}</th>
                 ))}
               </tr>
@@ -2501,22 +2516,22 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                 return(
                   <tr key={p.id} style={{borderBottom:"1px solid #f1f5f9",background:i%2===0?"#fff":"#fafafa",cursor:"pointer"}}
                     onClick={()=>setShowDetalle(p)}>
-                    <td style={{padding:"9px 12px",fontFamily:"monospace",fontSize:11,fontWeight:700,color:"#1d4ed8"}}>{p.numero||"Ã¢â¬â"}</td>
-                    <td style={{padding:"9px 12px",fontWeight:600,color:"#111827"}}>{p.cliente||"Ã¢â¬â"}</td>
-                    <td style={{padding:"9px 12px",color:"#6b7280"}}>{p.aseguradora||"Ã¢â¬â"}</td>
+                    <td style={{padding:"9px 12px",fontFamily:"monospace",fontSize:11,fontWeight:700,color:"#1d4ed8"}}>{p.numero||"—"}</td>
+                    <td style={{padding:"9px 12px",fontWeight:600,color:"#111827"}}>{p.cliente||"—"}</td>
+                    <td style={{padding:"9px 12px",color:"#6b7280"}}>{p.aseguradora||"—"}</td>
                     <td style={{padding:"9px 12px"}}>
-                      <span style={{background:ramoColor(p.ramo)+"22",color:ramoColor(p.ramo),padding:"2px 8px",borderRadius:6,fontWeight:700,fontSize:10}}>{p.ramo||"Ã¢â¬â"}</span>
+                      <span style={{background:ramoColor(p.ramo)+"22",color:ramoColor(p.ramo),padding:"2px 8px",borderRadius:6,fontWeight:700,fontSize:10}}>{p.ramo||"—"}</span>
                     </td>
-                    <td style={{padding:"9px 12px",fontWeight:700,color:"#059669"}}>{p.primaTotal?`$${Number(p.primaTotal).toLocaleString()}`:(p.prima?`$${Number(p.prima).toLocaleString()}`:"Ã¢â¬â")}</td>
-                    <td style={{padding:"9px 12px",color:"#6b7280",fontSize:11}}>{p.inicio||"Ã¢â¬â"}</td>
-                    <td style={{padding:"9px 12px",color:"#6b7280",fontSize:11}}>{p.vencimiento||"Ã¢â¬â"}</td>
+                    <td style={{padding:"9px 12px",fontWeight:700,color:"#059669"}}>{p.primaTotal?`$${Number(p.primaTotal).toLocaleString()}`:(p.prima?`$${Number(p.prima).toLocaleString()}`:"—")}</td>
+                    <td style={{padding:"9px 12px",color:"#6b7280",fontSize:11}}>{p.inicio||"—"}</td>
+                    <td style={{padding:"9px 12px",color:"#6b7280",fontSize:11}}>{p.vencimiento||"—"}</td>
                     <td style={{padding:"9px 12px"}}>
                       <span style={{background:cfg.badge,color:cfg.color,padding:"2px 8px",borderRadius:6,fontWeight:700,fontSize:10}}>{cfg.label}</span>
                     </td>
                     <td style={{padding:"9px 12px"}}>
                       {p.ultimoPago
-                        ? <span style={{color:"#059669",fontWeight:700,fontSize:11}}>Ã¢Åâ Pagada</span>
-                        : <span style={{color:"#dc2626",fontWeight:700,fontSize:11}}>Ã¢ÂÂ³ Pendiente</span>}
+                        ? <span style={{color:"#059669",fontWeight:700,fontSize:11}}>✓ Pagada</span>
+                        : <span style={{color:"#dc2626",fontWeight:700,fontSize:11}}>⏳ Pendiente</span>}
                     </td>
                     <td style={{padding:"9px 12px"}} onClick={e=>e.stopPropagation()}>
                       <div style={{display:"flex",gap:5}}>
@@ -2546,7 +2561,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
               {/* Header ramo */}
               <div style={{background:`linear-gradient(135deg,${ramoColor(p.ramo)},${ramoColor(p.ramo)}cc)`,padding:"13px 16px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                 <div>
-                  <div style={{fontSize:9,fontWeight:800,opacity:.8,letterSpacing:"0.1em"}}>{p.ramo?.toUpperCase()}{p.subramo?` ÃÂ· ${p.subramo.toUpperCase()}`:""}</div>
+                  <div style={{fontSize:9,fontWeight:800,opacity:.8,letterSpacing:"0.1em"}}>{p.ramo?.toUpperCase()}{p.subramo?` · ${p.subramo.toUpperCase()}`:""}</div>
                   <div style={{fontSize:12,fontWeight:700,letterSpacing:"0.04em",marginTop:2,fontFamily:"'Inter','Segoe UI',system-ui,sans-serif"}}>{p.numero}</div>
                 </div>
                 <span style={{background:cfg.badge,color:cfg.color,padding:"2px 9px",borderRadius:20,fontSize:10,fontWeight:800}}>
@@ -2556,7 +2571,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
               <div style={{padding:"12px 15px"}}>
                 <div style={{fontSize:13,fontWeight:700,color:"#111827",marginBottom:9}}>{p.cliente}</div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,fontSize:11,marginBottom:9}}>
-                  {[["Aseguradora",p.aseguradora||"Ã¢â¬â"],["Prima total",p.primaTotal?`$${Number(p.primaTotal).toLocaleString()}`:(p.prima?`$${Number(p.prima).toLocaleString()}`:"Ã¢â¬â")],["Inicio",p.inicio||"Ã¢â¬â"],["Vencimiento",p.vencimiento||"Ã¢â¬â"]].map(([l,v])=>(
+                  {[["Aseguradora",p.aseguradora||"—"],["Prima total",p.primaTotal?`$${Number(p.primaTotal).toLocaleString()}`:(p.prima?`$${Number(p.prima).toLocaleString()}`:"—")],["Inicio",p.inicio||"—"],["Vencimiento",p.vencimiento||"—"]].map(([l,v])=>(
                     <div key={l} style={{background:"#f9fafb",borderRadius:7,padding:"6px 8px"}}>
                       <div style={{color:"#9ca3af",fontSize:9,marginBottom:1}}>{l.toUpperCase()}</div>
                       <div style={{fontWeight:700,color:l==="Vencimiento"&&(st==="vencida"||st==="por vencer")?cfg.color:"#111827",fontSize:11}}>{v}</div>
@@ -2566,60 +2581,60 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                 {/* GMM */}
                 {p.ramo==="Gastos Médicos"&&(
                   <div style={{marginBottom:7,display:"flex",gap:4,flexWrap:"wrap"}}>
-                    {p.planGMM&&<span style={{background:"#059669",color:"#fff",fontSize:9,fontWeight:800,padding:"2px 7px",borderRadius:20}}>Ã°Å¸ââ¹ {p.planGMM}</span>}
-                    {p.aseguradosGMM?.length>0&&<span style={{background:"#d1fae5",color:"#065f46",fontSize:9,fontWeight:700,padding:"2px 7px",borderRadius:20}}>Ã°Å¸âÂ¥ {p.aseguradosGMM.length} aseg.</span>}
+                    {p.planGMM&&<span style={{background:"#059669",color:"#fff",fontSize:9,fontWeight:800,padding:"2px 7px",borderRadius:20}}>📋 {p.planGMM}</span>}
+                    {p.aseguradosGMM?.length>0&&<span style={{background:"#d1fae5",color:"#065f46",fontSize:9,fontWeight:700,padding:"2px 7px",borderRadius:20}}>👥 {p.aseguradosGMM.length} aseg.</span>}
                   </div>
                 )}
                 {/* Autos */}
                 {p.ramo==="Autos"&&p.subramo!=="Flotilla"&&p.vehiculoMarca&&(
                   <div style={{background:"#eff6ff",borderRadius:7,padding:"5px 9px",fontSize:10,color:"#1e40af",fontWeight:600,marginBottom:7}}>
-                    Ã°Å¸Å¡â {p.vehiculoMarca} {p.vehiculoDescripcion} ÃÂ· {p.vehiculoAnio}
+                    🚗 {p.vehiculoMarca} {p.vehiculoDescripcion} · {p.vehiculoAnio}
                   </div>
                 )}
                 {/* Flotilla */}
                 {p.subramo==="Flotilla"&&p.incisos?.length>0&&(
                   <div style={{background:"#eff6ff",borderRadius:7,padding:"5px 9px",fontSize:10,color:"#1e40af",marginBottom:7}}>
-                    Ã°Å¸Å¡â Flotilla ÃÂ· {p.incisos.length} vehÃÂ­culos
+                    🚗 Flotilla · {p.incisos.length} vehículos
                   </div>
                 )}
-                {/* ÃÅ¡ltimo pago */}
+                {/* Último pago */}
                 {tienePago&&(
                   <div style={{background:"#f0fdf4",borderRadius:7,padding:"5px 9px",fontSize:10,color:"#059669",fontWeight:600,marginBottom:7,display:"flex",alignItems:"center",gap:5}}>
-                    <span>Ã°Å¸âÂ³</span>
-                    <span>Pago: {tienePago.fechaPago} ÃÂ· {tienePago.formaPago}</span>
-                    {tienePago.comprobante&&<span title="Con comprobante">Ã°Å¸âÅ½</span>}
+                    <span>💳</span>
+                    <span>Pago: {tienePago.fechaPago} · {tienePago.formaPago}</span>
+                    {tienePago.comprobante&&<span title="Con comprobante">📎</span>}
                   </div>
                 )}
                 {/* Renovada de */}
                 {p.renovadaDe&&(
                   <div style={{background:"#faf5ff",borderRadius:7,padding:"4px 8px",fontSize:10,color:"#7c3aed",marginBottom:7}}>
-                    Ã°Å¸ââ Renovación de {p.renovadaDe}
+                    🔄 Renovación de {p.renovadaDe}
                   </div>
                 )}
                 {/* Botones acción */}
                 <div style={{display:"flex",gap:6,marginTop:8,flexWrap:"wrap"}}>
                   <button onClick={()=>setShowDetalle(p)} style={{flex:1,minWidth:80,background:"#f3f4f6",border:"none",borderRadius:8,padding:"6px",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"inherit",color:"#374151",display:"flex",alignItems:"center",justifyContent:"center",gap:4}}>
-                    {p.documentoPoliza&&<span title="Tiene documento adjunto">Ã°Å¸âÅ½</span>}
+                    {p.documentoPoliza&&<span title="Tiene documento adjunto">📎</span>}
                     Ver detalle
                   </button>
                   {st!=="cancelada"&&(
                     <>
                       <button onClick={(e)=>{e.stopPropagation();setShowPago(p);}} style={{flex:1,minWidth:60,background:"#f0fdf4",border:"1px solid #d1fae5",borderRadius:8,padding:"6px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#059669"}}>
-                        Ã°Å¸âÂ³ Pago
+                        💳 Pago
                       </button>
                       <button onClick={(e)=>{e.stopPropagation();setShowRenovar(p);}} style={{flex:1,minWidth:60,background:"#faf5ff",border:"1px solid #e9d5ff",borderRadius:8,padding:"6px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#7c3aed"}}>
-                        Ã°Å¸ââ Renovar
+                        🔄 Renovar
                       </button>
                     </>
                   )}
                 </div>
                 <div style={{display:"flex",gap:6,marginTop:5}}>
                   <button onClick={(e)=>{e.stopPropagation();setShowEditar(p);}} style={{flex:1,background:"#eff6ff",border:"1px solid #bfdbfe",borderRadius:8,padding:"5px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#2563eb"}}>
-                    Ã¢ÅÂÃ¯Â¸Â Editar
+                    ✏️ Editar
                   </button>
                   {st!=="cancelada"&&(
-                    <button onClick={(e)=>{e.stopPropagation();if(window.confirm("ÃÂ¿Cancelar esta póliza?"))cancelarPoliza(p.id);}} style={{flex:1,background:"#fef2f2",border:"1px solid #fecaca",borderRadius:8,padding:"5px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#dc2626"}}>
-                      Ã¢Åâ¢ Cancelar
+                    <button onClick={(e)=>{e.stopPropagation();if(window.confirm("¿Cancelar esta póliza?"))cancelarPoliza(p.id);}} style={{flex:1,background:"#fef2f2",border:"1px solid #fecaca",borderRadius:8,padding:"5px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#dc2626"}}>
+                      ✕ Cancelar
                     </button>
                   )}
                 </div>
@@ -2629,7 +2644,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
         })}
         {filtradas.length===0&&(
           <div style={{gridColumn:"1/-1",textAlign:"center",padding:"50px 20px",color:"#9ca3af"}}>
-            <div style={{fontSize:32,marginBottom:8}}>Ã°Å¸ââ¹</div>
+            <div style={{fontSize:32,marginBottom:8}}>📋</div>
             <div style={{fontWeight:600}}>Sin pólizas que coincidan</div>
           </div>
         )}
@@ -2642,11 +2657,11 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
             {/* Header */}
             <div style={{background:`linear-gradient(135deg,${ramoColor(polizaDetalle.ramo)},${ramoColor(polizaDetalle.ramo)}aa)`,borderRadius:12,padding:"16px 20px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
-                <div style={{fontSize:10,opacity:.8,fontWeight:700,letterSpacing:"0.08em"}}>{polizaDetalle.ramo?.toUpperCase()}{polizaDetalle.subramo?` ÃÂ· ${polizaDetalle.subramo}`:""} ÃÂ· {polizaDetalle.aseguradora}</div>
+                <div style={{fontSize:10,opacity:.8,fontWeight:700,letterSpacing:"0.08em"}}>{polizaDetalle.ramo?.toUpperCase()}{polizaDetalle.subramo?` · ${polizaDetalle.subramo}`:""} · {polizaDetalle.aseguradora}</div>
                 <div style={{fontSize:20,fontWeight:800,letterSpacing:"0.03em",fontFamily:"'Inter','Segoe UI',system-ui,sans-serif",marginTop:2}}>{polizaDetalle.numero}</div>
                 <div style={{fontSize:13,opacity:.9,marginTop:4}}>{polizaDetalle.cliente}</div>
-                {polizaDetalle.renovadaDe&&<div style={{fontSize:10,opacity:.7,marginTop:2}}>Ã°Å¸ââ Renovación de {polizaDetalle.renovadaDe}</div>}
-                {polizaDetalle.documentoPoliza&&<div style={{fontSize:10,opacity:.8,marginTop:3,display:"flex",alignItems:"center",gap:4}}>Ã°Å¸âÅ½ <span>Póliza adjunta ÃÂ· ver abajo</span></div>}
+                {polizaDetalle.renovadaDe&&<div style={{fontSize:10,opacity:.7,marginTop:2}}>🔄 Renovación de {polizaDetalle.renovadaDe}</div>}
+                {polizaDetalle.documentoPoliza&&<div style={{fontSize:10,opacity:.8,marginTop:3,display:"flex",alignItems:"center",gap:4}}>📎 <span>Póliza adjunta · ver abajo</span></div>}
               </div>
               <div style={{textAlign:"right",display:"flex",flexDirection:"column",gap:8,alignItems:"flex-end"}}>
                 <span style={{background:STATUS_CFG[polizaDetalle._status].badge,color:STATUS_CFG[polizaDetalle._status].color,padding:"3px 12px",borderRadius:20,fontSize:11,fontWeight:800}}>
@@ -2661,21 +2676,21 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
             {/* Datos generales */}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
               {[
-                ["NÃÂºmero de Póliza", polizaDetalle.numero||"Ã¢â¬â"],
+                ["Número de Póliza", polizaDetalle.numero||"—"],
                 ["Endoso", polizaDetalle.endoso||"0"],
-                ["Aseguradora", polizaDetalle.aseguradora||"Ã¢â¬â"],
-                ["Forma de Pago", polizaDetalle.formaPago||polizaDetalle.frecuencia||"Ã¢â¬â"],
+                ["Aseguradora", polizaDetalle.aseguradora||"—"],
+                ["Forma de Pago", polizaDetalle.formaPago||polizaDetalle.frecuencia||"—"],
                 ["Moneda", polizaDetalle.moneda||"MXN"],
 
-                ["Agente", polizaDetalle.agentePoliza||"Ã¢â¬â"],
-                ["Vigencia Inicio", polizaDetalle.inicio||"Ã¢â¬â"],
-                ["Vigencia Fin", polizaDetalle.vencimiento||"Ã¢â¬â"],
-                ["Prima Neta", polizaDetalle.primaNeta!=null&&polizaDetalle.primaNeta!==""?`$${Number(polizaDetalle.primaNeta).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"Ã¢â¬â"],
-                ["Gastos Expedición", polizaDetalle.gastosExpedicion!=null&&polizaDetalle.gastosExpedicion!==""?`$${Number(polizaDetalle.gastosExpedicion).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"Ã¢â¬â"],
-                ["% IVA", polizaDetalle.porcentajeIva!=null&&polizaDetalle.porcentajeIva!==""?`${polizaDetalle.porcentajeIva}%`:"Ã¢â¬â"],
-                ["Monto IVA", polizaDetalle.montoIva!=null&&polizaDetalle.montoIva!==""?`$${Number(polizaDetalle.montoIva).toLocaleString("es-MX",{minimumFractionDigits:2})}`:(polizaDetalle.iva!=null&&polizaDetalle.iva!==""?`$${Number(polizaDetalle.iva).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"Ã¢â¬â")],
-                ["Prima Total", polizaDetalle.primaTotal!=null&&polizaDetalle.primaTotal!==""?`$${Number(polizaDetalle.primaTotal).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"Ã¢â¬â"],
-                ["Beneficiario", polizaDetalle.beneficiarioPreferente||"Ã¢â¬â"],
+                ["Agente", polizaDetalle.agentePoliza||"—"],
+                ["Vigencia Inicio", polizaDetalle.inicio||"—"],
+                ["Vigencia Fin", polizaDetalle.vencimiento||"—"],
+                ["Prima Neta", polizaDetalle.primaNeta!=null&&polizaDetalle.primaNeta!==""?`$${Number(polizaDetalle.primaNeta).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],
+                ["Gastos Expedición", polizaDetalle.gastosExpedicion!=null&&polizaDetalle.gastosExpedicion!==""?`$${Number(polizaDetalle.gastosExpedicion).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],
+                ["% IVA", polizaDetalle.porcentajeIva!=null&&polizaDetalle.porcentajeIva!==""?`${polizaDetalle.porcentajeIva}%`:"—"],
+                ["Monto IVA", polizaDetalle.montoIva!=null&&polizaDetalle.montoIva!==""?`$${Number(polizaDetalle.montoIva).toLocaleString("es-MX",{minimumFractionDigits:2})}`:(polizaDetalle.iva!=null&&polizaDetalle.iva!==""?`$${Number(polizaDetalle.iva).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—")],
+                ["Prima Total", polizaDetalle.primaTotal!=null&&polizaDetalle.primaTotal!==""?`$${Number(polizaDetalle.primaTotal).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],
+                ["Beneficiario", polizaDetalle.beneficiarioPreferente||"—"],
               ].map(([l,v])=>(
                 <div key={l} style={{background:"#f9fafb",borderRadius:9,padding:"9px 12px"}}>
                   <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>{l.toUpperCase()}</div>
@@ -2687,10 +2702,10 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
             {/* Autos individual */}
             {polizaDetalle.ramo==="Autos"&&polizaDetalle.subramo!=="Flotilla"&&polizaDetalle.vehiculoMarca&&(
               <div style={{background:"#eff6ff",borderRadius:10,padding:"12px 14px"}}>
-                <div style={{fontSize:10,fontWeight:800,color:"#1e40af",marginBottom:8}}>Ã°Å¸Å¡â VEHÃÂCULO ASEGURADO</div>
+                <div style={{fontSize:10,fontWeight:800,color:"#1e40af",marginBottom:8}}>🚗 VEHÍCULO ASEGURADO</div>
                 <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
                   {[["Descripción",polizaDetalle.vehiculoDescripcion],["Marca",polizaDetalle.vehiculoMarca],["Año",polizaDetalle.vehiculoAnio],["No. Serie",polizaDetalle.vehiculoSerie],["Uso",polizaDetalle.vehiculoUso],["Clase",polizaDetalle.vehiculoClase]].map(([l,v])=>(
-                    <div key={l}><div style={{fontSize:9,color:"#6b7280",fontWeight:700}}>{l}</div><div style={{fontSize:12,fontWeight:700,color:"#1e40af"}}>{v||"Ã¢â¬â"}</div></div>
+                    <div key={l}><div style={{fontSize:9,color:"#6b7280",fontWeight:700}}>{l}</div><div style={{fontSize:12,fontWeight:700,color:"#1e40af"}}>{v||"—"}</div></div>
                   ))}
                 </div>
               </div>
@@ -2699,7 +2714,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
             {/* Flotilla */}
             {polizaDetalle.subramo==="Flotilla"&&polizaDetalle.incisos?.length>0&&(
               <div style={{background:"#eff6ff",borderRadius:10,padding:"12px 14px"}}>
-                <div style={{fontSize:10,fontWeight:800,color:"#1e40af",marginBottom:10}}>Ã°Å¸Å¡â FLOTILLA Ã¢â¬â {polizaDetalle.incisos.length} INCISOS</div>
+                <div style={{fontSize:10,fontWeight:800,color:"#1e40af",marginBottom:10}}>🚗 FLOTILLA — {polizaDetalle.incisos.length} INCISOS</div>
                 <div style={{display:"grid",gridTemplateColumns:"0.3fr 1.5fr 1fr 0.8fr 1fr",padding:"6px 8px",background:"#dbeafe",borderRadius:"7px 7px 0 0"}}>
                   {["#","Descripción","Marca/Serie","Año","Prima c/IVA"].map(h=><div key={h} style={{fontSize:9,fontWeight:800,color:"#1e40af"}}>{h}</div>)}
                 </div>
@@ -2723,17 +2738,17 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
             {/* GMM condiciones */}
             {polizaDetalle.ramo==="Gastos Médicos"&&(polizaDetalle.planGMM||polizaDetalle.sumaAsegurada||polizaDetalle.deducibleGMM)&&(
               <div style={{background:"#f0fdf4",borderRadius:10,padding:"12px 14px"}}>
-                <div style={{fontSize:10,fontWeight:800,color:"#065f46",marginBottom:10}}>Ã°Å¸ÂÂ¥ CONDICIONES DEL PLAN</div>
+                <div style={{fontSize:10,fontWeight:800,color:"#065f46",marginBottom:10}}>🏥 CONDICIONES DEL PLAN</div>
                 <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
                   {[
-                    ["Plan",polizaDetalle.planGMM||"Ã¢â¬â"],
-                    ["Suma Asegurada",polizaDetalle.sumaAsegurada?`$${Number(polizaDetalle.sumaAsegurada).toLocaleString("es-MX")}`:polizaDetalle.sumaAsegurada||"Ã¢â¬â"],
-                    ["Deducible",polizaDetalle.deducibleGMM?`$${Number(polizaDetalle.deducibleGMM).toLocaleString("es-MX")}`:polizaDetalle.deducibleGMM||"Ã¢â¬â"],
-                    ["Coaseguro",polizaDetalle.coaseguroGMM?`${polizaDetalle.coaseguroGMM}%`:"Ã¢â¬â"],
-                    ["Tope Coaseguro",polizaDetalle.topeCoaseguroGMM?`$${Number(polizaDetalle.topeCoaseguroGMM).toLocaleString("es-MX")}`:polizaDetalle.topeCoaseguroGMM||"Ã¢â¬â"],
-                    ["Zona",polizaDetalle.zonaGMM||"Ã¢â¬â"],
-                    ["Red Hospitalaria",polizaDetalle.hospitalGMM||"Ã¢â¬â"],
-                    ["Tabulador",polizaDetalle.tabuladorGMM||"Ã¢â¬â"],
+                    ["Plan",polizaDetalle.planGMM||"—"],
+                    ["Suma Asegurada",polizaDetalle.sumaAsegurada?`$${Number(polizaDetalle.sumaAsegurada).toLocaleString("es-MX")}`:polizaDetalle.sumaAsegurada||"—"],
+                    ["Deducible",polizaDetalle.deducibleGMM?`$${Number(polizaDetalle.deducibleGMM).toLocaleString("es-MX")}`:polizaDetalle.deducibleGMM||"—"],
+                    ["Coaseguro",polizaDetalle.coaseguroGMM?`${polizaDetalle.coaseguroGMM}%`:"—"],
+                    ["Tope Coaseguro",polizaDetalle.topeCoaseguroGMM?`$${Number(polizaDetalle.topeCoaseguroGMM).toLocaleString("es-MX")}`:polizaDetalle.topeCoaseguroGMM||"—"],
+                    ["Zona",polizaDetalle.zonaGMM||"—"],
+                    ["Red Hospitalaria",polizaDetalle.hospitalGMM||"—"],
+                    ["Tabulador",polizaDetalle.tabuladorGMM||"—"],
                   ].map(([l,v])=>(
                     <div key={l} style={{background:"#fff",borderRadius:8,padding:"8px 10px"}}>
                       <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>{l.toUpperCase()}</div>
@@ -2748,7 +2763,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
             {polizaDetalle.ramo==="Gastos Médicos"&&polizaDetalle.aseguradosGMM?.length>0&&(
               <div style={{background:"#f0fdf4",borderRadius:10,padding:"12px 14px"}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-                  <div style={{fontSize:10,fontWeight:800,color:"#065f46"}}>Ã°Å¸âÂ¨Ã¢â¬ÂÃ°Å¸âÂ©Ã¢â¬ÂÃ°Å¸âÂ§ ASEGURADOS ({polizaDetalle.aseguradosGMM.length})</div>
+                  <div style={{fontSize:10,fontWeight:800,color:"#065f46"}}>👨‍👩‍👧 ASEGURADOS ({polizaDetalle.aseguradosGMM.length})</div>
                   {polizaDetalle.planGMM&&<span style={{background:"#059669",color:"#fff",fontSize:10,fontWeight:800,padding:"2px 10px",borderRadius:20}}>{polizaDetalle.planGMM}</span>}
                 </div>
                 <div style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 0.8fr 1.2fr 1.2fr",padding:"5px 8px",background:"#bbf7d0",borderRadius:"7px 7px 0 0"}}>
@@ -2758,9 +2773,9 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                   <div key={i} style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 0.8fr 1.2fr 1.2fr",padding:"7px 8px",background:i%2===0?"#f0fdf4":"#fff",borderBottom:"1px solid #d1fae5",alignItems:"center"}}>
                     <div style={{fontSize:12,fontWeight:600}}>{a.nombre}</div>
                     <div style={{fontSize:11,color:a.parentesco==="Titular"?"#059669":"#6b7280",fontWeight:600}}>{a.parentesco}</div>
-                    <div style={{fontSize:11,fontWeight:600}}>{a.edad||"Ã¢â¬â"}</div>
-                    <div style={{fontSize:11,color:"#6b7280",fontFamily:"monospace"}}>{a.fechaNacimiento||"Ã¢â¬â"}</div>
-                    <div style={{fontSize:10,color:"#6b7280",fontFamily:"monospace"}}>{a.antiguedad||"Ã¢â¬â"}</div>
+                    <div style={{fontSize:11,fontWeight:600}}>{a.edad||"—"}</div>
+                    <div style={{fontSize:11,color:"#6b7280",fontFamily:"monospace"}}>{a.fechaNacimiento||"—"}</div>
+                    <div style={{fontSize:10,color:"#6b7280",fontFamily:"monospace"}}>{a.antiguedad||"—"}</div>
                   </div>
                 ))}
               </div>
@@ -2770,7 +2785,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
             {polizaDetalle.recibos?.length>0&&(
               <div style={{background:"#f5f3ff",borderRadius:10,padding:"12px 14px",border:"1px solid #ede9fe"}}>
                 <div style={{fontSize:10,fontWeight:800,color:"#6d28d9",marginBottom:8}}>
-                  Ã°Å¸ââ¹ RECIBOS Ã¢â¬â {polizaDetalle.recibos.length===1?"Pago ÃÂºnico":`${polizaDetalle.recibos.length} recibos ÃÂ· ${polizaDetalle.formaPago}`}
+                  📋 RECIBOS — {polizaDetalle.recibos.length===1?"Pago único":`${polizaDetalle.recibos.length} recibos · ${polizaDetalle.formaPago}`}
                 </div>
                 <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
                   <thead><tr style={{background:"#ede9fe"}}>
@@ -2783,8 +2798,8 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                       <tr key={i} style={{background:i%2===0?"#faf5ff":"#fff",borderBottom:"1px solid #f3f0ff"}}>
                         <td style={{padding:"5px 7px",textAlign:"center"}}><span style={{background:"#7c3aed",color:"#fff",borderRadius:20,padding:"1px 6px",fontSize:10,fontWeight:700}}>{r.num}</span></td>
                         <td style={{padding:"5px 7px",textAlign:"right"}}>${(r.primaNeta||0).toLocaleString("es-MX",{minimumFractionDigits:2})}</td>
-                        <td style={{padding:"5px 7px",textAlign:"right",color:r.gastos>0?"#059669":"#d1d5db",fontWeight:r.gastos>0?700:400}}>{r.gastos>0?`$${r.gastos.toLocaleString("es-MX",{minimumFractionDigits:2})}`:"Ã¢â¬â"}</td>
-                        <td style={{padding:"5px 7px",textAlign:"right",color:r.recargo>0?"#d97706":"#d1d5db"}}>{r.recargo>0?`$${r.recargo.toLocaleString("es-MX",{minimumFractionDigits:2})}`:"Ã¢â¬â"}</td>
+                        <td style={{padding:"5px 7px",textAlign:"right",color:r.gastos>0?"#059669":"#d1d5db",fontWeight:r.gastos>0?700:400}}>{r.gastos>0?`$${r.gastos.toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"}</td>
+                        <td style={{padding:"5px 7px",textAlign:"right",color:r.recargo>0?"#d97706":"#d1d5db"}}>{r.recargo>0?`$${r.recargo.toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"}</td>
                         <td style={{padding:"5px 7px",textAlign:"right",color:"#6b7280"}}>${(r.iva||0).toLocaleString("es-MX",{minimumFractionDigits:2})}</td>
                         <td style={{padding:"5px 7px",textAlign:"right",fontWeight:800,color:"#7c3aed"}}>${(r.total||0).toLocaleString("es-MX",{minimumFractionDigits:2})}</td>
                       </tr>
@@ -2799,9 +2814,9 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
             )}
 
             {/* Coberturas */}
-            {polizaDetalle.coberturas?.length>0&&polizaDetalle.coberturas[0]!=="Flotilla Ã¢â¬â ver incisos"&&(
+            {polizaDetalle.coberturas?.length>0&&polizaDetalle.coberturas[0]!=="Flotilla — ver incisos"&&(
               <div style={{background:"#f0fdf4",borderRadius:10,padding:"12px 14px"}}>
-                <div style={{fontSize:10,fontWeight:800,color:"#065f46",marginBottom:8}}>Ã°Å¸âºÂ¡Ã¯Â¸Â COBERTURAS</div>
+                <div style={{fontSize:10,fontWeight:800,color:"#065f46",marginBottom:8}}>🛡️ COBERTURAS</div>
                 <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
                   {polizaDetalle.coberturas.map(c=><span key={c} style={{background:"#d1fae5",color:"#065f46",fontSize:11,padding:"3px 9px",borderRadius:20,fontWeight:600}}>{c}</span>)}
                 </div>
@@ -2811,24 +2826,24 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
             {/* Historial de pagos */}
             {polizaDetalle.pagos?.length>0&&(
               <div style={{background:"#f0fdf4",borderRadius:10,padding:"12px 14px"}}>
-                <div style={{fontSize:10,fontWeight:800,color:"#065f46",marginBottom:10}}>Ã°Å¸âÂ³ HISTORIAL DE PAGOS ({polizaDetalle.pagos.length})</div>
+                <div style={{fontSize:10,fontWeight:800,color:"#065f46",marginBottom:10}}>💳 HISTORIAL DE PAGOS ({polizaDetalle.pagos.length})</div>
                 {polizaDetalle.pagos.map((pg,i)=>(
                   <div key={i} style={{display:"flex",gap:10,alignItems:"center",padding:"8px 10px",background:i%2===0?"#fff":"#f9fffe",borderRadius:8,marginBottom:4,border:"1px solid #d1fae5"}}>
-                    <div style={{fontSize:18}}>Ã°Å¸âÂ³</div>
+                    <div style={{fontSize:18}}>💳</div>
                     <div style={{flex:1}}>
                       <div style={{fontSize:12,fontWeight:700,color:"#065f46",display:"flex",alignItems:"center",gap:6}}>
                         {pg.reciboNum&&<span style={{background:"#7c3aed",color:"#fff",borderRadius:20,padding:"1px 7px",fontSize:10,fontWeight:800}}>Recibo {pg.reciboNum}</span>}
                         {pg.fechaEsperada&&pg.fechaEsperada!==pg.fechaPago&&<span style={{background:"#fef3c7",color:"#92400e",borderRadius:12,padding:"1px 6px",fontSize:9,fontWeight:700,marginRight:3}}>Vto: {pg.fechaEsperada}</span>}
-                        <span style={{fontWeight:700}}>{pg.fechaPago}</span> ÃÂ· {pg.formaPago}
+                        <span style={{fontWeight:700}}>{pg.fechaPago}</span> · {pg.formaPago}
                       </div>
                       <div style={{fontSize:11,color:"#6b7280"}}>
-                        ${Number(pg.monto||0).toLocaleString("es-MX",{minimumFractionDigits:2})} {pg.referencia?`ÃÂ· Ref: ${pg.referencia}`:""}
+                        ${Number(pg.monto||0).toLocaleString("es-MX",{minimumFractionDigits:2})} {pg.referencia?`· Ref: ${pg.referencia}`:""}
                       </div>
                     </div>
                     {pg.comprobante&&(
                       <a href={pg.comprobante} download={pg.comprobanteName||"comprobante"}
                         style={{background:"#059669",color:"#fff",fontSize:10,fontWeight:700,padding:"4px 10px",borderRadius:8,textDecoration:"none"}}>
-                        Ã°Å¸âÅ½ Ver
+                        📎 Ver
                       </a>
                     )}
                   </div>
@@ -2837,7 +2852,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
             )}
 
             {polizaDetalle.notas&&(
-              <div style={{background:"#fffbeb",borderRadius:10,padding:"10px 13px",fontSize:13,color:"#92400e"}}>Ã°Å¸âÂ {polizaDetalle.notas}</div>
+              <div style={{background:"#fffbeb",borderRadius:10,padding:"10px 13px",fontSize:13,color:"#92400e"}}>📝 {polizaDetalle.notas}</div>
             )}
 
             {/* Visor / subir documento de póliza */}
@@ -2860,8 +2875,8 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
             <div style={{display:"flex",gap:10,paddingTop:4,borderTop:"1px solid #f3f4f6"}}>
               {polizaDetalle._status!=="cancelada"?(
                 <>
-                  <Btn onClick={()=>{setShowPago(polizaDetalle);}} color="#059669" icon="check">Ã°Å¸âÂ³ Registrar Pago</Btn>
-                  <Btn onClick={()=>{setShowRenovar(polizaDetalle);}} color="#7c3aed">Ã°Å¸ââ Renovar</Btn>
+                  <Btn onClick={()=>{setShowPago(polizaDetalle);}} color="#059669" icon="check">💳 Registrar Pago</Btn>
+                  <Btn onClick={()=>{setShowRenovar(polizaDetalle);}} color="#7c3aed">🔄 Renovar</Btn>
                   <button onClick={()=>cancelarPoliza(polizaDetalle.id)}
                     style={{marginLeft:"auto",background:"#fef2f2",border:"1px solid #fecaca",borderRadius:9,padding:"8px 14px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#dc2626"}}>
                     Cancelar póliza
@@ -2870,7 +2885,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
               ):(
                 <button onClick={()=>{recuperarPoliza(polizaDetalle.id);setShowDetalle(prev=>prev?{...prev,status:"activa"}:prev);}}
                   style={{flex:1,background:"#f0fdf4",border:"1.5px solid #6ee7b7",borderRadius:9,padding:"10px 14px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#059669",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
-                  Ã¢â Â©Ã¯Â¸Â Recuperar póliza
+                  ↩️ Recuperar póliza
                 </button>
               )}
             </div>
@@ -2880,33 +2895,33 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
 
       {/* Modal Registrar Pago */}
       {showPago&&(
-        <Modal title={`Registrar Pago Ã¢â¬â ${showPago.numero}`} onClose={()=>setShowPago(null)}>
+        <Modal title={`Registrar Pago — ${showPago.numero}`} onClose={()=>setShowPago(null)}>
           <ModalPago poliza={showPago} onGuardar={registrarPago} onEliminarPago={(pgId)=>eliminarPago(showPago.id,pgId)} onClose={()=>setShowPago(null)}/>
         </Modal>
       )}
 
       {/* Modal Renovar */}
       {showRenovar&&(
-        <Modal title={`Renovar Póliza Ã¢â¬â ${showRenovar.numero}`} onClose={()=>setShowRenovar(null)} wide>
+        <Modal title={`Renovar Póliza — ${showRenovar.numero}`} onClose={()=>setShowRenovar(null)} wide>
           <ModalRenovar poliza={showRenovar} onGuardar={renovarPoliza} onClose={()=>setShowRenovar(null)}/>
         </Modal>
       )}
 
       {/* Modal Bienvenida automática */}
       {showBienvenida&&(
-        <Modal title="Ã°Å¸Å½â° Póliza registrada Ã¢â¬â Enviar bienvenida" onClose={()=>setShowBienvenida(null)}>
+        <Modal title="🎉 Póliza registrada — Enviar bienvenida" onClose={()=>setShowBienvenida(null)}>
           <div style={{display:"flex",flexDirection:"column",gap:14}}>
             <div style={{background:"#f0fdf4",borderRadius:10,padding:"12px 16px",border:"1.5px solid #6ee7b7"}}>
-              <div style={{fontSize:13,fontWeight:700,color:"#065f46",marginBottom:4}}>Ã¢Åâ¦ Póliza guardada correctamente</div>
+              <div style={{fontSize:13,fontWeight:700,color:"#065f46",marginBottom:4}}>✅ Póliza guardada correctamente</div>
               <div style={{fontSize:12,color:"#374151"}}>
-                <strong>{showBienvenida.poliza.cliente}</strong> ÃÂ· {showBienvenida.poliza.numero} ÃÂ· {showBienvenida.poliza.aseguradora}
+                <strong>{showBienvenida.poliza.cliente}</strong> · {showBienvenida.poliza.numero} · {showBienvenida.poliza.aseguradora}
               </div>
             </div>
             <div style={{fontSize:13,color:"#374151",fontWeight:600}}>
-              ÃÂ¿Deseas enviar el mensaje de bienvenida al cliente?
+              ¿Deseas enviar el mensaje de bienvenida al cliente?
             </div>
             <div style={{background:"#f9fafb",borderRadius:10,padding:"12px 14px",fontSize:12,color:"#6b7280",whiteSpace:"pre-line",maxHeight:160,overflowY:"auto",border:"1px solid #e5e7eb"}}>
-              {aplicarVarsBienvenida(plantillas?.bienvenida||`Hola {nombre} Ã°Å¸ââ¹,\n\nÃÂ¡Bienvenido/a! Tu póliza {numero} de {aseguradora} fue registrada.\nVigente hasta: {vencimiento}\n\nEstoy a tus órdenes Ã°Å¸ËÅ `, showBienvenida.poliza)}
+              {aplicarVarsBienvenida(plantillas?.bienvenida||`Hola {nombre} 👋,\n\n¡Bienvenido/a! Tu póliza {numero} de {aseguradora} fue registrada.\nVigente hasta: {vencimiento}\n\nEstoy a tus órdenes 😊`, showBienvenida.poliza)}
             </div>
             <div style={{display:"flex",gap:10}}>
               <button onClick={()=>setShowBienvenida(null)} style={{flex:1,background:"#f3f4f6",border:"1.5px solid #e5e7eb",borderRadius:10,padding:11,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#374151"}}>
@@ -2914,24 +2929,30 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
               </button>
               {showBienvenida.tieneWA&&(
                 <button onClick={()=>{enviarBienvenidaWA(showBienvenida.poliza);setShowBienvenida(null);}} style={{flex:2,background:"#25d366",border:"none",borderRadius:10,padding:11,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-                  Ã°Å¸âÂ¬ Enviar por WhatsApp
+                  💬 Enviar por WhatsApp
                 </button>
               )}
               {showBienvenida.tieneEmail&&(
                 <button onClick={async()=>{
                   const p = showBienvenida.poliza;
-                  const tpl = plantillas?.bienvenida || `Estimado/a {nombre},\n\nÃÂ¡Bienvenido/a como cliente!\n\nSu póliza ha sido registrada:\nÃ¢â¬Â¢ Póliza: {numero}\nÃ¢â¬Â¢ Aseguradora: {aseguradora}\nÃ¢â¬Â¢ Ramo: {ramo}\nÃ¢â¬Â¢ Vigente hasta: {vencimiento}\n\nEstamos a sus órdenes.\n\nAtentamente,\nSu Agente de Seguros`;
+                  const tpl = plantillas?.bienvenida || `Estimado/a {nombre},\n\n¡Bienvenido/a como cliente!\n\nSu póliza ha sido registrada:\n• Póliza: {numero}\n• Aseguradora: {aseguradora}\n• Ramo: {ramo}\n• Vigente hasta: {vencimiento}\n\nEstamos a sus órdenes.\n\nAtentamente,\nSu Agente de Seguros`;
                   const body = aplicarVarsBienvenida(tpl, p);
-                  const subject = `ÃÂ¡Bienvenido/a! Póliza ${p.numero} registrada`;
-                  enviarBienvenidaEmail(p); setShowBienvenida(null);
+                  const subject = `¡Bienvenido/a! Póliza ${p.numero} registrada`;
+                  if(config?.gmailToken){
+                    const ok = await gmailSend({to:p.emailCliente, subject, body});
+                    if(ok){ setShowBienvenida(null); alert("✅ Correo enviado correctamente"); }
+                    else { enviarBienvenidaEmail(p); setShowBienvenida(null); }
+                  } else {
+                    enviarBienvenidaEmail(p); setShowBienvenida(null);
+                  }
                 }} style={{flex:2,background:"#059669",border:"none",borderRadius:10,padding:11,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-                  Ã¢Åâ°Ã¯Â¸Â Enviar correo
+                  ✉️ Enviar correo
                 </button>
               )}
             </div>
             {showBienvenida.tieneWA&&showBienvenida.tieneEmail&&(
               <button onClick={()=>{enviarBienvenidaWA(showBienvenida.poliza);enviarBienvenidaEmail(showBienvenida.poliza);setShowBienvenida(null);}} style={{background:"#0f172a",border:"none",borderRadius:10,padding:10,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff"}}>
-                Ã°Å¸âÂ¤ Enviar por ambos canales
+                📤 Enviar por ambos canales
               </button>
             )}
 
@@ -2941,7 +2962,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
 
       {/* Modal Editar Póliza */}
       {showEditar&&(
-        <Modal title={`Editar Póliza Ã¢â¬â ${showEditar.numero}`} onClose={()=>setShowEditar(null)} wide>
+        <Modal title={`Editar Póliza — ${showEditar.numero}`} onClose={()=>setShowEditar(null)} wide>
           <ModalEditarPoliza
             poliza={showEditar}
             subagentes={subagentes}
@@ -2961,10 +2982,10 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
 }
 
 
-// Ã¢ââ¬Ã¢ââ¬ Lector IA Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬
-// Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬ Resultado editable del escáner IA Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬
+// ── Lector IA ─────────────────────────────────────────────────────
+// ─── Resultado editable del escáner IA ──────────────────────────
 function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, onVolver, onConfirmar }) {
-  // Separar nÃÂºmero y endoso si vienen juntos (ej: "2671100004205/24")
+  // Separar número y endoso si vienen juntos (ej: "2671100004205/24")
   useEffect(()=>{
     if(result && !editResult) {
       const numRaw = result.numero||"";
@@ -2988,11 +3009,11 @@ function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, 
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div style={{background:"#f0fdf4",borderRadius:10,padding:"10px 14px",color:"#065f46",fontWeight:600,fontSize:13}}>Ã¢Åâ¦ Datos extraÃÂ­dos Ã¢â¬â revisa y edita si es necesario</div>
+      <div style={{background:"#f0fdf4",borderRadius:10,padding:"10px 14px",color:"#065f46",fontWeight:600,fontSize:13}}>✅ Datos extraídos — revisa y edita si es necesario</div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
         <div>
-          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>NÃÅ¡MERO DE PÃâLIZA</div>
-          <input value={er.numero||""} onChange={e=>upd("numero",e.target.value)} style={inpStyle} placeholder="NÃÂºmero sin endoso"/>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>NÚMERO DE PÓLIZA</div>
+          <input value={er.numero||""} onChange={e=>upd("numero",e.target.value)} style={inpStyle} placeholder="Número sin endoso"/>
         </div>
         <div>
           <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>ENDOSO</div>
@@ -3033,11 +3054,11 @@ function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, 
         <div>
           <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>FORMA DE PAGO</div>
           <select value={er.formaPago||er.frecuencia||"Anual"} onChange={e=>upd("formaPago",e.target.value)} style={{...inpStyle,paddingRight:4}}>
-            {["Anual","Semestral","Trimestral","Mensual","Contado","ÃÅ¡nico"].map(f=><option key={f}>{f}</option>)}
+            {["Anual","Semestral","Trimestral","Mensual","Contado","Único"].map(f=><option key={f}>{f}</option>)}
           </select>
         </div>
         <div>
-          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>GASTOS EXPEDICIÃâN</div>
+          <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:3}}>GASTOS EXPEDICIÓN</div>
           <input value={er.gastosExpedicion||""} onChange={e=>upd("gastosExpedicion",e.target.value)} style={inpStyle} placeholder="0.00"/>
         </div>
         <div>
@@ -3077,21 +3098,21 @@ function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, 
       {/* Contacto del cliente */}
       <div style={{background:"#eff6ff",borderRadius:10,padding:"12px 14px",border:"1.5px solid #bfdbfe"}}>
         <div style={{fontSize:11,fontWeight:800,color:"#1e40af",marginBottom:10,display:"flex",alignItems:"center",gap:6}}>
-          Ã°Å¸âÂ¤ Datos de contacto del cliente
+          👤 Datos de contacto del cliente
           <span style={{fontSize:10,fontWeight:600,color:"#3b82f6"}}>(se guardarán en el perfil del cliente)</span>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:9}}>
           <div>
-            <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:3}}>CORREO ELECTRÃâNICO</div>
+            <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:3}}>CORREO ELECTRÓNICO</div>
             <input value={er.emailCliente||""} onChange={e=>upd("emailCliente",e.target.value)} style={{...inpStyle,borderColor:"#bfdbfe"}} placeholder="correo@ejemplo.com"/>
           </div>
           <div>
-            <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:3}}>TELÃâ°FONO</div>
-            <input value={er.telefonoCliente||""} onChange={e=>upd("telefonoCliente",e.target.value)} style={{...inpStyle,borderColor:"#bfdbfe"}} placeholder="10 dÃÂ­gitos"/>
+            <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:3}}>TELÉFONO</div>
+            <input value={er.telefonoCliente||""} onChange={e=>upd("telefonoCliente",e.target.value)} style={{...inpStyle,borderColor:"#bfdbfe"}} placeholder="10 dígitos"/>
           </div>
           <div>
             <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:3}}>WHATSAPP</div>
-            <input value={er.whatsappCliente||""} onChange={e=>upd("whatsappCliente",e.target.value)} style={{...inpStyle,borderColor:"#bfdbfe"}} placeholder="10 dÃÂ­gitos"/>
+            <input value={er.whatsappCliente||""} onChange={e=>upd("whatsappCliente",e.target.value)} style={{...inpStyle,borderColor:"#bfdbfe"}} placeholder="10 dígitos"/>
           </div>
         </div>
       </div>
@@ -3101,8 +3122,8 @@ function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, 
         <div style={{display:"flex",flexWrap:"wrap",gap:5}}>{(er.coberturas||[]).map((c,i)=><span key={i} style={{background:"#dbeafe",color:"#1e40af",fontSize:11,padding:"3px 9px",borderRadius:20}}>{c}</span>)}</div>
       </div>}
       <div style={{display:"flex",gap:10}}>
-        <button onClick={onVolver} style={{flex:1,background:"#f3f4f6",border:"none",borderRadius:9,padding:11,cursor:"pointer",fontFamily:"inherit",fontWeight:600,fontSize:13}}>Ã¢â Â Volver</button>
-        <Btn onClick={()=>onConfirmar(editResult || result)} color="#059669" style={{flex:2,justifyContent:"center"}}>Confirmar y guardar Ã¢Åâ</Btn>
+        <button onClick={onVolver} style={{flex:1,background:"#f3f4f6",border:"none",borderRadius:9,padding:11,cursor:"pointer",fontFamily:"inherit",fontWeight:600,fontSize:13}}>← Volver</button>
+        <Btn onClick={()=>onConfirmar(editResult || result)} color="#059669" style={{flex:2,justifyContent:"center"}}>Confirmar y guardar ✓</Btn>
       </div>
     </div>
   );
@@ -3143,7 +3164,7 @@ function ScanPoliza({ onClose, onExtracted }) {
         "- inicio: fecha inicio vigencia en formato YYYY-MM-DD",
         "- vencimiento: fecha fin vigencia en formato YYYY-MM-DD",
         "",
-        "CAMPOS ECONOMICOS Ã¢â¬â busca EXACTAMENTE estas etiquetas (pueden variar):",
+        "CAMPOS ECONOMICOS — busca EXACTAMENTE estas etiquetas (pueden variar):",
         "- formaPago: busca 'FORMA DE PAGO', 'Forma de Cobro', 'Frecuencia de Pago', 'Periodicidad'. Valores: Anual, Semestral, Trimestral, Mensual, Contado, Unico",
         "- moneda: busca 'MONEDA', puede decir 'PESOS', 'DOLARES', 'UDI'. Devuelve: MXN, USD o UDI",
         "- primaNeta: busca 'PRIMA NETA', 'Prima Neta', 'Net Premium'. Solo el numero sin simbolos",
@@ -3178,7 +3199,7 @@ function ScanPoliza({ onClose, onExtracted }) {
       const data=await res.json();
       if(!res.ok)throw new Error(data.error?.message||"Error en API");
       const text=data.content.map(b=>b.text||"").join("");
-      // Extraer JSON robusto Ã¢â¬â busca el primer { hasta el ultimo }
+      // Extraer JSON robusto — busca el primer { hasta el ultimo }
       const match = text.match(/\{[\s\S]*\}/);
       if(!match) throw new Error("La IA no devolvio un JSON valido");
       const parsed = JSON.parse(match[0]);
@@ -3188,17 +3209,17 @@ function ScanPoliza({ onClose, onExtracted }) {
   };
 
   return(
-    <Modal title="Ã°Å¸Â¤â Leer Póliza con IA" onClose={onClose} wide>
+    <Modal title="🤖 Leer Póliza con IA" onClose={onClose} wide>
       {step==="upload"&&(
         <div style={{display:"flex",flexDirection:"column",gap:16}}>
-          <div style={{background:"#0f172a",borderRadius:12,padding:"12px 16px",color:"#60a5fa",fontSize:13}}>Ã¢Å¡Â¡ Extrae automáticamente: nÃÂºmero, cliente, ramo, subramo, prima, fechas y coberturas</div>
+          <div style={{background:"#0f172a",borderRadius:12,padding:"12px 16px",color:"#60a5fa",fontSize:13}}>⚡ Extrae automáticamente: número, cliente, ramo, subramo, prima, fechas y coberturas</div>
           <div onDragOver={e=>{e.preventDefault();setDragOver(true);}} onDragLeave={()=>setDragOver(false)}
             onDrop={e=>{e.preventDefault();setDragOver(false);processFile(e.dataTransfer.files[0]);}}
             onClick={()=>fileRef.current.click()}
             style={{border:`2px dashed ${dragOver?"#2563eb":"#d1d5db"}`,borderRadius:14,padding:"36px 28px",textAlign:"center",cursor:"pointer",background:dragOver?"#eff6ff":"#fafafa"}}>
             <input ref={fileRef} type="file" accept=".pdf,image/*" style={{display:"none"}} onChange={e=>processFile(e.target.files[0])}/>
             <div style={{color:"#2563eb",display:"flex",justifyContent:"center",marginBottom:8}}><Icon name="upload" size={34}/></div>
-            <div style={{fontWeight:700,fontSize:14}}>PDF o imagen ÃÂ· arrastra o haz clic</div>
+            <div style={{fontWeight:700,fontSize:14}}>PDF o imagen · arrastra o haz clic</div>
           </div>
           {fileName&&<div style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:"#f0fdf4",borderRadius:10}}>
             <div style={{flex:1}}><div style={{fontWeight:600,fontSize:13}}>{fileName}</div></div>
@@ -3209,7 +3230,7 @@ function ScanPoliza({ onClose, onExtracted }) {
       )}
       {step==="analyzing"&&(
         <div style={{textAlign:"center",padding:"50px 20px"}}>
-          <div style={{fontSize:40,marginBottom:14}}>Ã°Å¸âÂ</div>
+          <div style={{fontSize:40,marginBottom:14}}>🔍</div>
           <div style={{fontWeight:700,fontSize:16,fontFamily:"'Playfair Display',serif"}}>Analizando póliza...</div>
           <style>{`@keyframes bounce{0%,80%,100%{transform:scale(.8);opacity:.5}40%{transform:scale(1.2);opacity:1}}`}</style>
           <div style={{display:"flex",justifyContent:"center",gap:6,marginTop:20}}>
@@ -3233,10 +3254,10 @@ function ScanPoliza({ onClose, onExtracted }) {
   );
 }
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 // NOTIFICACIONES
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
-function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault, clientes, configNotif:configNotifProp, setConfigNotif:setConfigNotifProp }) {
+// ═══════════════════════════════════════════════════════════════════
+function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault, clientes, configNotif:configNotifProp, setConfigNotif:setConfigNotifProp, gmailToken, gmailEmail, gmailNombre, setConfig }) {
   const [tab,setTab]=useState("recordatorios");
   const [canal,setCanal]=useState("whatsapp");
   const [diasAntes,setDiasAntes]=useState(30);
@@ -3251,20 +3272,20 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
 
   // Plantillas de email por defecto
   const EMAIL_DEFAULT={
-    vencimiento:`Estimado/a {nombre},\n\nLe recordamos que su póliza está próxima a vencer:\n\nÃ¢â¬Â¢ Póliza: {numero}\nÃ¢â¬Â¢ Aseguradora: {aseguradora}\nÃ¢â¬Â¢ Ramo: {ramo}\nÃ¢â¬Â¢ Vencimiento: {vencimiento}\nÃ¢â¬Â¢ Prima: ${"{prima}"} ({frecuencia})\n\nPara renovar, contáctenos a la brevedad.\n\nAtentamente,\nSu Agente de Seguros`,
-    pago:`Estimado/a {nombre},\n\nConfirmamos la recepción de su pago:\n\nÃ¢â¬Â¢ Póliza: {numero}\nÃ¢â¬Â¢ Aseguradora: {aseguradora}\nÃ¢â¬Â¢ Vigencia hasta: {vencimiento}\n\nGracias por su puntualidad.\n\nAtentamente,\nSu Agente de Seguros`,
-    bienvenida:`Estimado/a {nombre},\n\nÃÂ¡Bienvenido/a como cliente!\n\nSu póliza ha sido registrada:\n\nÃ¢â¬Â¢ Póliza: {numero}\nÃ¢â¬Â¢ Aseguradora: {aseguradora}\nÃ¢â¬Â¢ Ramo: {ramo}\nÃ¢â¬Â¢ Vigente hasta: {vencimiento}\n\nEstamos a sus órdenes.\n\nAtentamente,\nSu Agente de Seguros`,
-    renovacion:`Estimado/a {nombre},\n\nSu póliza ha sido renovada exitosamente:\n\nÃ¢â¬Â¢ Póliza: {numero}\nÃ¢â¬Â¢ Aseguradora: {aseguradora}\nÃ¢â¬Â¢ Nueva vigencia: {vencimiento}\nÃ¢â¬Â¢ Prima: ${"{prima}"} ({frecuencia})\n\nAtentamente,\nSu Agente de Seguros`,
-    personalizado:`Estimado/a {nombre},\n\nNos comunicamos con usted respecto a su póliza {numero}.\n\n[Escriba aquÃÂ­ su mensaje]\n\nAtentamente,\nSu Agente de Seguros`,
+    vencimiento:`Estimado/a {nombre},\n\nLe recordamos que su póliza está próxima a vencer:\n\n• Póliza: {numero}\n• Aseguradora: {aseguradora}\n• Ramo: {ramo}\n• Vencimiento: {vencimiento}\n• Prima: ${"{prima}"} ({frecuencia})\n\nPara renovar, contáctenos a la brevedad.\n\nAtentamente,\nSu Agente de Seguros`,
+    pago:`Estimado/a {nombre},\n\nConfirmamos la recepción de su pago:\n\n• Póliza: {numero}\n• Aseguradora: {aseguradora}\n• Vigencia hasta: {vencimiento}\n\nGracias por su puntualidad.\n\nAtentamente,\nSu Agente de Seguros`,
+    bienvenida:`Estimado/a {nombre},\n\n¡Bienvenido/a como cliente!\n\nSu póliza ha sido registrada:\n\n• Póliza: {numero}\n• Aseguradora: {aseguradora}\n• Ramo: {ramo}\n• Vigente hasta: {vencimiento}\n\nEstamos a sus órdenes.\n\nAtentamente,\nSu Agente de Seguros`,
+    renovacion:`Estimado/a {nombre},\n\nSu póliza ha sido renovada exitosamente:\n\n• Póliza: {numero}\n• Aseguradora: {aseguradora}\n• Nueva vigencia: {vencimiento}\n• Prima: ${"{prima}"} ({frecuencia})\n\nAtentamente,\nSu Agente de Seguros`,
+    personalizado:`Estimado/a {nombre},\n\nNos comunicamos con usted respecto a su póliza {numero}.\n\n[Escriba aquí su mensaje]\n\nAtentamente,\nSu Agente de Seguros`,
   };
   const [plantillasEmail,setPlantillasEmail]=useState(EMAIL_DEFAULT);
 
   const TIPOS_PLANTILLA=[
-    {key:"vencimiento",label:"Ã°Å¸ââ¦ Vencimiento",color:"#d97706",bg:"#fffbeb"},
-    {key:"pago",label:"Ã°Å¸âÂ³ Pago recibido",color:"#059669",bg:"#f0fdf4"},
-    {key:"bienvenida",label:"Ã°Å¸Å½â° Bienvenida",color:"#7c3aed",bg:"#f5f3ff"},
-    {key:"renovacion",label:"Ã°Å¸ââ Renovación",color:"#2563eb",bg:"#eff6ff"},
-    {key:"personalizado",label:"Ã¢ÅÂÃ¯Â¸Â Personalizado",color:"#6b7280",bg:"#f9fafb"},
+    {key:"vencimiento",label:"📅 Vencimiento",color:"#d97706",bg:"#fffbeb"},
+    {key:"pago",label:"💳 Pago recibido",color:"#059669",bg:"#f0fdf4"},
+    {key:"bienvenida",label:"🎉 Bienvenida",color:"#7c3aed",bg:"#f5f3ff"},
+    {key:"renovacion",label:"🔄 Renovación",color:"#2563eb",bg:"#eff6ff"},
+    {key:"personalizado",label:"✏️ Personalizado",color:"#6b7280",bg:"#f9fafb"},
   ];
   const [adjuntosEmail, setForm_adjuntos] = useState([]);
   const configNotif = configNotifProp || {emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""};
@@ -3278,7 +3299,7 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
     .replace(/{nombre}/g, p.cliente?.split(" ")[0]||p.cliente||"")
     .replace(/{numero}/g, p.numero||"")
     .replace(/{aseguradora}/g, p.aseguradora||"")
-    .replace(/{ramo}/g, p.subramo?`${p.ramo} Ã¢â¬Âº ${p.subramo}`:(p.ramo||""))
+    .replace(/{ramo}/g, p.subramo?`${p.ramo} › ${p.subramo}`:(p.ramo||""))
     .replace(/{subramo}/g, p.subramo||"")
     .replace(/{vencimiento}/g, p.vencimiento||"")
     .replace(/{prima}/g, p.primaTotal?.toLocaleString()||p.prima?.toLocaleString()||"")
@@ -3289,7 +3310,7 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
   const getMensaje=(p)=>canal==="whatsapp"?genWA(p):genEmail(p);
 
   const showToast=(msg)=>{setToast(msg);setTimeout(()=>setToast(null),3000);};
-  const marcar=(id,tipo)=>{setEnviados(prev=>[...prev,{id,tipo,fecha:new Date().toLocaleString("es-MX")}]);showToast(`Notificación lista Ã°Å¸Å½â°`);};
+  const marcar=(id,tipo)=>{setEnviados(prev=>[...prev,{id,tipo,fecha:new Date().toLocaleString("es-MX")}]);showToast(`Notificación lista 🎉`);};
   const yaEnviado=(id,tipo)=>enviados.some(e=>e.id===id&&e.tipo===tipo);
 
   const enviarWA=(p)=>{const msg=encodeURIComponent(genWA(p));const tel=(p.telefonoCliente||"").replace(/\D/g,"");window.open(`https://wa.me/${tel?`52${tel}`:""}?text=${msg}`,"_blank");marcar(p.id,"whatsapp");};
@@ -3298,7 +3319,7 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
     const subject = `Recordatorio póliza ${p.numero}`;
     const body = genEmail(p);
     const ok = await emailJSSend({to:p.emailCliente, subject, message:body, fromName:gmailNombre||"CRM Seguros"});
-    if(ok){ marcar(p.id,"email"); showToast("Ã¢Åâ¦ Correo enviado"); return; }
+    if(ok){ marcar(p.id,"email"); showToast("✅ Correo enviado"); return; }
     window.open(`mailto:${p.emailCliente}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,"_blank");
     marcar(p.id,"email");
   };
@@ -3313,10 +3334,10 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
   return(
     <div style={{display:"flex",flexDirection:"column",gap:22}}>
       {toast&&<div style={{position:"fixed",top:20,right:20,background:"#111827",color:"#fff",padding:"12px 20px",borderRadius:12,fontSize:13,fontWeight:600,zIndex:9999,boxShadow:"0 8px 24px rgba(0,0,0,0.3)"}}>{toast}</div>}
-      <SectionTitle title="Notificaciones" sub="EnvÃÂ­a recordatorios de pago por WhatsApp o correo"/>
-      {gmailConectado&&<div style={{background:"#f0fdf4",border:"1px solid #bbf7d0",borderRadius:8,padding:"6px 12px",fontSize:11,fontWeight:700,color:"#059669",display:"inline-flex",alignItems:"center",gap:6,marginBottom:4}}>Ã¢Åâ¦ Gmail conectado: {gmailEmail}</div>}
+      <SectionTitle title="Notificaciones" sub="Envía recordatorios de pago por WhatsApp o correo"/>
+      {gmailConectado&&<div style={{background:"#f0fdf4",border:"1px solid #bbf7d0",borderRadius:8,padding:"6px 12px",fontSize:11,fontWeight:700,color:"#059669",display:"inline-flex",alignItems:"center",gap:6,marginBottom:4}}>✅ Gmail conectado: {gmailEmail}</div>}
       <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:11,padding:4,width:"fit-content"}}>
-        {[["recordatorios","Ã°Å¸ââ¦ Recordatorios"],["historial","Ã°Å¸ââ¹ Historial"],["plantillas","Ã¢Å¡â¢Ã¯Â¸Â Plantillas"],["config","Ã°Å¸âÂ§ Configuración"]].map(([t,l])=>(
+        {[["recordatorios","📅 Recordatorios"],["historial","📋 Historial"],["plantillas","⚙️ Plantillas"],["config","🔧 Configuración"]].map(([t,l])=>(
           <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?"#fff":"none",border:"none",borderRadius:8,padding:"7px 18px",fontSize:13,fontWeight:600,cursor:"pointer",color:tab===t?"#111827":"#6b7280",boxShadow:tab===t?"0 1px 4px rgba(0,0,0,0.1)":"none",fontFamily:"inherit"}}>{l}</button>
         ))}
       </div>
@@ -3327,13 +3348,13 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
             <div>
               <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:8}}>CANAL</div>
               <div style={{display:"flex",gap:8}}>
-                {[["whatsapp","Ã°Å¸âÂ¬ WhatsApp","#25d366","#f0fdf4","#15803d"],["email","Ã°Å¸âÂ§ Correo","#2563eb","#eff6ff","#1d4ed8"]].map(([k,l,bc,bg,tc])=>(
+                {[["whatsapp","💬 WhatsApp","#25d366","#f0fdf4","#15803d"],["email","📧 Correo","#2563eb","#eff6ff","#1d4ed8"]].map(([k,l,bc,bg,tc])=>(
                   <button key={k} onClick={()=>setCanal(k)} style={{padding:"8px 16px",borderRadius:9,border:"2px solid",borderColor:canal===k?bc:"#e5e7eb",background:canal===k?bg:"#fff",color:canal===k?tc:"#6b7280",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:"inherit"}}>{l}</button>
                 ))}
               </div>
             </div>
             <div>
-              <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:6}}>DÃÂAS DE ANTICIPACIÃâN: <strong style={{color:"#111827"}}>{diasAntes}</strong></div>
+              <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:6}}>DÍAS DE ANTICIPACIÓN: <strong style={{color:"#111827"}}>{diasAntes}</strong></div>
               <input type="range" min={7} max={90} step={7} value={diasAntes} onChange={e=>setDiasAntes(Number(e.target.value))} style={{width:180}}/>
             </div>
             <div style={{marginLeft:"auto",background:"#fef3c7",borderRadius:11,padding:"10px 16px"}}>
@@ -3344,8 +3365,8 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
 
           {proximasVencer.length===0?(
             <div style={{background:"#fff",borderRadius:14,padding:"40px 24px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-              <div style={{fontSize:36,marginBottom:8}}>Ã¢Åâ¦</div>
-              <div style={{fontWeight:700,color:"#111827"}}>Sin vencimientos en los próximos {diasAntes} dÃÂ­as</div>
+              <div style={{fontSize:36,marginBottom:8}}>✅</div>
+              <div style={{fontWeight:700,color:"#111827"}}>Sin vencimientos en los próximos {diasAntes} días</div>
             </div>
           ):(
             <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -3359,14 +3380,14 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
                     <div style={{display:"flex",alignItems:"flex-start",gap:16}}>
                       <div style={{flex:1}}>
                         <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
-                          <div style={{fontWeight:800,fontSize:14}}>{p.cliente||"Ã¢â¬â"}</div>
+                          <div style={{fontWeight:800,fontSize:14}}>{p.cliente||"—"}</div>
                           <div style={{background:dias<=7?"#fee2e2":dias<=15?"#fef3c7":"#dbeafe",color:dias<=7?"#991b1b":dias<=15?"#92400e":"#1e40af",padding:"2px 9px",borderRadius:20,fontSize:12,fontWeight:700}}>
-                            {dias===0?"ÃÂ¡Hoy!":`${dias}d`}
+                            {dias===0?"¡Hoy!":`${dias}d`}
                           </div>
-                          {p.ramo&&<span style={{background:rc+"15",color:rc,padding:"2px 9px",borderRadius:20,fontSize:11,fontWeight:700}}>{p.ramo}{p.subramo?` ÃÂ· ${p.subramo}`:""}</span>}
+                          {p.ramo&&<span style={{background:rc+"15",color:rc,padding:"2px 9px",borderRadius:20,fontSize:11,fontWeight:700}}>{p.ramo}{p.subramo?` · ${p.subramo}`:""}</span>}
                         </div>
                         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(120px,1fr))",gap:8}}>
-                          {[["Póliza",p.numero||"Ã¢â¬â"],["Aseguradora",p.aseguradora||"Ã¢â¬â"],["Prima",prima?`$${Number(prima).toLocaleString()} ${frecuencia}`:"Ã¢â¬â"],["Vencimiento",p.vencimiento||"Ã¢â¬â"],["Email",p.emailCliente||"Ã¢â¬â"]].map(([l,v])=>(
+                          {[["Póliza",p.numero||"—"],["Aseguradora",p.aseguradora||"—"],["Prima",prima?`$${Number(prima).toLocaleString()} ${frecuencia}`:"—"],["Vencimiento",p.vencimiento||"—"],["Email",p.emailCliente||"—"]].map(([l,v])=>(
                             <div key={l}><div style={{fontSize:10,color:"#9ca3af",fontWeight:700}}>{l}</div><div style={{fontSize:12,fontWeight:600}}>{v}</div></div>
                           ))}
                         </div>
@@ -3375,20 +3396,20 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
                         <button onClick={()=>setPreviewPoliza(previewPoliza?.id===p.id?null:p)} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 12px",borderRadius:8,border:"1.5px solid #e5e7eb",background:"#fff",color:"#374151",fontWeight:600,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>
                           <Icon name="eye" size={13}/> Preview
                         </button>
-                        <button onClick={()=>{navigator.clipboard.writeText(getMensaje(p));showToast("Copiado Ã¢Åâ");}} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 12px",borderRadius:8,border:"1.5px solid #e5e7eb",background:"#fff",color:"#374151",fontWeight:600,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>
+                        <button onClick={()=>{navigator.clipboard.writeText(getMensaje(p));showToast("Copiado ✓");}} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 12px",borderRadius:8,border:"1.5px solid #e5e7eb",background:"#fff",color:"#374151",fontWeight:600,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>
                           <Icon name="copy" size={13}/> Copiar
                         </button>
                         <button onClick={()=>enviarWA(p)} style={{display:"flex",alignItems:"center",gap:6,padding:"8px 12px",borderRadius:8,border:"none",background:yaEnviado(p.id,"whatsapp")?"#d1fae5":"#25d366",color:yaEnviado(p.id,"whatsapp")?"#065f46":"#fff",fontWeight:700,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>
-                          <Icon name="whatsapp" size={13}/> {yaEnviado(p.id,"whatsapp")?"WA Ã¢Åâ":"WhatsApp"}
+                          <Icon name="whatsapp" size={13}/> {yaEnviado(p.id,"whatsapp")?"WA ✓":"WhatsApp"}
                         </button>
                         <button onClick={()=>enviarEmail(p)} style={{display:"flex",alignItems:"center",gap:6,padding:"8px 12px",borderRadius:8,border:"none",background:yaEnviado(p.id,"email")?"#dbeafe":"#2563eb",color:yaEnviado(p.id,"email")?"#1e40af":"#fff",fontWeight:700,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>
-                          <Icon name="mail" size={13}/> {yaEnviado(p.id,"email")?"Email Ã¢Åâ":"Email"}
+                          <Icon name="mail" size={13}/> {yaEnviado(p.id,"email")?"Email ✓":"Email"}
                         </button>
                       </div>
                     </div>
                     {previewPoliza?.id===p.id&&(
                       <div style={{marginTop:14,background:canal==="whatsapp"?"#f0fdf4":"#eff6ff",borderRadius:10,padding:"14px 16px"}}>
-                        <div style={{fontSize:10,fontWeight:700,color:canal==="whatsapp"?"#15803d":"#1d4ed8",marginBottom:8,letterSpacing:"0.05em"}}>{canal==="whatsapp"?"Ã°Å¸âÂ± MENSAJE WHATSAPP":"Ã°Å¸âÂ§ CORREO ELECTRÃâNICO"}</div>
+                        <div style={{fontSize:10,fontWeight:700,color:canal==="whatsapp"?"#15803d":"#1d4ed8",marginBottom:8,letterSpacing:"0.05em"}}>{canal==="whatsapp"?"📱 MENSAJE WHATSAPP":"📧 CORREO ELECTRÓNICO"}</div>
                         <pre style={{margin:0,fontSize:12,color:"#374151",whiteSpace:"pre-wrap",fontFamily:"inherit",lineHeight:1.6}}>{getMensaje(p)}</pre>
                       </div>
                     )}
@@ -3402,14 +3423,14 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
 
       {tab==="historial"&&(
         <div style={{background:"#fff",borderRadius:14,padding:22,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-          <h3 style={{margin:"0 0 16px",fontSize:14,fontWeight:700}}>Historial de envÃÂ­os</h3>
-          {enviados.length===0?<div style={{textAlign:"center",padding:"24px",color:"#9ca3af",fontSize:13}}>Sin envÃÂ­os en esta sesión</div>:(
+          <h3 style={{margin:"0 0 16px",fontSize:14,fontWeight:700}}>Historial de envíos</h3>
+          {enviados.length===0?<div style={{textAlign:"center",padding:"24px",color:"#9ca3af",fontSize:13}}>Sin envíos en esta sesión</div>:(
             <table style={{width:"100%",borderCollapse:"collapse"}}>
-              <thead><tr style={{background:"#f9fafb"}}>{["Póliza Ã¢â¬â Cliente","Canal","Fecha"].map(h=><th key={h} style={{padding:"10px 13px",textAlign:"left",fontSize:11,fontWeight:700,color:"#6b7280"}}>{h}</th>)}</tr></thead>
+              <thead><tr style={{background:"#f9fafb"}}>{["Póliza — Cliente","Canal","Fecha"].map(h=><th key={h} style={{padding:"10px 13px",textAlign:"left",fontSize:11,fontWeight:700,color:"#6b7280"}}>{h}</th>)}</tr></thead>
               <tbody>{enviados.map((e,i)=>{const p=polizas.find(x=>x.id===e.id);return(
                 <tr key={i} style={{borderTop:"1px solid #f3f4f6"}}>
-                  <td style={{padding:"11px 13px",fontSize:13}}>{p?.numero} Ã¢â¬â {p?.cliente}</td>
-                  <td style={{padding:"11px 13px"}}>{e.tipo==="whatsapp"?<span style={{color:"#15803d",fontWeight:700,fontSize:13}}>Ã°Å¸âÂ¬ WhatsApp</span>:<span style={{color:"#1d4ed8",fontWeight:700,fontSize:13}}>Ã°Å¸âÂ§ Email</span>}</td>
+                  <td style={{padding:"11px 13px",fontSize:13}}>{p?.numero} — {p?.cliente}</td>
+                  <td style={{padding:"11px 13px"}}>{e.tipo==="whatsapp"?<span style={{color:"#15803d",fontWeight:700,fontSize:13}}>💬 WhatsApp</span>:<span style={{color:"#1d4ed8",fontWeight:700,fontSize:13}}>📧 Email</span>}</td>
                   <td style={{padding:"11px 13px",fontSize:12,color:"#6b7280"}}>{e.fecha}</td>
                 </tr>
               );})}</tbody>
@@ -3424,9 +3445,9 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
         const setPlantillasActuales=esMail?setPlantillasEmail:setPlantillas;
         const defaultActuales=esMail?EMAIL_DEFAULT:plantillasDefault;
         const demoPoliza=clienteDemo?polizas.find(p=>p.clienteId===clienteDemo.id)||{cliente:`${clienteDemo.nombre} ${clienteDemo.apellidoPaterno}`}
-          :{cliente:"MarÃÂ­a González Ruiz",numero:"GNP-2024-001234",aseguradora:"GNP",ramo:"Vida",subramo:"Vida Individual",vencimiento:"2025-01-15",primaTotal:8400,formaPago:"Anual"};
+          :{cliente:"María González Ruiz",numero:"GNP-2024-001234",aseguradora:"GNP",ramo:"Vida",subramo:"Vida Individual",vencimiento:"2025-01-15",primaTotal:8400,formaPago:"Anual"};
 
-        const nombreVars = nombreManual.trim() || demoPoliza.cliente?.split(" ")[0] || "MarÃÂ­a";
+        const nombreVars = nombreManual.trim() || demoPoliza.cliente?.split(" ")[0] || "María";
         const aplicarVarsDemo=(tpl)=>(tpl||"")
           .replace(/{nombre}/g,nombreVars)
           .replace(/{numero}/g,demoPoliza.numero||"GNP-2024-001234")
@@ -3440,7 +3461,7 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
           <div style={{display:"flex",flexDirection:"column",gap:16}}>
             {/* Selector WhatsApp / Email */}
             <div style={{display:"flex",gap:8}}>
-              {[["whatsapp","Ã°Å¸âÂ¬ WhatsApp","#25d366","#f0fdf4","#15803d"],["email","Ã°Å¸âÂ§ Correo electrónico","#2563eb","#eff6ff","#1d4ed8"]].map(([k,l,bc,bg,tc])=>(
+              {[["whatsapp","💬 WhatsApp","#25d366","#f0fdf4","#15803d"],["email","📧 Correo electrónico","#2563eb","#eff6ff","#1d4ed8"]].map(([k,l,bc,bg,tc])=>(
                 <button key={k} onClick={()=>setEditandoCanalPlantilla(k)}
                   style={{padding:"9px 20px",borderRadius:10,border:`2px solid ${editandoCanal===k?bc:"#e5e7eb"}`,
                     background:editandoCanal===k?bg:"#fff",color:editandoCanal===k?tc:"#6b7280",
@@ -3481,7 +3502,7 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
               <div style={{display:"flex",flexDirection:"column",gap:12}}>
                 <div style={{background:"#fff",borderRadius:12,padding:16,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
                   <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:8}}>
-                    {esMail?"Ã°Å¸âÂ§ PLANTILLA DE CORREO":"Ã°Å¸âÂ¬ PLANTILLA DE WHATSAPP"} Ã¢â¬â {TIPOS_PLANTILLA.find(t=>t.key===editandoTipo)?.label}
+                    {esMail?"📧 PLANTILLA DE CORREO":"💬 PLANTILLA DE WHATSAPP"} — {TIPOS_PLANTILLA.find(t=>t.key===editandoTipo)?.label}
                   </div>
                   <textarea id="editor-notif-plantilla"
                     value={plantillasActuales[editandoTipo]||""}
@@ -3492,11 +3513,11 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
                   <div style={{display:"flex",gap:9,marginTop:10}}>
                     <button onClick={()=>setPlantillasActuales(p=>({...p,[editandoTipo]:defaultActuales[editandoTipo]}))}
                       style={{background:"#f3f4f6",border:"none",borderRadius:8,padding:"8px 14px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",color:"#6b7280"}}>
-                      Ã¢â Â© Restaurar
+                      ↩ Restaurar
                     </button>
-                    <button onClick={()=>showToast(esMail?"Ã°Å¸âÂ§ Plantilla de correo guardada Ã¢Åâ":"Ã°Å¸âÂ¬ Plantilla WhatsApp guardada Ã¢Åâ")}
+                    <button onClick={()=>showToast(esMail?"📧 Plantilla de correo guardada ✓":"💬 Plantilla WhatsApp guardada ✓")}
                       style={{background:esMail?"#2563eb":"#25d366",border:"none",borderRadius:8,padding:"8px 20px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff",marginLeft:"auto"}}>
-                      Ã°Å¸âÂ¾ Guardar plantilla
+                      💾 Guardar plantilla
                     </button>
                   </div>
                 </div>
@@ -3505,7 +3526,7 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
                 <div style={{background:esMail?"#eff6ff":"#f0fdf4",borderRadius:12,padding:14,border:`1.5px solid ${esMail?"#bfdbfe":"#bbf7d0"}`}}>
                   <div style={{marginBottom:10}}>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-                      <div style={{fontSize:11,fontWeight:800,color:esMail?"#1e40af":"#065f46"}}>Ã°Å¸âÂ VISTA PREVIA</div>
+                      <div style={{fontSize:11,fontWeight:800,color:esMail?"#1e40af":"#065f46"}}>👁 VISTA PREVIA</div>
                     </div>
                     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
                       <div>
@@ -3517,7 +3538,7 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
                             if(c) setNombreManual("");
                           }}
                           style={{border:"1.5px solid #e5e7eb",borderRadius:8,padding:"7px 10px",fontSize:12,outline:"none",fontFamily:"inherit",background:"#fff",width:"100%"}}>
-                          <option value="">Ã¢â¬â Datos de ejemplo Ã¢â¬â</option>
+                          <option value="">— Datos de ejemplo —</option>
                           {(clientes||[]).map(c=><option key={c.id} value={c.id}>{c.nombre} {c.apellidoPaterno}</option>)}
                         </select>
                       </div>
@@ -3526,14 +3547,14 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
                         <input
                           value={nombreManual}
                           onChange={e=>{setNombreManual(e.target.value); if(e.target.value) setClienteDemo(null);}}
-                          placeholder="Ej: Juan, MarÃÂ­a..."
+                          placeholder="Ej: Juan, María..."
                           style={{border:"1.5px solid "+(nombreManual?"#2563eb":"#e5e7eb"),borderRadius:8,padding:"7px 10px",fontSize:12,outline:"none",fontFamily:"inherit",background:"#fff",width:"100%",boxSizing:"border-box",transition:"border-color .15s"}}
                         />
                       </div>
                     </div>
                     {(clienteDemo||nombreManual)&&(
                       <div style={{marginTop:6,fontSize:11,color:"#059669",fontWeight:600}}>
-                        Ã¢Åâ Vista previa con nombre: <strong>{nombreManual||clienteDemo?.nombre}</strong>
+                        ✓ Vista previa con nombre: <strong>{nombreManual||clienteDemo?.nombre}</strong>
                       </div>
                     )}
                   </div>
@@ -3548,15 +3569,15 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
                       <pre style={{margin:0,fontSize:12,color:"#111",whiteSpace:"pre-wrap",fontFamily:"inherit",lineHeight:1.7}}>
                         {aplicarVarsDemo(plantillasActuales[editandoTipo])}
                       </pre>
-                      <div style={{fontSize:10,color:"#6b7280",textAlign:"right",marginTop:5}}>12:00 Ã¢ÅâÃ¢Åâ</div>
+                      <div style={{fontSize:10,color:"#6b7280",textAlign:"right",marginTop:5}}>12:00 ✓✓</div>
                     </div>
                   )}
 
-                  {/* Ã¢ââ¬Ã¢ââ¬ BOTONES DE ENVÃÂO Ã¢â¬â aparecen en todos los tipos Ã¢ââ¬Ã¢ââ¬ */}
+                  {/* ── BOTONES DE ENVÍO — aparecen en todos los tipos ── */}
                   <div style={{marginTop:12,display:"flex",flexDirection:"column",gap:10}}>
 
                     {!esMail&&(
-                      // Ã¢ââ¬Ã¢ââ¬ WhatsApp Ã¢ââ¬Ã¢ââ¬
+                      // ── WhatsApp ──
                       clienteDemo?.whatsapp ? (
                         <button onClick={()=>{
                           const msg=encodeURIComponent(aplicarVarsDemo(plantillasActuales[editandoTipo]));
@@ -3569,17 +3590,17 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
                         </button>
                       ) : (
                         <div style={{background:"#f0fdf4",border:"1.5px dashed #86efac",borderRadius:9,padding:"10px 14px",fontSize:12,color:"#16a34a"}}>
-                          Ã°Å¸âÂ¬ <strong>Para enviar por WhatsApp:</strong> selecciona un cliente en "Vista previa" que tenga nÃÂºmero de WhatsApp registrado.
+                          💬 <strong>Para enviar por WhatsApp:</strong> selecciona un cliente en "Vista previa" que tenga número de WhatsApp registrado.
                         </div>
                       )
                     )}
 
                     {esMail&&(
-                      // Ã¢ââ¬Ã¢ââ¬ Correo Ã¢ââ¬Ã¢ââ¬
+                      // ── Correo ──
                       <>
                         {/* Adjuntos */}
                         <div>
-                          <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:6}}>Ã°Å¸âÅ½ Adjuntar archivos o imágenes (opcional)</div>
+                          <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:6}}>📎 Adjuntar archivos o imágenes (opcional)</div>
                           <label style={{display:"inline-flex",alignItems:"center",gap:8,background:"#eff6ff",border:"1.5px dashed #93c5fd",
                             borderRadius:9,padding:"8px 16px",fontSize:12,fontWeight:600,color:"#1d4ed8",cursor:"pointer"}}>
                             <input type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
@@ -3588,18 +3609,18 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
                                 setForm_adjuntos(prev=>[...prev,...files.map(f=>({name:f.name,size:f.size,type:f.type}))]);
                               }}
                               style={{display:"none"}}/>
-                            Ã°Å¸âÂ Seleccionar archivos
+                            📁 Seleccionar archivos
                           </label>
                           {adjuntosEmail.length>0&&(
                             <div style={{display:"flex",flexWrap:"wrap",gap:7,marginTop:8}}>
                               {adjuntosEmail.map((a,i)=>(
                                 <div key={i} style={{background:"#f0f9ff",border:"1px solid #bae6fd",borderRadius:8,padding:"5px 10px",
                                   fontSize:11,display:"flex",alignItems:"center",gap:6}}>
-                                  <span>{a.type.startsWith("image/")?"Ã°Å¸âÂ¼":"Ã°Å¸ââ"}</span>
+                                  <span>{a.type.startsWith("image/")?"🖼":"📄"}</span>
                                   <span style={{fontWeight:600,color:"#0369a1",maxWidth:130,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.name}</span>
                                   <span style={{color:"#94a3b8"}}>({(a.size/1024).toFixed(0)}kb)</span>
                                   <button onClick={()=>setForm_adjuntos(prev=>prev.filter((_,j)=>j!==i))}
-                                    style={{background:"none",border:"none",color:"#dc2626",cursor:"pointer",fontSize:14,padding:0,lineHeight:1}}>Ãâ</button>
+                                    style={{background:"none",border:"none",color:"#dc2626",cursor:"pointer",fontSize:14,padding:0,lineHeight:1}}>×</button>
                                 </div>
                               ))}
                             </div>
@@ -3610,17 +3631,17 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
                         {clienteDemo?.email ? (
                           <button onClick={()=>{
                             const tipo=TIPOS_PLANTILLA.find(t=>t.key===editandoTipo);
-                            const asunto=encodeURIComponent(`${tipo?.label.replace(/[^\w ]/g,"")||"Mensaje"} Ã¢â¬â Póliza`);
+                            const asunto=encodeURIComponent(`${tipo?.label.replace(/[^\w ]/g,"")||"Mensaje"} — Póliza`);
                             const cuerpo=encodeURIComponent(aplicarVarsDemo(plantillasActuales[editandoTipo]));
                             window.open(`mailto:${clienteDemo.email}?subject=${asunto}&body=${cuerpo}`,"_blank");
                           }}
                             style={{display:"inline-flex",alignItems:"center",gap:8,background:"#2563eb",border:"none",
                               borderRadius:9,padding:"10px 20px",fontSize:13,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit",width:"fit-content"}}>
-                            Ã°Å¸âÂ§ Enviar correo a {clienteDemo.nombre}
+                            📧 Enviar correo a {clienteDemo.nombre}
                           </button>
                         ) : (
                           <div style={{background:"#eff6ff",border:"1.5px dashed #93c5fd",borderRadius:9,padding:"10px 14px",fontSize:12,color:"#1d4ed8"}}>
-                            Ã°Å¸âÂ§ <strong>Para enviar correo:</strong> selecciona un cliente en "Vista previa" que tenga email registrado.
+                            📧 <strong>Para enviar correo:</strong> selecciona un cliente en "Vista previa" que tenga email registrado.
                           </div>
                         )}
                       </>
@@ -3636,17 +3657,17 @@ function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault,
       {tab==="config"&&(
         <div style={{display:"flex",flexDirection:"column",gap:20}}>
           <div style={{background:"#fff",borderRadius:14,padding:22,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-            <div style={{fontWeight:800,fontSize:15,color:"#111827",marginBottom:4}}>Ã°Å¸âÂ± WhatsApp Ã¢â¬â NÃÂºmero de envÃÂ­o</div>
-            <div style={{fontSize:12,color:"#6b7280",marginBottom:16}}>Este es el nÃÂºmero desde el cual se abrirán los chats de WhatsApp para enviar mensajes a tus clientes.</div>
+            <div style={{fontWeight:800,fontSize:15,color:"#111827",marginBottom:4}}>📱 WhatsApp — Número de envío</div>
+            <div style={{fontSize:12,color:"#6b7280",marginBottom:16}}>Este es el número desde el cual se abrirán los chats de WhatsApp para enviar mensajes a tus clientes.</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
               <div>
-                <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:5}}>NÃÅ¡MERO DE CELULAR (WhatsApp)</div>
+                <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:5}}>NÚMERO DE CELULAR (WhatsApp)</div>
                 <div style={{display:"flex",alignItems:"center",gap:8,background:"#f9fafb",border:"1.5px solid #e5e7eb",borderRadius:10,padding:"10px 14px"}}>
-                  <span style={{fontSize:16}}>Ã°Å¸âÂ±</span>
+                  <span style={{fontSize:16}}>📱</span>
                   <input value={configNotif.celularWA} onChange={e=>setConfigNotif(p=>({...p,celularWA:e.target.value}))}
                     placeholder="55 1234 5678" style={{border:"none",outline:"none",fontSize:13,flex:1,background:"transparent",fontFamily:"inherit"}}/>
                 </div>
-                <div style={{fontSize:11,color:"#9ca3af",marginTop:4}}>Sin prefijo +52 Ã¢â¬â solo los 10 dÃÂ­gitos</div>
+                <div style={{fontSize:11,color:"#9ca3af",marginTop:4}}>Sin prefijo +52 — solo los 10 dígitos</div>
               </div>
               <div>
                 <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:5}}>FIRMA EN MENSAJES WA</div>
@@ -3657,18 +3678,18 @@ Tel: 55 1234 5678_"
               </div>
             </div>
             <div style={{marginTop:14,background:"#f0fdf4",borderRadius:10,padding:"11px 14px",fontSize:12,color:"#065f46",border:"1px solid #bbf7d0"}}>
-              Ã¢Åâ¦ <strong>ÃÂ¿Cómo funciona?</strong> Al hacer clic en "Enviar WhatsApp" se abre <strong>wa.me</strong> con tu nÃÂºmero como origen y el mensaje prellenado. No requiere integración adicional.
+              ✅ <strong>¿Cómo funciona?</strong> Al hacer clic en "Enviar WhatsApp" se abre <strong>wa.me</strong> con tu número como origen y el mensaje prellenado. No requiere integración adicional.
             </div>
           </div>
 
           <div style={{background:"#fff",borderRadius:14,padding:22,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-            <div style={{fontWeight:800,fontSize:15,color:"#111827",marginBottom:4}}>Ã°Å¸âÂ§ Correo Electrónico Ã¢â¬â Cuenta de envÃÂ­o</div>
+            <div style={{fontWeight:800,fontSize:15,color:"#111827",marginBottom:4}}>📧 Correo Electrónico — Cuenta de envío</div>
             <div style={{fontSize:12,color:"#6b7280",marginBottom:16}}>Configura la cuenta desde la cual se enviarán los correos a tus clientes.</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
               <div>
                 <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:5}}>CORREO REMITENTE</div>
                 <div style={{display:"flex",alignItems:"center",gap:8,background:"#f9fafb",border:"1.5px solid #e5e7eb",borderRadius:10,padding:"10px 14px"}}>
-                  <span style={{fontSize:16}}>Ã°Å¸âÂ§</span>
+                  <span style={{fontSize:16}}>📧</span>
                   <input type="email" value={configNotif.emailRemitente} onChange={e=>setConfigNotif(p=>({...p,emailRemitente:e.target.value}))}
                     placeholder="agente@tudominio.com" style={{border:"none",outline:"none",fontSize:13,flex:1,background:"transparent",fontFamily:"inherit"}}/>
                 </div>
@@ -3676,9 +3697,9 @@ Tel: 55 1234 5678_"
               <div>
                 <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:5}}>NOMBRE DEL REMITENTE</div>
                 <div style={{display:"flex",alignItems:"center",gap:8,background:"#f9fafb",border:"1.5px solid #e5e7eb",borderRadius:10,padding:"10px 14px"}}>
-                  <span style={{fontSize:16}}>Ã°Å¸âÂ¤</span>
+                  <span style={{fontSize:16}}>👤</span>
                   <input value={configNotif.nombreRemitente} onChange={e=>setConfigNotif(p=>({...p,nombreRemitente:e.target.value}))}
-                    placeholder="Ej: Ana Torres Ã¢â¬â Seguros" style={{border:"none",outline:"none",fontSize:13,flex:1,background:"transparent",fontFamily:"inherit"}}/>
+                    placeholder="Ej: Ana Torres — Seguros" style={{border:"none",outline:"none",fontSize:13,flex:1,background:"transparent",fontFamily:"inherit"}}/>
                 </div>
               </div>
             </div>
@@ -3689,7 +3710,7 @@ Tel: 55 1234 5678_"
                 style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:10,padding:"12px 14px",fontSize:12,fontFamily:"inherit",resize:"vertical",outline:"none",boxSizing:"border-box",background:"#f9fafb"}}/>
             </div>
             <div style={{marginTop:14,background:"#eff6ff",borderRadius:10,padding:"11px 14px",fontSize:12,color:"#1e40af",border:"1px solid #bfdbfe"}}>
-              Ã°Å¸âÂ§ <strong>ÃÂ¿Cómo funciona?</strong> Al hacer clic en "Enviar correo" se abre tu cliente de email (Outlook, Gmail, etc.) con el destinatario, asunto y cuerpo prellenados usando estas configuraciones.
+              📧 <strong>¿Cómo funciona?</strong> Al hacer clic en "Enviar correo" se abre tu cliente de email (Outlook, Gmail, etc.) con el destinatario, asunto y cuerpo prellenados usando estas configuraciones.
             </div>
             <div style={{marginTop:10,display:"flex",justifyContent:"flex-end"}}>
               <button onClick={()=>{
@@ -3700,10 +3721,10 @@ Tel: 55 1234 5678_"
                   celularWA: configNotif.celularWA,
                   firmaWA: configNotif.firmaWA,
                 });
-                showToast("Ã¢Åâ¦ Configuración guardada correctamente");
+                showToast("✅ Configuración guardada correctamente");
               }}
                 style={{background:"#0f172a",color:"#fff",border:"none",borderRadius:9,padding:"9px 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                Ã°Å¸âÂ¾ Guardar configuración
+                💾 Guardar configuración
               </button>
             </div>
           </div>
@@ -3713,9 +3734,9 @@ Tel: 55 1234 5678_"
   );
 }
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
-// WHATSAPP CONFIG Ã¢â¬â Módulo de plantillas de mensajes
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
+// WHATSAPP CONFIG — Módulo de plantillas de mensajes
+// ═══════════════════════════════════════════════════════════════════
 function WhatsAppConfig({ plantillas, setPlantillas, plantillasDefault, clientes, polizas }) {
   const [activa, setActiva] = useState("vencimiento");
   const [toast, setToast] = useState(null);
@@ -3724,18 +3745,18 @@ function WhatsAppConfig({ plantillas, setPlantillas, plantillasDefault, clientes
   const showToast = (msg) => { setToast(msg); setTimeout(()=>setToast(null), 3000); };
 
   const TIPOS = [
-    {key:"vencimiento",  label:"Ã°Å¸ââ¦ Vencimiento",    color:"#d97706", bg:"#fffbeb", desc:"Se envÃÂ­a cuando una póliza está próxima a vencer"},
-    {key:"pago",         label:"Ã°Å¸âÂ³ Pago recibido",   color:"#059669", bg:"#f0fdf4", desc:"Confirmación al registrar un pago"},
-    {key:"bienvenida",   label:"Ã°Å¸Å½â° Bienvenida",      color:"#7c3aed", bg:"#f5f3ff", desc:"Al dar de alta a un cliente nuevo"},
-    {key:"renovacion",   label:"Ã°Å¸ââ Renovación",      color:"#2563eb", bg:"#eff6ff", desc:"Al renovar una póliza"},
-    {key:"personalizado",label:"Ã¢ÅÂÃ¯Â¸Â Personalizado",   color:"#6b7280", bg:"#f9fafb", desc:"Mensaje libre para cualquier ocasión"},
+    {key:"vencimiento",  label:"📅 Vencimiento",    color:"#d97706", bg:"#fffbeb", desc:"Se envía cuando una póliza está próxima a vencer"},
+    {key:"pago",         label:"💳 Pago recibido",   color:"#059669", bg:"#f0fdf4", desc:"Confirmación al registrar un pago"},
+    {key:"bienvenida",   label:"🎉 Bienvenida",      color:"#7c3aed", bg:"#f5f3ff", desc:"Al dar de alta a un cliente nuevo"},
+    {key:"renovacion",   label:"🔄 Renovación",      color:"#2563eb", bg:"#eff6ff", desc:"Al renovar una póliza"},
+    {key:"personalizado",label:"✏️ Personalizado",   color:"#6b7280", bg:"#f9fafb", desc:"Mensaje libre para cualquier ocasión"},
   ];
 
   const aplicarVars = (tpl, p) => (tpl||"")
-    .replace(/{nombre}/g,      p.cliente?.split(" ")[0]||"MarÃÂ­a")
+    .replace(/{nombre}/g,      p.cliente?.split(" ")[0]||"María")
     .replace(/{numero}/g,      p.numero||"GNP-2024-001234")
     .replace(/{aseguradora}/g, p.aseguradora||"GNP")
-    .replace(/{ramo}/g,        p.subramo?`${p.ramo} Ã¢â¬Âº ${p.subramo}`:(p.ramo||"Vida"))
+    .replace(/{ramo}/g,        p.subramo?`${p.ramo} › ${p.subramo}`:(p.ramo||"Vida"))
     .replace(/{subramo}/g,     p.subramo||"Vida Individual")
     .replace(/{vencimiento}/g, p.vencimiento||"2025-01-15")
     .replace(/{prima}/g,       p.primaTotal?.toLocaleString()||p.prima?.toLocaleString()||"8,400")
@@ -3743,7 +3764,7 @@ function WhatsAppConfig({ plantillas, setPlantillas, plantillasDefault, clientes
 
   const demoData = clienteDemo
     ? polizas.find(p=>p.clienteId===clienteDemo.id) || {cliente:clienteDemo.nombre+" "+clienteDemo.apellidoPaterno}
-    : {cliente:"MarÃÂ­a González Ruiz",numero:"GNP-2024-001234",aseguradora:"GNP",ramo:"Vida",subramo:"Vida Individual",vencimiento:"2025-01-15",primaTotal:8400,formaPago:"Anual"};
+    : {cliente:"María González Ruiz",numero:"GNP-2024-001234",aseguradora:"GNP",ramo:"Vida",subramo:"Vida Individual",vencimiento:"2025-01-15",primaTotal:8400,formaPago:"Anual"};
 
   const tipoActivo = TIPOS.find(t=>t.key===activa);
   const vars = ["{nombre}","{numero}","{aseguradora}","{ramo}","{subramo}","{vencimiento}","{prima}","{frecuencia}"];
@@ -3752,11 +3773,11 @@ function WhatsAppConfig({ plantillas, setPlantillas, plantillasDefault, clientes
     <div style={{display:"flex",flexDirection:"column",gap:22}}>
       {toast&&<div style={{position:"fixed",top:20,right:20,background:"#25d366",color:"#fff",padding:"12px 20px",borderRadius:12,fontSize:13,fontWeight:700,zIndex:9999,boxShadow:"0 8px 24px rgba(0,0,0,0.2)"}}>{toast}</div>}
 
-      <SectionTitle title="WhatsApp Ã¢â¬â Plantillas" sub="Configura los mensajes que se envÃÂ­an automáticamente a tus clientes"/>
+      <SectionTitle title="WhatsApp — Plantillas" sub="Configura los mensajes que se envían automáticamente a tus clientes"/>
 
       <div style={{display:"grid",gridTemplateColumns:"260px 1fr",gap:20,alignItems:"start"}}>
 
-        {/* Panel izquierdo Ã¢â¬â lista de tipos */}
+        {/* Panel izquierdo — lista de tipos */}
         <div style={{display:"flex",flexDirection:"column",gap:8}}>
           {TIPOS.map(t=>(
             <button key={t.key} onClick={()=>setActiva(t.key)}
@@ -3789,7 +3810,7 @@ function WhatsAppConfig({ plantillas, setPlantillas, plantillasDefault, clientes
           </div>
         </div>
 
-        {/* Panel derecho Ã¢â¬â editor + preview */}
+        {/* Panel derecho — editor + preview */}
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
 
           {/* Header del tipo activo */}
@@ -3813,11 +3834,11 @@ function WhatsAppConfig({ plantillas, setPlantillas, plantillasDefault, clientes
             <div style={{display:"flex",gap:10,marginTop:10}}>
               <button onClick={()=>{setPlantillas(p=>({...p,[activa]:plantillasDefault[activa]}));showToast("Plantilla restaurada");}}
                 style={{background:"#f3f4f6",border:"none",borderRadius:8,padding:"8px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",color:"#6b7280"}}>
-                Ã¢â Â© Restaurar default
+                ↩ Restaurar default
               </button>
-              <button onClick={()=>showToast("Ã¢Åâ¦ Plantilla guardada")}
+              <button onClick={()=>showToast("✅ Plantilla guardada")}
                 style={{background:"#25d366",border:"none",borderRadius:8,padding:"8px 22px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff",marginLeft:"auto"}}>
-                Ã°Å¸âÂ¾ Guardar
+                💾 Guardar
               </button>
             </div>
           </div>
@@ -3825,7 +3846,7 @@ function WhatsAppConfig({ plantillas, setPlantillas, plantillasDefault, clientes
           {/* Preview */}
           <div style={{background:"#fff",borderRadius:12,padding:16,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-              <div style={{fontSize:11,fontWeight:700,color:"#6b7280"}}>Ã°Å¸âÂ VISTA PREVIA</div>
+              <div style={{fontSize:11,fontWeight:700,color:"#6b7280"}}>👁 VISTA PREVIA</div>
               <select value={clienteDemo?.id||""}
                 onChange={e=>{const c=clientes.find(x=>x.id===Number(e.target.value));setClienteDemo(c||null);}}
                 style={{border:"1.5px solid #e5e7eb",borderRadius:8,padding:"4px 10px",fontSize:12,outline:"none",fontFamily:"inherit",background:"#fff",color:"#374151"}}>
@@ -3838,9 +3859,9 @@ function WhatsAppConfig({ plantillas, setPlantillas, plantillasDefault, clientes
               <pre style={{margin:0,fontSize:12,color:"#111",whiteSpace:"pre-wrap",fontFamily:"inherit",lineHeight:1.7}}>
                 {aplicarVars(plantillas[activa], demoData)}
               </pre>
-              <div style={{fontSize:10,color:"#6b7280",textAlign:"right",marginTop:6}}>12:00 Ã¢ÅâÃ¢Åâ</div>
+              <div style={{fontSize:10,color:"#6b7280",textAlign:"right",marginTop:6}}>12:00 ✓✓</div>
             </div>
-            {/* Botón abrir WA Ã¢â¬â solo si no es personalizado */}
+            {/* Botón abrir WA — solo si no es personalizado */}
             {clienteDemo?.whatsapp && activa!=="personalizado" &&(
               <button onClick={()=>{
                 const msg=encodeURIComponent(aplicarVars(plantillas[activa],demoData));
@@ -3854,7 +3875,7 @@ function WhatsAppConfig({ plantillas, setPlantillas, plantillasDefault, clientes
             )}
             {activa==="personalizado"&&(
               <div style={{marginTop:10,background:"#fffbeb",borderRadius:9,padding:"10px 13px",border:"1px solid #fde68a",fontSize:12,color:"#92400e"}}>
-                Ã°Å¸âÂ¬ El mensaje personalizado debe enviarse manualmente. Copia el texto y ábrelo en WhatsApp.
+                💬 El mensaje personalizado debe enviarse manualmente. Copia el texto y ábrelo en WhatsApp.
               </div>
             )}
           </div>
@@ -3864,9 +3885,9 @@ function WhatsAppConfig({ plantillas, setPlantillas, plantillasDefault, clientes
   );
 }
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 // PAI
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 function PAI({ paiMetas, setPaiMetas }) {
   const [showModal,setShowModal]=useState(false);
   const [showAlerta,setShowAlerta]=useState(false);
@@ -3889,7 +3910,7 @@ function PAI({ paiMetas, setPaiMetas }) {
   const actualizarCobrado=(id,v)=>setPaiMetas(prev=>prev.map(m=>m.id===id?{...m,cobrado:Number(v)}:m));
   const eliminarMeta=(id)=>setPaiMetas(prev=>prev.filter(m=>m.id!==id));
   const cerrarTrimestre=(id)=>setPaiMetas(prev=>prev.map(m=>m.id===id?{...m,cerrado:true,activa:false}:m));
-  const getEstado=(pct)=>pct>=100?{label:"Ã°Å¸Ââ  Alcanzado",color:"#059669"}:pct>=80?{label:"Ã°Å¸Å¸Â¢ En camino",color:"#16a34a"}:pct>=50?{label:"Ã°Å¸Å¸Â¡ En proceso",color:"#d97706"}:{label:"Ã°Å¸âÂ´ Atención",color:"#dc2626"};
+  const getEstado=(pct)=>pct>=100?{label:"🏆 Alcanzado",color:"#059669"}:pct>=80?{label:"🟢 En camino",color:"#16a34a"}:pct>=50?{label:"🟡 En proceso",color:"#d97706"}:{label:"🔴 Atención",color:"#dc2626"};
 
   const metasActivas=paiMetas.filter(m=>!m.cerrado);
   const metasCerradas=paiMetas.filter(m=>m.cerrado);
@@ -3916,7 +3937,7 @@ function PAI({ paiMetas, setPaiMetas }) {
   return(
     <div style={{display:"flex",flexDirection:"column",gap:24}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-        <SectionTitle title="PAI Ã¢â¬â Plan de Acción Individual" sub="Metas de bono por ramo ÃÂ· Seguimiento trimestral"/>
+        <SectionTitle title="PAI — Plan de Acción Individual" sub="Metas de bono por ramo · Seguimiento trimestral"/>
         <div style={{display:"flex",gap:10}}>
           {metasActivas.length>0&&<Btn onClick={generarAlertaIA} color="#7c3aed" icon="spark">Alerta Semanal IA</Btn>}
           <Btn onClick={()=>setShowModal(true)} color="#059669" icon="plus">Nueva Meta</Btn>
@@ -3925,14 +3946,14 @@ function PAI({ paiMetas, setPaiMetas }) {
 
       {paiMetas.length===0&&(
         <div style={{background:"#fff",borderRadius:16,padding:"48px 24px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-          <div style={{fontSize:44,marginBottom:12}}>Ã°Å¸Å½Â¯</div>
+          <div style={{fontSize:44,marginBottom:12}}>🎯</div>
           <div style={{fontWeight:800,fontSize:16,fontFamily:"'Playfair Display',serif",marginBottom:6}}>Sin metas PAI registradas</div>
           <div style={{fontSize:13,color:"#6b7280",marginBottom:20}}>Agrega tu primera meta de bono por ramo para comenzar el seguimiento</div>
           <Btn onClick={()=>setShowModal(true)} color="#059669" icon="plus">Crear primera meta</Btn>
         </div>
       )}
 
-      {/* KPI global Ã¢â¬â solo si hay metas activas */}
+      {/* KPI global — solo si hay metas activas */}
       {metasActivas.length>0&&(
         <div style={{background:"linear-gradient(135deg,#0f172a,#1e3a5f)",borderRadius:18,padding:"24px 28px",display:"flex",alignItems:"center",gap:28}}>
           <div style={{flex:1}}>
@@ -3965,7 +3986,7 @@ function PAI({ paiMetas, setPaiMetas }) {
                 <div style={{background:`linear-gradient(135deg,${c1},${c2})`,padding:"16px 18px",color:"#fff"}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                     <div>
-                      <div style={{fontSize:10,opacity:.8,fontWeight:700,letterSpacing:"0.08em"}}>{m.periodo||"Sin perÃÂ­odo"}</div>
+                      <div style={{fontSize:10,opacity:.8,fontWeight:700,letterSpacing:"0.08em"}}>{m.periodo||"Sin período"}</div>
                       <div style={{fontSize:20,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>{m.ramo}</div>
                     </div>
                     <div style={{textAlign:"right"}}>
@@ -3987,17 +4008,17 @@ function PAI({ paiMetas, setPaiMetas }) {
                     <div style={{fontSize:10,fontWeight:700,color:"#6b7280",marginBottom:5}}>ACTUALIZAR COBRADO</div>
                     <div style={{display:"flex",gap:7}}>
                       <input type="number" defaultValue={m.cobrado} onBlur={e=>actualizarCobrado(m.id,e.target.value)} style={{flex:1,border:"1.5px solid #e5e7eb",borderRadius:8,padding:"7px 10px",fontSize:13,outline:"none",fontFamily:"inherit"}}/>
-                      <button onClick={e=>{const inp=e.currentTarget.previousSibling;actualizarCobrado(m.id,inp.value);inp.style.borderColor=c1;setTimeout(()=>inp.style.borderColor="#e5e7eb",900);}} style={{background:c1,color:"#fff",border:"none",borderRadius:8,padding:"7px 12px",fontWeight:700,cursor:"pointer",fontFamily:"inherit",fontSize:13}}>Ã¢Åâ</button>
+                      <button onClick={e=>{const inp=e.currentTarget.previousSibling;actualizarCobrado(m.id,inp.value);inp.style.borderColor=c1;setTimeout(()=>inp.style.borderColor="#e5e7eb",900);}} style={{background:c1,color:"#fff",border:"none",borderRadius:8,padding:"7px 12px",fontWeight:700,cursor:"pointer",fontFamily:"inherit",fontSize:13}}>✓</button>
                     </div>
                   </div>
                   <div style={{display:"flex",gap:8}}>
-                    <button onClick={()=>{ if(window.confirm(`ÃÂ¿Cerrar trimestre "${m.periodo}" para ${m.ramo}? Se guardará el resultado final.`)) cerrarTrimestre(m.id); }}
+                    <button onClick={()=>{ if(window.confirm(`¿Cerrar trimestre "${m.periodo}" para ${m.ramo}? Se guardará el resultado final.`)) cerrarTrimestre(m.id); }}
                       style={{flex:1,background:"#0f172a",color:"#fff",border:"none",borderRadius:8,padding:"8px 10px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                      Ã°Å¸ÂÂ Cerrar Trimestre
+                      🏁 Cerrar Trimestre
                     </button>
-                    <button onClick={()=>{ if(window.confirm("ÃÂ¿Eliminar esta meta?")) eliminarMeta(m.id); }}
+                    <button onClick={()=>{ if(window.confirm("¿Eliminar esta meta?")) eliminarMeta(m.id); }}
                       style={{background:"#fef2f2",color:"#dc2626",border:"1.5px solid #fecaca",borderRadius:8,padding:"8px 10px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                      Ã°Å¸ââ
+                      🗑
                     </button>
                   </div>
                 </div>
@@ -4007,10 +4028,10 @@ function PAI({ paiMetas, setPaiMetas }) {
         </div>
       )}
 
-      {/* ResÃÂºmenes trimestrales cerrados */}
+      {/* Resúmenes trimestrales cerrados */}
       {Object.keys(resumenTrimestrales).length>0&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          <div style={{fontSize:13,fontWeight:800,color:"#374151",borderBottom:"2px solid #e5e7eb",paddingBottom:8}}>Ã°Å¸âÅ  Resultados por Trimestre</div>
+          <div style={{fontSize:13,fontWeight:800,color:"#374151",borderBottom:"2px solid #e5e7eb",paddingBottom:8}}>📊 Resultados por Trimestre</div>
           {Object.entries(resumenTrimestrales).map(([periodo,metas])=>{
             const metaTotal=metas.reduce((a,m)=>a+m.metaBono,0);
             const cobradoTotal=metas.reduce((a,m)=>a+m.cobrado,0);
@@ -4019,7 +4040,7 @@ function PAI({ paiMetas, setPaiMetas }) {
               <div key={periodo} style={{background:"#fff",borderRadius:16,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
                 {/* Header del trimestre */}
                 <div style={{background:"#0f172a",padding:"14px 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                  <div style={{color:"#f1f5f9",fontWeight:800,fontSize:15,fontFamily:"'Playfair Display',serif"}}>Ã°Å¸ââ¦ {periodo}</div>
+                  <div style={{color:"#f1f5f9",fontWeight:800,fontSize:15,fontFamily:"'Playfair Display',serif"}}>📅 {periodo}</div>
                   <div style={{display:"flex",alignItems:"center",gap:14}}>
                     <div style={{color:"#94a3b8",fontSize:12}}>Meta: <strong style={{color:"#e2e8f0"}}>${metaTotal.toLocaleString()}</strong></div>
                     <div style={{color:"#94a3b8",fontSize:12}}>Cobrado: <strong style={{color:"#4ade80"}}>${cobradoTotal.toLocaleString()}</strong></div>
@@ -4038,7 +4059,7 @@ function PAI({ paiMetas, setPaiMetas }) {
                         <div style={{fontSize:24,fontWeight:900,fontFamily:"'Playfair Display',serif",color:alcanzado?"#059669":c1}}>{pct}%</div>
                         <div style={{fontSize:11,color:"#6b7280",marginTop:2}}>${m.cobrado.toLocaleString()} / ${m.metaBono.toLocaleString()}</div>
                         <div style={{marginTop:8}}><div style={{height:5,background:"#f3f4f6",borderRadius:99}}><div style={{height:"100%",width:`${Math.min(pct,100)}%`,background:alcanzado?"#059669":c1,borderRadius:99}}/></div></div>
-                        <div style={{marginTop:6,fontSize:11,fontWeight:700,color:alcanzado?"#059669":"#9ca3af"}}>{alcanzado?"Ã°Å¸Ââ  Meta alcanzada":"Ã¢Â¬Â¤ "+getEstado(pct).label.split(" ").slice(1).join(" ")}</div>
+                        <div style={{marginTop:6,fontSize:11,fontWeight:700,color:alcanzado?"#059669":"#9ca3af"}}>{alcanzado?"🏆 Meta alcanzada":"⬤ "+getEstado(pct).label.split(" ").slice(1).join(" ")}</div>
                       </div>
                     );
                   })}
@@ -4052,12 +4073,12 @@ function PAI({ paiMetas, setPaiMetas }) {
       {showModal&&(
         <Modal title="Nueva Meta PAI" onClose={()=>setShowModal(false)}>
           <div style={{display:"flex",flexDirection:"column",gap:13}}>
-            <div style={{background:"#eff6ff",borderRadius:9,padding:"10px 13px",fontSize:12,color:"#1e40af"}}>Ã°Å¸Å½Â¯ Define tu meta de bono. Al cerrar el trimestre se guardará el resultado final.</div>
+            <div style={{background:"#eff6ff",borderRadius:9,padding:"10px 13px",fontSize:12,color:"#1e40af"}}>🎯 Define tu meta de bono. Al cerrar el trimestre se guardará el resultado final.</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
               <Sel label="Ramo *" value={form.ramo} onChange={e=>setForm(p=>({...p,ramo:e.target.value}))}>
                 {ramos.map(r=><option key={r}>{r}</option>)}
               </Sel>
-              <Inp label="PerÃÂ­odo (ej. Q2 2025)" value={form.periodo} onChange={e=>setForm(p=>({...p,periodo:e.target.value}))} placeholder="Q2 2025"/>
+              <Inp label="Período (ej. Q2 2025)" value={form.periodo} onChange={e=>setForm(p=>({...p,periodo:e.target.value}))} placeholder="Q2 2025"/>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
               <Inp label="Meta de Bono ($) *" type="number" value={form.metaBono} onChange={e=>setForm(p=>({...p,metaBono:e.target.value}))} placeholder="50000"/>
@@ -4073,10 +4094,10 @@ function PAI({ paiMetas, setPaiMetas }) {
       )}
 
       {showAlerta&&(
-        <Modal title="Ã°Å¸âÅ  Alerta Semanal IA Ã¢â¬â PAI" onClose={()=>setShowAlerta(false)} maxW={600}>
+        <Modal title="📊 Alerta Semanal IA — PAI" onClose={()=>setShowAlerta(false)} maxW={600}>
           {loadingAlerta?(
             <div style={{textAlign:"center",padding:"44px 20px"}}>
-              <div style={{fontSize:38,marginBottom:12}}>Ã°Å¸Â¤â</div>
+              <div style={{fontSize:38,marginBottom:12}}>🤖</div>
               <div style={{fontWeight:700,fontSize:15,fontFamily:"'Playfair Display',serif"}}>Generando reporte...</div>
               <style>{`@keyframes b2{0%,80%,100%{transform:scale(.8);opacity:.5}40%{transform:scale(1.2);opacity:1}}`}</style>
               <div style={{display:"flex",justifyContent:"center",gap:6,marginTop:18}}>{[0,1,2].map(i=><div key={i} style={{width:9,height:9,borderRadius:"50%",background:"#7c3aed",animation:`b2 1.2s ${i*.2}s infinite`}}/>)}</div>
@@ -4090,8 +4111,8 @@ function PAI({ paiMetas, setPaiMetas }) {
                 <pre style={{margin:0,fontSize:13,color:"#1e293b",whiteSpace:"pre-wrap",fontFamily:"inherit",lineHeight:1.7}}>{alertaTexto}</pre>
               </div>
               <div style={{display:"flex",gap:9}}>
-                <button onClick={()=>navigator.clipboard.writeText(alertaTexto)} style={{flex:1,background:"#f3f4f6",border:"none",borderRadius:9,padding:11,cursor:"pointer",fontFamily:"inherit",fontWeight:600,fontSize:12}}>Ã°Å¸ââ¹ Copiar</button>
-                <Btn onClick={generarAlertaIA} color="#7c3aed" style={{flex:1,justifyContent:"center"}}>Ã°Å¸ââ Regenerar</Btn>
+                <button onClick={()=>navigator.clipboard.writeText(alertaTexto)} style={{flex:1,background:"#f3f4f6",border:"none",borderRadius:9,padding:11,cursor:"pointer",fontFamily:"inherit",fontWeight:600,fontSize:12}}>📋 Copiar</button>
+                <Btn onClick={generarAlertaIA} color="#7c3aed" style={{flex:1,justifyContent:"center"}}>🔄 Regenerar</Btn>
               </div>
             </div>
           )}
@@ -4101,22 +4122,22 @@ function PAI({ paiMetas, setPaiMetas }) {
   );
 }
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 // PIPELINE
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
-// CAPTURA PROSPECTOS Ã¢â¬â formulario para redes/correo/WA
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+// CAPTURA PROSPECTOS — formulario para redes/correo/WA
+// ═══════════════════════════════════════════════════════════════════
 function CapturaProspectos({ setPipeline }) {
   const [toast, setToast] = useState(null);
   const showT = (m) => { setToast(m); setTimeout(()=>setToast(null),3000); };
   const CANALES = [
-    {key:"whatsapp", label:"WhatsApp",        icon:"Ã°Å¸âÂ±", color:"#25d366"},
-    {key:"email",    label:"Correo",           icon:"Ã°Å¸âÂ§", color:"#2563eb"},
-    {key:"facebook", label:"Facebook",         icon:"Ã°Å¸âÂ", color:"#1877f2"},
-    {key:"instagram",label:"Instagram",        icon:"Ã°Å¸âÂ¸", color:"#e1306c"},
-    {key:"linkedin", label:"LinkedIn",         icon:"Ã°Å¸âÂ¼", color:"#0a66c2"},
-    {key:"landing",  label:"Landing Page/Web", icon:"Ã°Å¸ÅÂ", color:"#7c3aed"},
+    {key:"whatsapp", label:"WhatsApp",        icon:"📱", color:"#25d366"},
+    {key:"email",    label:"Correo",           icon:"📧", color:"#2563eb"},
+    {key:"facebook", label:"Facebook",         icon:"👍", color:"#1877f2"},
+    {key:"instagram",label:"Instagram",        icon:"📸", color:"#e1306c"},
+    {key:"linkedin", label:"LinkedIn",         icon:"💼", color:"#0a66c2"},
+    {key:"landing",  label:"Landing Page/Web", icon:"🌐", color:"#7c3aed"},
   ];
   const [canal, setCanal] = useState("whatsapp");
   const [texto, setTexto] = useState("");
@@ -4163,8 +4184,8 @@ function CapturaProspectos({ setPipeline }) {
       {toast&&<div style={{position:"fixed",top:20,right:20,background:"#111827",color:"#fff",padding:"12px 20px",borderRadius:12,fontSize:13,fontWeight:600,zIndex:9999,boxShadow:"0 8px 24px rgba(0,0,0,.3)"}}>{toast}</div>}
 
       <div style={{background:"#fff",borderRadius:14,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-        <div style={{fontWeight:800,fontSize:14,color:"#111827",marginBottom:3}}>Ã°Å¸ââ Captura automática desde canales digitales</div>
-        <div style={{fontSize:12,color:"#6b7280",marginBottom:14}}>Pega el mensaje o texto de solicitud Ã¢â¬â el sistema extrae los datos del prospecto automáticamente.</div>
+        <div style={{fontWeight:800,fontSize:14,color:"#111827",marginBottom:3}}>🔗 Captura automática desde canales digitales</div>
+        <div style={{fontSize:12,color:"#6b7280",marginBottom:14}}>Pega el mensaje o texto de solicitud — el sistema extrae los datos del prospecto automáticamente.</div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
           {CANALES.map(c=>(
             <button key={c.key} onClick={()=>{setCanal(c.key);setPaso(1);setTexto("");setForm({nombre:"",telefono:"",email:"",tipo:"",notas:"",ciudad:"",edad:""}); }}
@@ -4180,10 +4201,10 @@ function CapturaProspectos({ setPipeline }) {
         <div style={{background:"#fff",borderRadius:14,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
           <div style={{fontWeight:700,fontSize:13,marginBottom:10,display:"flex",alignItems:"center",gap:8}}>
             <span style={{background:canalCfg.color,color:"#fff",borderRadius:8,padding:"3px 10px",fontSize:12}}>{canalCfg.icon} {canalCfg.label}</span>
-            Paso 1 Ã¢â¬â Pega el mensaje o solicitud
+            Paso 1 — Pega el mensaje o solicitud
           </div>
           <textarea value={texto} onChange={e=>setTexto(e.target.value)} rows={6}
-            placeholder="Pega aquÃÂ­ el mensaje, correo o texto donde el cliente solicita cotización..."
+            placeholder="Pega aquí el mensaje, correo o texto donde el cliente solicita cotización..."
             style={{...inpS,resize:"vertical"}}/>
           <div style={{display:"flex",justifyContent:"flex-end",marginTop:12,gap:8}}>
             <button onClick={()=>{setForm(p=>({...p,notas:texto}));setPaso(2);}}
@@ -4192,7 +4213,7 @@ function CapturaProspectos({ setPipeline }) {
             </button>
             <button onClick={analizar} disabled={!texto.trim()}
               style={{background:texto.trim()?canalCfg.color:"#e5e7eb",color:texto.trim()?"#fff":"#9ca3af",border:"none",borderRadius:9,padding:"8px 18px",fontSize:13,fontWeight:700,cursor:texto.trim()?"pointer":"default",fontFamily:"inherit"}}>
-              Ã°Å¸Â¤â Extraer datos
+              🤖 Extraer datos
             </button>
           </div>
         </div>
@@ -4202,10 +4223,10 @@ function CapturaProspectos({ setPipeline }) {
         <div style={{background:"#fff",borderRadius:14,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
           <div style={{fontWeight:700,fontSize:13,marginBottom:14,display:"flex",alignItems:"center",gap:8}}>
             <span style={{background:canalCfg.color,color:"#fff",borderRadius:8,padding:"3px 10px",fontSize:12}}>{canalCfg.icon} {canalCfg.label}</span>
-            Paso 2 Ã¢â¬â Confirmar datos
+            Paso 2 — Confirmar datos
           </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
-            {[["NOMBRE COMPLETO *","nombre","text","Nombre completo"],["TELÃâ°FONO / WHATSAPP","telefono","tel","55 1234 5678"],["EMAIL","email","email","correo@email.com"],["CIUDAD","ciudad","text","Ciudad"]].map(([l,k,t,ph])=>(
+            {[["NOMBRE COMPLETO *","nombre","text","Nombre completo"],["TELÉFONO / WHATSAPP","telefono","tel","55 1234 5678"],["EMAIL","email","email","correo@email.com"],["CIUDAD","ciudad","text","Ciudad"]].map(([l,k,t,ph])=>(
               <div key={k}>
                 <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:4}}>{l}</div>
                 <input type={t} value={form[k]} onChange={e=>setForm(p=>({...p,[k]:e.target.value}))} style={inpS} placeholder={ph}/>
@@ -4214,7 +4235,7 @@ function CapturaProspectos({ setPipeline }) {
             <div>
               <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:4}}>TIPO DE SEGURO</div>
               <select value={form.tipo} onChange={e=>setForm(p=>({...p,tipo:e.target.value}))} style={inpS}>
-                <option value="">Ã¢â¬â Por definir Ã¢â¬â</option>
+                <option value="">— Por definir —</option>
                 {["Autos","Gastos Médicos","Vida","Hogar","Negocio","Viaje","Otro"].map(t=><option key={t}>{t}</option>)}
               </select>
             </div>
@@ -4230,11 +4251,11 @@ function CapturaProspectos({ setPipeline }) {
           <div style={{display:"flex",justifyContent:"space-between",marginTop:14,paddingTop:12,borderTop:"1px solid #f3f4f6"}}>
             <button onClick={()=>setPaso(1)}
               style={{background:"#f3f4f6",border:"none",borderRadius:9,padding:"8px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",color:"#374151"}}>
-              Ã¢â Â Volver
+              ← Volver
             </button>
             <button onClick={guardar}
               style={{background:"#7c3aed",color:"#fff",border:"none",borderRadius:9,padding:"9px 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-              Ã¢Åâ¦ Guardar como prospecto
+              ✅ Guardar como prospecto
             </button>
           </div>
         </div>
@@ -4259,7 +4280,7 @@ function Pipeline({ pipeline, setPipeline }) {
         <SectionTitle title="Prospectos" sub={`${pipeline.length} prospectos registrados`}/>
         <div style={{display:"flex",gap:8,alignItems:"center"}}>
           <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:10,padding:3}}>
-            {[["prospectos","Ã°Å¸ââ¹ Prospectos"],["captura","Ã°Å¸ââ Captura Digital"]].map(([t,l])=>(
+            {[["prospectos","📋 Prospectos"],["captura","🔗 Captura Digital"]].map(([t,l])=>(
               <button key={t} onClick={()=>setTabPipeline(t)}
                 style={{background:tabPipeline===t?"#fff":"none",border:"none",borderRadius:8,padding:"7px 16px",fontSize:12,fontWeight:600,cursor:"pointer",color:tabPipeline===t?"#111827":"#6b7280",boxShadow:tabPipeline===t?"0 1px 4px rgba(0,0,0,0.1)":"none",fontFamily:"inherit"}}>{l}
               </button>
@@ -4271,7 +4292,7 @@ function Pipeline({ pipeline, setPipeline }) {
       {tabPipeline==="captura"&&<CapturaProspectos setPipeline={setPipeline}/>}
       {tabPipeline==="prospectos"&&<>
       <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:11,padding:4,width:"fit-content"}}>
-        {[["kanban","Ã°Å¸ââ Kanban"],["lista","Ã°Å¸ââ¹ Lista"]].map(([t,l])=>(
+        {[["kanban","🗂 Kanban"],["lista","📋 Lista"]].map(([t,l])=>(
           <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?"#fff":"none",border:"none",borderRadius:8,padding:"7px 18px",fontSize:13,fontWeight:600,cursor:"pointer",color:tab===t?"#111827":"#6b7280",boxShadow:tab===t?"0 1px 4px rgba(0,0,0,0.1)":"none",fontFamily:"inherit"}}>{l}</button>
         ))}
       </div>
@@ -4284,12 +4305,12 @@ function Pipeline({ pipeline, setPipeline }) {
                 <div key={item.id} style={{background:"#fff",borderRadius:9,padding:"9px 11px",boxShadow:"0 1px 3px rgba(0,0,0,.05)",borderLeft:`3px solid ${colors[etapa]}`,marginBottom:7}}>
                   <div style={{fontSize:12,fontWeight:700}}>{item.cliente}</div>
                   <div style={{fontSize:11,color:"#6b7280"}}>{item.tipo}</div>
-                  {item.ciudad&&<div style={{fontSize:10,color:"#9ca3af"}}>Ã°Å¸âÂ {item.ciudad}{item.edad?` ÃÂ· ${item.edad} años`:""}</div>}
+                  {item.ciudad&&<div style={{fontSize:10,color:"#9ca3af"}}>📍 {item.ciudad}{item.edad?` · ${item.edad} años`:""}</div>}
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:4}}>
                     <span style={{fontSize:10,background:(fuenteColor[item.fuente]||"#6b7280")+"20",color:fuenteColor[item.fuente]||"#6b7280",padding:"1px 6px",borderRadius:5,fontWeight:700}}>{item.fuente||"Manual"}</span>
                     <div style={{height:3,background:"#e5e7eb",borderRadius:2,width:50}}><div style={{height:"100%",width:`${item.probabilidad}%`,background:colors[etapa],borderRadius:2}}/></div>
                   </div>
-                  <div style={{fontSize:10,color:"#9ca3af",marginTop:2}}>{item.probabilidad}% ÃÂ· {item.seguimiento||"Ã¢â¬â"}</div>
+                  <div style={{fontSize:10,color:"#9ca3af",marginTop:2}}>{item.probabilidad}% · {item.seguimiento||"—"}</div>
                 </div>
               ))}
             </div>
@@ -4303,12 +4324,12 @@ function Pipeline({ pipeline, setPipeline }) {
             <tbody>{pipeline.map(p=>(
               <tr key={p.id} style={{borderTop:"1px solid #f3f4f6"}}>
                 <td style={{padding:"11px 14px",fontWeight:700,fontSize:13}}>{p.cliente}</td>
-                <td style={{padding:"11px 14px",fontSize:12,color:"#6b7280"}}>{p.tipo||"Ã¢â¬â"}</td>
-                <td style={{padding:"11px 14px",fontSize:12}}>{p.ciudad||"Ã¢â¬â"}</td>
-                <td style={{padding:"11px 14px",fontSize:12}}>{p.edad?`${p.edad} años`:"Ã¢â¬â"}</td>
+                <td style={{padding:"11px 14px",fontSize:12,color:"#6b7280"}}>{p.tipo||"—"}</td>
+                <td style={{padding:"11px 14px",fontSize:12}}>{p.ciudad||"—"}</td>
+                <td style={{padding:"11px 14px",fontSize:12}}>{p.edad?`${p.edad} años`:"—"}</td>
                 <td style={{padding:"11px 14px"}}><span style={{background:(fuenteColor[p.fuente]||"#6b7280")+"20",color:fuenteColor[p.fuente]||"#6b7280",padding:"2px 8px",borderRadius:6,fontSize:11,fontWeight:700}}>{p.fuente||"Manual"}</span></td>
                 <td style={{padding:"11px 14px"}}><span style={{background:(colors[p.etapa]||"#6b7280")+"20",color:colors[p.etapa]||"#6b7280",padding:"2px 8px",borderRadius:6,fontSize:11,fontWeight:700}}>{p.etapa}</span></td>
-                <td style={{padding:"11px 14px",fontSize:12,color:"#6b7280"}}>{p.seguimiento||"Ã¢â¬â"}</td>
+                <td style={{padding:"11px 14px",fontSize:12,color:"#6b7280"}}>{p.seguimiento||"—"}</td>
               </tr>
             ))}</tbody>
           </table>
@@ -4335,7 +4356,7 @@ function Pipeline({ pipeline, setPipeline }) {
             </div>
             {(form.fuente==="Landing Page"||form.fuente==="Facebook"||form.fuente==="Instagram"||form.fuente==="LinkedIn")&&(
               <div style={{background:"#eff6ff",borderRadius:10,padding:"12px 14px",display:"flex",flexDirection:"column",gap:9}}>
-                <div style={{fontSize:11,fontWeight:700,color:"#1e40af"}}>Ã°Å¸ÅÂ Datos de captación digital</div>
+                <div style={{fontSize:11,fontWeight:700,color:"#1e40af"}}>🌐 Datos de captación digital</div>
                 {form.fuente==="Landing Page"&&<Inp label="URL landing page" value={form.landingUrl} onChange={e=>setForm(p=>({...p,landingUrl:e.target.value}))} placeholder="https://mipagina.com/cotizar"/>}
                 {(form.fuente==="Facebook"||form.fuente==="Instagram"||form.fuente==="LinkedIn")&&<Inp label={`Perfil en ${form.fuente}`} value={form.redSocial} onChange={e=>setForm(p=>({...p,redSocial:e.target.value}))} placeholder={`@usuario`}/>}
               </div>
@@ -4354,9 +4375,9 @@ function Pipeline({ pipeline, setPipeline }) {
   );
 }
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 // TAREAS
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 function Tareas({ tareas, setTareas }) {
   const [showModal,setShowModal]=useState(false);
   const [form,setForm]=useState({titulo:"",fecha:"",tipo:"llamada",prioridad:"media"});
@@ -4367,22 +4388,22 @@ function Tareas({ tareas, setTareas }) {
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><SectionTitle title="Agenda" sub={`${pendientes.length} pendientes`}/><Btn onClick={()=>setShowModal(true)} color="#d97706" icon="plus">Nueva Tarea</Btn></div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
-        <div style={{background:"#fff",borderRadius:15,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}><h3 style={{margin:"0 0 13px",fontSize:14,fontWeight:700}}>Ã¢ÂÂ³ Pendientes</h3>
-          {pendientes.map(t=>(<div key={t.id} style={{display:"flex",alignItems:"flex-start",gap:9,padding:"9px 11px",background:"#fafafa",borderRadius:9,marginBottom:7,borderLeft:`3px solid ${t.prioridad==="alta"?"#dc2626":t.prioridad==="media"?"#d97706":"#059669"}`}}><button onClick={()=>toggle(t.id)} style={{width:19,height:19,borderRadius:"50%",border:"2px solid #d1d5db",background:"none",cursor:"pointer",flexShrink:0,marginTop:2}}/><div style={{flex:1}}><div style={{fontSize:13,fontWeight:600}}>{t.titulo}</div><div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>Ã°Å¸ââ¦ {t.fecha}</div></div><span style={{fontSize:11,fontWeight:600,color:t.prioridad==="alta"?"#991b1b":t.prioridad==="media"?"#92400e":"#065f46"}}>{t.prioridad}</span></div>))}
+        <div style={{background:"#fff",borderRadius:15,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}><h3 style={{margin:"0 0 13px",fontSize:14,fontWeight:700}}>⏳ Pendientes</h3>
+          {pendientes.map(t=>(<div key={t.id} style={{display:"flex",alignItems:"flex-start",gap:9,padding:"9px 11px",background:"#fafafa",borderRadius:9,marginBottom:7,borderLeft:`3px solid ${t.prioridad==="alta"?"#dc2626":t.prioridad==="media"?"#d97706":"#059669"}`}}><button onClick={()=>toggle(t.id)} style={{width:19,height:19,borderRadius:"50%",border:"2px solid #d1d5db",background:"none",cursor:"pointer",flexShrink:0,marginTop:2}}/><div style={{flex:1}}><div style={{fontSize:13,fontWeight:600}}>{t.titulo}</div><div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>📅 {t.fecha}</div></div><span style={{fontSize:11,fontWeight:600,color:t.prioridad==="alta"?"#991b1b":t.prioridad==="media"?"#92400e":"#065f46"}}>{t.prioridad}</span></div>))}
         </div>
-        <div style={{background:"#fff",borderRadius:15,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}><h3 style={{margin:"0 0 13px",fontSize:14,fontWeight:700}}>Ã¢Åâ¦ Completadas</h3>
-          {completadas.map(t=>(<div key={t.id} style={{display:"flex",alignItems:"flex-start",gap:9,padding:"9px 11px",background:"#f0fdf4",borderRadius:9,marginBottom:7,opacity:.75}}><button onClick={()=>toggle(t.id)} style={{width:19,height:19,borderRadius:"50%",border:"none",background:"#059669",cursor:"pointer",flexShrink:0,marginTop:2,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}><Icon name="check" size={10}/></button><div style={{flex:1}}><div style={{fontSize:13,color:"#6b7280",textDecoration:"line-through"}}>{t.titulo}</div><div style={{fontSize:11,color:"#9ca3af"}}>Ã°Å¸ââ¦ {t.fecha}</div></div></div>))}
+        <div style={{background:"#fff",borderRadius:15,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}><h3 style={{margin:"0 0 13px",fontSize:14,fontWeight:700}}>✅ Completadas</h3>
+          {completadas.map(t=>(<div key={t.id} style={{display:"flex",alignItems:"flex-start",gap:9,padding:"9px 11px",background:"#f0fdf4",borderRadius:9,marginBottom:7,opacity:.75}}><button onClick={()=>toggle(t.id)} style={{width:19,height:19,borderRadius:"50%",border:"none",background:"#059669",cursor:"pointer",flexShrink:0,marginTop:2,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}><Icon name="check" size={10}/></button><div style={{flex:1}}><div style={{fontSize:13,color:"#6b7280",textDecoration:"line-through"}}>{t.titulo}</div><div style={{fontSize:11,color:"#9ca3af"}}>📅 {t.fecha}</div></div></div>))}
           {completadas.length===0&&<p style={{color:"#d1d5db",fontSize:13}}>Sin completadas</p>}
         </div>
       </div>
-      {showModal&&(<Modal title="Nueva Tarea" onClose={()=>setShowModal(false)}><div style={{display:"flex",flexDirection:"column",gap:12}}><Inp label="Descripción *" value={form.titulo} onChange={e=>setForm(p=>({...p,titulo:e.target.value}))}/><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}><Sel label="Tipo" value={form.tipo} onChange={e=>setForm(p=>({...p,tipo:e.target.value}))}><option value="llamada">Ã°Å¸âÅ¾ Llamada</option><option value="email">Ã¢Åâ°Ã¯Â¸Â Email</option><option value="cita">Ã°Å¸ââ¦ Cita</option><option value="doc">Ã°Å¸ââ Doc</option></Sel><Sel label="Prioridad" value={form.prioridad} onChange={e=>setForm(p=>({...p,prioridad:e.target.value}))}><option value="alta">Ã°Å¸âÂ´ Alta</option><option value="media">Ã°Å¸Å¸Â¡ Media</option><option value="baja">Ã°Å¸Å¸Â¢ Baja</option></Sel></div><Inp label="Fecha" type="date" value={form.fecha} onChange={e=>setForm(p=>({...p,fecha:e.target.value}))}/><Btn onClick={guardar} color="#d97706" style={{width:"100%",justifyContent:"center"}}>Guardar</Btn></div></Modal>)}
+      {showModal&&(<Modal title="Nueva Tarea" onClose={()=>setShowModal(false)}><div style={{display:"flex",flexDirection:"column",gap:12}}><Inp label="Descripción *" value={form.titulo} onChange={e=>setForm(p=>({...p,titulo:e.target.value}))}/><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}><Sel label="Tipo" value={form.tipo} onChange={e=>setForm(p=>({...p,tipo:e.target.value}))}><option value="llamada">📞 Llamada</option><option value="email">✉️ Email</option><option value="cita">📅 Cita</option><option value="doc">📄 Doc</option></Sel><Sel label="Prioridad" value={form.prioridad} onChange={e=>setForm(p=>({...p,prioridad:e.target.value}))}><option value="alta">🔴 Alta</option><option value="media">🟡 Media</option><option value="baja">🟢 Baja</option></Sel></div><Inp label="Fecha" type="date" value={form.fecha} onChange={e=>setForm(p=>({...p,fecha:e.target.value}))}/><Btn onClick={guardar} color="#d97706" style={{width:"100%",justifyContent:"center"}}>Guardar</Btn></div></Modal>)}
     </div>
   );
 }
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 // USUARIOS
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 function Usuarios({ usuarios, setUsuarios }) {
   const [showModal,setShowModal]=useState(false);
   const [showConfirmBaja,setShowConfirmBaja]=useState(null);
@@ -4412,12 +4433,12 @@ function Usuarios({ usuarios, setUsuarios }) {
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-        <SectionTitle title="Usuarios del Sistema" sub={`${usuarios.length} usuarios registrados Ã¢â¬â Solo el administrador puede gestionar usuarios`}/>
+        <SectionTitle title="Usuarios del Sistema" sub={`${usuarios.length} usuarios registrados — Solo el administrador puede gestionar usuarios`}/>
         <Btn onClick={()=>setShowModal(true)} color="#7c3aed" icon="plus">Nuevo Usuario</Btn>
       </div>
 
       <div style={{background:"#fef3c7",borderRadius:12,padding:"12px 16px",border:"1px solid #fde68a",fontSize:12,color:"#92400e"}}>
-        Ã°Å¸âÂ <strong>ÃÂrea restringida.</strong> Solo el Administrador puede dar de alta, modificar o eliminar usuarios del sistema.
+        🔐 <strong>Área restringida.</strong> Solo el Administrador puede dar de alta, modificar o eliminar usuarios del sistema.
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:14}}>
@@ -4442,32 +4463,32 @@ function Usuarios({ usuarios, setUsuarios }) {
                   <div style={{fontSize:13,fontWeight:800,fontFamily:"monospace",color:"#374151"}}>@{u.username}</div>
                 </div>
                 <div style={{background:"#f9fafb",borderRadius:9,padding:"8px 10px"}}>
-                  <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>CONTRASEÃâA</div>
+                  <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>CONTRASEÑA</div>
                   <div style={{display:"flex",alignItems:"center",gap:6}}>
                     <div style={{fontSize:13,fontWeight:700,fontFamily:"monospace",color:"#374151",flex:1}}>
-                      {verPass[u.id]?u.password:"Ã¢â¬Â¢Ã¢â¬Â¢Ã¢â¬Â¢Ã¢â¬Â¢Ã¢â¬Â¢Ã¢â¬Â¢Ã¢â¬Â¢Ã¢â¬Â¢"}
+                      {verPass[u.id]?u.password:"••••••••"}
                     </div>
                     <button onClick={()=>setVerPass(p=>({...p,[u.id]:!p[u.id]}))}
                       style={{background:"none",border:"none",cursor:"pointer",color:"#9ca3af",fontSize:13,padding:0}}>
-                      {verPass[u.id]?"Ã°Å¸â¢Ë":"Ã°Å¸âÂ"}
+                      {verPass[u.id]?"🙈":"👁"}
                     </button>
                   </div>
                 </div>
               </div>
-              {u.telefono&&<div style={{fontSize:12,color:"#6b7280",marginBottom:10}}>Ã°Å¸âÅ¾ {u.telefono}</div>}
+              {u.telefono&&<div style={{fontSize:12,color:"#6b7280",marginBottom:10}}>📞 {u.telefono}</div>}
             </div>
-            {/* Solo se puede dar de baja si no es el ÃÂºltimo admin */}
+            {/* Solo se puede dar de baja si no es el último admin */}
             {!(u.rol==="admin"&&adminCount===1)&&(
               <div style={{borderTop:"1px solid #f3f4f6",padding:"10px 18px"}}>
                 <button onClick={()=>setShowConfirmBaja(u)}
                   style={{width:"100%",background:"#fef2f2",color:"#dc2626",border:"1.5px solid #fecaca",borderRadius:9,padding:"8px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                  Ã°Å¸ââ Dar de baja y eliminar
+                  🗑 Dar de baja y eliminar
                 </button>
               </div>
             )}
             {u.rol==="admin"&&adminCount===1&&(
               <div style={{borderTop:"1px solid #f3f4f6",padding:"10px 18px"}}>
-                <div style={{fontSize:11,color:"#9ca3af",textAlign:"center"}}>El ÃÂºltimo administrador no puede eliminarse</div>
+                <div style={{fontSize:11,color:"#9ca3af",textAlign:"center"}}>El último administrador no puede eliminarse</div>
               </div>
             )}
           </div>
@@ -4479,12 +4500,12 @@ function Usuarios({ usuarios, setUsuarios }) {
         <Modal title="Nuevo Usuario" onClose={()=>setShowModal(false)}>
           <div style={{display:"flex",flexDirection:"column",gap:12}}>
             <div style={{background:"#eff6ff",borderRadius:9,padding:"10px 13px",fontSize:12,color:"#1e40af"}}>
-              Ã°Å¸âÂ Define el nombre de usuario y contraseña para acceso al sistema.
+              🔐 Define el nombre de usuario y contraseña para acceso al sistema.
             </div>
-            <Inp label="Nombre completo *" value={form.nombre} onChange={e=>setForm(p=>({...p,nombre:e.target.value}))} placeholder="Ej: Laura Pérez GarcÃÂ­a"/>
+            <Inp label="Nombre completo *" value={form.nombre} onChange={e=>setForm(p=>({...p,nombre:e.target.value}))} placeholder="Ej: Laura Pérez García"/>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
               <Inp label="Usuario (login) *" value={form.username} onChange={e=>setForm(p=>({...p,username:e.target.value.toLowerCase().replace(/\s/g,"")}))} placeholder="Ej: lperez"/>
-              <Inp label="Contraseña *" type="text" value={form.password} onChange={e=>setForm(p=>({...p,password:e.target.value}))} placeholder="MÃÂ­nimo 6 caracteres"/>
+              <Inp label="Contraseña *" type="text" value={form.password} onChange={e=>setForm(p=>({...p,password:e.target.value}))} placeholder="Mínimo 6 caracteres"/>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
               <Inp label="Email" type="email" value={form.email} onChange={e=>setForm(p=>({...p,email:e.target.value}))} placeholder="correo@empresa.com"/>
@@ -4507,12 +4528,12 @@ function Usuarios({ usuarios, setUsuarios }) {
 
       {/* Modal confirmación baja */}
       {showConfirmBaja&&(
-        <Modal title="Ã¢Å¡Â Ã¯Â¸Â Confirmar eliminación" onClose={()=>setShowConfirmBaja(null)}>
+        <Modal title="⚠️ Confirmar eliminación" onClose={()=>setShowConfirmBaja(null)}>
           <div style={{display:"flex",flexDirection:"column",gap:16}}>
             <div style={{background:"#fef2f2",borderRadius:10,padding:"14px 16px",border:"1px solid #fecaca"}}>
-              <div style={{fontWeight:700,color:"#991b1b",marginBottom:6}}>ÃÂ¿Eliminar este usuario del sistema?</div>
+              <div style={{fontWeight:700,color:"#991b1b",marginBottom:6}}>¿Eliminar este usuario del sistema?</div>
               <div style={{fontSize:13,color:"#374151"}}>
-                <strong>@{showConfirmBaja.username}</strong> Ã¢â¬â {showConfirmBaja.nombre}
+                <strong>@{showConfirmBaja.username}</strong> — {showConfirmBaja.nombre}
               </div>
               <div style={{fontSize:12,color:"#6b7280",marginTop:6}}>Esta acción no se puede deshacer. El usuario perderá acceso inmediatamente.</div>
             </div>
@@ -4521,7 +4542,7 @@ function Usuarios({ usuarios, setUsuarios }) {
                 Cancelar
               </button>
               <button onClick={()=>darDeBaja(showConfirmBaja.id)} style={{flex:1,background:"#dc2626",color:"#fff",border:"none",borderRadius:9,padding:"10px",fontWeight:700,cursor:"pointer",fontFamily:"inherit",fontSize:13}}>
-                SÃÂ­, eliminar
+                Sí, eliminar
               </button>
             </div>
           </div>
@@ -4531,12 +4552,12 @@ function Usuarios({ usuarios, setUsuarios }) {
   );
 }
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 // COBERTURAS
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 // IMPORTADOR DE BASE DE DATOS
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 
 const CAMPOS_CLIENTE = [
   { key:"nombre",           label:"Nombre(s)",           req:true },
@@ -4549,7 +4570,7 @@ const CAMPOS_CLIENTE = [
   { key:"telefono",         label:"Teléfono",            req:false },
   { key:"whatsapp",         label:"WhatsApp",            req:false },
   { key:"calle",            label:"Calle",               req:false },
-  { key:"numero",           label:"NÃÂºmero exterior",     req:false },
+  { key:"numero",           label:"Número exterior",     req:false },
   { key:"colonia",          label:"Colonia",             req:false },
   { key:"cp",               label:"C.P.",                req:false },
   { key:"ciudad",           label:"Ciudad/Municipio",    req:false },
@@ -4557,7 +4578,7 @@ const CAMPOS_CLIENTE = [
 ];
 
 const CAMPOS_POLIZA = [
-  { key:"numero",       label:"NÃÂºmero de Póliza",   req:true },
+  { key:"numero",       label:"Número de Póliza",   req:true },
   { key:"cliente",      label:"Nombre del Cliente", req:true },
   { key:"aseguradora",  label:"Aseguradora",        req:false },
   { key:"ramo",         label:"Ramo",               req:false },
@@ -4608,15 +4629,15 @@ function sugerirMapeo(colName, campos) {
     telefono:["telefono","teléfono","tel","phone","celular","movil","móvil"],
     whatsapp:["whatsapp","wha","ws","wa"],
     calle:["calle","street","domicilio","direccion","dirección"],
-    numero:["numero ext","nÃÂºmero ext","no ext","num ext","numero","nÃÂºmero"],
+    numero:["numero ext","número ext","no ext","num ext","numero","número"],
     colonia:["colonia","col ","barrio","neighborhood"],
     cp:["cp","c p","codigo postal","zip","postal code"],
     ciudad:["ciudad","municipio","city","municipality","poblacion"],
     estado:["estado","state","entidad"],
     // póliza
-    numero:["numero poliza","nÃÂºmero poliza","poliza","póliza","policy","no poliza","num poliza","folio"],
+    numero:["numero poliza","número poliza","poliza","póliza","policy","no poliza","num poliza","folio"],
     cliente:["cliente","asegurado","contratante","titular","insured","customer","nombre cliente"],
-    aseguradora:["aseguradora","compañia","compañÃÂ­a","company","insuror","aseg"],
+    aseguradora:["aseguradora","compañia","compañía","company","insuror","aseg"],
     ramo:["ramo","tipo seguro","tipo de seguro","branch","line","producto"],
     subramo:["subramo","subproducto","plan","subproducto"],
     inicio:["inicio","vigencia inicio","fecha inicio","start","desde","valid from","vigencia desde"],
@@ -4674,11 +4695,11 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
       reader.onload=(e)=>{
         try{
           const XLSX=window.XLSX;
-          if(!XLSX){alert("LibrerÃÂ­a Excel cargando, intenta de nuevo en un momento");return;}
+          if(!XLSX){alert("Librería Excel cargando, intenta de nuevo en un momento");return;}
           const wb=XLSX.read(e.target.result,{type:"array"});
           const ws=wb.Sheets[wb.SheetNames[0]];
           const data=XLSX.utils.sheet_to_json(ws,{defval:""});
-          if(!data.length){alert("El archivo está vacÃÂ­o");return;}
+          if(!data.length){alert("El archivo está vacío");return;}
           const h=Object.keys(data[0]);
           const r=data.map(row=>{const o={};h.forEach(k=>o[k]=String(row[k]||""));return o;});
           setHeaders(h);setRows(r);
@@ -4716,8 +4737,8 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
     registros.forEach((reg,i)=>{
       const fila=reg._idx;
       if(tipo==="clientes"){
-        if(!reg.nombre?.trim()){errs.push(`Fila ${fila}: nombre vacÃÂ­o`);return;}
-        if(!reg.apellidoPaterno?.trim()){errs.push(`Fila ${fila}: apellido paterno vacÃÂ­o`);return;}
+        if(!reg.nombre?.trim()){errs.push(`Fila ${fila}: nombre vacío`);return;}
+        if(!reg.apellidoPaterno?.trim()){errs.push(`Fila ${fila}: apellido paterno vacío`);return;}
         const rfcImp=(reg.rfc||"").trim().toUpperCase();
         const nombreImp=`${reg.nombre} ${reg.apellidoPaterno} ${reg.apellidoMaterno||""}`.trim().toLowerCase();
         if(rfcImp&&clientes.some(c=>(c.rfc||"").trim().toUpperCase()===rfcImp)){errs.push(`Fila ${fila}: RFC "${rfcImp}" ya existe en el sistema`);return;}
@@ -4732,11 +4753,11 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
           numero:(reg.numero||"").trim(),colonia:(reg.colonia||"").trim(),cp:(reg.cp||"").trim(),
           ciudad:(reg.ciudad||"").trim(),estado:(reg.estado||"").trim(),polizas:0});
       } else {
-        if(!reg.numero?.trim()){errs.push(`Fila ${fila}: nÃÂºmero de póliza vacÃÂ­o`);return;}
-        if(!reg.cliente?.trim()){errs.push(`Fila ${fila}: cliente vacÃÂ­o`);return;}
+        if(!reg.numero?.trim()){errs.push(`Fila ${fila}: número de póliza vacío`);return;}
+        if(!reg.cliente?.trim()){errs.push(`Fila ${fila}: cliente vacío`);return;}
         const numImp=(reg.numero||"").trim().toLowerCase();
-        if(polizas.some(p=>(p.numero||"").trim().toLowerCase()===numImp)){errs.push(`Fila ${fila}: nÃÂºmero "${reg.numero}" ya existe en el sistema`);return;}
-        if(ok.some(p=>(p.numero||"").trim().toLowerCase()===numImp)){errs.push(`Fila ${fila}: nÃÂºmero "${reg.numero}" duplicado en el archivo`);return;}
+        if(polizas.some(p=>(p.numero||"").trim().toLowerCase()===numImp)){errs.push(`Fila ${fila}: número "${reg.numero}" ya existe en el sistema`);return;}
+        if(ok.some(p=>(p.numero||"").trim().toLowerCase()===numImp)){errs.push(`Fila ${fila}: número "${reg.numero}" duplicado en el archivo`);return;}
         ok.push({id:Date.now()+i,numero:reg.numero.trim(),cliente:reg.cliente.trim(),
           aseguradora:(reg.aseguradora||"").trim(),ramo:(reg.ramo||"").trim(),
           subramo:(reg.subramo||"").trim(),inicio:(reg.inicio||"").trim(),
@@ -4758,12 +4779,12 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
-      <SectionTitle title="Importar Base de Datos" sub="Sube tu exportación de otro CRM Ã¢â¬â clientes y/o pólizas"/>
+      <SectionTitle title="Importar Base de Datos" sub="Sube tu exportación de otro CRM — clientes y/o pólizas"/>
 
       <div style={{background:"#fff",borderRadius:14,padding:"20px 22px",boxShadow:"0 1px 6px rgba(0,0,0,.06)"}}>
         {/* Selector tipo */}
         <div style={{display:"flex",gap:10,marginBottom:20}}>
-          {[["clientes","Ã°Å¸âÂ¤ Importar Clientes"],["polizas","Ã°Å¸ââ Importar Pólizas"]].map(([v,l])=>(
+          {[["clientes","👤 Importar Clientes"],["polizas","📄 Importar Pólizas"]].map(([v,l])=>(
             <button key={v} onClick={()=>{setTipo(v);resetear();}}
               style={{flex:1,padding:"11px",background:tipo===v?"#0f172a":"#f8fafc",color:tipo===v?"#fff":"#374151",
                 border:`2px solid ${tipo===v?"#0f172a":"#e5e7eb"}`,borderRadius:10,fontWeight:700,fontSize:13,
@@ -4783,7 +4804,7 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
                   <div style={{width:26,height:26,borderRadius:"50%",background:hecho?"#059669":activo?"#2563eb":"#e5e7eb",
                     color:hecho||activo?"#fff":"#9ca3af",display:"flex",alignItems:"center",justifyContent:"center",
                     fontSize:11,fontWeight:800}}>
-                    {hecho?"Ã¢Åâ":n}
+                    {hecho?"✓":n}
                   </div>
                   <div style={{fontSize:9,fontWeight:600,color:activo?"#2563eb":hecho?"#059669":"#9ca3af",
                     textAlign:"center",letterSpacing:"0.03em",maxWidth:60}}>{l.toUpperCase()}</div>
@@ -4802,8 +4823,8 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
               onClick={()=>fileRef.current.click()}
               style={{border:`2px dashed ${dragOver?"#2563eb":"#d1d5db"}`,borderRadius:14,padding:"44px 20px",
                 textAlign:"center",cursor:"pointer",background:dragOver?"#eff6ff":"#fafafa",transition:"all .2s"}}>
-              <div style={{fontSize:44,marginBottom:10}}>Ã°Å¸ââ</div>
-              <div style={{fontWeight:700,fontSize:15,color:"#111827",marginBottom:6}}>Arrastra tu archivo aquÃÂ­</div>
+              <div style={{fontSize:44,marginBottom:10}}>📂</div>
+              <div style={{fontWeight:700,fontSize:15,color:"#111827",marginBottom:6}}>Arrastra tu archivo aquí</div>
               <div style={{fontSize:13,color:"#6b7280",marginBottom:14}}>o haz clic para explorar</div>
               <div style={{display:"flex",justifyContent:"center",gap:8}}>
                 {["CSV",".xlsx",".xls"].map(f=>(
@@ -4813,8 +4834,8 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
             </div>
             <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" style={{display:"none"}} onChange={e=>leerArchivo(e.target.files[0])}/>
             <div style={{marginTop:14,background:"#fffbeb",borderRadius:10,padding:"11px 14px",fontSize:12,color:"#92400e"}}>
-              Ã°Å¸âÂ¡ <strong>Tip:</strong> Exporta tu CRM actual a Excel o CSV desde la sección de reportes.
-              Las columnas no necesitan nombre exacto Ã¢â¬â las asignarás manualmente en el siguiente paso.
+              💡 <strong>Tip:</strong> Exporta tu CRM actual a Excel o CSV desde la sección de reportes.
+              Las columnas no necesitan nombre exacto — las asignarás manualmente en el siguiente paso.
             </div>
           </div>
         )}
@@ -4823,7 +4844,7 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
         {step===2&&(
           <div>
             <div style={{background:"#eff6ff",borderRadius:9,padding:"10px 13px",fontSize:12,color:"#1e40af",marginBottom:14}}>
-              Ã°Å¸ââ¹ <strong>{fileName}</strong> Ã¢â¬â <strong>{rows.length}</strong> registros ÃÂ· <strong>{headers.length}</strong> columnas detectadas
+              📋 <strong>{fileName}</strong> — <strong>{rows.length}</strong> registros · <strong>{headers.length}</strong> columnas detectadas
             </div>
             <div style={{fontSize:12,fontWeight:700,color:"#374151",marginBottom:10}}>
               Asigna cada columna de tu archivo al campo del CRM:
@@ -4838,14 +4859,14 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
                       <div style={{fontSize:9,color:"#9ca3af",fontWeight:700}}>ORIGEN</div>
                       <div style={{fontSize:11,fontWeight:700,color:"#111827",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}} title={col}>{col}</div>
                     </div>
-                    <div style={{color:"#d1d5db",flexShrink:0}}>Ã¢â â</div>
+                    <div style={{color:"#d1d5db",flexShrink:0}}>→</div>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{fontSize:9,color:"#9ca3af",fontWeight:700}}>CAMPO CRM</div>
                       <select value={mapeo[col]||""} onChange={e=>setMapeo(p=>({...p,[col]:e.target.value}))}
                         style={{border:`1.5px solid ${esMapeado?"#6ee7b7":"#e5e7eb"}`,borderRadius:7,padding:"4px 6px",fontSize:11,
                           outline:"none",fontFamily:"inherit",width:"100%",background:"#fff",
                           color:esMapeado?"#059669":"#374151",fontWeight:esMapeado?700:400}}>
-                        <option value="">Ã¢â¬â Ignorar Ã¢â¬â</option>
+                        <option value="">— Ignorar —</option>
                         {camposDestino.map(c=>(
                           <option key={c.key} value={c.key}>{c.label}{c.req?" *":""}</option>
                         ))}
@@ -4856,12 +4877,12 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
               })}
             </div>
             <div style={{marginTop:10,background:"#f0fdf4",borderRadius:9,padding:"8px 12px",fontSize:11,color:"#065f46"}}>
-              Ã¢Åâ {Object.values(mapeo).filter(Boolean).length} de {headers.length} columnas mapeadas
-              &nbsp;ÃÂ·&nbsp; Campos con * son obligatorios
+              ✓ {Object.values(mapeo).filter(Boolean).length} de {headers.length} columnas mapeadas
+              &nbsp;·&nbsp; Campos con * son obligatorios
             </div>
             <div style={{display:"flex",gap:10,marginTop:12}}>
-              <button onClick={resetear} style={{flex:1,background:"#f3f4f6",border:"none",borderRadius:9,padding:"10px",fontWeight:600,fontSize:13,cursor:"pointer",fontFamily:"inherit",color:"#374151"}}>Ã¢â Â Volver</button>
-              <Btn onClick={()=>{if(validar())setStep(3);}} color="#2563eb" style={{flex:2,justifyContent:"center"}}>Previsualizar Ã¢â â</Btn>
+              <button onClick={resetear} style={{flex:1,background:"#f3f4f6",border:"none",borderRadius:9,padding:"10px",fontWeight:600,fontSize:13,cursor:"pointer",fontFamily:"inherit",color:"#374151"}}>← Volver</button>
+              <Btn onClick={()=>{if(validar())setStep(3);}} color="#2563eb" style={{flex:2,justifyContent:"center"}}>Previsualizar →</Btn>
             </div>
           </div>
         )}
@@ -4870,7 +4891,7 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
         {step===3&&(
           <div>
             <div style={{background:"#eff6ff",borderRadius:9,padding:"9px 13px",fontSize:12,color:"#1e40af",marginBottom:12}}>
-              Ã°Å¸âÂ Primeras {Math.min(5,rows.length)} filas de <strong>{rows.length}</strong>. Verifica que los datos sean correctos.
+              👁 Primeras {Math.min(5,rows.length)} filas de <strong>{rows.length}</strong>. Verifica que los datos sean correctos.
             </div>
             <div style={{overflowX:"auto",borderRadius:10,border:"1px solid #e5e7eb",marginBottom:12}}>
               <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
@@ -4889,7 +4910,7 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
                     <tr key={i} style={{borderTop:"1px solid #f3f4f6",background:i%2===0?"#fff":"#fafafa"}}>
                       {camposMapeados.map(c=>(
                         <td key={c.key} style={{padding:"7px 10px",color:reg[c.key]?"#111827":"#d1d5db"}}>
-                          {reg[c.key]||<em style={{fontSize:10}}>vacÃÂ­o</em>}
+                          {reg[c.key]||<em style={{fontSize:10}}>vacío</em>}
                         </td>
                       ))}
                     </tr>
@@ -4898,10 +4919,10 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
               </table>
             </div>
             <div style={{background:"#fffbeb",borderRadius:9,padding:"9px 12px",fontSize:12,color:"#92400e",marginBottom:12}}>
-              Ã¢Å¡Â Ã¯Â¸Â Se importarán <strong>{rows.length} {tipo==="clientes"?"clientes":"pólizas"}</strong>. Esta acción agrega registros nuevos sin eliminar los existentes.
+              ⚠️ Se importarán <strong>{rows.length} {tipo==="clientes"?"clientes":"pólizas"}</strong>. Esta acción agrega registros nuevos sin eliminar los existentes.
             </div>
             <div style={{display:"flex",gap:10}}>
-              <button onClick={()=>setStep(2)} style={{flex:1,background:"#f3f4f6",border:"none",borderRadius:9,padding:"10px",fontWeight:600,fontSize:13,cursor:"pointer",fontFamily:"inherit",color:"#374151"}}>Ã¢â Â Ajustar mapeo</button>
+              <button onClick={()=>setStep(2)} style={{flex:1,background:"#f3f4f6",border:"none",borderRadius:9,padding:"10px",fontWeight:600,fontSize:13,cursor:"pointer",fontFamily:"inherit",color:"#374151"}}>← Ajustar mapeo</button>
               <Btn onClick={ejecutarImport} color="#059669" icon="check" style={{flex:2,justifyContent:"center"}}>
                 Importar {rows.length} {tipo==="clientes"?"clientes":"pólizas"}
               </Btn>
@@ -4912,9 +4933,9 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
         {/* PASO 4: Resultado */}
         {step===4&&(
           <div style={{textAlign:"center",padding:"16px 0"}}>
-            <div style={{fontSize:54,marginBottom:12}}>{errores.length===0?"Ã°Å¸Å½â°":importados.length>0?"Ã¢Å¡Â Ã¯Â¸Â":"Ã¢ÂÅ"}</div>
+            <div style={{fontSize:54,marginBottom:12}}>{errores.length===0?"🎉":importados.length>0?"⚠️":"❌"}</div>
             <div style={{fontWeight:800,fontSize:20,color:"#111827",marginBottom:8}}>
-              {errores.length===0?"ÃÂ¡Importación exitosa!":importados.length>0?"Importación parcial":"Error en importación"}
+              {errores.length===0?"¡Importación exitosa!":importados.length>0?"Importación parcial":"Error en importación"}
             </div>
             {importados.length>0&&(
               <div style={{background:"#f0fdf4",borderRadius:12,padding:"16px 24px",display:"inline-block",margin:"8px auto"}}>
@@ -4926,8 +4947,8 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
             )}
             {errores.length>0&&(
               <div style={{background:"#fef2f2",borderRadius:10,padding:"12px 16px",marginTop:10,textAlign:"left",maxHeight:150,overflowY:"auto"}}>
-                <div style={{fontSize:11,fontWeight:800,color:"#dc2626",marginBottom:6}}>Ã¢Å¡Â Ã¯Â¸Â {errores.length} filas con errores:</div>
-                {errores.map((e,i)=><div key={i} style={{fontSize:11,color:"#991b1b",marginBottom:2}}>Ã¢â¬Â¢ {e}</div>)}
+                <div style={{fontSize:11,fontWeight:800,color:"#dc2626",marginBottom:6}}>⚠️ {errores.length} filas con errores:</div>
+                {errores.map((e,i)=><div key={i} style={{fontSize:11,color:"#991b1b",marginBottom:2}}>• {e}</div>)}
               </div>
             )}
             <div style={{display:"flex",gap:10,marginTop:18,justifyContent:"center"}}>
@@ -4942,9 +4963,9 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
 }
 
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 // MODAL REGISTRAR PAGO
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 function PagoRowEditable({ pg, onEliminar }) {
   const [sel, setSel] = useState(false);
   return (
@@ -4955,14 +4976,14 @@ function PagoRowEditable({ pg, onEliminar }) {
         <div style={{fontSize:12,fontWeight:700,color:"#374151",display:"flex",alignItems:"center",gap:6}}>
           {pg.reciboNum&&<span style={{background:"#7c3aed",color:"#fff",borderRadius:20,padding:"1px 7px",fontSize:10,fontWeight:800}}>Recibo {pg.reciboNum}</span>}
           {pg.fechaEsperada&&pg.fechaEsperada!==pg.fechaPago&&<span style={{background:"#fef3c7",color:"#92400e",borderRadius:12,padding:"1px 6px",fontSize:9,fontWeight:700}}>Vto: {pg.fechaEsperada}</span>}
-          <span style={{fontWeight:700}}>{pg.fechaPago}</span> ÃÂ· {pg.formaPago}
+          <span style={{fontWeight:700}}>{pg.fechaPago}</span> · {pg.formaPago}
         </div>
-        <div style={{fontSize:11,color:"#6b7280"}}>${Number(pg.monto||0).toLocaleString("es-MX",{minimumFractionDigits:2})}{pg.referencia?` ÃÂ· Ref: ${pg.referencia}`:""}</div>
+        <div style={{fontSize:11,color:"#6b7280"}}>${Number(pg.monto||0).toLocaleString("es-MX",{minimumFractionDigits:2})}{pg.referencia?` · Ref: ${pg.referencia}`:""}</div>
       </div>
       {sel&&(
         <button onClick={onEliminar}
           style={{background:"#dc2626",border:"none",borderRadius:7,padding:"5px 12px",fontSize:11,color:"#fff",cursor:"pointer",fontFamily:"inherit",fontWeight:700}}>
-          Ã°Å¸ââ Eliminar
+          🗑 Eliminar
         </button>
       )}
     </div>
@@ -4974,12 +4995,12 @@ function ModalPago({ poliza, onGuardar, onEliminarPago, onClose }) {
   const calcRecibosLocal = (p) => {
     const neta=parseFloat(p.primaNeta)||0, gasto=parseFloat(p.gastosExpedicion)||0, recargo=parseFloat(p.recargoPago)||0;
     const pctIva=(parseFloat(p.porcentajeIva)||16)/100;
-    const numMap2={Anual:1,Semestral:2,Trimestral:4,Mensual:12,Contado:1,"ÃÅ¡nico":1};
+    const numMap2={Anual:1,Semestral:2,Trimestral:4,Mensual:12,Contado:1,"Único":1};
     const n=numMap2[p.formaPago]||1;
-    const mesesL={Anual:12,Semestral:6,Trimestral:3,Mensual:1,Contado:12,"ÃÅ¡nico":12};
+    const mesesL={Anual:12,Semestral:6,Trimestral:3,Mensual:1,Contado:12,"Único":12};
     const mesL=mesesL[p.formaPago]||12;
     const fRecL=(ini,i)=>{if(!ini)return "";const b=ini.includes("/")?ini.split("/").reverse().join("-"):ini;const d=new Date(b+"T12:00:00");d.setMonth(d.getMonth()+(i-1)*mesL);return d.toISOString().slice(0,10);};
-    if(n<=1){const total=parseFloat(p.primaTotal)||parseFloat(p.prima)||0;return [{num:1,label:"ÃÅ¡nico",fechaPago:fRecL(p.inicio,1),primaNeta:neta,gastos:gasto,recargo,iva:+(total-neta-gasto-recargo).toFixed(2),total}];}
+    if(n<=1){const total=parseFloat(p.primaTotal)||parseFloat(p.prima)||0;return [{num:1,label:"Único",fechaPago:fRecL(p.inicio,1),primaNeta:neta,gastos:gasto,recargo,iva:+(total-neta-gasto-recargo).toFixed(2),total}];}
     return Array.from({length:n},(_,i)=>{
       const gastoEste=i===0?gasto:0, nf=+(neta/n).toFixed(2), rf=+(recargo/n).toFixed(2);
       const base=nf+gastoEste+rf, ivaEste=+(base*pctIva).toFixed(2);
@@ -4990,7 +5011,7 @@ function ModalPago({ poliza, onGuardar, onEliminarPago, onClose }) {
   // Determinar recibos y cuáles ya están pagados
   const recibos = (poliza.recibos&&poliza.recibos.length>0) ? poliza.recibos : calcRecibosLocal(poliza);
   const pagosRegistrados = poliza.pagos||[];
-  const numMap = {Anual:1,Semestral:2,Trimestral:4,Mensual:12,Contado:1,"ÃÅ¡nico":1};
+  const numMap = {Anual:1,Semestral:2,Trimestral:4,Mensual:12,Contado:1,"Único":1};
   const totalRecibos = recibos.length || numMap[poliza.formaPago]||1;
   const tieneRecibos = recibos.length > 0;
 
@@ -5056,7 +5077,7 @@ function ModalPago({ poliza, onGuardar, onEliminarPago, onClose }) {
 
       {/* Info póliza */}
       <div style={{background:"#f0fdf4",borderRadius:10,padding:"10px 14px",fontSize:12,color:"#065f46"}}>
-        <strong>{poliza.cliente}</strong> ÃÂ· {poliza.aseguradora} ÃÂ· {poliza.ramo}
+        <strong>{poliza.cliente}</strong> · {poliza.aseguradora} · {poliza.ramo}
       </div>
 
       {/* Selector de recibo */}
@@ -5065,7 +5086,7 @@ function ModalPago({ poliza, onGuardar, onEliminarPago, onClose }) {
           <div style={{fontSize:12,fontWeight:700,color:"#374151",marginBottom:8}}>
             Recibo a pagar
             <span style={{marginLeft:8,background:"#7c3aed22",color:"#7c3aed",borderRadius:20,padding:"2px 10px",fontSize:11,fontWeight:700}}>
-              {poliza.formaPago} ÃÂ· {totalRecibos} recibo{totalRecibos>1?"s":""}
+              {poliza.formaPago} · {totalRecibos} recibo{totalRecibos>1?"s":""}
             </span>
           </div>
           <div style={{display:"grid",gridTemplateColumns:`repeat(${Math.min(totalRecibos,6)},1fr)`,gap:6}}>
@@ -5082,7 +5103,7 @@ function ModalPago({ poliza, onGuardar, onEliminarPago, onClose }) {
                     transition:"all .15s"
                   }}>
                   <div style={{fontSize:10,fontWeight:800,color:pagado?"#059669":selec?"#7c3aed":"#374151"}}>
-                    {pagado?"Ã¢Åâ ":""}{r.label}
+                    {pagado?"✓ ":""}{r.label}
                   </div>
                   {r.fechaPago&&<div style={{fontSize:9,color:pagado?"#059669":selec?"#9333ea":"#6b7280",marginTop:1}}>{r.fechaPago}</div>}
                   <div style={{fontSize:12,fontWeight:900,color:pagado?"#059669":selec?"#7c3aed":"#111827",marginTop:2}}>
@@ -5123,7 +5144,7 @@ function ModalPago({ poliza, onGuardar, onEliminarPago, onClose }) {
       {/* Monto y referencia */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
         <Inp label="Monto ($)" type="number" value={form.monto} onChange={e=>setForm(p=>({...p,monto:e.target.value}))} placeholder="0.00"/>
-        <Inp label="Referencia / Folio" value={form.referencia} onChange={e=>setForm(p=>({...p,referencia:e.target.value}))} placeholder="NÃÂºm. operación"/>
+        <Inp label="Referencia / Folio" value={form.referencia} onChange={e=>setForm(p=>({...p,referencia:e.target.value}))} placeholder="Núm. operación"/>
       </div>
 
       {/* Comprobante */}
@@ -5132,10 +5153,10 @@ function ModalPago({ poliza, onGuardar, onEliminarPago, onClose }) {
         {form.comprobante ? (
           <div style={{background:"#f0fdf4",border:"1.5px solid #6ee7b7",borderRadius:10,padding:"10px 14px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
             <div style={{display:"flex",alignItems:"center",gap:8}}>
-              <span style={{fontSize:20}}>{/\.(jpg|jpeg|png|gif)/i.test(form.comprobanteName)?"Ã°Å¸âÂ¼Ã¯Â¸Â":"Ã°Å¸ââ"}</span>
+              <span style={{fontSize:20}}>{/\.(jpg|jpeg|png|gif)/i.test(form.comprobanteName)?"🖼️":"📄"}</span>
               <div>
                 <div style={{fontSize:12,fontWeight:700,color:"#065f46"}}>{form.comprobanteName}</div>
-                <div style={{fontSize:10,color:"#059669"}}>Ã¢Åâ Archivo cargado</div>
+                <div style={{fontSize:10,color:"#059669"}}>✓ Archivo cargado</div>
               </div>
             </div>
             <button onClick={()=>setForm(p=>({...p,comprobante:null,comprobanteName:""}))}
@@ -5146,7 +5167,7 @@ function ModalPago({ poliza, onGuardar, onEliminarPago, onClose }) {
         ) : (
           <div onClick={()=>fileRef.current.click()}
             style={{border:"2px dashed #d1d5db",borderRadius:10,padding:"18px",textAlign:"center",cursor:"pointer",background:"#fafafa"}}>
-            <div style={{fontSize:24,marginBottom:4}}>Ã°Å¸âÅ½</div>
+            <div style={{fontSize:24,marginBottom:4}}>📎</div>
             <div style={{fontSize:12,color:"#6b7280"}}>Haz clic para subir comprobante</div>
             <div style={{fontSize:10,color:"#9ca3af",marginTop:2}}>PDF, JPG, PNG</div>
           </div>
@@ -5158,10 +5179,10 @@ function ModalPago({ poliza, onGuardar, onEliminarPago, onClose }) {
       {(poliza.pagos||[]).length>0&&(
         <div style={{background:"#fafafa",border:"1.5px solid #e5e7eb",borderRadius:10,padding:"12px 14px"}}>
           <div style={{fontSize:11,fontWeight:800,color:"#374151",marginBottom:8}}>
-            Ã°Å¸âÂ³ Pagos registrados ({poliza.pagos.length})
+            💳 Pagos registrados ({poliza.pagos.length})
           </div>
           {(poliza.pagos||[]).map((pg,i)=>(
-            <PagoRowEditable key={pg.id||i} pg={pg} onEliminar={()=>{if(window.confirm("ÃÂ¿Eliminar este pago?"))onEliminarPago(pg.id);}}/>
+            <PagoRowEditable key={pg.id||i} pg={pg} onEliminar={()=>{if(window.confirm("¿Eliminar este pago?"))onEliminarPago(pg.id);}}/>
           ))}
         </div>
       )}
@@ -5171,16 +5192,16 @@ function ModalPago({ poliza, onGuardar, onEliminarPago, onClose }) {
           Cancelar
         </button>
         <Btn onClick={guardar} color="#059669" icon="check" style={{flex:2,justifyContent:"center"}}>
-          {reciboSel?`Ã¢Åâ Registrar Recibo ${reciboSel}`:"Ã¢Åâ Registrar Pago"}
+          {reciboSel?`✓ Registrar Recibo ${reciboSel}`:"✓ Registrar Pago"}
         </Btn>
       </div>
     </div>
   );
 }
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
-// MODAL RENOVAR PÃâLIZA
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
+// MODAL RENOVAR PÓLIZA
+// ═══════════════════════════════════════════════════════════════════
 function ModalEditarPoliza({ poliza, subagentes, onGuardar, onClose }) {
   const [form, setForm] = useState({
     numero:       poliza.numero||"",
@@ -5226,14 +5247,14 @@ function ModalEditarPoliza({ poliza, subagentes, onGuardar, onClose }) {
   return (
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
       <div style={{background:"#eff6ff",borderRadius:10,padding:"9px 14px",fontSize:12,color:"#1e40af",fontWeight:600}}>
-        Ã¢ÅÂÃ¯Â¸Â Edita los campos que necesites completar o corregir
+        ✏️ Edita los campos que necesites completar o corregir
       </div>
 
       {/* Datos generales */}
       <div style={{background:"#f9fafb",borderRadius:10,padding:"12px 14px",border:"1px solid #e5e7eb"}}>
-        <div style={{fontSize:11,fontWeight:800,color:"#374151",marginBottom:10,textTransform:"uppercase",letterSpacing:".05em"}}>Ã°Å¸ââ¹ Datos Generales</div>
+        <div style={{fontSize:11,fontWeight:800,color:"#374151",marginBottom:10,textTransform:"uppercase",letterSpacing:".05em"}}>📋 Datos Generales</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-          <div>{lbl("NÃÂºmero de Póliza")}<input value={form.numero} onChange={e=>upd("numero",e.target.value)} style={inpS}/></div>
+          <div>{lbl("Número de Póliza")}<input value={form.numero} onChange={e=>upd("numero",e.target.value)} style={inpS}/></div>
           <div>{lbl("Aseguradora")}<input value={form.aseguradora} onChange={e=>upd("aseguradora",e.target.value)} style={inpS}/></div>
           <div>{lbl("Ramo")}<input value={form.ramo} onChange={e=>upd("ramo",e.target.value)} style={inpS}/></div>
           <div>{lbl("Subramo")}<input value={form.subramo} onChange={e=>upd("subramo",e.target.value)} style={inpS}/></div>
@@ -5244,12 +5265,12 @@ function ModalEditarPoliza({ poliza, subagentes, onGuardar, onClose }) {
 
       {/* Datos económicos */}
       <div style={{background:"#f9fafb",borderRadius:10,padding:"12px 14px",border:"1px solid #e5e7eb"}}>
-        <div style={{fontSize:11,fontWeight:800,color:"#374151",marginBottom:10,textTransform:"uppercase",letterSpacing:".05em"}}>Ã°Å¸âÂ° Datos Económicos</div>
+        <div style={{fontSize:11,fontWeight:800,color:"#374151",marginBottom:10,textTransform:"uppercase",letterSpacing:".05em"}}>💰 Datos Económicos</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
           <div>
             {lbl("Forma de Pago")}
             <select value={form.formaPago} onChange={e=>upd("formaPago",e.target.value)} style={inpS}>
-              {["Anual","Semestral","Trimestral","Mensual","Contado","ÃÅ¡nico"].map(f=><option key={f}>{f}</option>)}
+              {["Anual","Semestral","Trimestral","Mensual","Contado","Único"].map(f=><option key={f}>{f}</option>)}
             </select>
           </div>
           <div>
@@ -5274,7 +5295,7 @@ function ModalEditarPoliza({ poliza, subagentes, onGuardar, onClose }) {
 
       {/* Subagente */}
       <div style={{background:"#f9fafb",borderRadius:10,padding:"12px 14px",border:"1px solid #e5e7eb"}}>
-        <div style={{fontSize:11,fontWeight:800,color:"#374151",marginBottom:10,textTransform:"uppercase",letterSpacing:".05em"}}>Ã°Å¸Â¤Â Subagente (si aplica)</div>
+        <div style={{fontSize:11,fontWeight:800,color:"#374151",marginBottom:10,textTransform:"uppercase",letterSpacing:".05em"}}>🤝 Subagente (si aplica)</div>
         <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:10}}>
           <div>
             {lbl("Subagente")}
@@ -5283,7 +5304,7 @@ function ModalEditarPoliza({ poliza, subagentes, onGuardar, onClose }) {
               upd("subagenteId", e.target.value);
               upd("subagente", sa?.nombre||"");
             }} style={inpS}>
-              <option value="">Ã¢â¬â Sin subagente Ã¢â¬â</option>
+              <option value="">— Sin subagente —</option>
               {(subagentes||[]).map(s=><option key={s.id} value={s.id}>{s.nombre}</option>)}
             </select>
           </div>
@@ -5303,7 +5324,7 @@ function ModalEditarPoliza({ poliza, subagentes, onGuardar, onClose }) {
           Cancelar
         </button>
         <button onClick={guardar} style={{flex:2,background:"#2563eb",border:"none",borderRadius:10,padding:11,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff"}}>
-          Ã°Å¸âÂ¾ Guardar cambios
+          💾 Guardar cambios
         </button>
       </div>
     </div>
@@ -5397,15 +5418,15 @@ function ModalRenovar({ poliza, onGuardar, onClose }) {
             content:[
               block,
               { type:"text", text:`Eres un extractor de datos de pólizas de seguro mexicanas.
-Extrae de este documento los siguientes campos de la RENOVACIÃâN.
+Extrae de este documento los siguientes campos de la RENOVACIÓN.
 Responde SOLO con JSON válido, sin markdown ni texto adicional:
 {
-  "numero": "nÃÂºmero de póliza (string)",
+  "numero": "número de póliza (string)",
   "inicio": "fecha inicio vigencia en formato YYYY-MM-DD",
   "vencimiento": "fecha vencimiento en formato YYYY-MM-DD",
-  "primaNeta": "nÃÂºmero decimal sin comas ni signos",
-  "gastosExpedicion": "nÃÂºmero decimal sin comas ni signos",
-  "primaTotal": "nÃÂºmero decimal sin comas ni signos",
+  "primaNeta": "número decimal sin comas ni signos",
+  "gastosExpedicion": "número decimal sin comas ni signos",
+  "primaTotal": "número decimal sin comas ni signos",
   "formaPago": "Anual/Semestral/Trimestral/Mensual/Contado"
 }
 Si un campo no aparece en el documento, usa null.` }
@@ -5424,7 +5445,7 @@ Si un campo no aparece en el documento, usa null.` }
       // Aplicar solo campos que vienen con valor
       const actualizados = [];
       const LABELS = {
-        numero:"NÃÂºmero póliza", inicio:"Inicio vigencia", vencimiento:"Fin vigencia",
+        numero:"Número póliza", inicio:"Inicio vigencia", vencimiento:"Fin vigencia",
         primaNeta:"Prima neta", gastosExpedicion:"Gastos expedición",
         primaTotal:"Prima total", formaPago:"Forma de pago"
       };
@@ -5435,7 +5456,7 @@ Si un campo no aparece en el documento, usa null.` }
           actualizados.push({ campo: LABELS[k], valor: String(v) });
         }
       });
-      // Recalcular prima total si no vino explÃÂ­cita
+      // Recalcular prima total si no vino explícita
       if (!extraido.primaTotal && (extraido.primaNeta || extraido.gastosExpedicion)) {
         const total = calcTotal(nuevo).toFixed(2);
         nuevo.primaTotal = total;
@@ -5458,20 +5479,20 @@ Si un campo no aparece en el documento, usa null.` }
 
       {/* Info póliza origen */}
       <div style={{background:"#eff6ff",borderRadius:10,padding:"10px 14px",fontSize:12,color:"#1e40af"}}>
-        Ã°Å¸ââ Renovación de <strong>{poliza.numero}</strong> ÃÂ· La original quedará como <strong>vencida</strong>.
+        🔄 Renovación de <strong>{poliza.numero}</strong> · La original quedará como <strong>vencida</strong>.
       </div>
       <div style={{background:"#f9fafb",borderRadius:9,padding:"10px 14px",display:"flex",gap:20,flexWrap:"wrap"}}>
-        {[["Cliente",poliza.cliente],["Aseguradora",poliza.aseguradora],["Ramo",poliza.ramo],["Subramo",poliza.subramo||"Ã¢â¬â"]].map(([l,v])=>(
+        {[["Cliente",poliza.cliente],["Aseguradora",poliza.aseguradora],["Ramo",poliza.ramo],["Subramo",poliza.subramo||"—"]].map(([l,v])=>(
           <div key={l}><div style={{fontSize:9,color:"#9ca3af",fontWeight:700}}>{l}</div><div style={{fontSize:12,fontWeight:700,color:"#111827"}}>{v}</div></div>
         ))}
       </div>
 
-      {/* Ã¢ââ¬Ã¢ââ¬ ZONA DOCUMENTO Ã¢ââ¬Ã¢ââ¬ */}
+      {/* ── ZONA DOCUMENTO ── */}
       <div style={{border:"1.5px solid #e9d5ff",borderRadius:12,overflow:"hidden"}}>
         {/* Header */}
         <div style={{background:"#7c3aed",padding:"10px 15px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <div style={{display:"flex",alignItems:"center",gap:8}}>
-            <span style={{fontSize:16}}>Ã°Å¸âÅ½</span>
+            <span style={{fontSize:16}}>📎</span>
             <span style={{color:"#fff",fontSize:12,fontWeight:700}}>Documento de póliza renovada</span>
           </div>
           {form.documentoPoliza&&(
@@ -5483,8 +5504,8 @@ Si un campo no aparece en el documento, usa null.` }
                   cursor:scanStep==="scanning"?"not-allowed":"pointer",fontFamily:"inherit",
                   color:scanStep==="scanning"?"#fff":"#7c3aed",display:"flex",alignItems:"center",gap:5}}>
                 {scanStep==="scanning"
-                  ? <><span style={{animation:"spin 1s linear infinite",display:"inline-block"}}>Ã¢Å¸Â³</span> Analizando...</>
-                  : <><span>Ã¢Å¡Â¡</span> Leer con IA</>
+                  ? <><span style={{animation:"spin 1s linear infinite",display:"inline-block"}}>⟳</span> Analizando...</>
+                  : <><span>⚡</span> Leer con IA</>
                 }
               </button>
               {/* Cambiar archivo */}
@@ -5508,7 +5529,7 @@ Si un campo no aparece en el documento, usa null.` }
               onClick={()=>docRef.current.click()}
               style={{border:`2px dashed ${dragOver?"#7c3aed":"#c4b5fd"}`,borderRadius:10,padding:"22px 20px",
                 textAlign:"center",cursor:"pointer",background:dragOver?"#ede9fe":"#fff",transition:"all .2s"}}>
-              <div style={{fontSize:30,marginBottom:6}}>Ã°Å¸ââ</div>
+              <div style={{fontSize:30,marginBottom:6}}>📄</div>
               <div style={{fontWeight:700,fontSize:13,color:"#7c3aed",marginBottom:4}}>
                 Sube la póliza renovada
               </div>
@@ -5526,10 +5547,10 @@ Si un campo no aparece en el documento, usa null.` }
             <div style={{display:"flex",flexDirection:"column",gap:10}}>
               {/* Info archivo */}
               <div style={{display:"flex",alignItems:"center",gap:10,background:"#fff",borderRadius:9,padding:"9px 12px",border:"1px solid #e9d5ff"}}>
-                <span style={{fontSize:22}}>{esPDF?"Ã°Å¸ââ":"Ã°Å¸âÂ¼Ã¯Â¸Â"}</span>
+                <span style={{fontSize:22}}>{esPDF?"📄":"🖼️"}</span>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:12,fontWeight:700,color:"#5b21b6",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{form.documentoNombre}</div>
-                  <div style={{fontSize:10,color:"#9ca3af"}}>Documento listo ÃÂ· presiona "Leer con IA" para extraer datos</div>
+                  <div style={{fontSize:10,color:"#9ca3af"}}>Documento listo · presiona "Leer con IA" para extraer datos</div>
                 </div>
               </div>
 
@@ -5537,10 +5558,10 @@ Si un campo no aparece en el documento, usa null.` }
               {scanStep==="scanning"&&(
                 <div style={{background:"#ede9fe",borderRadius:9,padding:"10px 14px",display:"flex",alignItems:"center",gap:10}}>
                   <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-                  <span style={{fontSize:18,animation:"spin 1s linear infinite",display:"inline-block"}}>Ã¢Å¸Â³</span>
+                  <span style={{fontSize:18,animation:"spin 1s linear infinite",display:"inline-block"}}>⟳</span>
                   <div>
                     <div style={{fontSize:12,fontWeight:700,color:"#5b21b6"}}>Analizando documento...</div>
-                    <div style={{fontSize:11,color:"#7c3aed"}}>La IA está extrayendo nÃÂºmero, fechas y primas</div>
+                    <div style={{fontSize:11,color:"#7c3aed"}}>La IA está extrayendo número, fechas y primas</div>
                   </div>
                 </div>
               )}
@@ -5548,7 +5569,7 @@ Si un campo no aparece en el documento, usa null.` }
               {scanStep==="done"&&camposActualizados.length>0&&(
                 <div style={{background:"#f0fdf4",borderRadius:9,padding:"10px 14px",border:"1px solid #d1fae5"}}>
                   <div style={{fontSize:11,fontWeight:800,color:"#059669",marginBottom:8}}>
-                    Ã¢Åâ¦ IA actualizó {camposActualizados.length} campo{camposActualizados.length>1?"s":""} automáticamente:
+                    ✅ IA actualizó {camposActualizados.length} campo{camposActualizados.length>1?"s":""} automáticamente:
                   </div>
                   <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                     {camposActualizados.map((c,i)=>(
@@ -5563,13 +5584,13 @@ Si un campo no aparece en el documento, usa null.` }
 
               {scanStep==="done"&&camposActualizados.length===0&&(
                 <div style={{background:"#fffbeb",borderRadius:9,padding:"9px 13px",fontSize:12,color:"#92400e"}}>
-                  Ã¢Å¡Â Ã¯Â¸Â La IA procesó el documento pero no encontró campos reconocibles. Verifica los datos manualmente.
+                  ⚠️ La IA procesó el documento pero no encontró campos reconocibles. Verifica los datos manualmente.
                 </div>
               )}
 
               {scanStep==="error"&&(
                 <div style={{background:"#fef2f2",borderRadius:9,padding:"9px 13px",fontSize:12,color:"#dc2626"}}>
-                  Ã¢ÂÅ Error al analizar: {scanMsg}
+                  ❌ Error al analizar: {scanMsg}
                 </div>
               )}
             </div>
@@ -5580,8 +5601,8 @@ Si un campo no aparece en el documento, usa null.` }
       <input ref={docRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" style={{display:"none"}}
         onChange={e=>cargarArchivo(e.target.files[0])}/>
 
-      {/* Ã¢ââ¬Ã¢ââ¬ CAMPOS EDITABLES Ã¢ââ¬Ã¢ââ¬ */}
-      <Inp label="NÃÂºmero de póliza renovada *" value={form.numero} onChange={e=>upd("numero",e.target.value)}/>
+      {/* ── CAMPOS EDITABLES ── */}
+      <Inp label="Número de póliza renovada *" value={form.numero} onChange={e=>upd("numero",e.target.value)}/>
 
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
         <div>
@@ -5621,15 +5642,15 @@ Si un campo no aparece en el documento, usa null.` }
       </div>
 
       <Btn onClick={guardar} color="#7c3aed" style={{width:"100%",justifyContent:"center"}}>
-        Ã°Å¸ââ Crear Renovación{form.documentoPoliza?" (con documento adjunto)":""}
+        🔄 Crear Renovación{form.documentoPoliza?" (con documento adjunto)":""}
       </Btn>
     </div>
   );
 }
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 // CALENDARIO
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 function Calendario({ polizas, clientes }) {
   const [mes, setMes] = useState(new Date().getMonth());
   const [anio, setAnio] = useState(new Date().getFullYear());
@@ -5661,7 +5682,7 @@ function Calendario({ polizas, clientes }) {
 
   const ST_COLOR = { activa:"#059669","por vencer":"#d97706",vencida:"#dc2626",cancelada:"#6b7280" };
 
-  // Construir mapa de eventos por dÃÂ­a
+  // Construir mapa de eventos por día
   const eventos = {};
   const add = (fechaStr, ev) => {
     if (!fechaStr) return;
@@ -5676,8 +5697,8 @@ function Calendario({ polizas, clientes }) {
   if (filtro==="todos"||filtro==="polizas") {
     polizas.forEach(p=>{
       const st=getStatus(p);
-      add(p.vencimiento,{tipo:"vencimiento",label:p.numero.slice(-8),sub:p.cliente,color:ST_COLOR[st],icon:"Ã°Å¸ââ¹",obj:p,st});
-      add(p.inicio,{tipo:"inicio",label:p.numero.slice(-8),sub:p.cliente,color:"#2563eb",icon:"Ã°Å¸Å¸Â¢",obj:p,st:"activa"});
+      add(p.vencimiento,{tipo:"vencimiento",label:p.numero.slice(-8),sub:p.cliente,color:ST_COLOR[st],icon:"📋",obj:p,st});
+      add(p.inicio,{tipo:"inicio",label:p.numero.slice(-8),sub:p.cliente,color:"#2563eb",icon:"🟢",obj:p,st:"activa"});
     });
   }
   if (filtro==="todos"||filtro==="cumpleanos") {
@@ -5688,7 +5709,7 @@ function Calendario({ polizas, clientes }) {
       if (f.getMonth()!==mes) return;
       const key = f.getDate();
       if (!eventos[key]) eventos[key]=[];
-      eventos[key].push({tipo:"cumpleanos",label:`${c.nombre} ${c.apellidoPaterno}`,sub:``,color:"#7c3aed",icon:"Ã°Å¸Å½â",obj:c});
+      eventos[key].push({tipo:"cumpleanos",label:`${c.nombre} ${c.apellidoPaterno}`,sub:``,color:"#7c3aed",icon:"🎂",obj:c});
     });
   }
 
@@ -5700,7 +5721,7 @@ function Calendario({ polizas, clientes }) {
   const hoyObj = new Date();
   const esHoy = (d) => d===hoyObj.getDate()&&mes===hoyObj.getMonth()&&anio===hoyObj.getFullYear();
 
-  // Eventos del dÃÂ­a seleccionado
+  // Eventos del día seleccionado
   const evsDiaSelec = diaSelec ? (eventos[diaSelec]||[]) : [];
 
   // Todos los eventos del mes ordenados
@@ -5719,7 +5740,7 @@ function Calendario({ polizas, clientes }) {
 
       {/* Contadores */}
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12}}>
-        {[["Ã°Å¸ââ¹",vencenMes,"Vencen este mes","#dc2626"],["Ã¢Å¡Â Ã¯Â¸Â",porVencer,"Por vencer Ã¢â°Â¤10 dÃÂ­as","#d97706"],["Ã°Å¸Å½â",cumplesMes,"Cumpleaños este mes","#7c3aed"]].map(([ic,n,l,c])=>(
+        {[["📋",vencenMes,"Vencen este mes","#dc2626"],["⚠️",porVencer,"Por vencer ≤10 días","#d97706"],["🎂",cumplesMes,"Cumpleaños este mes","#7c3aed"]].map(([ic,n,l,c])=>(
           <div key={l} style={{background:"#fff",borderRadius:12,padding:"14px 18px",display:"flex",alignItems:"center",gap:12,boxShadow:"0 1px 6px rgba(0,0,0,.06)"}}>
             <span style={{fontSize:26}}>{ic}</span>
             <div>
@@ -5735,17 +5756,17 @@ function Calendario({ polizas, clientes }) {
         <div style={{flex:1,background:"#fff",borderRadius:16,padding:"20px",boxShadow:"0 1px 8px rgba(0,0,0,.07)"}}>
           {/* Navegación mes */}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-            <button onClick={prevMes} style={{background:"#f3f4f6",border:"none",borderRadius:8,width:34,height:34,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}}>Ã¢â¬Â¹</button>
+            <button onClick={prevMes} style={{background:"#f3f4f6",border:"none",borderRadius:8,width:34,height:34,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}}>‹</button>
             <div style={{textAlign:"center"}}>
               <div style={{fontWeight:900,fontSize:19,color:"#0f172a",fontFamily:"'Playfair Display',serif"}}>{MESES[mes]}</div>
               <div style={{fontSize:12,color:"#9ca3af",fontWeight:600}}>{anio}</div>
             </div>
-            <button onClick={nextMes} style={{background:"#f3f4f6",border:"none",borderRadius:8,width:34,height:34,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}}>Ã¢â¬Âº</button>
+            <button onClick={nextMes} style={{background:"#f3f4f6",border:"none",borderRadius:8,width:34,height:34,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}}>›</button>
           </div>
 
           {/* Filtros */}
           <div style={{display:"flex",gap:6,marginBottom:14,justifyContent:"center"}}>
-            {[["todos","Todos"],["polizas","Ã°Å¸âºÂ¡ Pólizas"],["cumpleanos","Ã°Å¸Å½â Cumpleaños"]].map(([v,l])=>(
+            {[["todos","Todos"],["polizas","🛡 Pólizas"],["cumpleanos","🎂 Cumpleaños"]].map(([v,l])=>(
               <button key={v} onClick={()=>setFiltro(v)}
                 style={{padding:"5px 13px",background:filtro===v?"#0f172a":"#f8fafc",color:filtro===v?"#fff":"#374151",
                   border:`1.5px solid ${filtro===v?"#0f172a":"#e5e7eb"}`,borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>
@@ -5754,7 +5775,7 @@ function Calendario({ polizas, clientes }) {
             ))}
           </div>
 
-          {/* Encabezado dÃÂ­as */}
+          {/* Encabezado días */}
           <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:3}}>
             {DIAS_SEMANA.map(d=><div key={d} style={{textAlign:"center",fontSize:10,fontWeight:800,color:"#9ca3af",padding:"3px 0"}}>{d}</div>)}
           </div>
@@ -5781,7 +5802,7 @@ function Calendario({ polizas, clientes }) {
                     <>
                       <div style={{fontSize:11,fontWeight:hoyF?900:600,color:hoyF?"#fff":"#374151",marginBottom:2}}>{dia}</div>
                       {evs.slice(0,2).map((ev,ei)=>(
-                        <div key={ei} title={`${ev.label} Ã¢â¬â ${ev.sub}`}
+                        <div key={ei} title={`${ev.label} — ${ev.sub}`}
                           style={{fontSize:8,fontWeight:700,color:"#fff",background:ev.color,borderRadius:3,padding:"1px 3px",marginBottom:1,
                             overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                           {ev.icon} {ev.label}
@@ -5808,11 +5829,11 @@ function Calendario({ polizas, clientes }) {
         {/* Panel lateral */}
         <div style={{width:290,flexShrink:0,display:"flex",flexDirection:"column",gap:10}}>
 
-          {/* Detalle dÃÂ­a seleccionado */}
+          {/* Detalle día seleccionado */}
           {diaSelec&&evsDiaSelec.length>0&&(
             <div style={{background:"#fff",borderRadius:14,padding:"14px 16px",boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}>
               <div style={{fontSize:11,fontWeight:800,color:"#374151",marginBottom:10}}>
-                Ã°Å¸ââ¦ {MESES[mes]} {diaSelec}, {anio}
+                📅 {MESES[mes]} {diaSelec}, {anio}
               </div>
               <div style={{display:"flex",flexDirection:"column",gap:7}}>
                 {evsDiaSelec.map((ev,i)=>(
@@ -5828,14 +5849,14 @@ function Calendario({ polizas, clientes }) {
                     <div style={{display:"flex",gap:6,marginTop:7,flexWrap:"wrap"}}>
                       {ev.tipo==="cumpleanos"&&(
                         <button style={{background:"#25d366",color:"#fff",border:"none",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}
-                          onClick={()=>window.open("https://wa.me/?text="+encodeURIComponent("Ã°Å¸Å½â ÃÂ¡Feliz cumpleaños "+ev.label+"! Que tengas un excelente dÃÂ­a. Ã¢â¬â Tu Agente de Seguros"))}>
-                          Ã°Å¸âÂ¬ WhatsApp
+                          onClick={()=>window.open("https://wa.me/?text="+encodeURIComponent("🎂 ¡Feliz cumpleaños "+ev.label+"! Que tengas un excelente día. — Tu Agente de Seguros"))}>
+                          💬 WhatsApp
                         </button>
                       )}
                       {gcalUrl(ev)&&(
                         <a href={gcalUrl(ev)} target="_blank" rel="noopener noreferrer"
                           style={{background:"#fff",border:"1px solid #e5e7eb",borderRadius:7,padding:"4px 9px",fontSize:10,fontWeight:700,color:"#374151",textDecoration:"none",display:"inline-flex",alignItems:"center",gap:4}}>
-                          Ã°Å¸ââ¦ Google Calendar
+                          📅 Google Calendar
                         </a>
                       )}
                     </div>
@@ -5848,7 +5869,7 @@ function Calendario({ polizas, clientes }) {
           {/* Todos los eventos del mes */}
           <div style={{background:"#fff",borderRadius:14,padding:"14px 16px",boxShadow:"0 1px 6px rgba(0,0,0,.06)"}}>
             <div style={{fontSize:11,fontWeight:800,color:"#374151",marginBottom:10,letterSpacing:"0.05em"}}>
-              EVENTOS Ã¢â¬â {MESES[mes].toUpperCase()}
+              EVENTOS — {MESES[mes].toUpperCase()}
             </div>
             {eventosFlat.length===0?(
               <div style={{textAlign:"center",color:"#9ca3af",fontSize:12,padding:"16px 0"}}>Sin eventos este mes</div>
@@ -5860,11 +5881,11 @@ function Calendario({ polizas, clientes }) {
                       borderLeft:`3px solid ${ev.color}`,cursor:"pointer",transition:"background .1s"}}>
                     <div style={{fontSize:13,flexShrink:0}}>{ev.icon}</div>
                     <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:10,fontWeight:700,color:"#111827"}}>{MESES[mes].slice(0,3)} {ev.dia} Ã¢â¬â {ev.label}</div>
+                      <div style={{fontSize:10,fontWeight:700,color:"#111827"}}>{MESES[mes].slice(0,3)} {ev.dia} — {ev.label}</div>
                       {ev.sub&&<div style={{fontSize:9,color:"#9ca3af",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ev.sub}</div>}
                     </div>
                     <span style={{background:ev.color+"22",color:ev.color,fontSize:8,fontWeight:800,padding:"2px 6px",borderRadius:8,flexShrink:0}}>
-                      {ev.tipo==="cumpleanos"?"Ã°Å¸Å½â":ev.tipo==="vencimiento"?"Ã°Å¸ââ¹":"Ã°Å¸Å¸Â¢"}
+                      {ev.tipo==="cumpleanos"?"🎂":ev.tipo==="vencimiento"?"📋":"🟢"}
                     </span>
                   </div>
                 ))}
@@ -5878,9 +5899,9 @@ function Calendario({ polizas, clientes }) {
 }
 
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 // SUBAGENTES
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
   const [tab, setTab] = useState("directorio"); // directorio | comisiones | reporte
   const [showModal, setShowModal] = useState(false);
@@ -5933,7 +5954,7 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
 
   const registrarPago = (polizaId, fechaPago) => {
     polizas; // referencia
-    // Actualizar en el estado de pólizas Ã¢â¬â se hace desde App, aquÃÂ­ solo callback
+    // Actualizar en el estado de pólizas — se hace desde App, aquí solo callback
     setShowComision(null);
   };
 
@@ -5963,7 +5984,7 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
 
   const fmtMXN = (n) => `$${parseFloat(n||0).toLocaleString("es-MX",{minimumFractionDigits:2})}`;
 
-  // Ã¢ââ¬Ã¢ââ¬ Tarjeta subagente Ã¢ââ¬Ã¢ââ¬
+  // ── Tarjeta subagente ──
   const TarjetaSA = ({ sa }) => {
     const saldo = saldoPor(sa.id);
     const polsSA = polizasConSubagente.filter(p=>p.subagenteId===sa.id);
@@ -5978,12 +5999,12 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
             <div style={{fontSize:11,opacity:.8}}>{sa.email}</div>
           </div>
           <span style={{background:sa.activo?"rgba(255,255,255,.25)":"rgba(0,0,0,.25)",padding:"2px 10px",borderRadius:20,fontSize:10,fontWeight:700}}>
-            {sa.activo?"Ã¢âÂ Activo":"Ã¢ââ¹ Inactivo"}
+            {sa.activo?"● Activo":"○ Inactivo"}
           </span>
         </div>
         <div style={{padding:"13px 16px"}}>
           <div style={{display:"flex",gap:8,marginBottom:10}}>
-            {[["Ã°Å¸âÅ¾",sa.telefono||"Ã¢â¬â"],["Ã°Å¸âÂ¬",sa.whatsapp||"Ã¢â¬â"]].map(([ic,v])=>(
+            {[["📞",sa.telefono||"—"],["💬",sa.whatsapp||"—"]].map(([ic,v])=>(
               <div key={ic} style={{flex:1,background:"#f9fafb",borderRadius:8,padding:"6px 10px",display:"flex",alignItems:"center",gap:5}}>
                 <span style={{fontSize:13}}>{ic}</span>
                 <span style={{fontSize:11,color:"#374151",fontWeight:600}}>{v}</span>
@@ -6002,7 +6023,7 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
           <div style={{fontSize:11,color:"#9ca3af",marginBottom:10}}>{polsSA.length} póliza{polsSA.length!==1?"s":""} asignada{polsSA.length!==1?"s":""}</div>
           <div style={{display:"flex",gap:7}}>
             <button onClick={()=>abrirEditar(sa)} style={{flex:1,background:"#f3f4f6",border:"none",borderRadius:8,padding:"7px",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"inherit",color:"#374151"}}>
-              Ã¢ÅÂÃ¯Â¸Â Editar
+              ✏️ Editar
             </button>
             <button onClick={()=>toggleActivo(sa.id)} style={{flex:1,background:sa.activo?"#fef2f2":"#f0fdf4",border:"none",borderRadius:8,padding:"7px",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"inherit",color:sa.activo?"#dc2626":"#059669"}}>
               {sa.activo?"Desactivar":"Activar"}
@@ -6016,16 +6037,16 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
   return (
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-        <SectionTitle title="Subagentes" sub={`${subagentes.filter(s=>s.activo).length} activos ÃÂ· ${polizasConSubagente.length} pólizas con subagente`}/>
+        <SectionTitle title="Subagentes" sub={`${subagentes.filter(s=>s.activo).length} activos · ${polizasConSubagente.length} pólizas con subagente`}/>
         <div style={{display:"flex",gap:10}}>
-          {tab==="reporte"&&<button onClick={exportarCSV} style={{background:"#059669",color:"#fff",border:"none",borderRadius:9,padding:"9px 16px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>Ã¢Â¬â¡ Exportar CSV</button>}
+          {tab==="reporte"&&<button onClick={exportarCSV} style={{background:"#059669",color:"#fff",border:"none",borderRadius:9,padding:"9px 16px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>⬇ Exportar CSV</button>}
           <Btn onClick={()=>{setForm(FORM_INIT);setEditando(null);setShowModal(true);}} color="#7c3aed" icon="plus">Nuevo Subagente</Btn>
         </div>
       </div>
 
       {/* Tabs */}
       <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:11,padding:4,width:"fit-content"}}>
-        {[["directorio","Ã°Å¸âÂ¥ Directorio"],["comisiones","Ã°Å¸âÂ° Comisiones"],["reporte","Ã°Å¸âÅ  Reporte"]].map(([t,l])=>(
+        {[["directorio","👥 Directorio"],["comisiones","💰 Comisiones"],["reporte","📊 Reporte"]].map(([t,l])=>(
           <button key={t} onClick={()=>setTab(t)}
             style={{background:tab===t?"#fff":"none",border:"none",borderRadius:8,padding:"8px 18px",fontSize:13,
               fontWeight:600,cursor:"pointer",color:tab===t?"#111827":"#6b7280",
@@ -6034,12 +6055,12 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
         ))}
       </div>
 
-      {/* Ã¢ââ¬Ã¢ââ¬ TAB DIRECTORIO Ã¢ââ¬Ã¢ââ¬ */}
+      {/* ── TAB DIRECTORIO ── */}
       {tab==="directorio"&&(
         <>
           {subagentes.length===0 ? (
             <div style={{background:"#fff",borderRadius:14,padding:"60px 20px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,.06)"}}>
-              <div style={{fontSize:40,marginBottom:10}}>Ã°Å¸âÂ¥</div>
+              <div style={{fontSize:40,marginBottom:10}}>👥</div>
               <div style={{fontWeight:700,fontSize:16,color:"#111827",marginBottom:6}}>Sin subagentes registrados</div>
               <div style={{fontSize:13,color:"#9ca3af",marginBottom:16}}>Agrega subagentes para gestionar sus comisiones</div>
               <Btn onClick={()=>setShowModal(true)} color="#7c3aed" icon="plus">Agregar primer subagente</Btn>
@@ -6052,7 +6073,7 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
         </>
       )}
 
-      {/* Ã¢ââ¬Ã¢ââ¬ TAB COMISIONES Ã¢ââ¬Ã¢ââ¬ */}
+      {/* ── TAB COMISIONES ── */}
       {tab==="comisiones"&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           {/* Resumen por subagente */}
@@ -6085,7 +6106,7 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
             </div>
             {polizasConSubagente.length===0 ? (
               <div style={{padding:"40px",textAlign:"center",color:"#9ca3af",fontSize:13}}>
-                Ninguna póliza tiene subagente asignado aÃÂºn.
+                Ninguna póliza tiene subagente asignado aún.
               </div>
             ) : (
               <div style={{overflowX:"auto"}}>
@@ -6104,7 +6125,7 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
                       return (
                         <tr key={p.id} style={{borderTop:"1px solid #f3f4f6",background:i%2===0?"#fff":"#fafafa"}}>
                           <td style={{padding:"10px 12px"}}>
-                            <div style={{fontWeight:700,color:"#5b21b6"}}>{sa?`${sa.nombre} ${sa.apellidoPaterno}`:"Ã¢â¬â"}</div>
+                            <div style={{fontWeight:700,color:"#5b21b6"}}>{sa?`${sa.nombre} ${sa.apellidoPaterno}`:"—"}</div>
                           </td>
                           <td style={{padding:"10px 12px"}}>
                             <div style={{fontWeight:700,fontFamily:"monospace",fontSize:11}}>{p.numero}</div>
@@ -6122,11 +6143,11 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
                           <td style={{padding:"10px 12px"}}>
                             {p.comisionPagada ? (
                               <div>
-                                <span style={{background:"#d1fae5",color:"#065f46",padding:"2px 9px",borderRadius:20,fontSize:10,fontWeight:700}}>Ã¢Åâ Pagada</span>
+                                <span style={{background:"#d1fae5",color:"#065f46",padding:"2px 9px",borderRadius:20,fontSize:10,fontWeight:700}}>✓ Pagada</span>
                                 {p.fechaPagoComision&&<div style={{fontSize:9,color:"#9ca3af",marginTop:2}}>{p.fechaPagoComision}</div>}
                               </div>
                             ) : (
-                              <span style={{background:"#fef3c7",color:"#92400e",padding:"2px 9px",borderRadius:20,fontSize:10,fontWeight:700}}>Ã¢ÂÂ³ Pendiente</span>
+                              <span style={{background:"#fef3c7",color:"#92400e",padding:"2px 9px",borderRadius:20,fontSize:10,fontWeight:700}}>⏳ Pendiente</span>
                             )}
                           </td>
                           <td style={{padding:"10px 12px"}}>
@@ -6170,16 +6191,16 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
         </div>
       )}
 
-      {/* Ã¢ââ¬Ã¢ââ¬ TAB REPORTE Ã¢ââ¬Ã¢ââ¬ */}
+      {/* ── TAB REPORTE ── */}
       {tab==="reporte"&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           {/* KPIs */}
           <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
             {[
-              ["Ã°Å¸âÂ¥",subagentes.filter(s=>s.activo).length,"Subagentes activos","#7c3aed"],
-              ["Ã°Å¸ââ¹",polizasConSubagente.length,"Pólizas con subagente","#2563eb"],
-              ["Ã¢ÂÂ³",fmtMXN(polizasConSubagente.filter(p=>!p.comisionPagada).reduce((s,p)=>s+calcComision(p).neta,0)),"Comisiones pendientes","#d97706"],
-              ["Ã¢Åâ¦",fmtMXN(polizasConSubagente.filter(p=>p.comisionPagada).reduce((s,p)=>s+calcComision(p).neta,0)),"Comisiones pagadas","#059669"],
+              ["👥",subagentes.filter(s=>s.activo).length,"Subagentes activos","#7c3aed"],
+              ["📋",polizasConSubagente.length,"Pólizas con subagente","#2563eb"],
+              ["⏳",fmtMXN(polizasConSubagente.filter(p=>!p.comisionPagada).reduce((s,p)=>s+calcComision(p).neta,0)),"Comisiones pendientes","#d97706"],
+              ["✅",fmtMXN(polizasConSubagente.filter(p=>p.comisionPagada).reduce((s,p)=>s+calcComision(p).neta,0)),"Comisiones pagadas","#059669"],
             ].map(([ic,v,l,c])=>(
               <div key={l} style={{background:"#fff",borderRadius:13,padding:"16px",boxShadow:"0 1px 6px rgba(0,0,0,.06)",borderTop:`3px solid ${c}`}}>
                 <div style={{fontSize:22,marginBottom:6}}>{ic}</div>
@@ -6230,7 +6251,7 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
 
           {/* Detalle pólizas en reporte */}
           <div style={{background:"#fff",borderRadius:14,padding:"18px",boxShadow:"0 1px 6px rgba(0,0,0,.06)"}}>
-            <div style={{fontWeight:800,fontSize:14,color:"#111827",marginBottom:14}}>Detalle de comisiones Ã¢â¬â todas las pólizas</div>
+            <div style={{fontWeight:800,fontSize:14,color:"#111827",marginBottom:14}}>Detalle de comisiones — todas las pólizas</div>
             <div style={{overflowX:"auto"}}>
               <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
                 <thead>
@@ -6246,7 +6267,7 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
                     const {bruta,isr,neta}=calcComision(p);
                     return (
                       <tr key={p.id} style={{borderTop:"1px solid #f3f4f6",background:i%2===0?"#fff":"#fafafa"}}>
-                        <td style={{padding:"8px 10px",fontWeight:700,color:"#5b21b6"}}>{sa?`${sa.nombre} ${sa.apellidoPaterno}`:"Ã¢â¬â"}</td>
+                        <td style={{padding:"8px 10px",fontWeight:700,color:"#5b21b6"}}>{sa?`${sa.nombre} ${sa.apellidoPaterno}`:"—"}</td>
                         <td style={{padding:"8px 10px",fontFamily:"monospace",fontSize:10}}>{p.numero}</td>
                         <td style={{padding:"8px 10px",color:"#374151"}}>{p.cliente}</td>
                         <td style={{padding:"8px 10px"}}><span style={{background:ramoColor(p.ramo)+"18",color:ramoColor(p.ramo),padding:"2px 7px",borderRadius:20,fontSize:10,fontWeight:600}}>{p.ramo}</span></td>
@@ -6257,10 +6278,10 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
                         <td style={{padding:"8px 10px",fontWeight:800,color:"#059669"}}>{fmtMXN(neta)}</td>
                         <td style={{padding:"8px 10px"}}>
                           <span style={{background:p.comisionPagada?"#d1fae5":"#fef3c7",color:p.comisionPagada?"#065f46":"#92400e",padding:"2px 8px",borderRadius:20,fontSize:9,fontWeight:700}}>
-                            {p.comisionPagada?"Ã¢Åâ Pagada":"Pendiente"}
+                            {p.comisionPagada?"✓ Pagada":"Pendiente"}
                           </span>
                         </td>
-                        <td style={{padding:"8px 10px",fontSize:10,color:"#6b7280"}}>{p.fechaPagoComision||"Ã¢â¬â"}</td>
+                        <td style={{padding:"8px 10px",fontSize:10,color:"#6b7280"}}>{p.fechaPagoComision||"—"}</td>
                       </tr>
                     );
                   })}
@@ -6271,7 +6292,7 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
         </div>
       )}
 
-      {/* Ã¢ââ¬Ã¢ââ¬ MODAL ALTA/EDICIÃâN SUBAGENTE Ã¢ââ¬Ã¢ââ¬ */}
+      {/* ── MODAL ALTA/EDICIÓN SUBAGENTE ── */}
       {showModal&&(
         <Modal title={editando?"Editar Subagente":"Nuevo Subagente"} onClose={()=>{setShowModal(false);setEditando(null);setForm(FORM_INIT);}}>
           <div style={{display:"flex",flexDirection:"column",gap:13}}>
@@ -6295,7 +6316,7 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
               <label style={{fontSize:12,fontWeight:700,color:"#374151"}}>Estado:</label>
               <button onClick={()=>upd("activo",!form.activo)}
                 style={{background:form.activo?"#d1fae5":"#f3f4f6",color:form.activo?"#065f46":"#6b7280",border:"none",borderRadius:20,padding:"4px 14px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                {form.activo?"Ã¢âÂ Activo":"Ã¢ââ¹ Inactivo"}
+                {form.activo?"● Activo":"○ Inactivo"}
               </button>
             </div>
             {(!form.nombre||!form.apellidoPaterno)&&(
@@ -6309,7 +6330,7 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
         </Modal>
       )}
 
-      {/* Ã¢ââ¬Ã¢ââ¬ MODAL REGISTRAR PAGO COMISIÃâN Ã¢ââ¬Ã¢ââ¬ */}
+      {/* ── MODAL REGISTRAR PAGO COMISIÓN ── */}
       {showComision&&<ModalPagoComision
         poliza={showComision}
         subagentes={subagentes}
@@ -6325,7 +6346,7 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
   );
 }
 
-// Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬ Modal Pago Comisión Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬
+// ─── Modal Pago Comisión ─────────────────────────────────────────
 function ModalPagoComision({ poliza, subagentes, calcComision, fmtMXN, onPagar, onClose }) {
   const [fecha, setFecha] = useState(new Date().toISOString().slice(0,10));
   const sa = subagentes.find(s=>s.id===poliza.subagenteId);
@@ -6336,7 +6357,7 @@ function ModalPagoComision({ poliza, subagentes, calcComision, fmtMXN, onPagar, 
         <div style={{background:"#faf5ff",borderRadius:10,padding:"12px 14px"}}>
           <div style={{fontSize:11,color:"#9ca3af",fontWeight:700,marginBottom:4}}>SUBAGENTE</div>
           <div style={{fontSize:14,fontWeight:800,color:"#5b21b6"}}>{sa?sa.nombre+" "+sa.apellidoPaterno:""}</div>
-          <div style={{fontSize:12,color:"#7c3aed",marginTop:2}}>Póliza: {poliza.numero} ÃÂ· {poliza.cliente}</div>
+          <div style={{fontSize:12,color:"#7c3aed",marginTop:2}}>Póliza: {poliza.numero} · {poliza.cliente}</div>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
           {[["Com. Bruta",fmtMXN(bruta),"#374151"],["ISR (10%)","-"+fmtMXN(isr),"#dc2626"],["Com. Neta",fmtMXN(neta),"#059669"]].map(([l,v,c])=>(
@@ -6359,7 +6380,7 @@ function ModalPagoComision({ poliza, subagentes, calcComision, fmtMXN, onPagar, 
           </>
         ) : (
           <div style={{background:"#f0fdf4",borderRadius:10,padding:"12px 14px",textAlign:"center"}}>
-            <div style={{fontSize:20,marginBottom:4}}>Ã¢Åâ¦</div>
+            <div style={{fontSize:20,marginBottom:4}}>✅</div>
             <div style={{fontWeight:700,color:"#059669"}}>Comisión ya registrada como pagada</div>
             {poliza.fechaPagoComision&&<div style={{fontSize:12,color:"#6b7280",marginTop:4}}>Fecha: {poliza.fechaPagoComision}</div>}
           </div>
@@ -6369,9 +6390,119 @@ function ModalPagoComision({ poliza, subagentes, calcComision, fmtMXN, onPagar, 
   );
 }
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
-// CONFIGURACIÃâN
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
+// CONFIGURACIÓN
+// ═══════════════════════════════════════════════════════════════════
+const GMAIL_CLIENT_ID = "73188297798-pramhj4s0t2ekgcsaq2vqtahh48qs9sj.apps.googleusercontent.com";
+const GMAIL_SCOPES = "https://www.googleapis.com/auth/gmail.send";
+
+function useGmailAuth(config, setConfig) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError]   = useState("");
+
+  const conectar = () => {
+    setLoading(true); setError("");
+    const params = new URLSearchParams({
+      client_id:     GMAIL_CLIENT_ID,
+      redirect_uri:  window.location.origin,
+      response_type: "token",
+      scope:         GMAIL_SCOPES,
+      prompt:        "consent",
+    });
+    const url = "https://accounts.google.com/o/oauth2/v2/auth?" + params;
+    const popup = window.open(url, "gmail_auth", "width=500,height=600");
+    const timer = setInterval(()=>{
+      try {
+        if(!popup || popup.closed){ clearInterval(timer); setLoading(false); return; }
+        const hash = popup.location.hash;
+        if(hash && hash.includes("access_token")){
+          clearInterval(timer);
+          popup.close();
+          const p = new URLSearchParams(hash.slice(1));
+          const token = p.get("access_token");
+          // Obtener email del usuario
+          fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+            headers:{ Authorization: "Bearer " + token }
+          }).then(r=>r.json()).then(info=>{
+            setConfig(prev=>({...prev, gmailToken:token, gmailEmail:info.email||""}));
+            setLoading(false);
+          }).catch(()=>{ setConfig(prev=>({...prev, gmailToken:token})); setLoading(false); });
+        }
+      } catch(e){ /* cross-origin, esperar */ }
+    }, 500);
+  };
+
+  const desconectar = () => setConfig(prev=>({...prev, gmailToken:"", gmailEmail:""}));
+
+  const enviarEmail = async ({to, subject, body, fromName}) => {
+    if(!config.gmailToken) return false;
+    const from = fromName ? `"${fromName}" <${config.gmailEmail}>` : config.gmailEmail;
+    const raw = btoa(unescape(encodeURIComponent(
+      `From: ${from}\r\nTo: ${to}\r\nSubject: ${subject}\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n${body}`
+    ))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+    const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send",{
+      method:"POST",
+      headers:{ Authorization:"Bearer "+config.gmailToken, "Content-Type":"application/json" },
+      body: JSON.stringify({raw})
+    });
+    if(res.status===401){ setConfig(prev=>({...prev,gmailToken:"",gmailEmail:""})); return false; }
+    return res.ok;
+  };
+
+  return { conectar, desconectar, enviarEmail, loading, error };
+}
+
+function ConfigGmail({ config, setConfig }) {
+  const { conectar, desconectar, loading } = useGmailAuth(config, setConfig);
+  const conectado = !!config.gmailToken;
+  return (
+    <div style={{background:"#fff",borderRadius:16,padding:24,boxShadow:"0 1px 6px rgba(0,0,0,0.07)",maxWidth:560}}>
+      <div style={{fontSize:15,fontWeight:800,color:"#111827",marginBottom:4}}>📧 Conexión con Gmail</div>
+      <div style={{fontSize:12,color:"#6b7280",marginBottom:20}}>
+        Conecta tu cuenta de Gmail para que el CRM envíe correos directamente — sin abrir Outlook ni otra app.
+        Funciona con Gmail personal, empresarial o con dominio propio (Google Workspace).
+      </div>
+
+      {conectado ? (
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+          <div style={{background:"#f0fdf4",border:"1.5px solid #6ee7b7",borderRadius:12,padding:"14px 18px",display:"flex",alignItems:"center",gap:12}}>
+            <span style={{fontSize:28}}>✅</span>
+            <div>
+              <div style={{fontSize:13,fontWeight:800,color:"#065f46"}}>Gmail conectado</div>
+              <div style={{fontSize:12,color:"#059669",marginTop:2}}>{config.gmailEmail}</div>
+            </div>
+          </div>
+          <div style={{background:"#eff6ff",borderRadius:10,padding:"11px 14px",fontSize:12,color:"#1e40af"}}>
+            💡 Los correos de bienvenida y notificaciones se enviarán automáticamente desde esta cuenta.
+          </div>
+          <button onClick={desconectar}
+            style={{background:"#fef2f2",border:"1.5px solid #fecaca",borderRadius:9,padding:"9px 18px",fontSize:13,fontWeight:700,cursor:"pointer",color:"#dc2626",fontFamily:"inherit",width:"fit-content"}}>
+            🔌 Desconectar Gmail
+          </button>
+        </div>
+      ) : (
+        <div style={{display:"flex",flexDirection:"column",gap:16}}>
+          <div style={{background:"#f9fafb",borderRadius:12,padding:"16px 18px",border:"1px solid #e5e7eb"}}>
+            <div style={{fontSize:12,fontWeight:700,color:"#374151",marginBottom:10}}>¿Qué permisos necesita?</div>
+            <div style={{fontSize:12,color:"#6b7280",display:"flex",flexDirection:"column",gap:6}}>
+              <div>✅ Enviar correos en tu nombre</div>
+              <div>❌ No lee ni accede a tus correos recibidos</div>
+              <div>❌ No almacena tu contraseña</div>
+            </div>
+          </div>
+          <button onClick={conectar} disabled={loading}
+            style={{background:loading?"#9ca3af":"#4285f4",border:"none",borderRadius:10,padding:"12px 24px",fontSize:14,fontWeight:700,cursor:loading?"not-allowed":"pointer",color:"#fff",fontFamily:"inherit",display:"flex",alignItems:"center",gap:10,width:"fit-content"}}>
+            {loading ? "⏳ Conectando..." : "🔗 Conectar con Google"}
+          </button>
+          <div style={{fontSize:11,color:"#9ca3af"}}>
+            Se abrirá una ventana de Google para autorizar. Tu contraseña nunca llega al CRM.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios, setUsuarios, polizas, setPolizas }) {
   const [tab, setTab] = useState("empresa");
   const [form, setForm] = useState({...config});
@@ -6397,7 +6528,7 @@ function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios,
       <SectionTitle title="Configuración" sub="Personaliza el sistema y gestiona usuarios y subagentes"/>
 
       <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:11,padding:4,width:"fit-content",flexWrap:"wrap"}}>
-        {[["empresa","Ã°Å¸ÂÂ¢ Empresa / Agente"],["usuarios","Ã°Å¸âÂ¤ Usuarios"],["subagentes","Ã°Å¸Â¤Â Subagentes"],["gmail","Ã°Å¸âÂ§ Gmail"]].map(([t,l])=>(
+        {[["empresa","🏢 Empresa / Agente"],["usuarios","👤 Usuarios"],["subagentes","🤝 Subagentes"],["gmail","📧 Gmail"]].map(([t,l])=>(
           <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?"#fff":"none",border:"none",borderRadius:8,padding:"7px 18px",fontSize:13,fontWeight:600,cursor:"pointer",color:tab===t?"#111827":"#6b7280",boxShadow:tab===t?"0 1px 4px rgba(0,0,0,0.1)":"none",fontFamily:"inherit"}}>{l}</button>
         ))}
       </div>
@@ -6416,21 +6547,21 @@ function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios,
               <div style={{width:72,height:72,borderRadius:12,background:"#e2e8f0",overflow:"hidden",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
                 {form.logo
                   ? <img src={form.logo} alt="logo" style={{width:"100%",height:"100%",objectFit:"contain"}}/>
-                  : <span style={{fontSize:28}}>Ã°Å¸ÂÂ¢</span>}
+                  : <span style={{fontSize:28}}>🏢</span>}
               </div>
               <div style={{flex:1}}>
                 <div style={{fontSize:12,fontWeight:700,color:"#374151",marginBottom:4}}>Logo de la empresa / agente</div>
-                <div style={{fontSize:11,color:"#9ca3af",marginBottom:8}}>PNG, JPG o SVG ÃÂ· Recomendado 200Ãâ200 px</div>
+                <div style={{fontSize:11,color:"#9ca3af",marginBottom:8}}>PNG, JPG o SVG · Recomendado 200×200 px</div>
                 <div style={{display:"flex",gap:8}}>
                   <input ref={logoRef} type="file" accept="image/*" onChange={handleLogo} style={{display:"none"}}/>
                   <button onClick={()=>logoRef.current.click()}
                     style={{background:"#0f172a",color:"#fff",border:"none",borderRadius:8,padding:"7px 16px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                    Ã°Å¸âÂ Subir logo
+                    📁 Subir logo
                   </button>
                   {form.logo&&(
                     <button onClick={()=>setForm(p=>({...p,logo:null}))}
                       style={{background:"#fef2f2",color:"#dc2626",border:"1.5px solid #fecaca",borderRadius:8,padding:"7px 12px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>
-                      Ã°Å¸ââ Quitar
+                      🗑 Quitar
                     </button>
                   )}
                 </div>
@@ -6438,10 +6569,10 @@ function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios,
             </div>
 
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-              <Inp label="Nombre del Agente / Empresa *" value={form.nombre||""} onChange={e=>setForm(p=>({...p,nombre:e.target.value}))} placeholder="Ej: GarcÃÂ­a Seguros"/>
+              <Inp label="Nombre del Agente / Empresa *" value={form.nombre||""} onChange={e=>setForm(p=>({...p,nombre:e.target.value}))} placeholder="Ej: García Seguros"/>
               <Inp label="RFC" value={form.rfc||""} onChange={e=>setForm(p=>({...p,rfc:e.target.value}))} placeholder="GARC800101XXX"/>
             </div>
-            <Inp label="Domicilio" value={form.domicilio||""} onChange={e=>setForm(p=>({...p,domicilio:e.target.value}))} placeholder="Calle, NÃÂºmero, Colonia"/>
+            <Inp label="Domicilio" value={form.domicilio||""} onChange={e=>setForm(p=>({...p,domicilio:e.target.value}))} placeholder="Calle, Número, Colonia"/>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
               <Inp label="Ciudad" value={form.ciudad||""} onChange={e=>setForm(p=>({...p,ciudad:e.target.value}))} placeholder="Ej: Monterrey, N.L."/>
               <Inp label="Código Postal" value={form.cp||""} onChange={e=>setForm(p=>({...p,cp:e.target.value}))} placeholder="64000"/>
@@ -6456,9 +6587,9 @@ function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios,
             </div>
             <div style={{marginTop:4,display:"flex",gap:10,alignItems:"center"}}>
               <button onClick={guardar} style={{background:"#0f172a",color:"#fff",border:"none",borderRadius:9,padding:"10px 26px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                Ã°Å¸âÂ¾ Guardar cambios
+                💾 Guardar cambios
               </button>
-              {saved&&<span style={{color:"#059669",fontWeight:700,fontSize:13}}>Ã¢Åâ¦ Guardado</span>}
+              {saved&&<span style={{color:"#059669",fontWeight:700,fontSize:13}}>✅ Guardado</span>}
             </div>
           </div>
         </div>
@@ -6475,9 +6606,9 @@ function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios,
   );
 }
 
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 // APP PRINCIPAL
-// Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â
+// ═══════════════════════════════════════════════════════════════════
 export default function CRMSeguros() {
   const [vista,setVista]=useState("dashboard");
   const [clientes,setClientes]=useState(CLIENTES_INIT);
@@ -6490,11 +6621,11 @@ export default function CRMSeguros() {
   const [config,setConfig]=useState({nombre:"SeguroCRM",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""});
 
   const PLANTILLAS_DEFAULT = {
-    vencimiento:  `Hola {nombre} Ã°Å¸ââ¹,\n\nTe escribo de *SeguroCRM* para recordarte sobre tu póliza:\n\nÃ°Å¸ââ *Póliza:* {numero}\nÃ°Å¸ÂÂ¢ *Aseguradora:* {aseguradora}\nÃ°Å¸ââ *Ramo:* {ramo}\nÃ°Å¸ââ¦ *Vencimiento:* {vencimiento}\nÃ°Å¸âÂ° *Prima:* ${"{prima}"} ({frecuencia})\n\nPara renovar contáctame Ã°Å¸ËÅ \n\n_Tu agente de seguros_`,
-    pago:         `Hola {nombre} Ã°Å¸ââ¹,\n\nConfirmamos la recepción de tu pago Ã°Å¸âÂ³\n\nÃ°Å¸ââ *Póliza:* {numero}\nÃ°Å¸ÂÂ¢ *Aseguradora:* {aseguradora}\nÃ°Å¸ââ¦ *Vigencia hasta:* {vencimiento}\n\nGracias por tu puntualidad Ã¢Åâ¦\n\n_Tu agente de seguros_`,
-    bienvenida:   `Hola {nombre} Ã°Å¸ââ¹,\n\nÃÂ¡Bienvenido/a como cliente! Ã°Å¸Å½â°\n\nTu póliza ha sido registrada exitosamente:\n\nÃ°Å¸ââ *Póliza:* {numero}\nÃ°Å¸ÂÂ¢ *Aseguradora:* {aseguradora}\nÃ°Å¸ââ *Ramo:* {ramo}\nÃ°Å¸ââ¦ *Vigente hasta:* {vencimiento}\n\nEstoy a tus órdenes para cualquier duda Ã°Å¸ËÅ \n\n_Tu agente de seguros_`,
-    renovacion:   `Hola {nombre} Ã°Å¸ââ¹,\n\nTu póliza ha sido renovada exitosamente Ã°Å¸ââ\n\nÃ°Å¸ââ *Póliza:* {numero}\nÃ°Å¸ÂÂ¢ *Aseguradora:* {aseguradora}\nÃ°Å¸ââ¦ *Nueva vigencia hasta:* {vencimiento}\nÃ°Å¸âÂ° *Prima:* ${"{prima}"} ({frecuencia})\n\nÃÂ¡Sigues protegido/a! Ã¢Åâ¦\n\n_Tu agente de seguros_`,
-    personalizado:`Hola {nombre} Ã°Å¸ââ¹,\n\nTe contacto respecto a tu póliza *{numero}* de {aseguradora}.\n\n[Escribe aquÃÂ­ tu mensaje personalizado]\n\n_Tu agente de seguros_`,
+    vencimiento:  `Hola {nombre} 👋,\n\nTe escribo de *SeguroCRM* para recordarte sobre tu póliza:\n\n📄 *Póliza:* {numero}\n🏢 *Aseguradora:* {aseguradora}\n🔖 *Ramo:* {ramo}\n📅 *Vencimiento:* {vencimiento}\n💰 *Prima:* ${"{prima}"} ({frecuencia})\n\nPara renovar contáctame 😊\n\n_Tu agente de seguros_`,
+    pago:         `Hola {nombre} 👋,\n\nConfirmamos la recepción de tu pago 💳\n\n📄 *Póliza:* {numero}\n🏢 *Aseguradora:* {aseguradora}\n📅 *Vigencia hasta:* {vencimiento}\n\nGracias por tu puntualidad ✅\n\n_Tu agente de seguros_`,
+    bienvenida:   `Hola {nombre} 👋,\n\n¡Bienvenido/a como cliente! 🎉\n\nTu póliza ha sido registrada exitosamente:\n\n📄 *Póliza:* {numero}\n🏢 *Aseguradora:* {aseguradora}\n🔖 *Ramo:* {ramo}\n📅 *Vigente hasta:* {vencimiento}\n\nEstoy a tus órdenes para cualquier duda 😊\n\n_Tu agente de seguros_`,
+    renovacion:   `Hola {nombre} 👋,\n\nTu póliza ha sido renovada exitosamente 🔄\n\n📄 *Póliza:* {numero}\n🏢 *Aseguradora:* {aseguradora}\n📅 *Nueva vigencia hasta:* {vencimiento}\n💰 *Prima:* ${"{prima}"} ({frecuencia})\n\n¡Sigues protegido/a! ✅\n\n_Tu agente de seguros_`,
+    personalizado:`Hola {nombre} 👋,\n\nTe contacto respecto a tu póliza *{numero}* de {aseguradora}.\n\n[Escribe aquí tu mensaje personalizado]\n\n_Tu agente de seguros_`,
   };
   const [plantillas, setPlantillas] = useState(PLANTILLAS_DEFAULT);
 
@@ -6551,7 +6682,7 @@ export default function CRMSeguros() {
         {vista==="dashboard"&&<Dashboard clientes={clientes} polizas={polizas} pipeline={pipeline} tareas={tareas} paiMetas={paiMetas}/>}
         {vista==="clientes"&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas}/>}
         {vista==="polizas"&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes} plantillas={plantillas} config={config} setConfig={setConfig}/>}
-        {vista==="notificaciones"&&<Notificaciones polizas={polizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes} configNotif={config} setConfigNotif={(vals)=>setConfig(p=>({...p,...vals}))}/>}
+        {vista==="notificaciones"&&<Notificaciones polizas={polizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes} configNotif={config} setConfigNotif={(vals)=>setConfig(p=>({...p,...vals}))} gmailToken={config.gmailToken} gmailEmail={config.gmailEmail} gmailNombre={config.nombreRemitente||config.nombre||""} setConfig={setConfig}/>}
         {vista==="pai"&&<PAI paiMetas={paiMetas} setPaiMetas={setPaiMetas}/>}
         {vista==="pipeline"&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}
         {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas}/>}
@@ -6562,4 +6693,3 @@ export default function CRMSeguros() {
     </div>
   );
 }
-

@@ -2399,24 +2399,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
   };
 
   const polizaDetalle = showDetalle ? {...showDetalle, _status: getStatus(showDetalle)} : null;
-
-  // Bienvenida automática
-  // Helper para enviar con Gmail desde cualquier componente
-  const gmailSend = async ({to, subject, body}) => {
-    if(!config?.gmailToken) return false;
-    const fromName = config.nombreRemitente||config.nombre||"";
-    const from = fromName ? `"${fromName}" <${config.gmailEmail}>` : config.gmailEmail;
-    const raw = btoa(unescape(encodeURIComponent(
-      `From: ${from}\r\nTo: ${to}\r\nSubject: ${subject}\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n${body}`
-    ))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
-    const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send",{
-      method:"POST",
-      headers:{Authorization:"Bearer "+config.gmailToken,"Content-Type":"application/json"},
-      body:JSON.stringify({raw})
-    });
-    if(res.status===401){ setConfig(p=>({...p,gmailToken:"",gmailEmail:""})); return false; }
-    return res.ok;
-  };
+  // Bienvenida automatica
 
   const aplicarVarsBienvenida = (tpl, p) => (tpl||"")
     .replace(/{nombre}/g, p.cliente?.split(" ")[0]||p.cliente||"")
@@ -2938,10 +2921,10 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                   const tpl = plantillas?.bienvenida || `Estimado/a {nombre},\n\n¡Bienvenido/a como cliente!\n\nSu póliza ha sido registrada:\n• Póliza: {numero}\n• Aseguradora: {aseguradora}\n• Ramo: {ramo}\n• Vigente hasta: {vencimiento}\n\nEstamos a sus órdenes.\n\nAtentamente,\nSu Agente de Seguros`;
                   const body = aplicarVarsBienvenida(tpl, p);
                   const subject = `¡Bienvenido/a! Póliza ${p.numero} registrada`;
-                  if(config?.gmailToken){
-                    const ok = await gmailSend({to:p.emailCliente, subject, body});
-                    if(ok){ setShowBienvenida(null); alert("✅ Correo enviado correctamente"); }
-                    else { enviarBienvenidaEmail(p); setShowBienvenida(null); }
+                  enviarBienvenidaEmail(p); setShowBienvenida(null);
+
+                    enviarBienvenidaEmail(p); setShowBienvenida(null);
+
                   } else {
                     enviarBienvenidaEmail(p); setShowBienvenida(null);
                   }
@@ -3257,7 +3240,7 @@ function ScanPoliza({ onClose, onExtracted }) {
 // ═══════════════════════════════════════════════════════════════════
 // NOTIFICACIONES
 // ═══════════════════════════════════════════════════════════════════
-function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault, clientes, configNotif:configNotifProp, setConfigNotif:setConfigNotifProp, gmailToken, gmailEmail, gmailNombre, setConfig }) {
+function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault, clientes, configNotif:configNotifProp, setConfigNotif:setConfigNotifProp }) {
   const [tab,setTab]=useState("recordatorios");
   const [canal,setCanal]=useState("whatsapp");
   const [diasAntes,setDiasAntes]=useState(30);
@@ -6391,118 +6374,6 @@ function ModalPagoComision({ poliza, subagentes, calcComision, fmtMXN, onPagar, 
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// CONFIGURACIÓN
-// ═══════════════════════════════════════════════════════════════════
-const GMAIL_CLIENT_ID = "73188297798-pramhj4s0t2ekgcsaq2vqtahh48qs9sj.apps.googleusercontent.com";
-const GMAIL_SCOPES = "https://www.googleapis.com/auth/gmail.send";
-
-function useGmailAuth(config, setConfig) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError]   = useState("");
-
-  const conectar = () => {
-    setLoading(true); setError("");
-    const params = new URLSearchParams({
-      client_id:     GMAIL_CLIENT_ID,
-      redirect_uri:  window.location.origin,
-      response_type: "token",
-      scope:         GMAIL_SCOPES,
-      prompt:        "consent",
-    });
-    const url = "https://accounts.google.com/o/oauth2/v2/auth?" + params;
-    const popup = window.open(url, "gmail_auth", "width=500,height=600");
-    const timer = setInterval(()=>{
-      try {
-        if(!popup || popup.closed){ clearInterval(timer); setLoading(false); return; }
-        const hash = popup.location.hash;
-        if(hash && hash.includes("access_token")){
-          clearInterval(timer);
-          popup.close();
-          const p = new URLSearchParams(hash.slice(1));
-          const token = p.get("access_token");
-          // Obtener email del usuario
-          fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-            headers:{ Authorization: "Bearer " + token }
-          }).then(r=>r.json()).then(info=>{
-            setConfig(prev=>({...prev, gmailToken:token, gmailEmail:info.email||""}));
-            setLoading(false);
-          }).catch(()=>{ setConfig(prev=>({...prev, gmailToken:token})); setLoading(false); });
-        }
-      } catch(e){ /* cross-origin, esperar */ }
-    }, 500);
-  };
-
-  const desconectar = () => setConfig(prev=>({...prev, gmailToken:"", gmailEmail:""}));
-
-  const enviarEmail = async ({to, subject, body, fromName}) => {
-    if(!config.gmailToken) return false;
-    const from = fromName ? `"${fromName}" <${config.gmailEmail}>` : config.gmailEmail;
-    const raw = btoa(unescape(encodeURIComponent(
-      `From: ${from}\r\nTo: ${to}\r\nSubject: ${subject}\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n${body}`
-    ))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
-    const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send",{
-      method:"POST",
-      headers:{ Authorization:"Bearer "+config.gmailToken, "Content-Type":"application/json" },
-      body: JSON.stringify({raw})
-    });
-    if(res.status===401){ setConfig(prev=>({...prev,gmailToken:"",gmailEmail:""})); return false; }
-    return res.ok;
-  };
-
-  return { conectar, desconectar, enviarEmail, loading, error };
-}
-
-function ConfigGmail({ config, setConfig }) {
-  const { conectar, desconectar, loading } = useGmailAuth(config, setConfig);
-  const conectado = !!config.gmailToken;
-  return (
-    <div style={{background:"#fff",borderRadius:16,padding:24,boxShadow:"0 1px 6px rgba(0,0,0,0.07)",maxWidth:560}}>
-      <div style={{fontSize:15,fontWeight:800,color:"#111827",marginBottom:4}}>📧 Conexión con Gmail</div>
-      <div style={{fontSize:12,color:"#6b7280",marginBottom:20}}>
-        Conecta tu cuenta de Gmail para que el CRM envíe correos directamente — sin abrir Outlook ni otra app.
-        Funciona con Gmail personal, empresarial o con dominio propio (Google Workspace).
-      </div>
-
-      {conectado ? (
-        <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          <div style={{background:"#f0fdf4",border:"1.5px solid #6ee7b7",borderRadius:12,padding:"14px 18px",display:"flex",alignItems:"center",gap:12}}>
-            <span style={{fontSize:28}}>✅</span>
-            <div>
-              <div style={{fontSize:13,fontWeight:800,color:"#065f46"}}>Gmail conectado</div>
-              <div style={{fontSize:12,color:"#059669",marginTop:2}}>{config.gmailEmail}</div>
-            </div>
-          </div>
-          <div style={{background:"#eff6ff",borderRadius:10,padding:"11px 14px",fontSize:12,color:"#1e40af"}}>
-            💡 Los correos de bienvenida y notificaciones se enviarán automáticamente desde esta cuenta.
-          </div>
-          <button onClick={desconectar}
-            style={{background:"#fef2f2",border:"1.5px solid #fecaca",borderRadius:9,padding:"9px 18px",fontSize:13,fontWeight:700,cursor:"pointer",color:"#dc2626",fontFamily:"inherit",width:"fit-content"}}>
-            🔌 Desconectar Gmail
-          </button>
-        </div>
-      ) : (
-        <div style={{display:"flex",flexDirection:"column",gap:16}}>
-          <div style={{background:"#f9fafb",borderRadius:12,padding:"16px 18px",border:"1px solid #e5e7eb"}}>
-            <div style={{fontSize:12,fontWeight:700,color:"#374151",marginBottom:10}}>¿Qué permisos necesita?</div>
-            <div style={{fontSize:12,color:"#6b7280",display:"flex",flexDirection:"column",gap:6}}>
-              <div>✅ Enviar correos en tu nombre</div>
-              <div>❌ No lee ni accede a tus correos recibidos</div>
-              <div>❌ No almacena tu contraseña</div>
-            </div>
-          </div>
-          <button onClick={conectar} disabled={loading}
-            style={{background:loading?"#9ca3af":"#4285f4",border:"none",borderRadius:10,padding:"12px 24px",fontSize:14,fontWeight:700,cursor:loading?"not-allowed":"pointer",color:"#fff",fontFamily:"inherit",display:"flex",alignItems:"center",gap:10,width:"fit-content"}}>
-            {loading ? "⏳ Conectando..." : "🔗 Conectar con Google"}
-          </button>
-          <div style={{fontSize:11,color:"#9ca3af"}}>
-            Se abrirá una ventana de Google para autorizar. Tu contraseña nunca llega al CRM.
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios, setUsuarios, polizas, setPolizas }) {
   const [tab, setTab] = useState("empresa");
   const [form, setForm] = useState({...config});
@@ -6682,7 +6553,7 @@ export default function CRMSeguros() {
         {vista==="dashboard"&&<Dashboard clientes={clientes} polizas={polizas} pipeline={pipeline} tareas={tareas} paiMetas={paiMetas}/>}
         {vista==="clientes"&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas}/>}
         {vista==="polizas"&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes} plantillas={plantillas} config={config} setConfig={setConfig}/>}
-        {vista==="notificaciones"&&<Notificaciones polizas={polizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes} configNotif={config} setConfigNotif={(vals)=>setConfig(p=>({...p,...vals}))} gmailToken={config.gmailToken} gmailEmail={config.gmailEmail} gmailNombre={config.nombreRemitente||config.nombre||""} setConfig={setConfig}/>}
+        {vista==="notificaciones"&&<Notificaciones polizas={polizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes} configNotif={config} setConfigNotif={(vals)=>setConfig(p=>({...p,...vals}))}/>}
         {vista==="pai"&&<PAI paiMetas={paiMetas} setPaiMetas={setPaiMetas}/>}
         {vista==="pipeline"&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}
         {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas}/>}

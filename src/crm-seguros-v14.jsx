@@ -2926,8 +2926,8 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
 
 
 
-                    enviarBienvenidaEmail(p); setShowBienvenida(null);
-                  }
+
+
                 }} style={{flex:2,background:"#059669",border:"none",borderRadius:10,padding:11,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
                   ✉️ Enviar correo
                 </button>

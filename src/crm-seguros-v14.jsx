@@ -2920,12 +2920,12 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                   const p = showBienvenida.poliza;
                   const tpl = plantillas?.bienvenida || `Estimado/a {nombre},\n\n¡Bienvenido/a como cliente!\n\nSu póliza ha sido registrada:\n• Póliza: {numero}\n• Aseguradora: {aseguradora}\n• Ramo: {ramo}\n• Vigente hasta: {vencimiento}\n\nEstamos a sus órdenes.\n\nAtentamente,\nSu Agente de Seguros`;
                   const body = aplicarVarsBienvenida(tpl, p);
-                  const subject = `¡Bienvenido/a! Póliza ${p.numero} registrada`;
                   enviarBienvenidaEmail(p); setShowBienvenida(null);
 
-                    enviarBienvenidaEmail(p); setShowBienvenida(null);
 
-                  } else {
+
+
+
                     enviarBienvenidaEmail(p); setShowBienvenida(null);
                   }
                 }} style={{flex:2,background:"#059669",border:"none",borderRadius:10,padding:11,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>

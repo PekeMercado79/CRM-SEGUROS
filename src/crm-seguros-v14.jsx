@@ -2916,11 +2916,11 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                 </button>
               )}
               {showBienvenida.tieneEmail&&(
-                <button onClick={async()=>{
-                  const p = showBienvenida.poliza;
-                  const tpl = plantillas?.bienvenida || `Estimado/a {nombre},\n\n¡Bienvenido/a como cliente!\n\nSu póliza ha sido registrada:\n• Póliza: {numero}\n• Aseguradora: {aseguradora}\n• Ramo: {ramo}\n• Vigente hasta: {vencimiento}\n\nEstamos a sus órdenes.\n\nAtentamente,\nSu Agente de Seguros`;
-                  const body = aplicarVarsBienvenida(tpl, p);
-                  enviarBienvenidaEmail(p); setShowBienvenida(null);
+                <button onClick={()=>{enviarBienvenidaEmail(showBienvenida.poliza);setShowBienvenida(null);}} style={{flex:2,background:"#2563eb",border:"none",borderRadius:10,padding:11,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+                  ✉️ Enviar por Email
+                </button>
+
+
 
 
 

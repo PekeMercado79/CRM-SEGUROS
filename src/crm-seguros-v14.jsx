@@ -3507,10 +3507,10 @@ const PLANTILLAS_TIPOS = [
 
 const VARS_DISPONIBLES = ["{nombre}","{numero}","{aseguradora}","{ramo}","{vencimiento}","{prima}","{frecuencia}","{fecha}"];
 
-function ComunicacionConfig({ plantillas, setPlantillas, plantillasDefault, clientes, polizas, config, setConfig }) {
-  const [canal, setCanal] = useState("whatsapp"); // "whatsapp" | "correo"
+function ComunicacionConfig({ plantillas, setPlantillas, plantillasDefault, clientes, polizas, config, setConfig, historialNotif, setHistorialNotif }) {
+  const [canal, setCanal] = useState("notificaciones"); // "whatsapp" | "correo" | "notificaciones"
   const [tipoActivo, setTipoActivo] = useState("vencimiento");
-  const [tabCorreo, setTabCorreo] = useState("plantilla"); // "plantilla" | "smtp"
+  const [tabCorreo, setTabCorreo] = useState("plantilla");
   const [clienteDemo, setClienteDemo] = useState(null);
   const [toast, setToast] = useState(null);
   const [smtpForm, setSmtpForm] = useState({
@@ -3524,6 +3524,124 @@ function ComunicacionConfig({ plantillas, setPlantillas, plantillasDefault, clie
   const [testEmail, setTestEmail] = useState("");
   const [testando, setTestando] = useState(false);
   const imgRef = useRef();
+
+  // Reglas de notificaciones — configurables
+  const REGLAS_DEFAULT = {
+    vencimiento15: { activo:true,  dias:15, canal:"whatsapp", label:"15 días antes del vencimiento" },
+    vencimiento5:  { activo:true,  dias:5,  canal:"whatsapp", label:"5 días antes del vencimiento"  },
+    vencimiento0:  { activo:true,  dias:0,  canal:"whatsapp", label:"Día del vencimiento"            },
+    cumpleanos:    { activo:true,  dias:0,  canal:"whatsapp", label:"Día del cumpleaños"             },
+    renovacion:    { activo:true,  dias:0,  canal:"whatsapp", label:"Al renovar póliza"              },
+  };
+  const [reglas, setReglas] = useState(()=>{
+    try { return JSON.parse(localStorage.getItem("crm_reglas_notif"))||REGLAS_DEFAULT; }
+    catch { return REGLAS_DEFAULT; }
+  });
+
+  const guardarRegla = (key, cambios) => {
+    const nuevas = {...reglas, [key]:{...reglas[key],...cambios}};
+    setReglas(nuevas);
+    localStorage.setItem("crm_reglas_notif", JSON.stringify(nuevas));
+  };
+
+  // Calcular pendientes del día
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+
+  const calcDias = (fecha) => {
+    if (!fecha) return 9999;
+    const f = new Date(fecha.includes("/") ? fecha.split("/").reverse().join("-") : fecha);
+    f.setHours(0,0,0,0);
+    return Math.round((f - hoy) / 86400000);
+  };
+
+  const tienePagoReciente = (p) => (p.pagos||[]).length > 0;
+
+  const pendientes = [];
+
+  // Vencimientos
+  polizas.forEach(p => {
+    if (p.status==="cancelada") return;
+    const dias = calcDias(p.vencimiento);
+    const pagado = tienePagoReciente(p);
+    const yaEnviado = (historialNotif||[]).some(h =>
+      h.polizaId===p.id && h.tipo===`vencimiento${dias<=0?0:dias<=5?5:15}` &&
+      h.fecha === hoy.toLocaleDateString("es-MX")
+    );
+    if (yaEnviado || pagado) return;
+    if (dias === 0  && reglas.vencimiento0?.activo)  pendientes.push({tipo:"vencimiento0",  label:"Vence HOY",        color:"#dc2626", poliza:p, cliente:clientes.find(c=>c.id===p.clienteId)||{nombre:p.cliente}});
+    if (dias === 5  && reglas.vencimiento5?.activo)  pendientes.push({tipo:"vencimiento5",  label:"Vence en 5 días",  color:"#d97706", poliza:p, cliente:clientes.find(c=>c.id===p.clienteId)||{nombre:p.cliente}});
+    if (dias === 15 && reglas.vencimiento15?.activo) pendientes.push({tipo:"vencimiento15", label:"Vence en 15 días", color:"#2563eb", poliza:p, cliente:clientes.find(c=>c.id===p.clienteId)||{nombre:p.cliente}});
+  });
+
+  // Cumpleaños
+  if (reglas.cumpleanos?.activo) {
+    clientes.forEach(c => {
+      if (!c.fechaNacimiento) return;
+      const f = new Date(c.fechaNacimiento.includes("/") ? c.fechaNacimiento.split("/").reverse().join("-") : c.fechaNacimiento);
+      if (f.getMonth()===hoy.getMonth() && f.getDate()===hoy.getDate()) {
+        const yaEnviado = (historialNotif||[]).some(h =>
+          h.clienteId===c.id && h.tipo==="cumpleanos" && h.fecha===hoy.toLocaleDateString("es-MX")
+        );
+        if (!yaEnviado) pendientes.push({tipo:"cumpleanos", label:"Cumpleaños hoy", color:"#7c3aed", cliente:c, poliza:null});
+      }
+    });
+  }
+
+  // Registrar en historial
+  const registrarEnvio = (item, canalUsado, omitido=false) => {
+    const entrada = {
+      id: Date.now(),
+      fecha: hoy.toLocaleDateString("es-MX"),
+      hora: new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+      tipo: item.tipo,
+      clienteId: item.cliente?.id,
+      cliente: item.cliente?.nombre+" "+(item.cliente?.apellidoPaterno||""),
+      polizaId: item.poliza?.id,
+      poliza: item.poliza?.numero||"—",
+      canal: canalUsado,
+      estado: omitido ? "omitida" : "enviada",
+      label: item.label,
+    };
+    setHistorialNotif(prev=>[entrada,...(prev||[])].slice(0,200));
+    showToast(omitido?"Notificación omitida":"Notificación enviada ✅", omitido?"#6b7280":"#059669");
+  };
+
+  // Enviar WhatsApp
+  const enviarWA = (item) => {
+    const tel = (item.cliente?.whatsapp||item.cliente?.telefono||item.poliza?.telefonoCliente||"").replace(/\D/g,"");
+    let msg = "";
+    if (item.tipo==="cumpleanos") {
+      msg = plantillas.cumpleanos||`Hola ${item.cliente?.nombre}, te deseamos un feliz cumpleanos.`;
+    } else {
+      msg = (plantillas.vencimiento||"")
+        .replace(/{nombre}/g, item.cliente?.nombre||"")
+        .replace(/{numero}/g, item.poliza?.numero||"")
+        .replace(/{aseguradora}/g, item.poliza?.aseguradora||"")
+        .replace(/{vencimiento}/g, item.poliza?.vencimiento||"")
+        .replace(/{prima}/g, (parseFloat(item.poliza?.primaTotal)||parseFloat(item.poliza?.prima)||0).toLocaleString("es-MX"))
+        .replace(/{frecuencia}/g, item.poliza?.formaPago||"");
+    }
+    window.open(`https://wa.me/52${tel}?text=${encodeURIComponent(msg)}`, "_blank");
+    registrarEnvio(item, "WhatsApp");
+  };
+
+  // Enviar correo
+  const enviarCorreo = (item) => {
+    const email = item.cliente?.email||item.poliza?.emailCliente||"";
+    if (!email) { showToast("El cliente no tiene correo registrado","#dc2626"); return; }
+    const asunto = item.tipo==="cumpleanos"
+      ? `Feliz cumpleanos ${item.cliente?.nombre}!`
+      : `Tu poliza ${item.poliza?.numero} vence pronto`;
+    const cuerpo = item.tipo==="cumpleanos"
+      ? (plantillas.email_cumpleanos||"").replace(/{nombre}/g,item.cliente?.nombre||"")
+      : (plantillas.email_vencimiento||"")
+          .replace(/{nombre}/g,item.cliente?.nombre||"")
+          .replace(/{numero}/g,item.poliza?.numero||"")
+          .replace(/{aseguradora}/g,item.poliza?.aseguradora||"")
+          .replace(/{vencimiento}/g,item.poliza?.vencimiento||"");
+    window.open(`mailto:${email}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`);
+    registrarEnvio(item, "Correo");
+  };
 
   const showToast = (msg, color="#059669") => {
     setToast({msg, color});
@@ -3618,17 +3736,170 @@ function ComunicacionConfig({ plantillas, setPlantillas, plantillasDefault, clie
 
       {/* Selector de canal */}
       <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:12,padding:4,width:"fit-content"}}>
-        {[["whatsapp","💬 WhatsApp"],["correo","✉️ Correo"]].map(([c,l])=>(
+        {[["notificaciones","🔔 Notificaciones"],["whatsapp","💬 WhatsApp"],["correo","✉️ Correo"]].map(([c,l])=>(
           <button key={c} onClick={()=>setCanal(c)}
-            style={{background:canal===c?"#fff":"none",border:"none",borderRadius:9,padding:"9px 24px",
+            style={{background:canal===c?"#fff":"none",border:"none",borderRadius:9,padding:"9px 20px",
               fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",
               color:canal===c?"#111827":"#6b7280",
-              boxShadow:canal===c?"0 1px 4px rgba(0,0,0,0.1)":"none",transition:"all .15s"}}>
+              boxShadow:canal===c?"0 1px 4px rgba(0,0,0,0.1)":"none",transition:"all .15s",
+              position:"relative"}}>
             {l}
+            {c==="notificaciones"&&pendientes.length>0&&(
+              <span style={{position:"absolute",top:4,right:4,background:"#dc2626",color:"#fff",
+                borderRadius:"50%",width:16,height:16,fontSize:9,fontWeight:800,
+                display:"flex",alignItems:"center",justifyContent:"center"}}>
+                {pendientes.length}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
+      {/* ── TAB NOTIFICACIONES ── */}
+      {canal==="notificaciones"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:18}}>
+
+          {/* Pendientes del día */}
+          <div style={{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+            <div style={{background:"#0f172a",padding:"14px 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>
+                📋 Notificaciones pendientes hoy
+              </div>
+              {pendientes.length>0&&<span style={{background:"#dc2626",color:"#fff",borderRadius:20,padding:"2px 10px",fontSize:12,fontWeight:800}}>{pendientes.length}</span>}
+            </div>
+            {pendientes.length===0?(
+              <div style={{padding:"32px",textAlign:"center",color:"#9ca3af",fontSize:13}}>
+                <div style={{fontSize:36,marginBottom:8}}>✅</div>
+                Sin notificaciones pendientes por hoy
+              </div>
+            ):(
+              <div style={{padding:"14px 16px",display:"flex",flexDirection:"column",gap:8}}>
+                {pendientes.map((item,i)=>(
+                  <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 14px",
+                    background:"#f9fafb",borderRadius:10,border:`1.5px solid ${item.color}33`}}>
+                    <div style={{width:10,height:10,borderRadius:"50%",background:item.color,flexShrink:0}}/>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:12,fontWeight:800,color:"#111827"}}>
+                        {item.cliente?.nombre} {item.cliente?.apellidoPaterno||""}
+                      </div>
+                      <div style={{fontSize:11,color:"#6b7280"}}>
+                        {item.label} {item.poliza?`· ${item.poliza.numero}`:""}
+                      </div>
+                    </div>
+                    <div style={{display:"flex",gap:6}}>
+                      <button onClick={()=>enviarWA(item)}
+                        style={{background:"#25d366",color:"#fff",border:"none",borderRadius:7,
+                          padding:"5px 11px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                        💬 WA
+                      </button>
+                      <button onClick={()=>enviarCorreo(item)}
+                        style={{background:"#2563eb",color:"#fff",border:"none",borderRadius:7,
+                          padding:"5px 11px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                        ✉️
+                      </button>
+                      <button onClick={()=>registrarEnvio(item,"—",true)}
+                        style={{background:"#f3f4f6",color:"#6b7280",border:"1px solid #e5e7eb",borderRadius:7,
+                          padding:"5px 11px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                        Omitir
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Reglas de notificación */}
+          <div style={{background:"#fff",borderRadius:14,padding:"18px 20px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+            <div style={{fontSize:13,fontWeight:800,color:"#111827",marginBottom:14,fontFamily:"'Playfair Display',serif"}}>
+              ⚙️ Reglas de envío automático
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              {Object.entries(reglas).map(([key,regla])=>(
+                <div key={key} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 14px",
+                  background:regla.activo?"#f0fdf4":"#f9fafb",borderRadius:10,
+                  border:`1.5px solid ${regla.activo?"#86efac":"#e5e7eb"}`}}>
+                  <button onClick={()=>guardarRegla(key,{activo:!regla.activo})}
+                    style={{width:40,height:22,borderRadius:11,border:"none",cursor:"pointer",
+                      background:regla.activo?"#059669":"#d1d5db",position:"relative",transition:"all .2s",flexShrink:0}}>
+                    <div style={{width:18,height:18,borderRadius:"50%",background:"#fff",
+                      position:"absolute",top:2,transition:"all .2s",
+                      left:regla.activo?20:2}}/>
+                  </button>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:12,fontWeight:700,color:"#111827"}}>{regla.label}</div>
+                  </div>
+                  <div style={{display:"flex",gap:6}}>
+                    {["whatsapp","correo","ambos"].map(c=>(
+                      <button key={c} onClick={()=>guardarRegla(key,{canal:c})}
+                        style={{background:regla.canal===c?"#0f172a":"#f3f4f6",
+                          color:regla.canal===c?"#fff":"#6b7280",border:"none",
+                          borderRadius:6,padding:"3px 8px",fontSize:10,fontWeight:700,
+                          cursor:"pointer",fontFamily:"inherit"}}>
+                        {c==="whatsapp"?"💬":c==="correo"?"✉️":"💬✉️"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Historial */}
+          <div style={{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+            <div style={{padding:"14px 20px",borderBottom:"1px solid #f3f4f6",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div style={{fontSize:13,fontWeight:800,color:"#111827",fontFamily:"'Playfair Display',serif"}}>📜 Historial de envíos</div>
+              {(historialNotif||[]).length>0&&(
+                <button onClick={()=>{if(window.confirm("¿Limpiar historial?"))setHistorialNotif([]);}}
+                  style={{background:"#fef2f2",color:"#dc2626",border:"1px solid #fecaca",borderRadius:7,
+                    padding:"4px 10px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                  Limpiar
+                </button>
+              )}
+            </div>
+            {(historialNotif||[]).length===0?(
+              <div style={{padding:"24px",textAlign:"center",color:"#9ca3af",fontSize:13}}>Sin envíos registrados</div>
+            ):(
+              <div style={{maxHeight:320,overflowY:"auto"}}>
+                <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+                  <thead>
+                    <tr style={{background:"#f9fafb"}}>
+                      {["Fecha","Cliente","Tipo","Canal","Estado"].map(h=>(
+                        <th key={h} style={{padding:"8px 12px",textAlign:"left",fontSize:10,fontWeight:700,color:"#6b7280"}}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(historialNotif||[]).map((h,i)=>(
+                      <tr key={i} style={{borderTop:"1px solid #f3f4f6",background:i%2===0?"#fff":"#fafafa"}}>
+                        <td style={{padding:"7px 12px",color:"#6b7280",whiteSpace:"nowrap"}}>{h.fecha} {h.hora}</td>
+                        <td style={{padding:"7px 12px",fontWeight:600,color:"#111827"}}>{h.cliente}</td>
+                        <td style={{padding:"7px 12px",color:"#6b7280"}}>{h.label}</td>
+                        <td style={{padding:"7px 12px"}}>
+                          <span style={{background:h.canal==="WhatsApp"?"#f0fdf4":"#eff6ff",
+                            color:h.canal==="WhatsApp"?"#059669":"#2563eb",
+                            padding:"1px 7px",borderRadius:10,fontSize:10,fontWeight:700}}>
+                            {h.canal==="WhatsApp"?"💬 WA":"✉️ Correo"}
+                          </span>
+                        </td>
+                        <td style={{padding:"7px 12px"}}>
+                          <span style={{background:h.estado==="enviada"?"#f0fdf4":"#f9fafb",
+                            color:h.estado==="enviada"?"#059669":"#6b7280",
+                            padding:"1px 7px",borderRadius:10,fontSize:10,fontWeight:700}}>
+                            {h.estado==="enviada"?"✅ Enviada":"⏭ Omitida"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {canal!=="notificaciones"&&(
       <div style={{display:"grid",gridTemplateColumns:"240px 1fr",gap:18,alignItems:"start"}}>
 
         {/* Panel izquierdo — tipos de plantilla */}
@@ -3909,12 +4180,10 @@ function ComunicacionConfig({ plantillas, setPlantillas, plantillasDefault, clie
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// PAI
 // ═══════════════════════════════════════════════════════════════════
 function PAI({ paiMetas, setPaiMetas }) {
   const [showModal,setShowModal]=useState(false);
@@ -6811,7 +7080,7 @@ function ModalPagoComision({ poliza, subagentes, calcComision, fmtMXN, onPagar, 
 // CONFIGURACIÓN
 // ═══════════════════════════════════════════════════════════════════
 
-function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios, setUsuarios, polizas, setPolizas, plantillas, setPlantillas, plantillasDefault, clientes }) {
+function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios, setUsuarios, polizas, setPolizas, plantillas, setPlantillas, plantillasDefault, clientes, historialNotif, setHistorialNotif }) {
   const [tab, setTab] = useState("empresa");
   const [form, setForm] = useState({...config});
   const [saved, setSaved] = useState(false);
@@ -6917,6 +7186,8 @@ function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios,
           polizas={polizas}
           config={config}
           setConfig={setConfig}
+          historialNotif={historialNotif}
+          setHistorialNotif={setHistorialNotif}
         />
       )}
 
@@ -7186,6 +7457,7 @@ export default function CRMSeguros() {
   const [paiMetas,   setPaiMetas]   = useLocalStorage("crm_paiMetas",   PAI_METAS_INIT);
   const [subagentes, setSubagentes] = useLocalStorage("crm_subagentes", SUBAGENTES_INIT);
   const [config,     setConfig]     = useLocalStorage("crm_config",     {nombre:"SeguroCRM",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""});
+  const [historialNotif, setHistorialNotif] = useLocalStorage("crm_historial_notif", []);
 
   // Sesión activa
   const [sesion, setSesion] = useState(() => {
@@ -7504,7 +7776,7 @@ export default function CRMSeguros() {
         {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas}/>}
         {vista==="calendario"&&puede("calendario")&&<Calendario polizas={polizas} clientes={clientes} tareas={tareas}/>}
         {vista==="importar"&&puede("importar")&&<Importador clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas}/>}
-        {vista==="configuracion"&&puede("configuracion")&&<Configuracion config={config} setConfig={setConfig} subagentes={subagentes} setSubagentes={setSubagentes} usuarios={usuarios} setUsuarios={setUsuarios} polizas={polizas} setPolizas={setPolizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes}/>}
+        {vista==="configuracion"&&puede("configuracion")&&<Configuracion config={config} setConfig={setConfig} subagentes={subagentes} setSubagentes={setSubagentes} usuarios={usuarios} setUsuarios={setUsuarios} polizas={polizas} setPolizas={setPolizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes} historialNotif={historialNotif} setHistorialNotif={setHistorialNotif}/>}
         {/* Acceso denegado */}
         {!puede(vista)&&(
           <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"60vh",gap:16}}>

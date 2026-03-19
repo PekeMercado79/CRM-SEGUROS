@@ -268,13 +268,13 @@ const Badge = ({ status }) => {
 };
 
 const KPICard = ({ label, value, sub, icon, accent }) => (
-  <div style={{background:"#fff",borderRadius:16,padding:"18px 20px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)",borderLeft:`4px solid ${accent}`,display:"flex",flexDirection:"column",gap:7}}>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-      <span style={{fontSize:12,color:"#6b7280",fontWeight:500}}>{label}</span>
-      <div style={{background:accent+"18",color:accent,borderRadius:10,padding:7,display:"flex"}}><Icon name={icon} size={19}/></div>
+  <div style={{background:"#fff",borderRadius:16,padding:"20px 22px",boxShadow:"0 2px 8px rgba(0,0,0,0.08)",borderTop:`4px solid ${accent}`,display:"flex",flexDirection:"column",gap:8,position:"relative",overflow:"hidden"}}>
+    <div style={{position:"absolute",right:16,top:16,background:accent+"15",color:accent,borderRadius:12,padding:8,display:"flex"}}>
+      <Icon name={icon} size={20}/>
     </div>
-    <div style={{fontSize:32,fontWeight:900,color:"#111827",fontFamily:"'Playfair Display',serif",lineHeight:1,letterSpacing:"-0.5px"}}>{value}</div>
-    {sub&&<div style={{fontSize:11,color:"#9ca3af"}}>{sub}</div>}
+    <span style={{fontSize:11,color:"#6b7280",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em"}}>{label}</span>
+    <div style={{fontSize:34,fontWeight:900,color:"#0f172a",fontFamily:"'Playfair Display',serif",lineHeight:1,letterSpacing:"-1px"}}>{value}</div>
+    {sub&&<div style={{fontSize:11,color:accent,fontWeight:600}}>{sub}</div>}
   </div>
 );
 
@@ -483,33 +483,55 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
 
       {/* Alertas y tareas */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:18}}>
-        <div style={{background:"#fff",borderRadius:16,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-          <h3 style={{margin:"0 0 14px",fontSize:14,fontWeight:700}}>⚠️ Alertas de Pólizas</h3>
+        <div style={{background:"#fff",borderRadius:16,padding:20,boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>
+          <h3 style={{margin:"0 0 14px",fontSize:15,fontWeight:800,color:"#111827",fontFamily:"'Playfair Display',serif",display:"flex",alignItems:"center",gap:8}}>
+            <span style={{background:"#fef2f2",borderRadius:8,padding:"4px 8px",fontSize:14}}>⚠️</span> Alertas de Pólizas
+          </h3>
           {polizas.filter(p=>["por vencer","vencida"].includes(getStDash(p))).map(p=>(
-            <div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",background:getStDash(p)==="vencida"?"#fef2f2":"#fffbeb",borderRadius:10,marginBottom:7}}>
+            <div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 13px",background:getStDash(p)==="vencida"?"#fef2f2":"#fffbeb",borderRadius:11,marginBottom:8,borderLeft:`3px solid ${getStDash(p)==="vencida"?"#dc2626":"#d97706"}`}}>
               <div style={{flex:1}}>
-                <div style={{fontWeight:800,fontSize:13,fontFamily:"'Playfair Display',serif",color:"#111827"}}>{p.numero}</div>
-                <div style={{fontSize:11,color:"#6b7280",marginTop:1}}>{p.cliente} · {p.aseguradora} · {p.vencimiento}</div>
-                <div style={{fontSize:12,color:"#374151",fontWeight:700,marginTop:2}}>${(parseFloat(p.primaTotal)||parseFloat(p.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})} <span style={{fontWeight:400,color:"#9ca3af",fontSize:11}}>· {p.ramo}{p.subramo?" · "+p.subramo:""}</span></div>
+                <div style={{fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif",color:"#0f172a"}}>{p.numero}</div>
+                <div style={{fontSize:11,color:"#6b7280",marginTop:2}}>{p.cliente} · {p.aseguradora}</div>
+                <div style={{display:"flex",alignItems:"center",gap:6,marginTop:4}}>
+                  <span style={{fontSize:13,fontWeight:900,color:getStDash(p)==="vencida"?"#dc2626":"#d97706",fontFamily:"'Playfair Display',serif"}}>${(parseFloat(p.primaTotal)||parseFloat(p.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</span>
+                  <span style={{fontSize:10,color:"#9ca3af"}}>· {p.vencimiento}</span>
+                </div>
               </div>
-              <Badge status={getStDash(p)}/>
-              <button onClick={()=>setAlertaDetalle(p)} title="Ver detalle"
-                style={{background:"#eff6ff",border:"1px solid #bfdbfe",borderRadius:8,width:30,height:30,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontSize:15}}>
-                👁
-              </button>
+              <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5}}>
+                <Badge status={getStDash(p)}/>
+                <button onClick={()=>setAlertaDetalle(p)} title="Ver detalle"
+                  style={{background:"#eff6ff",border:"1px solid #bfdbfe",borderRadius:7,width:28,height:28,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13}}>
+                  👁
+                </button>
+              </div>
             </div>
           ))}
-          {!polizas.filter(p=>["por vencer","vencida"].includes(getStDash(p))).length&&<div style={{color:"#9ca3af",fontSize:13,textAlign:"center",padding:"20px 0"}}>Sin alertas activas ✅</div>}
+          {!polizas.filter(p=>["por vencer","vencida"].includes(getStDash(p))).length&&(
+            <div style={{color:"#9ca3af",fontSize:13,textAlign:"center",padding:"24px 0"}}>
+              <div style={{fontSize:28,marginBottom:6}}>✅</div>
+              Sin alertas activas
+            </div>
+          )}
         </div>
-        <div style={{background:"#fff",borderRadius:16,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-          <h3 style={{margin:"0 0 14px",fontSize:14,fontWeight:700}}>📋 Tareas Urgentes</h3>
+        <div style={{background:"#fff",borderRadius:16,padding:20,boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>
+          <h3 style={{margin:"0 0 14px",fontSize:15,fontWeight:800,color:"#111827",fontFamily:"'Playfair Display',serif",display:"flex",alignItems:"center",gap:8}}>
+            <span style={{background:"#fef2f2",borderRadius:8,padding:"4px 8px",fontSize:14}}>📋</span> Tareas Urgentes
+          </h3>
           {tareas.filter(t=>!t.done&&t.prioridad==="alta").slice(0,4).map(t=>(
-            <div key={t.id} style={{display:"flex",alignItems:"center",gap:9,padding:"9px 12px",background:"#fef2f2",borderRadius:10,marginBottom:7}}>
-              <div style={{width:7,height:7,borderRadius:"50%",background:"#dc2626",flexShrink:0}}/>
-              <div style={{flex:1,fontSize:12,fontWeight:500}}>{t.titulo}</div>
-              <div style={{fontSize:11,color:"#9ca3af"}}>{t.fecha}</div>
+            <div key={t.id} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"10px 13px",background:"#fef2f2",borderRadius:11,marginBottom:8,borderLeft:"3px solid #dc2626"}}>
+              <div style={{width:8,height:8,borderRadius:"50%",background:"#dc2626",flexShrink:0,marginTop:4}}/>
+              <div style={{flex:1}}>
+                <div style={{fontSize:12,fontWeight:700,color:"#111827"}}>{t.titulo}</div>
+                <div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>📅 {t.fecha}</div>
+              </div>
             </div>
           ))}
+          {!tareas.filter(t=>!t.done&&t.prioridad==="alta").length&&(
+            <div style={{color:"#9ca3af",fontSize:13,textAlign:"center",padding:"24px 0"}}>
+              <div style={{fontSize:28,marginBottom:6}}>✅</div>
+              Sin tareas urgentes
+            </div>
+          )}
         </div>
       </div>
 
@@ -5217,7 +5239,7 @@ Si un campo no aparece en el documento, usa null.` }
 // ═══════════════════════════════════════════════════════════════════
 // CALENDARIO
 // ═══════════════════════════════════════════════════════════════════
-function Calendario({ polizas, clientes }) {
+function Calendario({ polizas, clientes, tareas }) {
   const [mes, setMes] = useState(new Date().getMonth());
   const [anio, setAnio] = useState(new Date().getFullYear());
   const [filtro, setFiltro] = useState("todos");
@@ -5229,6 +5251,21 @@ function Calendario({ polizas, clientes }) {
 
   const prevMes = () => { if(mes===0){setMes(11);setAnio(a=>a-1);}else setMes(m=>m-1); };
   const nextMes = () => { if(mes===11){setMes(0);setAnio(a=>a+1);}else setMes(m=>m+1); };
+
+  // gcalUrl definida localmente para evitar crash
+  const gcalUrl = (ev) => {
+    if (!ev?.obj?.vencimiento && ev?.tipo!=="cumpleanos") return null;
+    try {
+      const title = ev.tipo==="cumpleanos"
+        ? encodeURIComponent("🎂 Cumpleaños: "+ev.label)
+        : encodeURIComponent("Vence póliza: "+ev.obj?.numero+" · "+ev.obj?.cliente);
+      const fecha = ev.tipo==="cumpleanos"
+        ? `${anio}${String(mes+1).padStart(2,"0")}${String(ev.dia||diaSelec||1).padStart(2,"0")}`
+        : (ev.obj?.vencimiento||"").replace(/-/g,"").slice(0,8);
+      if (!fecha || fecha.length<8) return null;
+      return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${fecha}/${fecha}`;
+    } catch { return null; }
+  };
 
   const parseFechaStr = (s) => {
     if (!s) return null;
@@ -5277,6 +5314,17 @@ function Calendario({ polizas, clientes }) {
       const key = f.getDate();
       if (!eventos[key]) eventos[key]=[];
       eventos[key].push({tipo:"cumpleanos",label:`${c.nombre} ${c.apellidoPaterno}`,sub:``,color:"#7c3aed",icon:"🎂",obj:c});
+    });
+  }
+  // Tareas con fecha en este mes
+  if (filtro==="todos") {
+    (tareas||[]).filter(t=>!t.done&&t.fecha).forEach(t=>{
+      const f = parseFechaStr(t.fecha);
+      if (!f||f.getMonth()!==mes||f.getFullYear()!==anio) return;
+      const key = f.getDate();
+      if (!eventos[key]) eventos[key]=[];
+      const prioColor = t.prioridad==="alta"?"#dc2626":t.prioridad==="media"?"#d97706":"#059669";
+      eventos[key].push({tipo:"tarea",label:t.titulo.slice(0,20)+(t.titulo.length>20?"…":""),sub:t.prioridad,color:prioColor,icon:"📌",obj:t});
     });
   }
 
@@ -5385,7 +5433,7 @@ function Calendario({ polizas, clientes }) {
 
           {/* Leyenda */}
           <div style={{display:"flex",gap:10,marginTop:14,flexWrap:"wrap",justifyContent:"center"}}>
-            {[["#2563eb","Inicio"],["#059669","Vigente"],["#d97706","Por vencer"],["#dc2626","Vencida"],["#7c3aed","Cumpleaños"]].map(([c,l])=>(
+            {[["#2563eb","Inicio"],["#059669","Vigente"],["#d97706","Por vencer"],["#dc2626","Vencida"],["#7c3aed","Cumpleaños"],["#f59e0b","Tarea"]].map(([c,l])=>(
               <div key={l} style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:"#374151"}}>
                 <div style={{width:9,height:9,borderRadius:2,background:c}}/>{l}
               </div>
@@ -5409,11 +5457,16 @@ function Calendario({ polizas, clientes }) {
                       <span style={{fontSize:14}}>{ev.icon}</span>
                       <span style={{fontSize:11,fontWeight:800,color:"#111827"}}>{ev.label}</span>
                       <span style={{marginLeft:"auto",background:ev.color+"22",color:ev.color,fontSize:8,fontWeight:800,padding:"2px 7px",borderRadius:10}}>
-                        {ev.tipo==="cumpleanos"?"CUMPLE":ev.tipo==="vencimiento"?"VENCE":"INICIA"}
+                        {ev.tipo==="cumpleanos"?"CUMPLE":ev.tipo==="vencimiento"?"VENCE":ev.tipo==="tarea"?"TAREA":"INICIA"}
                       </span>
                     </div>
                     {ev.sub&&<div style={{fontSize:10,color:"#6b7280"}}>{ev.sub}</div>}
                     <div style={{display:"flex",gap:6,marginTop:7,flexWrap:"wrap"}}>
+                      {ev.tipo==="tarea"&&(
+                        <div style={{background:"#fef3c7",borderRadius:7,padding:"4px 9px",fontSize:10,color:"#92400e",fontWeight:700}}>
+                          📌 {ev.obj?.prioridad==="alta"?"🔴 Prioridad alta":ev.obj?.prioridad==="media"?"🟡 Media":"🟢 Baja"}
+                        </div>
+                      )}
                       {ev.tipo==="cumpleanos"&&(
                         <>
                           <button style={{background:"#25d366",color:"#fff",border:"none",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}
@@ -5489,7 +5542,7 @@ function Calendario({ polizas, clientes }) {
                       {ev.sub&&<div style={{fontSize:9,color:"#9ca3af",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ev.sub}</div>}
                     </div>
                     <span style={{background:ev.color+"22",color:ev.color,fontSize:8,fontWeight:800,padding:"2px 6px",borderRadius:8,flexShrink:0}}>
-                      {ev.tipo==="cumpleanos"?"🎂":ev.tipo==="vencimiento"?"📋":"🟢"}
+                      {ev.tipo==="cumpleanos"?"🎂":ev.tipo==="vencimiento"?"📋":ev.tipo==="tarea"?"📌":"🟢"}
                     </span>
                   </div>
                 ))}
@@ -6224,7 +6277,7 @@ export default function CRMSeguros() {
         {vista==="pai"&&<PAI paiMetas={paiMetas} setPaiMetas={setPaiMetas}/>}
         {vista==="pipeline"&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}
         {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas}/>}
-        {vista==="calendario"&&<Calendario polizas={polizas} clientes={clientes}/>}
+        {vista==="calendario"&&<Calendario polizas={polizas} clientes={clientes} tareas={tareas}/>}
         {vista==="importar"&&<Importador clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas}/>}
         {vista==="configuracion"&&<Configuracion config={config} setConfig={setConfig} subagentes={subagentes} setSubagentes={setSubagentes} usuarios={usuarios} setUsuarios={setUsuarios} polizas={polizas} setPolizas={setPolizas}/>}
       </div>

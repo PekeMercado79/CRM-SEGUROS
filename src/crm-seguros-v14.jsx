@@ -6757,6 +6757,7 @@ function LoginScreen({ usuarios, config, onLogin }) {
       localStorage.setItem("crm_sesion", JSON.stringify(sesion));
       onLogin(sesion);
       setLoading(false);
+      window.location.reload();
     }, 600);
   };
 

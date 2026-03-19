@@ -6230,12 +6230,13 @@ Si un campo no aparece en el documento, usa null.` }
 // ═══════════════════════════════════════════════════════════════════
 // CALENDARIO
 // ═══════════════════════════════════════════════════════════════════
-function Calendario({ polizas, clientes, tareas }) {
+function Calendario({ polizas, clientes, tareas, setPolizas }) {
   const [mes, setMes] = useState(new Date().getMonth());
   const [anio, setAnio] = useState(new Date().getFullYear());
   const [filtro, setFiltro] = useState("todos");
   const [diaSelec, setDiaSelec] = useState(null);
   const [polizaCalendario, setPolizaCalendario] = useState(null);
+  const [pagoCalendario, setPagoCalendario] = useState(null);
 
   const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
   const DIAS_SEMANA = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
@@ -6362,52 +6363,54 @@ function Calendario({ polizas, clientes, tareas }) {
         ))}
       </div>
 
-      {/* Calendario — ocupa todo el ancho */}
-      <div style={{background:"#fff",borderRadius:16,padding:"20px",boxShadow:"0 1px 8px rgba(0,0,0,.07)"}}>
-          {/* Navegación mes — con selectores */}
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-            <button onClick={prevMes} style={{background:"#f1f5f9",border:"none",borderRadius:10,width:36,height:36,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",color:"#374151",transition:"all .15s"}}
+      {/* Layout principal: calendario + panel derecho */}
+      <div style={{display:"flex",gap:16,alignItems:"flex-start"}}>
+
+        {/* Calendario */}
+        <div style={{flex:1,background:"linear-gradient(145deg,#ffffff,#f8fafc)",borderRadius:20,padding:"24px",boxShadow:"0 4px 20px rgba(0,0,0,0.08)",border:"1px solid #e2e8f0"}}>
+
+          {/* Navegación mes */}
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+            <button onClick={prevMes} style={{background:"#f1f5f9",border:"none",borderRadius:10,width:38,height:38,cursor:"pointer",fontSize:20,display:"flex",alignItems:"center",justifyContent:"center",color:"#374151",transition:"all .15s"}}
               onMouseEnter={e=>e.currentTarget.style.background="#e2e8f0"}
               onMouseLeave={e=>e.currentTarget.style.background="#f1f5f9"}>‹</button>
-            <div style={{display:"flex",alignItems:"center",gap:8}}>
-              {/* Selector mes */}
+            <div style={{display:"flex",alignItems:"center",gap:10}}>
               <select value={mes} onChange={e=>setMes(Number(e.target.value))}
-                style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:9,padding:"6px 10px",
-                  fontSize:14,fontWeight:800,color:"#0f172a",fontFamily:"'Playfair Display',serif",
-                  cursor:"pointer",outline:"none",appearance:"none",textAlign:"center"}}>
-                {MESES.map((m,i)=><option key={i} value={i}>{m}</option>)}
+                style={{background:"linear-gradient(135deg,#0f172a,#1e3a5f)",border:"none",borderRadius:10,padding:"8px 14px",
+                  fontSize:15,fontWeight:800,color:"#fff",fontFamily:"'Playfair Display',serif",
+                  cursor:"pointer",outline:"none",appearance:"none"}}>
+                {MESES.map((m,i)=><option key={i} value={i} style={{background:"#0f172a"}}>{m}</option>)}
               </select>
-              {/* Selector año */}
               <select value={anio} onChange={e=>setAnio(Number(e.target.value))}
-                style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:9,padding:"6px 10px",
-                  fontSize:14,fontWeight:700,color:"#475569",fontFamily:"'Inter',sans-serif",
-                  cursor:"pointer",outline:"none",appearance:"none",textAlign:"center"}}>
+                style={{background:"#f1f5f9",border:"1.5px solid #e2e8f0",borderRadius:10,padding:"8px 14px",
+                  fontSize:15,fontWeight:700,color:"#374151",fontFamily:"'Inter',sans-serif",
+                  cursor:"pointer",outline:"none",appearance:"none"}}>
                 {Array.from({length:10},(_,i)=>new Date().getFullYear()-3+i).map(y=>(
                   <option key={y} value={y}>{y}</option>
                 ))}
               </select>
             </div>
-            <button onClick={nextMes} style={{background:"#f1f5f9",border:"none",borderRadius:10,width:36,height:36,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",color:"#374151",transition:"all .15s"}}
+            <button onClick={nextMes} style={{background:"#f1f5f9",border:"none",borderRadius:10,width:38,height:38,cursor:"pointer",fontSize:20,display:"flex",alignItems:"center",justifyContent:"center",color:"#374151",transition:"all .15s"}}
               onMouseEnter={e=>e.currentTarget.style.background="#e2e8f0"}
               onMouseLeave={e=>e.currentTarget.style.background="#f1f5f9"}>›</button>
           </div>
 
           {/* Filtros */}
-          <div style={{display:"flex",gap:6,marginBottom:14,justifyContent:"center"}}>
+          <div style={{display:"flex",gap:6,marginBottom:16,justifyContent:"center"}}>
             {[["todos","Todos"],["polizas","🛡 Pólizas"],["cumpleanos","🎂 Cumpleaños"]].map(([v,l])=>(
               <button key={v} onClick={()=>setFiltro(v)}
-                style={{padding:"5px 13px",background:filtro===v?"#0f172a":"#f8fafc",color:filtro===v?"#fff":"#374151",
-                  border:`1.5px solid ${filtro===v?"#0f172a":"#e5e7eb"}`,borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>
+                style={{padding:"6px 16px",background:filtro===v?"#0f172a":"#f8fafc",color:filtro===v?"#fff":"#374151",
+                  border:`1.5px solid ${filtro===v?"#0f172a":"#e5e7eb"}`,borderRadius:20,fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
                 {l}
               </button>
             ))}
           </div>
 
-          {/* Encabezado días — más estético */}
+          {/* Encabezado días */}
           <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:4,marginBottom:6}}>
             {DIAS_SEMANA.map((d,i)=>(
               <div key={d} style={{textAlign:"center",fontSize:12,fontWeight:800,
-                color:i>=5?"#dc2626":"#64748b",padding:"6px 0",letterSpacing:"0.05em"}}>
+                color:i>=5?"#f87171":"#64748b",padding:"6px 0",letterSpacing:"0.05em"}}>
                 {d}
               </div>
             ))}
@@ -6429,25 +6432,26 @@ function Calendario({ polizas, clientes, tareas }) {
               const esFinde = valido && ((i % 7) === 5 || (i % 7) === 6);
               return (
                 <div key={i} onClick={()=>valido&&setDiaSelec(diaSelec===dia?null:dia)}
-                  style={{minHeight:80,borderRadius:10,padding:"6px 7px",cursor:valido?"pointer":"default",
-                    background:!valido?"transparent":hoyF?"#0f172a":selec?"#eff6ff":hayVenc?"#fef2f2":hayPorVenc?"#fffbeb":hayCumple?"#faf5ff":esFinde?"#fafafa":"#fff",
-                    border:hoyF?"2px solid #3b82f6":selec?"2px solid #6366f1":hayVenc?"1.5px solid #fca5a5":hayPorVenc?"1.5px solid #fbbf24":hayCumple?"1.5px solid #c4b5fd":hayInicio?"1.5px solid #93c5fd":hayTarea?"1.5px solid #fde68a":"1.5px solid #f1f5f9",
-                    transition:"all .1s",boxShadow:selec?"0 2px 8px rgba(99,102,241,0.15)":"none"}}>
+                  style={{minHeight:82,borderRadius:12,padding:"7px 8px",cursor:valido?"pointer":"default",
+                    background:!valido?"transparent":hoyF?"linear-gradient(135deg,#0f172a,#1e3a5f)":selec?"linear-gradient(135deg,#eff6ff,#dbeafe)":hayVenc?"#fef2f2":hayPorVenc?"#fffbeb":hayCumple?"#faf5ff":esFinde?"#f8fafc":"#fff",
+                    border:hoyF?"2px solid #3b82f6":selec?"2px solid #6366f1":hayVenc?"1.5px solid #fca5a5":hayPorVenc?"1.5px solid #fbbf24":hayCumple?"1.5px solid #c4b5fd":hayInicio?"1.5px solid #93c5fd":hayTarea?"1.5px solid #fde68a":esFinde?"1px solid #f1f5f9":"1px solid #f1f5f9",
+                    transition:"all .15s",
+                    boxShadow:selec?"0 4px 12px rgba(99,102,241,0.2)":hoyF?"0 4px 12px rgba(15,23,42,0.25)":"none"}}>
                   {valido&&(
                     <>
-                      <div style={{fontSize:15,fontWeight:hoyF?900:esFinde?700:600,
-                        color:hoyF?"#fff":esFinde?"#94a3b8":"#1e293b",
+                      <div style={{fontSize:14,fontWeight:hoyF?900:esFinde?700:600,
+                        color:hoyF?"#fff":selec?"#1d4ed8":esFinde?"#94a3b8":"#1e293b",
                         marginBottom:4,textAlign:"center",lineHeight:1}}>{dia}</div>
                       {evs.slice(0,2).map((ev,ei)=>(
                         <div key={ei} title={`${ev.label} — ${ev.sub}`}
                           style={{fontSize:10,fontWeight:700,color:"#fff",background:ev.color,borderRadius:5,
-                            padding:"2px 5px",marginBottom:2,
+                            padding:"2px 6px",marginBottom:2,
                             overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",
-                            lineHeight:1.4}}>
+                            lineHeight:1.5,boxShadow:`0 1px 3px ${ev.color}66`}}>
                           {ev.icon} {ev.label}
                         </div>
                       ))}
-                      {evs.length>2&&<div style={{fontSize:9,color:"#6b7280",textAlign:"right",marginTop:1,fontWeight:600}}>+{evs.length-2} más</div>}
+                      {evs.length>2&&<div style={{fontSize:9,color:"#6b7280",textAlign:"right",fontWeight:700}}>+{evs.length-2}</div>}
                     </>
                   )}
                 </div>
@@ -6456,99 +6460,150 @@ function Calendario({ polizas, clientes, tareas }) {
           </div>
 
           {/* Leyenda */}
-          <div style={{display:"flex",gap:10,marginTop:14,flexWrap:"wrap",justifyContent:"center"}}>
+          <div style={{display:"flex",gap:10,marginTop:16,flexWrap:"wrap",justifyContent:"center",paddingTop:12,borderTop:"1px solid #f1f5f9"}}>
             {[["#2563eb","Inicio"],["#059669","Vigente"],["#d97706","Por vencer"],["#dc2626","Vencida"],["#7c3aed","Cumpleaños"],["#f59e0b","Tarea"]].map(([c,l])=>(
-              <div key={l} style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:"#374151"}}>
-                <div style={{width:9,height:9,borderRadius:2,background:c}}/>{l}
+              <div key={l} style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:"#64748b",fontWeight:600}}>
+                <div style={{width:10,height:10,borderRadius:3,background:c,boxShadow:`0 1px 3px ${c}66`}}/>{l}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Panel lateral */}
-        <div style={{width:290,flexShrink:0,display:"flex",flexDirection:"column",gap:10}}>
-
-          {/* Detalle día seleccionado */}
-          {diaSelec&&evsDiaSelec.length>0&&(
-            <div style={{background:"#fff",borderRadius:14,padding:"14px 16px",boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}>
-              <div style={{fontSize:11,fontWeight:800,color:"#374151",marginBottom:10}}>
-                📅 {MESES[mes]} {diaSelec}, {anio}
+        {/* Panel derecho — detalle día */}
+        <div style={{width:300,flexShrink:0}}>
+          {diaSelec&&evsDiaSelec.length>0?(
+            <div style={{background:"#fff",borderRadius:20,overflow:"hidden",boxShadow:"0 4px 20px rgba(0,0,0,0.1)",border:"1px solid #e2e8f0"}}>
+              {/* Header panel */}
+              <div style={{background:"linear-gradient(135deg,#0f172a,#1e3a5f)",padding:"18px 20px"}}>
+                <div style={{fontSize:11,color:"#64748b",fontWeight:700,letterSpacing:"0.08em",marginBottom:2}}>DÍA SELECCIONADO</div>
+                <div style={{fontSize:20,fontWeight:900,color:"#fff",fontFamily:"'Playfair Display',serif"}}>
+                  {diaSelec} de {MESES[mes]}
+                </div>
+                <div style={{fontSize:12,color:"#94a3b8",marginTop:2}}>{anio} · {evsDiaSelec.length} evento{evsDiaSelec.length>1?"s":""}</div>
               </div>
-              <div style={{display:"flex",flexDirection:"column",gap:7}}>
+
+              {/* Lista de eventos */}
+              <div style={{padding:"14px",display:"flex",flexDirection:"column",gap:10,maxHeight:520,overflowY:"auto"}}>
                 {evsDiaSelec.map((ev,i)=>(
-                  <div key={i} style={{background:"#f9fafb",borderRadius:9,padding:"9px 11px",borderLeft:`3px solid ${ev.color}`}}>
-                    <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:3}}>
-                      <span style={{fontSize:14}}>{ev.icon}</span>
-                      <span style={{fontSize:11,fontWeight:800,color:"#111827"}}>{ev.label}</span>
-                      <span style={{marginLeft:"auto",background:ev.color+"22",color:ev.color,fontSize:8,fontWeight:800,padding:"2px 7px",borderRadius:10}}>
-                        {ev.tipo==="cumpleanos"?"CUMPLE":ev.tipo==="vencimiento"?"VENCE":ev.tipo==="tarea"?"TAREA":"INICIA"}
-                      </span>
+                  <div key={i} style={{borderRadius:12,overflow:"hidden",border:`1.5px solid ${ev.color}33`,boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}>
+                    {/* Header evento */}
+                    <div style={{background:`linear-gradient(135deg,${ev.color},${ev.color}cc)`,padding:"10px 13px",display:"flex",alignItems:"center",gap:8}}>
+                      <span style={{fontSize:18}}>{ev.icon}</span>
+                      <div style={{flex:1}}>
+                        <div style={{fontSize:12,fontWeight:800,color:"#fff"}}>{ev.label}</div>
+                        <div style={{fontSize:10,color:"rgba(255,255,255,0.75)"}}>
+                          {ev.tipo==="cumpleanos"?"Cumpleaños":ev.tipo==="vencimiento"?"Vencimiento póliza":ev.tipo==="inicio"?"Inicio vigencia":"Tarea"}
+                        </div>
+                      </div>
                     </div>
-                    {ev.sub&&<div style={{fontSize:10,color:"#6b7280"}}>{ev.sub}</div>}
-                    <div style={{display:"flex",gap:6,marginTop:7,flexWrap:"wrap"}}>
-                      {ev.tipo==="tarea"&&(
-                        <div style={{background:"#fef3c7",borderRadius:7,padding:"4px 9px",fontSize:10,color:"#92400e",fontWeight:700}}>
-                          📌 {ev.obj?.prioridad==="alta"?"🔴 Prioridad alta":ev.obj?.prioridad==="media"?"🟡 Media":"🟢 Baja"}
+
+                    {/* Detalle evento */}
+                    <div style={{padding:"10px 13px",background:"#fafafa"}}>
+                      {ev.sub&&<div style={{fontSize:11,color:"#6b7280",marginBottom:8}}>{ev.sub}</div>}
+
+                      {/* Info póliza */}
+                      {(ev.tipo==="vencimiento"||ev.tipo==="inicio")&&ev.obj&&(
+                        <div style={{background:"#fff",borderRadius:8,padding:"8px 10px",marginBottom:8,border:"1px solid #f1f5f9"}}>
+                          <div style={{fontSize:10,color:"#9ca3af",fontWeight:600,marginBottom:3}}>PÓLIZA</div>
+                          <div style={{fontSize:12,fontWeight:800,color:"#111827",fontFamily:"monospace"}}>{ev.obj.numero}</div>
+                          <div style={{fontSize:11,color:"#6b7280"}}>{ev.obj.aseguradora} · {ev.obj.ramo}</div>
+                          {ev.obj.primaTotal&&<div style={{fontSize:13,fontWeight:700,color:"#059669",marginTop:3}}>
+                            ${Number(ev.obj.primaTotal).toLocaleString("es-MX")}
+                          </div>}
                         </div>
                       )}
-                      {ev.tipo==="cumpleanos"&&(
-                        <>
-                          <button style={{background:"#25d366",color:"#fff",border:"none",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}
-                            onClick={()=>{
-                              const num = ev.obj?.whatsapp||ev.obj?.telefono||"";
-                              const tel = num ? num.replace(/\D/g,"") : "";
-                              const msg = encodeURIComponent("🎂 ¡Feliz cumpleaños "+ev.label+"! Que tengas un excelente día. — Tu Agente de Seguros");
-                              window.open("https://wa.me/"+(tel?"52"+tel:"")+"?text="+msg);
-                            }}>
-                            💬 WhatsApp
-                          </button>
-                          {ev.obj?.email&&(
-                            <a href={`mailto:${ev.obj.email}?subject=${encodeURIComponent("🎂 ¡Feliz cumpleaños "+ev.label+"!")}&body=${encodeURIComponent("¡Hola "+ev.label+"!\n\nTe deseamos un feliz cumpleaños y un excelente día.\n\nSaludos,\nTu Agente de Seguros")}`}
-                              style={{background:"#2563eb",color:"#fff",border:"none",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit",textDecoration:"none",display:"inline-flex",alignItems:"center",gap:4}}>
-                              ✉️ Correo
-                            </a>
-                          )}
-                        </>
+
+                      {/* Tarea */}
+                      {ev.tipo==="tarea"&&(
+                        <div style={{background:ev.obj?.prioridad==="alta"?"#fef2f2":ev.obj?.prioridad==="media"?"#fffbeb":"#f0fdf4",
+                          borderRadius:8,padding:"6px 10px",marginBottom:8,fontSize:11,fontWeight:700,
+                          color:ev.obj?.prioridad==="alta"?"#dc2626":ev.obj?.prioridad==="media"?"#d97706":"#059669"}}>
+                          📌 {ev.obj?.prioridad==="alta"?"🔴 Alta":ev.obj?.prioridad==="media"?"🟡 Media":"🟢 Baja"} prioridad
+                        </div>
                       )}
-                      {(ev.tipo==="vencimiento"||ev.tipo==="inicio")&&(
-                        <>
-                          <button style={{background:"#eff6ff",color:"#1d4ed8",border:"1px solid #bfdbfe",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}
-                            onClick={()=>setPolizaCalendario(ev.obj)}>
-                            👁 Ver póliza
-                          </button>
-                          {(ev.obj?.telefonoCliente||ev.obj?.whatsappCliente)&&(
-                            <button style={{background:"#25d366",color:"#fff",border:"none",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}
-                              onClick={()=>{
-                                const num = (ev.obj?.whatsappCliente||ev.obj?.telefonoCliente||"").replace(/\D/g,"");
-                                const msg = encodeURIComponent("Hola "+ev.obj?.cliente?.split(" ")[0]+", te recordamos que tu póliza "+ev.obj?.numero+" de "+ev.obj?.aseguradora+" vence el "+ev.obj?.vencimiento+". Contáctanos para renovarla. — Tu Agente de Seguros");
-                                window.open("https://wa.me/52"+num+"?text="+msg);
-                              }}>
-                              💬 WhatsApp
+
+                      {/* Botones acción */}
+                      <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                        {ev.tipo==="cumpleanos"&&(
+                          <>
+                            <button onClick={()=>{
+                              const tel=(ev.obj?.whatsapp||ev.obj?.telefono||"").replace(/\D/g,"");
+                              const msg=encodeURIComponent("🎂 ¡Feliz cumpleaños "+ev.label+"! Que tengas un excelente día. — Tu Agente de Seguros");
+                              window.open("https://wa.me/52"+tel+"?text="+msg);
+                            }} style={{width:"100%",background:"#25d366",color:"#fff",border:"none",borderRadius:8,padding:"8px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                              💬 Enviar WhatsApp
                             </button>
-                          )}
-                          {ev.obj?.emailCliente&&(
-                            <a href={`mailto:${ev.obj.emailCliente}?subject=${encodeURIComponent("Tu póliza "+ev.obj.numero+" vence pronto")}&body=${encodeURIComponent("Hola "+ev.obj?.cliente?.split(" ")[0]+",\n\nTe recordamos que tu póliza "+ev.obj?.numero+" de "+ev.obj?.aseguradora+" vence el "+ev.obj?.vencimiento+".\n\nContáctanos para renovarla.\n\nSaludos,\nTu Agente de Seguros")}`}
-                              style={{background:"#2563eb",color:"#fff",border:"none",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit",textDecoration:"none",display:"inline-flex",alignItems:"center",gap:4}}>
-                              ✉️ Correo
-                            </a>
-                          )}
-                        </>
-                      )}
-                      {gcalUrl(ev)&&(
-                        <a href={gcalUrl(ev)} target="_blank" rel="noopener noreferrer"
-                          style={{background:"#fff",border:"1px solid #e5e7eb",borderRadius:7,padding:"4px 9px",fontSize:10,fontWeight:700,color:"#374151",textDecoration:"none",display:"inline-flex",alignItems:"center",gap:4}}>
-                          📅 Google Calendar
-                        </a>
-                      )}
+                            {ev.obj?.email&&(
+                              <a href={`mailto:${ev.obj.email}?subject=${encodeURIComponent("🎂 ¡Feliz cumpleaños "+ev.label+"!")}&body=${encodeURIComponent("¡Hola "+ev.label+"!\n\nTe deseamos un feliz cumpleaños.\n\nSaludos,\nTu Agente de Seguros")}`}
+                                style={{width:"100%",background:"#2563eb",color:"#fff",borderRadius:8,padding:"8px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",textDecoration:"none",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                                ✉️ Enviar correo
+                              </a>
+                            )}
+                          </>
+                        )}
+                        {(ev.tipo==="vencimiento"||ev.tipo==="inicio")&&(
+                          <>
+                            <button onClick={()=>setPolizaCalendario(ev.obj)}
+                              style={{width:"100%",background:"#eff6ff",color:"#1d4ed8",border:"1px solid #bfdbfe",borderRadius:8,padding:"8px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                              👁 Ver detalle póliza
+                            </button>
+                            <button onClick={()=>setPagoCalendario(ev.obj)}
+                              style={{width:"100%",background:"linear-gradient(135deg,#059669,#047857)",color:"#fff",border:"none",borderRadius:8,padding:"8px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                              💳 Registrar Pago
+                            </button>
+                            {ev.obj?.whatsappCliente&&(
+                              <button onClick={()=>{
+                                const num=(ev.obj.whatsappCliente||ev.obj.telefonoCliente||"").replace(/\D/g,"");
+                                const msg=encodeURIComponent("Hola "+ev.obj?.cliente?.split(" ")[0]+", te recordamos que tu póliza "+ev.obj?.numero+" de "+ev.obj?.aseguradora+" vence el "+ev.obj?.vencimiento+". Contáctanos para renovarla.");
+                                window.open("https://wa.me/52"+num+"?text="+msg);
+                              }} style={{width:"100%",background:"#25d366",color:"#fff",border:"none",borderRadius:8,padding:"8px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                                💬 WhatsApp al cliente
+                              </button>
+                            )}
+                            {gcalUrl(ev)&&(
+                              <a href={gcalUrl(ev)} target="_blank" rel="noopener noreferrer"
+                                style={{width:"100%",background:"#fff",border:"1px solid #e5e7eb",borderRadius:8,padding:"8px",fontSize:11,fontWeight:700,color:"#374151",textDecoration:"none",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                                📅 Google Calendar
+                              </a>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
+          ):(
+            <div style={{background:"#fff",borderRadius:20,padding:"32px 20px",boxShadow:"0 4px 20px rgba(0,0,0,0.06)",border:"1px solid #e2e8f0",textAlign:"center"}}>
+              <div style={{fontSize:40,marginBottom:12}}>📅</div>
+              <div style={{fontSize:14,fontWeight:700,color:"#374151",fontFamily:"'Playfair Display',serif",marginBottom:6}}>
+                Selecciona un día
+              </div>
+              <div style={{fontSize:12,color:"#9ca3af"}}>
+                Haz click en cualquier día del calendario para ver los eventos y acciones disponibles
+              </div>
+            </div>
           )}
-
-          {/* Todos los eventos del mes — info visible en las celdas del calendario */}
         </div>
+      </div>
+
+      {/* Modal registrar pago desde calendario */}
+      {pagoCalendario&&(
+        <Modal title={`Registrar Pago — ${pagoCalendario.numero}`} onClose={()=>setPagoCalendario(null)}>
+          <ModalPago
+            poliza={pagoCalendario}
+            onGuardar={(pago)=>{
+              if(setPolizas) setPolizas(prev=>prev.map(p=>p.id===pagoCalendario.id?{...p,pagos:[...(p.pagos||[]),pago],ultimoPago:pago}:p));
+              setPagoCalendario(null);
+            }}
+            onEliminarPago={(pgId)=>{
+              if(setPolizas) setPolizas(prev=>prev.map(p=>p.id===pagoCalendario.id?{...p,pagos:(p.pagos||[]).filter(pg=>pg.id!==pgId)}:p));
+            }}
+            onClose={()=>setPagoCalendario(null)}
+          />
+        </Modal>
+      )}
 
       {/* Modal detalle póliza desde calendario */}
       {polizaCalendario&&(
@@ -7791,7 +7846,7 @@ export default function CRMSeguros() {
         {vista==="pai"&&puede("pai")&&<PAI paiMetas={paiMetas} setPaiMetas={setPaiMetas}/>}
         {vista==="pipeline"&&puede("pipeline")&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}
         {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas}/>}
-        {vista==="calendario"&&puede("calendario")&&<Calendario polizas={polizas} clientes={clientes} tareas={tareas}/>}
+        {vista==="calendario"&&puede("calendario")&&<Calendario polizas={polizas} clientes={clientes} tareas={tareas} setPolizas={setPolizas}/>}
         {vista==="importar"&&puede("importar")&&<Importador clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas}/>}
         {vista==="configuracion"&&puede("configuracion")&&<Configuracion config={config} setConfig={setConfig} subagentes={subagentes} setSubagentes={setSubagentes} usuarios={usuarios} setUsuarios={setUsuarios} polizas={polizas} setPolizas={setPolizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes} historialNotif={historialNotif} setHistorialNotif={setHistorialNotif}/>}
         {/* Acceso denegado */}

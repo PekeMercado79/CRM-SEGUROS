@@ -6701,6 +6701,181 @@ function useLocalStorage(key, initialValue) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// HASH simple de contraseña (sin dependencias externas)
+// ═══════════════════════════════════════════════════════════════════
+function hashPassword(pass) {
+  // Hash simple pero suficiente para localStorage — no usar en producción con BD real
+  let hash = 0;
+  const str = pass + "crm_salt_2024";
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return "h_" + Math.abs(hash).toString(36);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PANTALLA DE LOGIN
+// ═══════════════════════════════════════════════════════════════════
+function LoginScreen({ usuarios, config, onLogin }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError]       = useState("");
+  const [verPass, setVerPass]   = useState(false);
+  const [loading, setLoading]   = useState(false);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (!username || !password) { setError("Ingresa usuario y contraseña"); return; }
+    setLoading(true);
+    setError("");
+
+    setTimeout(() => {
+      const user = usuarios.find(u =>
+        u.username?.toLowerCase() === username.toLowerCase() &&
+        u.status === "activo"
+      );
+
+      if (!user) { setError("Usuario no encontrado o inactivo"); setLoading(false); return; }
+
+      // Verificar contraseña — soporta texto plano (legacy) y hasheada
+      const hashInput = hashPassword(password);
+      const passOk = user.password === password || user.password === hashInput;
+
+      if (!passOk) { setError("Contraseña incorrecta"); setLoading(false); return; }
+
+      // Guardar sesión
+      const sesion = {
+        id: user.id,
+        nombre: user.nombre,
+        username: user.username,
+        rol: user.rol,
+        clave: user.clave,
+        loginAt: new Date().toISOString(),
+      };
+      sessionStorage.setItem("crm_sesion", JSON.stringify(sesion));
+      onLogin(sesion);
+      setLoading(false);
+    }, 600);
+  };
+
+  const logoEmpresa = config?.logo;
+  const nombreEmpresa = config?.nombre || "CRM Seguros";
+
+  return (
+    <div style={{
+      minHeight:"100vh", background:"linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#0f172a 100%)",
+      display:"flex", alignItems:"center", justifyContent:"center", padding:20,
+      fontFamily:"'Inter','DM Sans','Segoe UI',sans-serif"
+    }}>
+      {/* Fondo decorativo */}
+      <div style={{position:"fixed",inset:0,overflow:"hidden",pointerEvents:"none"}}>
+        <div style={{position:"absolute",top:-100,right:-100,width:400,height:400,borderRadius:"50%",background:"rgba(37,99,235,0.08)"}}/>
+        <div style={{position:"absolute",bottom:-80,left:-80,width:300,height:300,borderRadius:"50%",background:"rgba(124,58,237,0.08)"}}/>
+      </div>
+
+      <div style={{width:"100%",maxWidth:420,position:"relative"}}>
+
+        {/* Logo / Nombre empresa */}
+        <div style={{textAlign:"center",marginBottom:32}}>
+          {logoEmpresa
+            ? <img src={logoEmpresa} alt="logo" style={{height:64,objectFit:"contain",marginBottom:12}}/>
+            : <div style={{width:64,height:64,borderRadius:18,background:"linear-gradient(135deg,#2563eb,#7c3aed)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 12px"}}>
+                <Icon name="shield" size={30}/>
+              </div>
+          }
+          <div style={{color:"#f1f5f9",fontSize:22,fontWeight:800,fontFamily:"'Playfair Display',serif"}}>{nombreEmpresa}</div>
+          <div style={{color:"#64748b",fontSize:13,marginTop:4}}>Sistema de Gestión de Seguros</div>
+        </div>
+
+        {/* Card de login */}
+        <div style={{background:"rgba(255,255,255,0.05)",backdropFilter:"blur(20px)",borderRadius:20,padding:"32px 36px",border:"1px solid rgba(255,255,255,0.1)",boxShadow:"0 25px 50px rgba(0,0,0,0.4)"}}>
+          <div style={{color:"#e2e8f0",fontSize:18,fontWeight:700,marginBottom:24,fontFamily:"'Playfair Display',serif"}}>
+            Iniciar sesión
+          </div>
+
+          <form onSubmit={handleLogin} style={{display:"flex",flexDirection:"column",gap:16}}>
+            {/* Usuario */}
+            <div>
+              <label style={{fontSize:11,fontWeight:700,color:"#94a3b8",letterSpacing:"0.06em",display:"block",marginBottom:6}}>
+                USUARIO
+              </label>
+              <input
+                value={username}
+                onChange={e=>{setUsername(e.target.value);setError("");}}
+                placeholder="Ingresa tu usuario"
+                autoComplete="username"
+                style={{width:"100%",background:"rgba(255,255,255,0.08)",border:"1.5px solid rgba(255,255,255,0.12)",
+                  borderRadius:10,padding:"11px 14px",fontSize:14,color:"#f1f5f9",outline:"none",
+                  fontFamily:"inherit",boxSizing:"border-box",transition:"border .15s"}}
+                onFocus={e=>e.target.style.borderColor="#3b82f6"}
+                onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.12)"}
+              />
+            </div>
+
+            {/* Contraseña */}
+            <div>
+              <label style={{fontSize:11,fontWeight:700,color:"#94a3b8",letterSpacing:"0.06em",display:"block",marginBottom:6}}>
+                CONTRASEÑA
+              </label>
+              <div style={{position:"relative"}}>
+                <input
+                  type={verPass?"text":"password"}
+                  value={password}
+                  onChange={e=>{setPassword(e.target.value);setError("");}}
+                  placeholder="Ingresa tu contraseña"
+                  autoComplete="current-password"
+                  style={{width:"100%",background:"rgba(255,255,255,0.08)",border:"1.5px solid rgba(255,255,255,0.12)",
+                    borderRadius:10,padding:"11px 44px 11px 14px",fontSize:14,color:"#f1f5f9",outline:"none",
+                    fontFamily:"inherit",boxSizing:"border-box",transition:"border .15s"}}
+                  onFocus={e=>e.target.style.borderColor="#3b82f6"}
+                  onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.12)"}
+                />
+                <button type="button" onClick={()=>setVerPass(v=>!v)}
+                  style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",
+                    background:"none",border:"none",cursor:"pointer",color:"#64748b",padding:4}}>
+                  <Icon name="eye" size={16}/>
+                </button>
+              </div>
+            </div>
+
+            {/* Error */}
+            {error&&(
+              <div style={{background:"rgba(220,38,38,0.15)",border:"1px solid rgba(220,38,38,0.3)",
+                borderRadius:9,padding:"10px 14px",fontSize:13,color:"#fca5a5",display:"flex",alignItems:"center",gap:8}}>
+                ⚠️ {error}
+              </div>
+            )}
+
+            {/* Botón */}
+            <button type="submit" disabled={loading}
+              style={{background:loading?"#1e3a5f":"linear-gradient(135deg,#2563eb,#7c3aed)",
+                color:"#fff",border:"none",borderRadius:10,padding:"13px",fontSize:14,
+                fontWeight:700,cursor:loading?"not-allowed":"pointer",fontFamily:"inherit",
+                marginTop:4,transition:"all .2s",opacity:loading?0.7:1}}>
+              {loading?"Verificando...":"Entrar al sistema"}
+            </button>
+          </form>
+
+          {/* Hint para el admin */}
+          <div style={{marginTop:20,padding:"10px 14px",background:"rgba(37,99,235,0.1)",borderRadius:9,border:"1px solid rgba(37,99,235,0.2)"}}>
+            <div style={{fontSize:11,color:"#93c5fd",fontWeight:600}}>
+              Usuario por defecto: <span style={{fontFamily:"monospace"}}>admin</span> / <span style={{fontFamily:"monospace"}}>admin123</span>
+            </div>
+            <div style={{fontSize:10,color:"#475569",marginTop:2}}>Cambia la contraseña en Configuración → Usuarios</div>
+          </div>
+        </div>
+
+        <div style={{textAlign:"center",marginTop:20,color:"#334155",fontSize:11}}>
+          {nombreEmpresa} · Sistema protegido
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // APP PRINCIPAL
 // ═══════════════════════════════════════════════════════════════════
 export default function CRMSeguros() {
@@ -6713,6 +6888,27 @@ export default function CRMSeguros() {
   const [paiMetas,   setPaiMetas]   = useLocalStorage("crm_paiMetas",   PAI_METAS_INIT);
   const [subagentes, setSubagentes] = useLocalStorage("crm_subagentes", SUBAGENTES_INIT);
   const [config,     setConfig]     = useLocalStorage("crm_config",     {nombre:"SeguroCRM",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""});
+
+  // Sesión activa
+  const [sesion, setSesion] = useState(() => {
+    try {
+      const s = sessionStorage.getItem("crm_sesion");
+      return s ? JSON.parse(s) : null;
+    } catch { return null; }
+  });
+
+  const handleLogin = (sesionData) => setSesion(sesionData);
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("crm_sesion");
+    setSesion(null);
+    setVista("dashboard");
+  };
+
+  // Mostrar login si no hay sesión
+  if (!sesion) {
+    return <LoginScreen usuarios={usuarios} config={config} onLogin={handleLogin}/>;
+  }
 
   const PLANTILLAS_DEFAULT = {
     // WhatsApp — sin emojis
@@ -6796,12 +6992,21 @@ export default function CRMSeguros() {
         <div style={{padding:"12px 16px",borderTop:"1px solid #1e293b"}}>
           <div style={{display:"flex",alignItems:"center",gap:9}}>
             <div style={{width:30,height:30,borderRadius:"50%",background:"linear-gradient(135deg,#2563eb,#7c3aed)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:700,fontSize:11}}>
-              {(config.nombre||"SC").split(" ").map(n=>n[0]).join("").slice(0,2).toUpperCase()}
+              {(sesion.nombre||"U").slice(0,2).toUpperCase()}
             </div>
-            <div>
-              <div style={{color:"#e2e8f0",fontSize:12,fontWeight:600}}>{config.nombre||"SeguroCRM"}</div>
-              <div style={{color:"#475569",fontSize:10}}>Administrador</div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{color:"#e2e8f0",fontSize:12,fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{sesion.nombre}</div>
+              <div style={{color:"#475569",fontSize:10,textTransform:"capitalize"}}>{sesion.rol}</div>
             </div>
+            <button onClick={handleLogout} title="Cerrar sesión"
+              style={{background:"none",border:"none",cursor:"pointer",color:"#475569",padding:4,display:"flex",
+                borderRadius:6,transition:"all .15s"}}
+              onMouseEnter={e=>e.currentTarget.style.color="#f87171"}
+              onMouseLeave={e=>e.currentTarget.style.color="#475569"}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+              </svg>
+            </button>
           </div>
         </div>
       </div>

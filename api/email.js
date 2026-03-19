@@ -1,33 +1,36 @@
-const nodemailer = require("nodemailer");
-
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  // CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const { to, subject, html, smtp } = req.body;
 
   if (!to || !subject || !html || !smtp) {
-    return res.status(400).json({ error: "Faltan campos requeridos: to, subject, html, smtp" });
+    return res.status(400).json({ error: "Faltan campos: to, subject, html, smtp" });
   }
 
   const { smtpHost, smtpPort, smtpUser, smtpPass, smtpFromName } = smtp;
 
   if (!smtpHost || !smtpUser || !smtpPass) {
-    return res.status(400).json({ error: "Configuracion SMTP incompleta. Verifica host, usuario y contrasena." });
+    return res.status(400).json({ error: "Configuracion SMTP incompleta" });
   }
 
   try {
-    const transporter = nodemailer.createTransporter({
+    const nodemailer = await import("nodemailer");
+    const transporter = nodemailer.default.createTransport({
       host: smtpHost,
-      port: parseInt(smtpPort) || 587,
-      secure: parseInt(smtpPort) === 465, // true para puerto 465 (SSL), false para 587 (TLS)
+      port: parseInt(smtpPort) || 465,
+      secure: parseInt(smtpPort) === 465,
       auth: {
         user: smtpUser,
         pass: smtpPass,
       },
       tls: {
-        rejectUnauthorized: false, // necesario para algunos hostings compartidos como Hostgator
+        rejectUnauthorized: false,
       },
     });
 
@@ -41,10 +44,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true, messageId: info.messageId });
 
   } catch (error) {
-    console.error("Error SMTP:", error.message);
-    return res.status(500).json({
-      error: "Error al enviar correo",
-      detalle: error.message,
-    });
+    console.error("Email error:", error.message);
+    return res.status(500).json({ error: "Error al enviar", detalle: error.message });
   }
 }

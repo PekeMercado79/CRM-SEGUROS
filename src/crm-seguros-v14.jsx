@@ -6905,35 +6905,32 @@ export default function CRMSeguros() {
     setVista("dashboard");
   };
 
-  // Mostrar login si no hay sesión
-  if (!sesion) {
-    return <LoginScreen usuarios={usuarios} config={config} onLogin={handleLogin}/>;
-  }
-
   const PLANTILLAS_DEFAULT = {
-    // WhatsApp — sin emojis
     vencimiento:   `Hola {nombre},\n\nTe escribo para recordarte que tu poliza esta proxima a vencer:\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nRamo: {ramo}\nVencimiento: {vencimiento}\nPrima: ${"{prima}"} ({frecuencia})\n\nContactame para renovarla.\n\nSaludos,\nTu agente de seguros`,
     pago:          `Hola {nombre},\n\nConfirmamos la recepcion de tu pago.\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nVigente hasta: {vencimiento}\n\nGracias por tu puntualidad.\n\nSaludos,\nTu agente de seguros`,
     bienvenida:    `Hola {nombre},\n\nBienvenido/a como cliente. Tu poliza ha sido registrada:\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nRamo: {ramo}\nVigente hasta: {vencimiento}\n\nEstoy a tus ordenes.\n\nSaludos,\nTu agente de seguros`,
     renovacion:    `Hola {nombre},\n\nTu poliza ha sido renovada exitosamente.\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nNueva vigencia hasta: {vencimiento}\nPrima: ${"{prima}"} ({frecuencia})\n\nSaludos,\nTu agente de seguros`,
     cumpleanos:    `Hola {nombre},\n\nTe deseamos un muy feliz cumpleanos. Que tengas un excelente dia rodeado de las personas que mas quieres.\n\nSaludos,\nTu agente de seguros`,
     personalizado: `Hola {nombre},\n\nMe comunico contigo respecto a tu poliza {numero} de {aseguradora}.\n\n[Escribe aqui tu mensaje]\n\nSaludos,\nTu agente de seguros`,
-    // Correo — asuntos
     asunto_vencimiento:  `Tu poliza {numero} de {aseguradora} vence pronto`,
     asunto_pago:         `Confirmacion de pago — Poliza {numero}`,
     asunto_bienvenida:   `Bienvenido/a — Tu poliza {numero} esta activa`,
     asunto_renovacion:   `Tu poliza {numero} ha sido renovada exitosamente`,
     asunto_cumpleanos:   `Feliz cumpleanos {nombre}!`,
     asunto_personalizado:`Mensaje de tu agente de seguros`,
-    // Correo — cuerpos
-    email_vencimiento:   `Estimado/a {nombre},\n\nTe informamos que tu poliza esta proxima a vencer:\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nRamo: {ramo}\nFecha de vencimiento: {vencimiento}\nPrima: ${"{prima}"} ({frecuencia})\n\nPara renovar tu poliza y continuar con tu proteccion, contactanos a la brevedad.\n\nAtentamente,\nTu agente de seguros`,
-    email_pago:          `Estimado/a {nombre},\n\nConfirmamos la recepcion de tu pago.\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nVigente hasta: {vencimiento}\n\nGracias por tu puntualidad. Tu poliza sigue activa.\n\nAtentamente,\nTu agente de seguros`,
-    email_bienvenida:    `Estimado/a {nombre},\n\nBienvenido/a. Es un gusto tenerte como cliente. Tu poliza ha sido registrada exitosamente:\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nRamo: {ramo}\nVigente hasta: {vencimiento}\n\nEstamos a tus ordenes para cualquier duda o aclaracion.\n\nAtentamente,\nTu agente de seguros`,
-    email_renovacion:    `Estimado/a {nombre},\n\nTe informamos que tu poliza ha sido renovada exitosamente:\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nNueva vigencia hasta: {vencimiento}\nPrima: ${"{prima}"} ({frecuencia})\n\nSigues protegido/a. Gracias por tu confianza.\n\nAtentamente,\nTu agente de seguros`,
-    email_cumpleanos:    `Estimado/a {nombre},\n\nEn este dia especial queremos desearte un muy feliz cumpleanos. Que este nuevo ano de vida este lleno de salud, exito y momentos inolvidables.\n\nSeguimos a tu disposicion.\n\nAtentamente,\nTu agente de seguros`,
-    email_personalizado: `Estimado/a {nombre},\n\n[Escribe aqui tu mensaje personalizado]\n\nAtentamente,\nTu agente de seguros`,
+    email_vencimiento:   `Estimado/a {nombre},\n\nTe informamos que tu poliza esta proxima a vencer:\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nRamo: {ramo}\nFecha de vencimiento: {vencimiento}\nPrima: ${"{prima}"} ({frecuencia})\n\nPara renovar tu poliza contactanos a la brevedad.\n\nAtentamente,\nTu agente de seguros`,
+    email_pago:          `Estimado/a {nombre},\n\nConfirmamos la recepcion de tu pago.\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nVigente hasta: {vencimiento}\n\nGracias por tu puntualidad.\n\nAtentamente,\nTu agente de seguros`,
+    email_bienvenida:    `Estimado/a {nombre},\n\nBienvenido/a. Tu poliza ha sido registrada:\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nRamo: {ramo}\nVigente hasta: {vencimiento}\n\nEstamos a tus ordenes.\n\nAtentamente,\nTu agente de seguros`,
+    email_renovacion:    `Estimado/a {nombre},\n\nTu poliza ha sido renovada:\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nNueva vigencia hasta: {vencimiento}\nPrima: ${"{prima}"} ({frecuencia})\n\nAtentamente,\nTu agente de seguros`,
+    email_cumpleanos:    `Estimado/a {nombre},\n\nTe deseamos un muy feliz cumpleanos. Que este nuevo ano este lleno de salud y exito.\n\nAtentamente,\nTu agente de seguros`,
+    email_personalizado: `Estimado/a {nombre},\n\n[Escribe aqui tu mensaje]\n\nAtentamente,\nTu agente de seguros`,
   };
   const [plantillas, setPlantillas] = useLocalStorage("crm_plantillas", PLANTILLAS_DEFAULT);
+
+  // Mostrar login si no hay sesión
+  if (!sesion) {
+    return <LoginScreen usuarios={usuarios} config={config} onLogin={handleLogin}/>;
+  }
 
   const nav=[
     {id:"dashboard",      label:"Dashboard",       icon:"dashboard"},

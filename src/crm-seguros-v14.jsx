@@ -542,11 +542,12 @@ const FORM_CLIENTE_INIT = {
 // ═══════════════════════════════════════════════════════════════════
 // DETALLE CLIENTE MODAL
 // ═══════════════════════════════════════════════════════════════════
-function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
+function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar, onRegistrarPago }) {
   const [editando, setEditando] = useState(false);
   const [form, setForm] = useState({...cliente});
   const [guardado, setGuardado] = useState(false);
   const [polizaVer, setPolizaVer] = useState(null);
+  const [polizaPago, setPolizaPago] = useState(null);
 
   const upd = (k,v) => setForm(p=>({...p,[k]:v}));
 
@@ -758,38 +759,92 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
               Este cliente no tiene pólizas registradas
             </div>
           ):(
-            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
               {polizasCliente.map(p=>{
                 const st=getStatusLocal(p);
                 const stColor=stColors[st]||"#6b7280";
-                const pagada=p.ultimoPago||p.comisionPagada;
+                const ultimoPago = p.pagos?.length>0 ? p.pagos[p.pagos.length-1] : null;
+                const totalPagado = (p.pagos||[]).reduce((a,pg)=>a+(parseFloat(pg.monto)||0),0);
+                const prima = parseFloat(p.primaTotal)||parseFloat(p.prima)||0;
+                const saldoPendiente = prima - totalPagado;
                 return(
-                  <div key={p.id} style={{background:"#fff",borderRadius:10,border:"1.5px solid #e5e7eb",padding:"12px 15px",
-                    display:"grid",gridTemplateColumns:"auto 1fr auto auto auto",gap:12,alignItems:"center"}}>
-                    <div style={{width:10,height:10,borderRadius:"50%",background:stColor,flexShrink:0}}/>
-                    <div>
-                      <div style={{fontWeight:700,fontSize:12,color:"#111827",fontFamily:"monospace"}}>{p.numero||"Sin número"}</div>
-                      <div style={{fontSize:11,color:"#6b7280",marginTop:1}}>{p.ramo}{p.subramo?" · "+p.subramo:""} · {p.aseguradora}</div>
+                  <div key={p.id} style={{background:"#fff",borderRadius:12,border:`1.5px solid ${stColor}33`,overflow:"hidden"}}>
+                    {/* Header póliza */}
+                    <div style={{background:`${stColor}10`,padding:"10px 14px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:`1px solid ${stColor}22`}}>
+                      <div style={{display:"flex",alignItems:"center",gap:9}}>
+                        <div style={{width:9,height:9,borderRadius:"50%",background:stColor,flexShrink:0}}/>
+                        <div>
+                          <div style={{fontWeight:700,fontSize:13,color:"#111827",fontFamily:"monospace"}}>{p.numero||"Sin número"}</div>
+                          <div style={{fontSize:11,color:"#6b7280"}}>{p.ramo}{p.subramo?" · "+p.subramo:""} · {p.aseguradora}</div>
+                        </div>
+                      </div>
+                      <div style={{display:"flex",alignItems:"center",gap:6}}>
+                        <span style={{background:stColor+"20",color:stColor,padding:"2px 9px",borderRadius:6,fontSize:10,fontWeight:700}}>{stLabels[st]}</span>
+                        <button onClick={()=>setPolizaVer(p)}
+                          style={{background:"#eff6ff",border:"1px solid #bfdbfe",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",color:"#1d4ed8",fontFamily:"inherit"}}>
+                          👁 Ver
+                        </button>
+                      </div>
                     </div>
-                    <div style={{textAlign:"right"}}>
-                      <div style={{fontSize:11,color:"#9ca3af"}}>Vigencia</div>
-                      <div style={{fontSize:11,fontWeight:600,color:"#374151"}}>{p.inicio||"—"} → {p.vencimiento||"—"}</div>
+                    {/* Detalle póliza */}
+                    <div style={{padding:"10px 14px",display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10}}>
+                      <div>
+                        <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>PRIMA TOTAL</div>
+                        <div style={{fontSize:13,fontWeight:800,color:"#059669"}}>${prima.toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
+                        <div style={{fontSize:10,color:"#9ca3af"}}>{p.formaPago||p.frecuencia||"—"}</div>
+                      </div>
+                      <div>
+                        <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>VIGENCIA</div>
+                        <div style={{fontSize:11,fontWeight:600,color:"#374151"}}>{p.inicio||"—"}</div>
+                        <div style={{fontSize:11,color:"#9ca3af"}}>al {p.vencimiento||"—"}</div>
+                      </div>
+                      <div>
+                        <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>ÚLTIMO PAGO</div>
+                        {ultimoPago?(
+                          <>
+                            <div style={{fontSize:11,fontWeight:700,color:"#059669"}}>${Number(ultimoPago.monto||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
+                            <div style={{fontSize:10,color:"#9ca3af"}}>{ultimoPago.fechaPago}</div>
+                          </>
+                        ):(
+                          <div style={{fontSize:11,color:"#d1d5db"}}>Sin pagos</div>
+                        )}
+                      </div>
+                      <div>
+                        <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>SALDO</div>
+                        <div style={{fontSize:13,fontWeight:800,color:saldoPendiente>0?"#dc2626":"#059669"}}>
+                          {saldoPendiente>0?`$${saldoPendiente.toLocaleString("es-MX",{maximumFractionDigits:0})} pendiente`:"✓ Al corriente"}
+                        </div>
+                      </div>
                     </div>
-                    <div style={{textAlign:"right"}}>
-                      <div style={{fontSize:11,color:"#9ca3af"}}>Prima</div>
-                      <div style={{fontSize:12,fontWeight:700,color:"#059669"}}>{p.primaTotal?"$"+Number(p.primaTotal).toLocaleString():(p.prima?"$"+Number(p.prima).toLocaleString():"—")}</div>
-                    </div>
-                    <div style={{display:"flex",flexDirection:"column",gap:4,alignItems:"flex-end"}}>
-                      <span style={{background:stColor+"20",color:stColor,padding:"2px 8px",borderRadius:6,fontSize:10,fontWeight:700,whiteSpace:"nowrap"}}>{stLabels[st]}</span>
-                      <span style={{background:pagada?"#f0fdf4":"#fef2f2",color:pagada?"#059669":"#dc2626",padding:"2px 8px",borderRadius:6,fontSize:10,fontWeight:700}}>
-                        {pagada?"✓ Pagada":"⏳ Pendiente"}
-                      </span>
-                      <button onClick={()=>setPolizaVer(p)}
-                        title="Ver detalle y documento de póliza"
-                        style={{background:"#eff6ff",border:"1px solid #bfdbfe",borderRadius:7,padding:"3px 8px",fontSize:11,fontWeight:700,cursor:"pointer",color:"#1d4ed8",display:"flex",alignItems:"center",gap:4,fontFamily:"inherit"}}>
-                        👁 Ver póliza
-                      </button>
-                    </div>
+                    {/* Historial de pagos mini */}
+                    {(p.pagos||[]).length>0&&(
+                      <div style={{padding:"0 14px 10px"}}>
+                        <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:5}}>HISTORIAL DE PAGOS</div>
+                        <div style={{display:"flex",flexDirection:"column",gap:4}}>
+                          {[...(p.pagos||[])].reverse().slice(0,3).map((pg,i)=>(
+                            <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",background:"#f0fdf4",borderRadius:7,padding:"5px 10px"}}>
+                              <div style={{fontSize:11,color:"#374151"}}>
+                                {pg.reciboNum&&<span style={{background:"#7c3aed",color:"#fff",borderRadius:10,padding:"1px 6px",fontSize:9,fontWeight:800,marginRight:5}}>R{pg.reciboNum}</span>}
+                                {pg.fechaPago} · {pg.formaPago}
+                              </div>
+                              <div style={{fontSize:12,fontWeight:700,color:"#059669"}}>${Number(pg.monto||0).toLocaleString("es-MX",{minimumFractionDigits:2})}</div>
+                            </div>
+                          ))}
+                          {(p.pagos||[]).length>3&&<div style={{fontSize:10,color:"#9ca3af",textAlign:"center"}}>+{(p.pagos||[]).length-3} pagos más</div>}
+                        </div>
+                      </div>
+                    )}
+                    {/* Botón registrar pago */}
+                    {st!=="cancelada"&&(
+                      <div style={{padding:"0 14px 12px"}}>
+                        <button onClick={()=>setPolizaPago(p)}
+                          style={{width:"100%",background:"linear-gradient(135deg,#059669,#047857)",color:"#fff",border:"none",
+                            borderRadius:9,padding:"9px",fontSize:12,fontWeight:700,cursor:"pointer",
+                            fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                          💳 Registrar Pago
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -797,6 +852,23 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
           )}
         </div>
       </div>
+
+      {/* Modal registrar pago desde perfil cliente */}
+      {polizaPago&&(
+        <Modal title={`Registrar Pago — ${polizaPago.numero}`} onClose={()=>setPolizaPago(null)}>
+          <ModalPago
+            poliza={polizaPago}
+            onGuardar={(pago)=>{
+              onRegistrarPago(polizaPago.id, pago);
+              setPolizaPago(null);
+            }}
+            onEliminarPago={(pgId)=>{
+              onRegistrarPago(polizaPago.id, null, pgId);
+            }}
+            onClose={()=>setPolizaPago(null)}
+          />
+        </Modal>
+      )}
 
       {polizaVer&&(
         <Modal title={`Póliza ${polizaVer.numero}`} onClose={()=>setPolizaVer(null)} wide maxW={680}>
@@ -858,13 +930,21 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar }) {
   );
 }
 
-function Clientes({ clientes, setClientes, polizas=[] }) {
+function Clientes({ clientes, setClientes, polizas=[], setPolizas }) {
   const [busqueda, setBusqueda] = useState("");
   const [viewModeC, setViewModeC] = useState("cards");
   const [showModal, setShowModal] = useState(false);
   const [showDetalle, setShowDetalle] = useState(null);
   const [form, setForm] = useState(FORM_CLIENTE_INIT);
   const [errores, setErrores] = useState({});
+
+  const registrarPagoDesdeCliente = (polizaId, pago, eliminarPagoId) => {
+    if (eliminarPagoId) {
+      setPolizas(prev=>prev.map(p=>p.id===polizaId?{...p,pagos:(p.pagos||[]).filter(pg=>pg.id!==eliminarPagoId)}:p));
+    } else if (pago) {
+      setPolizas(prev=>prev.map(p=>p.id===polizaId?{...p,pagos:[...(p.pagos||[]),pago],ultimoPago:pago}:p));
+    }
+  };
 
   const filtrados = clientes.filter(c => {
     const nc = nombreCompleto(c).toLowerCase();
@@ -1091,6 +1171,7 @@ function Clientes({ clientes, setClientes, polizas=[] }) {
           setClientes(prev=>prev.map(c=>c.id===clienteEditado.id?clienteEditado:c));
           setShowDetalle(clienteEditado);
         }}
+        onRegistrarPago={registrarPagoDesdeCliente}
       />}
     </div>
   );
@@ -2171,6 +2252,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
   const [showEditar, setShowEditar] = useState(null);
   const [busqueda, setBusqueda] = useState("");
   const [viewMode, setViewMode] = useState("cards"); // "cards" | "table"
+  const [ordenVenc, setOrdenVenc] = useState("asc"); // "asc" | "desc" | "ninguno"
   const ramosDisponibles = Object.keys(RAMOS_SUBRAMOS);
 
   // Status dinámico basado en fechas
@@ -2183,8 +2265,17 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
     fv.setHours(0,0,0,0);
     const diff = Math.round((fv - hoy) / 86400000);
     if (diff < 0) return "vencida";
-    if (diff <= 10) return "por vencer";
+    if (diff <= 30) return "por vencer";
     return "activa";
+  };
+
+  // Días para vencer
+  const diasParaVencer = (p) => {
+    if (!p.vencimiento) return 9999;
+    const hoy = new Date(); hoy.setHours(0,0,0,0);
+    const fv = new Date(p.vencimiento.includes("/") ? p.vencimiento.split("/").reverse().join("-") : p.vencimiento);
+    fv.setHours(0,0,0,0);
+    return Math.round((fv - hoy) / 86400000);
   };
 
   const STATUS_CFG = {
@@ -2197,7 +2288,12 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
   const filtradas = polizas
     .filter(p => filtro === "todas" || getStatus(p) === filtro)
     .filter(p => filtroRamo === "todos" || p.ramo === filtroRamo)
-    .filter(p => !busqueda || p.numero?.toLowerCase().includes(busqueda.toLowerCase()) || p.cliente?.toLowerCase().includes(busqueda.toLowerCase()));
+    .filter(p => !busqueda || p.numero?.toLowerCase().includes(busqueda.toLowerCase()) || p.cliente?.toLowerCase().includes(busqueda.toLowerCase()))
+    .sort((a,b) => {
+      if (ordenVenc === "asc")  return diasParaVencer(a) - diasParaVencer(b);
+      if (ordenVenc === "desc") return diasParaVencer(b) - diasParaVencer(a);
+      return 0;
+    });
 
   const [polizaRecienGuardada, setPolizaRecienGuardada] = useState(null);
   const [showBienvenida, setShowBienvenida] = useState(null); // {poliza, tieneWA, tieneEmail}
@@ -2455,6 +2551,14 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
         <div style={{flex:1,background:"#fff",borderRadius:10,padding:"7px 13px",display:"flex",alignItems:"center",gap:8,boxShadow:"0 1px 4px rgba(0,0,0,0.05)",minWidth:200}}>
           <Icon name="search" size={14}/><input value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="Buscar número, cliente..." autoComplete="off" style={{border:"none",outline:"none",fontSize:13,flex:1,fontFamily:"inherit",background:"transparent"}}/>
         </div>
+        {/* Botón ordenar por vencimiento */}
+        <button onClick={()=>setOrdenVenc(o=>o==="asc"?"desc":o==="desc"?"ninguno":"asc")}
+          style={{background:ordenVenc!=="ninguno"?"#0f172a":"#fff",color:ordenVenc!=="ninguno"?"#fff":"#374151",
+            border:"1.5px solid",borderColor:ordenVenc!=="ninguno"?"#0f172a":"#e5e7eb",
+            borderRadius:9,padding:"6px 13px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",
+            display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
+          📅 Vencimiento {ordenVenc==="asc"?"↑ Próximo":ordenVenc==="desc"?"↓ Lejano":""}
+        </button>
         <div style={{display:"flex",gap:4,background:"#f3f4f6",borderRadius:9,padding:3}}>
           {[["cards","⊞"],["table","☰"]].map(([m,ic])=>(
             <button key={m} onClick={()=>setViewMode(m)} style={{padding:"5px 12px",borderRadius:7,border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:14,
@@ -2530,10 +2634,21 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
           const st = getStatus(p); const cfg = STATUS_CFG[st];
           const tienePago = p.ultimoPago;
           const esNueva = polizaRecienGuardada === p.id;
+          const dias = diasParaVencer(p);
+          const urgente = dias >= 0 && dias <= 15 && st !== "cancelada";
           return (
             <div key={p.id} style={{background:"#fff",borderRadius:16,overflow:"hidden",
-              boxShadow: esNueva ? "0 0 0 3px #059669, 0 4px 20px rgba(5,150,105,0.25)" : "0 1px 8px rgba(0,0,0,0.08)",
+              boxShadow: esNueva ? "0 0 0 3px #059669, 0 4px 20px rgba(5,150,105,0.25)" : urgente ? "0 0 0 2px #f59e0b, 0 4px 16px rgba(245,158,11,0.2)" : "0 1px 8px rgba(0,0,0,0.08)",
               transition:"box-shadow .4s"}}>
+              {/* Banner urgente */}
+              {urgente&&(
+                <div style={{background:"linear-gradient(90deg,#f59e0b,#d97706)",padding:"5px 14px",display:"flex",alignItems:"center",gap:6}}>
+                  <span style={{fontSize:12}}>⚠️</span>
+                  <span style={{fontSize:11,fontWeight:800,color:"#fff"}}>
+                    {dias===0?"¡Vence HOY!":dias===1?"Vence mañana":`Vence en ${dias} días`}
+                  </span>
+                </div>
+              )}
               {/* Header ramo */}
               <div style={{background:`linear-gradient(135deg,${ramoColor(p.ramo)},${ramoColor(p.ramo)}cc)`,padding:"13px 16px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                 <div>
@@ -3706,7 +3821,7 @@ function PAI({ paiMetas, setPaiMetas }) {
   const [showAlerta,setShowAlerta]=useState(false);
   const [alertaTexto,setAlertaTexto]=useState("");
   const [loadingAlerta,setLoadingAlerta]=useState(false);
-  const [form,setForm]=useState({ramo:"Vida",periodo:"",metaBono:"",fechaInicio:"",fechaFin:"",cobrado:""});
+  const [form,setForm]=useState({ramo:"Vida",periodo:"",periodicidad:"trimestral",metaBono:"",fechaInicio:"",fechaFin:"",cobrado:""});
 
   const ramos=Object.keys(RAMOS_SUBRAMOS);
   const ramoGrad={Vida:["#7c3aed","#a78bfa"],"Gastos Médicos":["#059669","#34d399"],Autos:["#1d4ed8","#60a5fa"],Daños:["#d97706","#fbbf24"]};
@@ -3718,7 +3833,7 @@ function PAI({ paiMetas, setPaiMetas }) {
     if(!form.metaBono)return;
     setPaiMetas(prev=>[...prev,{...form,id:Date.now(),metaBono:Number(form.metaBono),cobrado:Number(form.cobrado)||0,activa:true,cerrado:false}]);
     setShowModal(false);
-    setForm({ramo:"Vida",periodo:"",metaBono:"",fechaInicio:"",fechaFin:"",cobrado:""});
+    setForm({ramo:"Vida",periodo:"",periodicidad:"trimestral",metaBono:"",fechaInicio:"",fechaFin:"",cobrado:""});
   };
   const actualizarCobrado=(id,v)=>setPaiMetas(prev=>prev.map(m=>m.id===id?{...m,cobrado:Number(v)}:m));
   const eliminarMeta=(id)=>setPaiMetas(prev=>prev.filter(m=>m.id!==id));
@@ -3799,7 +3914,7 @@ function PAI({ paiMetas, setPaiMetas }) {
                 <div style={{background:`linear-gradient(135deg,${c1},${c2})`,padding:"16px 18px",color:"#fff"}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                     <div>
-                      <div style={{fontSize:10,opacity:.8,fontWeight:700,letterSpacing:"0.08em"}}>{m.periodo||"Sin período"}</div>
+                      <div style={{fontSize:10,opacity:.8,fontWeight:700,letterSpacing:"0.08em"}}>{m.periodicidad?.toUpperCase()||"TRIMESTRAL"} · {m.periodo||"Sin período"}</div>
                       <div style={{fontSize:20,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>{m.ramo}</div>
                     </div>
                     <div style={{textAlign:"right"}}>
@@ -3884,14 +3999,31 @@ function PAI({ paiMetas, setPaiMetas }) {
       )}
 
       {showModal&&(
-        <Modal title="Nueva Meta PAI" onClose={()=>setShowModal(false)}>
+        <Modal title="Nueva Meta" onClose={()=>setShowModal(false)}>
           <div style={{display:"flex",flexDirection:"column",gap:13}}>
-            <div style={{background:"#eff6ff",borderRadius:9,padding:"10px 13px",fontSize:12,color:"#1e40af"}}>🎯 Define tu meta de bono. Al cerrar el trimestre se guardará el resultado final.</div>
+            <div style={{background:"#eff6ff",borderRadius:9,padding:"10px 13px",fontSize:12,color:"#1e40af"}}>🎯 Define tu meta de bono por ramo y periodicidad.</div>
+
+            {/* Periodicidad */}
+            <div>
+              <label style={{fontSize:12,fontWeight:700,color:"#374151",display:"block",marginBottom:8}}>PERIODICIDAD *</label>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:7}}>
+                {[["mensual","Mensual","📅"],["trimestral","Trimestral","📊"],["semestral","Semestral","📈"],["anual","Anual","🏆"]].map(([v,l,ic])=>(
+                  <button key={v} onClick={()=>setForm(p=>({...p,periodicidad:v}))}
+                    style={{background:form.periodicidad===v?"#0f172a":"#f9fafb",color:form.periodicidad===v?"#fff":"#374151",
+                      border:`1.5px solid ${form.periodicidad===v?"#0f172a":"#e5e7eb"}`,borderRadius:9,
+                      padding:"8px 6px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",textAlign:"center"}}>
+                    <div style={{fontSize:14,marginBottom:2}}>{ic}</div>
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
               <Sel label="Ramo *" value={form.ramo} onChange={e=>setForm(p=>({...p,ramo:e.target.value}))}>
                 {ramos.map(r=><option key={r}>{r}</option>)}
               </Sel>
-              <Inp label="Período (ej. Q2 2025)" value={form.periodo} onChange={e=>setForm(p=>({...p,periodo:e.target.value}))} placeholder="Q2 2025"/>
+              <Inp label="Período (ej. Enero 2025, Q2 2025)" value={form.periodo} onChange={e=>setForm(p=>({...p,periodo:e.target.value}))} placeholder={form.periodicidad==="mensual"?"Enero 2025":form.periodicidad==="trimestral"?"Q1 2025":form.periodicidad==="semestral"?"S1 2025":"2025"}/>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
               <Inp label="Meta de Bono ($) *" type="number" value={form.metaBono} onChange={e=>setForm(p=>({...p,metaBono:e.target.value}))} placeholder="50000"/>
@@ -7083,7 +7215,7 @@ export default function CRMSeguros() {
       {/* Contenido */}
       <div style={{flex:1,overflowY:"auto",padding:"28px 32px"}}>
         {vista==="dashboard"&&puede("dashboard")&&<Dashboard clientes={clientes} polizas={polizas} pipeline={pipeline} tareas={tareas} paiMetas={paiMetas}/>}
-        {vista==="clientes"&&puede("clientes")&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas}/>}
+        {vista==="clientes"&&puede("clientes")&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas}/>}
         {vista==="polizas"&&puede("polizas")&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes} plantillas={plantillas} puede={puede} sesion={sesion}/>}
         {vista==="pai"&&puede("pai")&&<PAI paiMetas={paiMetas} setPaiMetas={setPaiMetas}/>}
         {vista==="pipeline"&&puede("pipeline")&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}

@@ -6754,7 +6754,7 @@ function LoginScreen({ usuarios, config, onLogin }) {
         clave: user.clave,
         loginAt: new Date().toISOString(),
       };
-      sessionStorage.setItem("crm_sesion", JSON.stringify(sesion));
+      localStorage.setItem("crm_sesion", JSON.stringify(sesion));
       onLogin(sesion);
       setLoading(false);
     }, 600);
@@ -6892,17 +6892,19 @@ export default function CRMSeguros() {
   // Sesión activa
   const [sesion, setSesion] = useState(() => {
     try {
-      const s = sessionStorage.getItem("crm_sesion");
+      const s = localStorage.getItem("crm_sesion");
       return s ? JSON.parse(s) : null;
     } catch { return null; }
   });
 
-  const handleLogin = (sesionData) => setSesion(sesionData);
+  const handleLogin = (sesionData) => {
+    localStorage.setItem("crm_sesion", JSON.stringify(sesionData));
+    setSesion(sesionData);
+  };
 
   const handleLogout = () => {
-    sessionStorage.removeItem("crm_sesion");
-    setSesion(null);
-    setVista("dashboard");
+    localStorage.removeItem("crm_sesion");
+    window.location.reload();
   };
 
   const PLANTILLAS_DEFAULT = {

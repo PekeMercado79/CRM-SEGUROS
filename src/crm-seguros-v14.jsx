@@ -6344,22 +6344,26 @@ function Calendario({ polizas, clientes, tareas }) {
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
       <SectionTitle title="Calendario" sub="Vencimientos, renovaciones y cumpleaños de clientes"/>
 
-      {/* Contadores */}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12}}>
-        {[["📋",vencenMes,"Vencen este mes","#dc2626"],["⚠️",porVencer,"Por vencer ≤10 días","#d97706"],["🎂",cumplesMes,"Cumpleaños este mes","#7c3aed"]].map(([ic,n,l,c])=>(
-          <div key={l} style={{background:"#fff",borderRadius:12,padding:"14px 18px",display:"flex",alignItems:"center",gap:12,boxShadow:"0 1px 6px rgba(0,0,0,.06)"}}>
-            <span style={{fontSize:26}}>{ic}</span>
-            <div>
-              <div style={{fontSize:32,fontWeight:700,color:c,fontFamily:"'Inter','DM Sans',sans-serif",lineHeight:1,letterSpacing:"-0.5px"}}>{n}</div>
-              <div style={{fontSize:12,color:"#374151",fontWeight:600,marginTop:3}}>{l}</div>
+      {/* Contadores — mismo diseño que KPICard del dashboard */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14}}>
+        {[
+          {icon:"policies", label:"Vencen este mes",    value:vencenMes,  accent:"#dc2626", sub:`en ${MESES[mes]}`},
+          {icon:"bell",     label:"Por vencer ≤10 días",value:porVencer,  accent:"#d97706", sub:"requieren atención"},
+          {icon:"clients",  label:"Cumpleaños este mes",value:cumplesMes, accent:"#7c3aed", sub:`en ${MESES[mes]}`},
+        ].map(({icon,label,value,accent,sub})=>(
+          <div key={label} style={{background:"#fff",borderRadius:16,padding:"20px 22px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)",borderTop:`3px solid ${accent}`,display:"flex",flexDirection:"column",gap:6,position:"relative",overflow:"hidden"}}>
+            <div style={{position:"absolute",right:14,top:14,background:accent+"15",color:accent,borderRadius:10,padding:7,display:"flex"}}>
+              <Icon name={icon} size={18}/>
             </div>
+            <span style={{fontSize:10,color:"#94a3b8",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.1em"}}>{label}</span>
+            <div style={{fontSize:30,fontWeight:700,color:"#0f172a",fontFamily:"'Inter',sans-serif",lineHeight:1.1,letterSpacing:"-0.5px"}}>{value}</div>
+            <div style={{fontSize:11,color:accent,fontWeight:600}}>{sub}</div>
           </div>
         ))}
       </div>
 
-      <div style={{display:"flex",gap:16,alignItems:"flex-start"}}>
-        {/* Calendario */}
-        <div style={{flex:1,background:"#fff",borderRadius:16,padding:"20px",boxShadow:"0 1px 8px rgba(0,0,0,.07)"}}>
+      {/* Calendario — ocupa todo el ancho */}
+      <div style={{background:"#fff",borderRadius:16,padding:"20px",boxShadow:"0 1px 8px rgba(0,0,0,.07)"}}>
           {/* Navegación mes — con selectores */}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
             <button onClick={prevMes} style={{background:"#f1f5f9",border:"none",borderRadius:10,width:36,height:36,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",color:"#374151",transition:"all .15s"}}
@@ -6541,32 +6545,7 @@ function Calendario({ polizas, clientes, tareas }) {
             </div>
           )}
 
-          {/* Todos los eventos del mes */}
-          <div style={{background:"#fff",borderRadius:14,padding:"14px 16px",boxShadow:"0 1px 6px rgba(0,0,0,.06)"}}>
-            <div style={{fontSize:11,fontWeight:800,color:"#374151",marginBottom:10,letterSpacing:"0.05em"}}>
-              EVENTOS — {MESES[mes].toUpperCase()}
-            </div>
-            {eventosFlat.length===0?(
-              <div style={{textAlign:"center",color:"#9ca3af",fontSize:12,padding:"16px 0"}}>Sin eventos este mes</div>
-            ):(
-              <div style={{display:"flex",flexDirection:"column",gap:6,maxHeight:420,overflowY:"auto"}}>
-                {eventosFlat.map((ev,i)=>(
-                  <div key={i} onClick={()=>setDiaSelec(ev.dia)}
-                    style={{display:"flex",gap:8,alignItems:"center",padding:"7px 9px",background:diaSelec===ev.dia?"#f0f0ff":"#f9fafb",borderRadius:9,
-                      borderLeft:`3px solid ${ev.color}`,cursor:"pointer",transition:"background .1s"}}>
-                    <div style={{fontSize:13,flexShrink:0}}>{ev.icon}</div>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:10,fontWeight:700,color:"#111827"}}>{MESES[mes].slice(0,3)} {ev.dia} — {ev.label}</div>
-                      {ev.sub&&<div style={{fontSize:9,color:"#9ca3af",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ev.sub}</div>}
-                    </div>
-                    <span style={{background:ev.color+"22",color:ev.color,fontSize:8,fontWeight:800,padding:"2px 6px",borderRadius:8,flexShrink:0}}>
-                      {ev.tipo==="cumpleanos"?"🎂":ev.tipo==="vencimiento"?"📋":ev.tipo==="tarea"?"📌":"🟢"}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Todos los eventos del mes — ELIMINADO: info visible en las celdas del calendario */}
         </div>
       </div>
 

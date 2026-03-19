@@ -6404,17 +6404,17 @@ function Calendario({ polizas, clientes, tareas }) {
           </div>
 
           {/* Encabezado días — más estético */}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:4}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:4,marginBottom:6}}>
             {DIAS_SEMANA.map((d,i)=>(
-              <div key={d} style={{textAlign:"center",fontSize:10,fontWeight:800,
-                color:i>=5?"#dc2626":"#94a3b8",padding:"4px 0",letterSpacing:"0.05em"}}>
+              <div key={d} style={{textAlign:"center",fontSize:12,fontWeight:800,
+                color:i>=5?"#dc2626":"#64748b",padding:"6px 0",letterSpacing:"0.05em"}}>
                 {d}
               </div>
             ))}
           </div>
 
           {/* Celdas */}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:3}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:4}}>
             {Array.from({length:totalCeldas},(_,i)=>{
               const dia=i-inicioGrilla+1;
               const valido=dia>=1&&dia<=diasMes;
@@ -6429,23 +6429,25 @@ function Calendario({ polizas, clientes, tareas }) {
               const esFinde = valido && ((i % 7) === 5 || (i % 7) === 6);
               return (
                 <div key={i} onClick={()=>valido&&setDiaSelec(diaSelec===dia?null:dia)}
-                  style={{minHeight:64,borderRadius:10,padding:"4px 5px",cursor:valido?"pointer":"default",
+                  style={{minHeight:80,borderRadius:10,padding:"6px 7px",cursor:valido?"pointer":"default",
                     background:!valido?"transparent":hoyF?"#0f172a":selec?"#eff6ff":hayVenc?"#fef2f2":hayPorVenc?"#fffbeb":hayCumple?"#faf5ff":esFinde?"#fafafa":"#fff",
                     border:hoyF?"2px solid #3b82f6":selec?"2px solid #6366f1":hayVenc?"1.5px solid #fca5a5":hayPorVenc?"1.5px solid #fbbf24":hayCumple?"1.5px solid #c4b5fd":hayInicio?"1.5px solid #93c5fd":hayTarea?"1.5px solid #fde68a":"1.5px solid #f1f5f9",
                     transition:"all .1s",boxShadow:selec?"0 2px 8px rgba(99,102,241,0.15)":"none"}}>
                   {valido&&(
                     <>
-                      <div style={{fontSize:12,fontWeight:hoyF?900:esFinde?600:500,
-                        color:hoyF?"#fff":esFinde?"#94a3b8":"#374151",
-                        marginBottom:2,textAlign:"center"}}>{dia}</div>
+                      <div style={{fontSize:15,fontWeight:hoyF?900:esFinde?700:600,
+                        color:hoyF?"#fff":esFinde?"#94a3b8":"#1e293b",
+                        marginBottom:4,textAlign:"center",lineHeight:1}}>{dia}</div>
                       {evs.slice(0,2).map((ev,ei)=>(
                         <div key={ei} title={`${ev.label} — ${ev.sub}`}
-                          style={{fontSize:8,fontWeight:700,color:"#fff",background:ev.color,borderRadius:4,padding:"1px 4px",marginBottom:1,
-                            overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                          style={{fontSize:10,fontWeight:700,color:"#fff",background:ev.color,borderRadius:5,
+                            padding:"2px 5px",marginBottom:2,
+                            overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",
+                            lineHeight:1.4}}>
                           {ev.icon} {ev.label}
                         </div>
                       ))}
-                      {evs.length>2&&<div style={{fontSize:8,color:"#9ca3af",textAlign:"right",marginTop:1}}>+{evs.length-2}</div>}
+                      {evs.length>2&&<div style={{fontSize:9,color:"#6b7280",textAlign:"right",marginTop:1,fontWeight:600}}>+{evs.length-2} más</div>}
                     </>
                   )}
                 </div>

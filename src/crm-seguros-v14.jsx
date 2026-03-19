@@ -2,6 +2,89 @@ import { useState, useRef, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, RadialBarChart, RadialBar } from "recharts";
 
 // ═══════════════════════════════════════════════════════════════════
+// GOOGLE CALENDAR OAUTH
+// ═══════════════════════════════════════════════════════════════════
+const GOOGLE_CLIENT_ID = "73188297798-gspn2aoro2amhvmb3b98rk4vtv5i2v6s.apps.googleusercontent.com";
+const GOOGLE_SCOPE = "https://www.googleapis.com/auth/calendar.events";
+
+// Cargar Google API Script
+function cargarGoogleAPI() {
+  return new Promise((resolve) => {
+    if (window.gapi) { resolve(window.gapi); return; }
+    const script = document.createElement("script");
+    script.src = "https://apis.google.com/js/api.js";
+    script.onload = () => {
+      window.gapi.load("client:auth2", async () => {
+        await window.gapi.client.init({
+          clientId: GOOGLE_CLIENT_ID,
+          scope: GOOGLE_SCOPE,
+          discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"],
+        });
+        resolve(window.gapi);
+      });
+    };
+    document.head.appendChild(script);
+  });
+}
+
+// Agregar evento a Google Calendar
+async function agregarEventoCalendar(titulo, descripcion, fecha, colorId="6") {
+  try {
+    const gapi = await cargarGoogleAPI();
+    const auth = gapi.auth2.getAuthInstance();
+    if (!auth.isSignedIn.get()) {
+      await auth.signIn();
+    }
+    const fechaISO = fecha.includes("/")
+      ? fecha.split("/").reverse().join("-")
+      : fecha;
+    const evento = {
+      summary: titulo,
+      description: descripcion,
+      start: { date: fechaISO },
+      end:   { date: fechaISO },
+      colorId,
+      reminders: {
+        useDefault: false,
+        overrides: [
+          { method: "email",  minutes: 24*60 },
+          { method: "popup",  minutes: 60 },
+        ],
+      },
+    };
+    const res = await gapi.client.calendar.events.insert({
+      calendarId: "primary",
+      resource: evento,
+    });
+    return { ok: true, id: res.result.id };
+  } catch (err) {
+    console.error("Google Calendar error:", err);
+    return { ok: false, error: err.message };
+  }
+}
+
+// Generar archivo .ics como fallback
+function descargarICS(titulo, descripcion, fecha) {
+  const fechaISO = (fecha.includes("/") ? fecha.split("/").reverse().join("-") : fecha).replace(/-/g,"");
+  const ics = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "BEGIN:VEVENT",
+    `DTSTART;VALUE=DATE:${fechaISO}`,
+    `DTEND;VALUE=DATE:${fechaISO}`,
+    `SUMMARY:${titulo}`,
+    `DESCRIPTION:${descripcion}`,
+    "END:VEVENT",
+    "END:VCALENDAR"
+  ].join("\r\n");
+  const blob = new Blob([ics], {type:"text/calendar"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "evento.ics"; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // CATÁLOGO RAMOS / SUBRAMOS
 // ═══════════════════════════════════════════════════════════════════
 const RAMOS_SUBRAMOS = {
@@ -7105,6 +7188,66 @@ export default function CRMSeguros() {
     window.location.reload();
   };
 
+  // ── Notificaciones internas ────────────────────────────────────────
+  const [notifPanel, setNotifPanel] = useState(false);
+  const [gcalToast, setGcalToast]   = useState(null);
+
+  const getPolizasDias = (dias) => {
+    const hoy = new Date(); hoy.setHours(0,0,0,0);
+    return polizas.filter(p => {
+      if (p.status==="cancelada") return false;
+      const venc = p.vencimiento;
+      if (!venc) return false;
+      const fv = new Date(venc.includes("/") ? venc.split("/").reverse().join("-") : venc);
+      fv.setHours(0,0,0,0);
+      const diff = Math.round((fv - hoy) / 86400000);
+      return diff >= 0 && diff <= dias;
+    });
+  };
+
+  const notif15 = getPolizasDias(15);
+  const notif7  = getPolizasDias(7);
+  const notif0  = getPolizasDias(0);
+  const totalNotif = notif15.length;
+
+  // Agregar póliza a Google Calendar del agente
+  const agregarPolizaCalendar = async (poliza, tipo="vencimiento") => {
+    const dias = tipo==="10dias" ? 10 : tipo==="5dias" ? 5 : 0;
+    const fecha = poliza.vencimiento;
+    const titulo = dias===0
+      ? `Vence HOY: ${poliza.numero} · ${poliza.cliente}`
+      : `Cobrar poliza en ${dias} dias: ${poliza.numero} · ${poliza.cliente}`;
+    const desc = `Poliza: ${poliza.numero}\nCliente: ${poliza.cliente}\nAseguradora: ${poliza.aseguradora}\nPrima: $${(parseFloat(poliza.primaTotal)||parseFloat(poliza.prima)||0).toLocaleString("es-MX")}\nVencimiento: ${poliza.vencimiento}`;
+
+    setGcalToast({msg:"Conectando con Google Calendar...", color:"#2563eb"});
+    const result = await agregarEventoCalendar(titulo, desc, fecha, dias===0?"11":"6");
+    if (result.ok) {
+      setGcalToast({msg:"✅ Evento agregado a Google Calendar", color:"#059669"});
+    } else {
+      // Fallback a .ics
+      descargarICS(titulo, desc, fecha);
+      setGcalToast({msg:"📥 Descargando archivo .ics como alternativa", color:"#d97706"});
+    }
+    setTimeout(()=>setGcalToast(null), 3500);
+  };
+
+  // Enviar invitación de calendario al cliente (.ics por email)
+  const enviarInvitacionCliente = (poliza) => {
+    if (!poliza.emailCliente) {
+      setGcalToast({msg:"El cliente no tiene correo registrado", color:"#dc2626"});
+      setTimeout(()=>setGcalToast(null), 3000);
+      return;
+    }
+    const titulo = `Vencimiento de tu poliza ${poliza.numero}`;
+    const desc   = `Tu poliza ${poliza.numero} de ${poliza.aseguradora} vence el ${poliza.vencimiento}. Contacta a tu agente para renovarla.`;
+    descargarICS(titulo, desc, poliza.vencimiento);
+    const asunto = encodeURIComponent(`Recordatorio: Tu poliza ${poliza.numero} vence pronto`);
+    const cuerpo = encodeURIComponent(`Hola ${poliza.cliente?.split(" ")[0]},\n\nTe enviamos el archivo adjunto para agregar el vencimiento de tu poliza a tu calendario.\n\nPoliza: ${poliza.numero}\nAseguradora: ${poliza.aseguradora}\nVencimiento: ${poliza.vencimiento}\n\nSaludos,\n${config.nombre||"Tu agente de seguros"}`);
+    window.open(`mailto:${poliza.emailCliente}?subject=${asunto}&body=${cuerpo}`);
+    setGcalToast({msg:"✅ Archivo .ics descargado — adjúntalo al correo del cliente", color:"#059669"});
+    setTimeout(()=>setGcalToast(null), 4000);
+  };
+
   const PLANTILLAS_DEFAULT = {
     vencimiento:   `Hola {nombre},\n\nTe escribo para recordarte que tu poliza esta proxima a vencer:\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nRamo: {ramo}\nVencimiento: {vencimiento}\nPrima: ${"{prima}"} ({frecuencia})\n\nContactame para renovarla.\n\nSaludos,\nTu agente de seguros`,
     pago:          `Hola {nombre},\n\nConfirmamos la recepcion de tu pago.\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nVigente hasta: {vencimiento}\n\nGracias por tu puntualidad.\n\nSaludos,\nTu agente de seguros`,
@@ -7189,6 +7332,20 @@ export default function CRMSeguros() {
               {item.badge&&<span style={{background:badgeColors[item.badge]||"#6b7280",color:"#fff",fontSize:8,padding:"1px 5px",borderRadius:20,fontWeight:800,letterSpacing:"0.05em"}}>{item.badge}</span>}
             </button>
           ))}
+          {/* Botón notificaciones */}
+          <button onClick={()=>setNotifPanel(v=>!v)}
+            style={{width:"100%",display:"flex",alignItems:"center",gap:9,padding:"10px 16px",
+              background:notifPanel?"rgba(220,38,38,.15)":"none",border:"none",cursor:"pointer",
+              color:totalNotif>0?"#fca5a5":"#64748b",fontSize:13,fontWeight:500,textAlign:"left",
+              fontFamily:"inherit",borderLeft:`3px solid ${notifPanel?"#ef4444":"transparent"}`,transition:"all .15s"}}>
+            <Icon name="bell" size={16}/>
+            <span style={{flex:1}}>Alertas</span>
+            {totalNotif>0&&(
+              <span style={{background:"#dc2626",color:"#fff",fontSize:9,padding:"1px 6px",borderRadius:20,fontWeight:800,minWidth:18,textAlign:"center"}}>
+                {totalNotif}
+              </span>
+            )}
+          </button>
         </nav>
         <div style={{padding:"12px 16px",borderTop:"1px solid #1e293b"}}>
           <div style={{display:"flex",alignItems:"center",gap:9}}>
@@ -7213,7 +7370,115 @@ export default function CRMSeguros() {
       </div>
 
       {/* Contenido */}
-      <div style={{flex:1,overflowY:"auto",padding:"28px 32px"}}>
+      <div style={{flex:1,overflowY:"auto",padding:"28px 32px",position:"relative"}}>
+
+        {/* Toast Google Calendar */}
+        {gcalToast&&(
+          <div style={{position:"fixed",top:20,right:20,background:gcalToast.color,color:"#fff",
+            padding:"12px 20px",borderRadius:12,fontSize:13,fontWeight:700,zIndex:9999,
+            boxShadow:"0 8px 24px rgba(0,0,0,0.25)",display:"flex",alignItems:"center",gap:8}}>
+            {gcalToast.msg}
+          </div>
+        )}
+
+        {/* Panel de alertas */}
+        {notifPanel&&(
+          <div style={{marginBottom:20,background:"#fff",borderRadius:16,boxShadow:"0 4px 20px rgba(0,0,0,0.12)",overflow:"hidden",border:"1.5px solid #e5e7eb"}}>
+            <div style={{background:"#0f172a",padding:"14px 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <Icon name="bell" size={16}/>
+                <div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>
+                  Alertas de Vencimiento
+                </div>
+                {totalNotif>0&&<span style={{background:"#dc2626",color:"#fff",borderRadius:20,padding:"2px 9px",fontSize:11,fontWeight:800}}>{totalNotif} polizas</span>}
+              </div>
+              <button onClick={()=>setNotifPanel(false)} style={{background:"none",border:"none",cursor:"pointer",color:"#64748b",fontSize:18,lineHeight:1}}>×</button>
+            </div>
+
+            {totalNotif===0?(
+              <div style={{padding:"32px",textAlign:"center",color:"#9ca3af",fontSize:13}}>
+                <div style={{fontSize:32,marginBottom:8}}>✅</div>
+                Sin pólizas próximas a vencer en los próximos 15 días
+              </div>
+            ):(
+              <div style={{maxHeight:420,overflowY:"auto"}}>
+                {/* Vence HOY */}
+                {notif0.length>0&&(
+                  <div style={{padding:"10px 20px 6px",background:"#fef2f2"}}>
+                    <div style={{fontSize:10,fontWeight:800,color:"#dc2626",letterSpacing:"0.08em",marginBottom:8}}>🔴 VENCEN HOY ({notif0.length})</div>
+                    {notif0.map(p=>(
+                      <div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",background:"#fff",borderRadius:10,marginBottom:6,border:"1.5px solid #fecaca"}}>
+                        <div style={{flex:1}}>
+                          <div style={{fontSize:12,fontWeight:800,color:"#111827"}}>{p.numero}</div>
+                          <div style={{fontSize:11,color:"#6b7280"}}>{p.cliente} · {p.aseguradora}</div>
+                        </div>
+                        <div style={{display:"flex",gap:6}}>
+                          <button onClick={()=>agregarPolizaCalendar(p,"hoy")}
+                            style={{background:"#4285f4",color:"#fff",border:"none",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                            📅 Calendario
+                          </button>
+                          <button onClick={()=>enviarInvitacionCliente(p)}
+                            style={{background:"#f3f4f6",color:"#374151",border:"1px solid #e5e7eb",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                            👤 Cliente
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* Vence en 7 días */}
+                {notif7.filter(p=>!notif0.includes(p)).length>0&&(
+                  <div style={{padding:"10px 20px 6px",background:"#fffbeb"}}>
+                    <div style={{fontSize:10,fontWeight:800,color:"#d97706",letterSpacing:"0.08em",marginBottom:8}}>🟡 VENCEN EN 7 DÍAS ({notif7.filter(p=>!notif0.includes(p)).length})</div>
+                    {notif7.filter(p=>!notif0.includes(p)).map(p=>(
+                      <div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",background:"#fff",borderRadius:10,marginBottom:6,border:"1.5px solid #fde68a"}}>
+                        <div style={{flex:1}}>
+                          <div style={{fontSize:12,fontWeight:800,color:"#111827"}}>{p.numero}</div>
+                          <div style={{fontSize:11,color:"#6b7280"}}>{p.cliente} · {p.aseguradora} · vence {p.vencimiento}</div>
+                        </div>
+                        <div style={{display:"flex",gap:6}}>
+                          <button onClick={()=>agregarPolizaCalendar(p,"5dias")}
+                            style={{background:"#4285f4",color:"#fff",border:"none",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                            📅 Calendario
+                          </button>
+                          <button onClick={()=>enviarInvitacionCliente(p)}
+                            style={{background:"#f3f4f6",color:"#374151",border:"1px solid #e5e7eb",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                            👤 Cliente
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* Vence en 15 días */}
+                {notif15.filter(p=>!notif7.includes(p)).length>0&&(
+                  <div style={{padding:"10px 20px 6px"}}>
+                    <div style={{fontSize:10,fontWeight:800,color:"#6b7280",letterSpacing:"0.08em",marginBottom:8}}>⚪ VENCEN EN 15 DÍAS ({notif15.filter(p=>!notif7.includes(p)).length})</div>
+                    {notif15.filter(p=>!notif7.includes(p)).map(p=>(
+                      <div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",background:"#f9fafb",borderRadius:10,marginBottom:6,border:"1.5px solid #e5e7eb"}}>
+                        <div style={{flex:1}}>
+                          <div style={{fontSize:12,fontWeight:800,color:"#111827"}}>{p.numero}</div>
+                          <div style={{fontSize:11,color:"#6b7280"}}>{p.cliente} · {p.aseguradora} · vence {p.vencimiento}</div>
+                        </div>
+                        <div style={{display:"flex",gap:6}}>
+                          <button onClick={()=>agregarPolizaCalendar(p,"10dias")}
+                            style={{background:"#4285f4",color:"#fff",border:"none",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                            📅 Calendario
+                          </button>
+                          <button onClick={()=>enviarInvitacionCliente(p)}
+                            style={{background:"#f3f4f6",color:"#374151",border:"1px solid #e5e7eb",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                            👤 Cliente
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {vista==="dashboard"&&puede("dashboard")&&<Dashboard clientes={clientes} polizas={polizas} pipeline={pipeline} tareas={tareas} paiMetas={paiMetas}/>}
         {vista==="clientes"&&puede("clientes")&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas}/>}
         {vista==="polizas"&&puede("polizas")&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes} plantillas={plantillas} puede={puede} sesion={sesion}/>}

@@ -4449,20 +4449,51 @@ function Tareas({ tareas, setTareas }) {
 function Usuarios({ usuarios, setUsuarios }) {
   const [showModal,setShowModal]=useState(false);
   const [showConfirmBaja,setShowConfirmBaja]=useState(null);
+  const [editando,setEditando]=useState(null);
   const [form,setForm]=useState({nombre:"",username:"",password:"",email:"",telefono:"",rol:"agente"});
   const [verPass,setVerPass]=useState({});
-  const rolColor={admin:"#7c3aed",agente:"#2563eb",asistente:"#6b7280"};
-  const rolLabel={admin:"Administrador",agente:"Agente",asistente:"Asistente"};
+  const [guardando,setGuardando]=useState(false);
 
-  const usernameExiste=(u)=>usuarios.some(x=>x.username.toLowerCase()===u.toLowerCase());
+  const ROLES = [
+    {key:"admin",      label:"Administrador", color:"#7c3aed"},
+    {key:"agente",     label:"Agente",        color:"#2563eb"},
+    {key:"asistente",  label:"Asistente",     color:"#059669"},
+    {key:"capturista", label:"Capturista",    color:"#d97706"},
+    {key:"subagente",  label:"Subagente",     color:"#6b7280"},
+  ];
+  const rolColor = Object.fromEntries(ROLES.map(r=>[r.key,r.color]));
+  const rolLabel = Object.fromEntries(ROLES.map(r=>[r.key,r.label]));
 
-  const guardar=()=>{
-    if(!form.nombre||!form.username||!form.password)return;
-    if(usernameExiste(form.username)){alert("El nombre de usuario ya existe. Elige otro.");return;}
-    const clave="AGT-"+String(usuarios.length+1).padStart(3,"0");
-    setUsuarios(prev=>[...prev,{...form,id:Date.now(),clave,status:"activo"}]);
+  const usernameExiste=(u,excludeId)=>usuarios.some(x=>x.username.toLowerCase()===u.toLowerCase()&&x.id!==excludeId);
+
+  // Hash con bcryptjs — compatible con migración futura
+  const hashPass = async (pass) => {
+    return await hashPasswordBcrypt(pass);
+  };
+
+  const guardar = async () => {
+    if (!form.nombre||!form.username||!form.password) return;
+    if (usernameExiste(form.username, editando)) {
+      alert("El nombre de usuario ya existe. Elige otro."); return;
+    }
+    setGuardando(true);
+    const passHash = await hashPass(form.password);
+    if (editando) {
+      setUsuarios(prev=>prev.map(u=>u.id===editando?{...u,...form,password:passHash}:u));
+    } else {
+      const clave = "AGT-"+String(usuarios.length+1).padStart(3,"0");
+      setUsuarios(prev=>[...prev,{...form,id:Date.now(),clave,status:"activo",password:passHash}]);
+    }
+    setGuardando(false);
     setShowModal(false);
+    setEditando(null);
     setForm({nombre:"",username:"",password:"",email:"",telefono:"",rol:"agente"});
+  };
+
+  const abrirEditar = (u) => {
+    setForm({nombre:u.nombre,username:u.username,password:"",email:u.email||"",telefono:u.telefono||"",rol:u.rol});
+    setEditando(u.id);
+    setShowModal(true);
   };
 
   const darDeBaja=(id)=>{
@@ -4506,63 +4537,58 @@ function Usuarios({ usuarios, setUsuarios }) {
                 </div>
                 <div style={{background:"#f9fafb",borderRadius:9,padding:"8px 10px"}}>
                   <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>CONTRASEÑA</div>
-                  <div style={{display:"flex",alignItems:"center",gap:6}}>
-                    <div style={{fontSize:13,fontWeight:700,fontFamily:"monospace",color:"#374151",flex:1}}>
-                      {verPass[u.id]?u.password:"••••••••"}
-                    </div>
-                    <button onClick={()=>setVerPass(p=>({...p,[u.id]:!p[u.id]}))}
-                      style={{background:"none",border:"none",cursor:"pointer",color:"#9ca3af",fontSize:13,padding:0}}>
-                      {verPass[u.id]?"🙈":"👁"}
-                    </button>
+                  <div style={{fontSize:13,fontWeight:700,fontFamily:"monospace",color:"#374151"}}>
+                    {u.password?.startsWith("$2")||u.password?.startsWith("h_") ? "••••••••" : u.password}
                   </div>
                 </div>
               </div>
               {u.telefono&&<div style={{fontSize:12,color:"#6b7280",marginBottom:10}}>📞 {u.telefono}</div>}
             </div>
-            {/* Solo se puede dar de baja si no es el último admin */}
-            {!(u.rol==="admin"&&adminCount===1)&&(
-              <div style={{borderTop:"1px solid #f3f4f6",padding:"10px 18px"}}>
+            <div style={{borderTop:"1px solid #f3f4f6",padding:"10px 18px",display:"flex",gap:8}}>
+              <button onClick={()=>abrirEditar(u)}
+                style={{flex:1,background:"#eff6ff",color:"#2563eb",border:"1.5px solid #bfdbfe",borderRadius:9,padding:"8px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                ✏️ Editar
+              </button>
+              {!(u.rol==="admin"&&adminCount===1)&&(
                 <button onClick={()=>setShowConfirmBaja(u)}
-                  style={{width:"100%",background:"#fef2f2",color:"#dc2626",border:"1.5px solid #fecaca",borderRadius:9,padding:"8px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                  🗑 Dar de baja y eliminar
+                  style={{flex:1,background:"#fef2f2",color:"#dc2626",border:"1.5px solid #fecaca",borderRadius:9,padding:"8px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                  🗑 Eliminar
                 </button>
-              </div>
-            )}
-            {u.rol==="admin"&&adminCount===1&&(
-              <div style={{borderTop:"1px solid #f3f4f6",padding:"10px 18px"}}>
-                <div style={{fontSize:11,color:"#9ca3af",textAlign:"center"}}>El último administrador no puede eliminarse</div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Modal Alta */}
+      {/* Modal Alta/Editar */}
       {showModal&&(
-        <Modal title="Nuevo Usuario" onClose={()=>setShowModal(false)}>
+        <Modal title={editando?"Editar Usuario":"Nuevo Usuario"} onClose={()=>{setShowModal(false);setEditando(null);setForm({nombre:"",username:"",password:"",email:"",telefono:"",rol:"agente"});}}>
           <div style={{display:"flex",flexDirection:"column",gap:12}}>
             <div style={{background:"#eff6ff",borderRadius:9,padding:"10px 13px",fontSize:12,color:"#1e40af"}}>
-              🔐 Define el nombre de usuario y contraseña para acceso al sistema.
+              🔐 {editando?"Deja la contraseña en blanco para no cambiarla.":"Define usuario y contraseña para acceso al sistema."}
             </div>
             <Inp label="Nombre completo *" value={form.nombre} onChange={e=>setForm(p=>({...p,nombre:e.target.value}))} placeholder="Ej: Laura Pérez García"/>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
               <Inp label="Usuario (login) *" value={form.username} onChange={e=>setForm(p=>({...p,username:e.target.value.toLowerCase().replace(/\s/g,"")}))} placeholder="Ej: lperez"/>
-              <Inp label="Contraseña *" type="text" value={form.password} onChange={e=>setForm(p=>({...p,password:e.target.value}))} placeholder="Mínimo 6 caracteres"/>
+              <Inp label={editando?"Nueva contraseña":"Contraseña *"} type="text" value={form.password} onChange={e=>setForm(p=>({...p,password:e.target.value}))} placeholder={editando?"Dejar vacío para no cambiar":"Mínimo 6 caracteres"}/>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
               <Inp label="Email" type="email" value={form.email} onChange={e=>setForm(p=>({...p,email:e.target.value}))} placeholder="correo@empresa.com"/>
               <Inp label="Teléfono" value={form.telefono} onChange={e=>setForm(p=>({...p,telefono:e.target.value}))} placeholder="55 0000 0000"/>
             </div>
             <Sel label="Rol" value={form.rol} onChange={e=>setForm(p=>({...p,rol:e.target.value}))}>
-              <option value="admin">Administrador</option>
-              <option value="agente">Agente</option>
-              <option value="asistente">Asistente</option>
+              {ROLES.map(r=><option key={r.key} value={r.key}>{r.label}</option>)}
             </Sel>
-            {(!form.nombre||!form.username||!form.password)&&(
-              <div style={{fontSize:11,color:"#9ca3af"}}>* Nombre, usuario y contraseña son requeridos</div>
-            )}
-            <Btn onClick={guardar} color="#7c3aed" style={{width:"100%",justifyContent:"center"}} disabled={!form.nombre||!form.username||!form.password}>
-              Crear Usuario
+            <div style={{background:"#f9fafb",borderRadius:9,padding:"10px 13px",fontSize:11,color:"#6b7280"}}>
+              <strong>Permisos del rol:</strong><br/>
+              {form.rol==="admin"||form.rol==="agente" ? "Acceso completo al sistema" :
+               form.rol==="asistente" ? "Clientes, pólizas, prospectos, subagentes, metas, pagos" :
+               form.rol==="capturista" ? "Capturar clientes, pólizas y registrar pagos" :
+               "Solo clientes y pólizas asignadas, sin dashboard"}
+            </div>
+            <Btn onClick={guardar} color="#7c3aed" style={{width:"100%",justifyContent:"center"}}
+              disabled={!form.nombre||!form.username||(!editando&&!form.password)||guardando}>
+              {guardando?"Guardando...":editando?"Guardar cambios":"Crear Usuario"}
             </Btn>
           </div>
         </Modal>
@@ -6701,18 +6727,62 @@ function useLocalStorage(key, initialValue) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// HASH simple de contraseña (sin dependencias externas)
+// PERMISOS POR ROL
 // ═══════════════════════════════════════════════════════════════════
-function hashPassword(pass) {
-  // Hash simple pero suficiente para localStorage — no usar en producción con BD real
+const PERMISOS = {
+  admin:      ["dashboard","clientes","polizas","calendario","pipeline","importar","pai","configuracion","subagentes","usuarios","cancelar_poliza","registrar_pago"],
+  agente:     ["dashboard","clientes","polizas","calendario","pipeline","importar","pai","configuracion","subagentes","usuarios","cancelar_poliza","registrar_pago"],
+  asistente:  ["dashboard","clientes","polizas","calendario","pipeline","pai","subagentes","registrar_pago"],
+  capturista: ["dashboard","clientes","polizas","calendario","registrar_pago"],
+  subagente:  ["clientes","polizas","calendario"],
+};
+
+function puedeVer(rol, permiso) {
+  return (PERMISOS[rol] || PERMISOS["capturista"]).includes(permiso);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// HASH con bcryptjs — compatible con migración futura
+// ═══════════════════════════════════════════════════════════════════
+async function hashPasswordBcrypt(password) {
+  try {
+    const bcrypt = await import("bcryptjs");
+    return await bcrypt.default.hash(password, 10);
+  } catch {
+    // Fallback hash simple si bcryptjs no carga
+    let hash = 0;
+    const str = password + "crm_salt_2024";
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return "h_" + Math.abs(hash).toString(36);
+  }
+}
+
+async function verificarPassword(password, stored) {
+  if (!stored) return false;
+  // Texto plano legacy
+  if (!stored.startsWith("$2") && !stored.startsWith("h_")) {
+    return stored === password;
+  }
+  // Hash bcryptjs
+  if (stored.startsWith("$2")) {
+    try {
+      const bcrypt = await import("bcryptjs");
+      return await bcrypt.default.compare(password, stored);
+    } catch { return false; }
+  }
+  // Hash simple fallback
   let hash = 0;
-  const str = pass + "crm_salt_2024";
+  const str = password + "crm_salt_2024";
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
     hash = hash & hash;
   }
-  return "h_" + Math.abs(hash).toString(36);
+  return stored === "h_" + Math.abs(hash).toString(36);
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -6725,40 +6795,35 @@ function LoginScreen({ usuarios, config, onLogin }) {
   const [verPass, setVerPass]   = useState(false);
   const [loading, setLoading]   = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (!username || !password) { setError("Ingresa usuario y contraseña"); return; }
     setLoading(true);
     setError("");
 
-    setTimeout(() => {
-      const user = usuarios.find(u =>
-        u.username?.toLowerCase() === username.toLowerCase() &&
-        u.status === "activo"
-      );
+    const user = usuarios.find(u =>
+      u.username?.toLowerCase() === username.toLowerCase() &&
+      u.status === "activo"
+    );
 
-      if (!user) { setError("Usuario no encontrado o inactivo"); setLoading(false); return; }
+    if (!user) { setError("Usuario no encontrado o inactivo"); setLoading(false); return; }
 
-      // Verificar contraseña — soporta texto plano (legacy) y hasheada
-      const hashInput = hashPassword(password);
-      const passOk = user.password === password || user.password === hashInput;
+    const passOk = await verificarPassword(password, user.password);
 
-      if (!passOk) { setError("Contraseña incorrecta"); setLoading(false); return; }
+    if (!passOk) { setError("Contraseña incorrecta"); setLoading(false); return; }
 
-      // Guardar sesión
-      const sesion = {
-        id: user.id,
-        nombre: user.nombre,
-        username: user.username,
-        rol: user.rol,
-        clave: user.clave,
-        loginAt: new Date().toISOString(),
-      };
-      localStorage.setItem("crm_sesion", JSON.stringify(sesion));
-      onLogin(sesion);
-      setLoading(false);
-      window.location.reload();
-    }, 600);
+    const sesion = {
+      id: user.id,
+      nombre: user.nombre,
+      username: user.username,
+      rol: user.rol,
+      clave: user.clave,
+      loginAt: new Date().toISOString(),
+    };
+    localStorage.setItem("crm_sesion", JSON.stringify(sesion));
+    onLogin(sesion);
+    setLoading(false);
+    window.location.reload();
   };
 
   const logoEmpresa = config?.logo;
@@ -6935,16 +7000,20 @@ export default function CRMSeguros() {
     return <LoginScreen usuarios={usuarios} config={config} onLogin={handleLogin}/>;
   }
 
+  const rol = sesion.rol || "capturista";
+  const puede = (accion) => puedeVer(rol, accion);
+
   const nav=[
-    {id:"dashboard",      label:"Dashboard",       icon:"dashboard"},
-    {id:"calendario",     label:"Calendario",      icon:"tasks"},
-    {id:"clientes",       label:"Clientes",        icon:"clients"},
-    {id:"polizas",        label:"Pólizas",         icon:"policies", badge:"IA"},
-    {id:"pipeline",       label:"Prospectos",      icon:"pipeline"},
-    {id:"importar",       label:"Importar BD",     icon:"scan"},
-    {id:"pai",            label:"Metas",           icon:"trophy"},
-    {id:"configuracion",  label:"Configuración",   icon:"users", badge:"NEW"},
-  ];
+    {id:"dashboard",     label:"Dashboard",    icon:"dashboard"},
+    {id:"calendario",    label:"Calendario",   icon:"tasks"},
+    {id:"clientes",      label:"Clientes",     icon:"clients"},
+    {id:"polizas",       label:"Pólizas",      icon:"policies", badge:"IA"},
+    {id:"pipeline",      label:"Prospectos",   icon:"pipeline"},
+    {id:"importar",      label:"Importar BD",  icon:"scan"},
+    {id:"pai",           label:"Metas",        icon:"trophy"},
+    {id:"configuracion", label:"Configuración",icon:"users", badge:"NEW"},
+  ].filter(item => puede(item.id));
+
   const badgeColors={IA:"#2563eb",NEW:"#25d366"};
 
   useEffect(()=>{
@@ -7013,16 +7082,24 @@ export default function CRMSeguros() {
 
       {/* Contenido */}
       <div style={{flex:1,overflowY:"auto",padding:"28px 32px"}}>
-        {vista==="dashboard"&&<Dashboard clientes={clientes} polizas={polizas} pipeline={pipeline} tareas={tareas} paiMetas={paiMetas}/>}
-        {vista==="clientes"&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas}/>}
-        {vista==="polizas"&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes} plantillas={plantillas}/>}
-
-        {vista==="pai"&&<PAI paiMetas={paiMetas} setPaiMetas={setPaiMetas}/>}
-        {vista==="pipeline"&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}
+        {vista==="dashboard"&&puede("dashboard")&&<Dashboard clientes={clientes} polizas={polizas} pipeline={pipeline} tareas={tareas} paiMetas={paiMetas}/>}
+        {vista==="clientes"&&puede("clientes")&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas}/>}
+        {vista==="polizas"&&puede("polizas")&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes} plantillas={plantillas} puede={puede} sesion={sesion}/>}
+        {vista==="pai"&&puede("pai")&&<PAI paiMetas={paiMetas} setPaiMetas={setPaiMetas}/>}
+        {vista==="pipeline"&&puede("pipeline")&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}
         {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas}/>}
-        {vista==="calendario"&&<Calendario polizas={polizas} clientes={clientes} tareas={tareas}/>}
-        {vista==="importar"&&<Importador clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas}/>}
-        {vista==="configuracion"&&<Configuracion config={config} setConfig={setConfig} subagentes={subagentes} setSubagentes={setSubagentes} usuarios={usuarios} setUsuarios={setUsuarios} polizas={polizas} setPolizas={setPolizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes}/>}
+        {vista==="calendario"&&puede("calendario")&&<Calendario polizas={polizas} clientes={clientes} tareas={tareas}/>}
+        {vista==="importar"&&puede("importar")&&<Importador clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas}/>}
+        {vista==="configuracion"&&puede("configuracion")&&<Configuracion config={config} setConfig={setConfig} subagentes={subagentes} setSubagentes={setSubagentes} usuarios={usuarios} setUsuarios={setUsuarios} polizas={polizas} setPolizas={setPolizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes}/>}
+        {/* Acceso denegado */}
+        {!puede(vista)&&(
+          <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"60vh",gap:16}}>
+            <div style={{fontSize:48}}>🔒</div>
+            <div style={{fontSize:20,fontWeight:800,fontFamily:"'Playfair Display',serif",color:"#111827"}}>Acceso restringido</div>
+            <div style={{fontSize:14,color:"#6b7280"}}>No tienes permisos para ver esta sección.</div>
+            <div style={{fontSize:12,color:"#9ca3af"}}>Contacta al administrador si necesitas acceso.</div>
+          </div>
+        )}
       </div>
     </div>
   );

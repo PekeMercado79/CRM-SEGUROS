@@ -3278,148 +3278,420 @@ function ScanPoliza({ onClose, onExtracted, subagentes }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-function WhatsAppConfig({ plantillas, setPlantillas, plantillasDefault, clientes, polizas }) {
-  const [activa, setActiva] = useState("vencimiento");
-  const [toast, setToast] = useState(null);
+// ═══════════════════════════════════════════════════════════════════
+// MÓDULO COMUNICACIÓN — WhatsApp + Correo + Plantillas + SMTP
+// ═══════════════════════════════════════════════════════════════════
+const PLANTILLAS_TIPOS = [
+  {key:"vencimiento",  label:"Vencimiento",     icon:"📋", color:"#d97706", desc:"Póliza próxima a vencer"},
+  {key:"renovacion",   label:"Renovación",      icon:"🔄", color:"#2563eb", desc:"Póliza renovada exitosamente"},
+  {key:"bienvenida",   label:"Bienvenida",      icon:"👋", color:"#7c3aed", desc:"Cliente nuevo registrado"},
+  {key:"pago",         label:"Pago recibido",   icon:"💳", color:"#059669", desc:"Confirmación de pago"},
+  {key:"cumpleanos",   label:"Cumpleaños",      icon:"🎂", color:"#ec4899", desc:"Felicitación de cumpleaños"},
+  {key:"personalizado",label:"Personalizado",   icon:"✏️", color:"#6b7280", desc:"Mensaje libre"},
+];
+
+const VARS_DISPONIBLES = ["{nombre}","{numero}","{aseguradora}","{ramo}","{vencimiento}","{prima}","{frecuencia}","{fecha}"];
+
+function ComunicacionConfig({ plantillas, setPlantillas, plantillasDefault, clientes, polizas, config, setConfig }) {
+  const [canal, setCanal] = useState("whatsapp"); // "whatsapp" | "correo"
+  const [tipoActivo, setTipoActivo] = useState("vencimiento");
+  const [tabCorreo, setTabCorreo] = useState("plantilla"); // "plantilla" | "smtp"
   const [clienteDemo, setClienteDemo] = useState(null);
+  const [toast, setToast] = useState(null);
+  const [smtpForm, setSmtpForm] = useState({
+    smtpHost: config.smtpHost||"",
+    smtpPort: config.smtpPort||"587",
+    smtpUser: config.smtpUser||"",
+    smtpPass: config.smtpPass||"",
+    smtpFromName: config.smtpFromName||"",
+    smtpProvider: config.smtpProvider||"gmail",
+  });
+  const [testEmail, setTestEmail] = useState("");
+  const [testando, setTestando] = useState(false);
+  const imgRef = useRef();
 
-  const showToast = (msg) => { setToast(msg); setTimeout(()=>setToast(null), 3000); };
+  const showToast = (msg, color="#059669") => {
+    setToast({msg, color});
+    setTimeout(()=>setToast(null), 3000);
+  };
 
-  const TIPOS = [
-    {key:"vencimiento",  label:"📅 Vencimiento",    color:"#d97706", bg:"#fffbeb", desc:"Se envía cuando una póliza está próxima a vencer"},
-    {key:"pago",         label:"💳 Pago recibido",   color:"#059669", bg:"#f0fdf4", desc:"Confirmación al registrar un pago"},
-    {key:"bienvenida",   label:"🎉 Bienvenida",      color:"#7c3aed", bg:"#f5f3ff", desc:"Al dar de alta a un cliente nuevo"},
-    {key:"renovacion",   label:"🔄 Renovación",      color:"#2563eb", bg:"#eff6ff", desc:"Al renovar una póliza"},
-    {key:"personalizado",label:"✏️ Personalizado",   color:"#6b7280", bg:"#f9fafb", desc:"Mensaje libre para cualquier ocasión"},
+  // Claves de plantillas por canal
+  const keyWA    = (tipo) => tipo;
+  const keyEmail = (tipo) => `email_${tipo}`;
+  const keyAsunto = (tipo) => `asunto_${tipo}`;
+
+  const tipo = PLANTILLAS_TIPOS.find(t=>t.key===tipoActivo);
+
+  // Aplicar variables a texto
+  const aplicarVars = (tpl, p) => (tpl||"")
+    .replace(/{nombre}/g,      p?.cliente?.split(" ")[0]||"María")
+    .replace(/{numero}/g,      p?.numero||"GNP-2024-001234")
+    .replace(/{aseguradora}/g, p?.aseguradora||"GNP")
+    .replace(/{ramo}/g,        p?.subramo?`${p.ramo} - ${p.subramo}`:(p?.ramo||"Vida"))
+    .replace(/{vencimiento}/g, p?.vencimiento||"2025-01-15")
+    .replace(/{prima}/g,       (p?.primaTotal||p?.prima||8400).toLocaleString("es-MX"))
+    .replace(/{frecuencia}/g,  p?.formaPago||"Anual")
+    .replace(/{fecha}/g,       new Date().toLocaleDateString("es-MX"));
+
+  const demoPoliza = clienteDemo
+    ? polizas.find(p=>p.clienteId===clienteDemo.id)||{cliente:clienteDemo.nombre+" "+clienteDemo.apellidoPaterno}
+    : {cliente:"María González",numero:"GNP-2024-001234",aseguradora:"GNP",ramo:"Vida",subramo:"Vida Individual",vencimiento:"2025-06-15",primaTotal:8400,formaPago:"Anual"};
+
+  // Insertar variable en cursor
+  const insertarVar = (v, editorId) => {
+    const ta = document.getElementById(editorId);
+    if (!ta) return;
+    const s=ta.selectionStart, e=ta.selectionEnd;
+    const key = canal==="whatsapp" ? keyWA(tipoActivo) : keyEmail(tipoActivo);
+    const val = plantillas[key]||"";
+    const nuevo = val.slice(0,s)+v+val.slice(e);
+    setPlantillas(p=>({...p,[key]:nuevo}));
+    setTimeout(()=>{ ta.focus(); ta.setSelectionRange(s+v.length,s+v.length); },10);
+  };
+
+  // Subir imagen para correo
+  const subirImagen = (file) => {
+    if (!file) return;
+    const r = new FileReader();
+    r.onload = (ev) => {
+      const key = keyEmail(tipoActivo);
+      const img = `\n<img src="${ev.target.result}" alt="imagen" style="max-width:100%;border-radius:8px;margin:10px 0;" />\n`;
+      setPlantillas(p=>({...p,[key]:(p[key]||"")+img}));
+      showToast("Imagen agregada a la plantilla");
+    };
+    r.readAsDataURL(file);
+  };
+
+  // Test de correo
+  const enviarTest = async () => {
+    if (!testEmail) { showToast("Escribe un correo para la prueba","#dc2626"); return; }
+    setTestando(true);
+    try {
+      const res = await fetch("/api/email", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+          to: testEmail,
+          subject: "Prueba de correo — "+( config.nombre||"CRM Seguros"),
+          html: `<p>Este es un correo de prueba enviado desde tu CRM.</p><p>Si lo recibes, la configuracion SMTP esta correcta.</p>`,
+          smtp: smtpForm,
+        })
+      });
+      if (res.ok) showToast("Correo de prueba enviado correctamente");
+      else showToast("Error al enviar. Verifica la configuracion SMTP","#dc2626");
+    } catch { showToast("No se pudo conectar con el servidor","#dc2626"); }
+    setTestando(false);
+  };
+
+  const guardarSMTP = () => {
+    setConfig(p=>({...p,...smtpForm}));
+    showToast("Configuracion SMTP guardada");
+  };
+
+  const SMTP_PROVIDERS = [
+    {key:"gmail",   label:"Gmail",   host:"smtp.gmail.com",   port:"587"},
+    {key:"outlook", label:"Outlook", host:"smtp.office365.com",port:"587"},
+    {key:"yahoo",   label:"Yahoo",   host:"smtp.mail.yahoo.com",port:"587"},
+    {key:"otro",    label:"Otro SMTP personalizado", host:"",port:"587"},
   ];
 
-  const aplicarVars = (tpl, p) => (tpl||"")
-    .replace(/{nombre}/g,      p.cliente?.split(" ")[0]||"María")
-    .replace(/{numero}/g,      p.numero||"GNP-2024-001234")
-    .replace(/{aseguradora}/g, p.aseguradora||"GNP")
-    .replace(/{ramo}/g,        p.subramo?`${p.ramo} › ${p.subramo}`:(p.ramo||"Vida"))
-    .replace(/{subramo}/g,     p.subramo||"Vida Individual")
-    .replace(/{vencimiento}/g, p.vencimiento||"2025-01-15")
-    .replace(/{prima}/g,       p.primaTotal?.toLocaleString()||p.prima?.toLocaleString()||"8,400")
-    .replace(/{frecuencia}/g,  p.formaPago||p.frecuencia||"Anual");
-
-  const demoData = clienteDemo
-    ? polizas.find(p=>p.clienteId===clienteDemo.id) || {cliente:clienteDemo.nombre+" "+clienteDemo.apellidoPaterno}
-    : {cliente:"María González Ruiz",numero:"GNP-2024-001234",aseguradora:"GNP",ramo:"Vida",subramo:"Vida Individual",vencimiento:"2025-01-15",primaTotal:8400,formaPago:"Anual"};
-
-  const tipoActivo = TIPOS.find(t=>t.key===activa);
-  const vars = ["{nombre}","{numero}","{aseguradora}","{ramo}","{subramo}","{vencimiento}","{prima}","{frecuencia}"];
-
   return (
-    <div style={{display:"flex",flexDirection:"column",gap:22}}>
-      {toast&&<div style={{position:"fixed",top:20,right:20,background:"#25d366",color:"#fff",padding:"12px 20px",borderRadius:12,fontSize:13,fontWeight:700,zIndex:9999,boxShadow:"0 8px 24px rgba(0,0,0,0.2)"}}>{toast}</div>}
+    <div style={{display:"flex",flexDirection:"column",gap:20}}>
+      {toast&&<div style={{position:"fixed",top:20,right:20,background:toast.color||"#059669",color:"#fff",padding:"12px 20px",borderRadius:12,fontSize:13,fontWeight:700,zIndex:9999,boxShadow:"0 8px 24px rgba(0,0,0,0.2)"}}>{toast.msg}</div>}
 
-      <SectionTitle title="WhatsApp — Plantillas" sub="Configura los mensajes que se envían automáticamente a tus clientes"/>
+      <SectionTitle title="Comunicacion" sub="Plantillas de WhatsApp y correo electronico para tus clientes"/>
 
-      <div style={{display:"grid",gridTemplateColumns:"260px 1fr",gap:20,alignItems:"start"}}>
+      {/* Selector de canal */}
+      <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:12,padding:4,width:"fit-content"}}>
+        {[["whatsapp","💬 WhatsApp"],["correo","✉️ Correo"]].map(([c,l])=>(
+          <button key={c} onClick={()=>setCanal(c)}
+            style={{background:canal===c?"#fff":"none",border:"none",borderRadius:9,padding:"9px 24px",
+              fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",
+              color:canal===c?"#111827":"#6b7280",
+              boxShadow:canal===c?"0 1px 4px rgba(0,0,0,0.1)":"none",transition:"all .15s"}}>
+            {l}
+          </button>
+        ))}
+      </div>
 
-        {/* Panel izquierdo — lista de tipos */}
-        <div style={{display:"flex",flexDirection:"column",gap:8}}>
-          {TIPOS.map(t=>(
-            <button key={t.key} onClick={()=>setActiva(t.key)}
-              style={{background:activa===t.key?t.bg:"#fff",border:`2px solid ${activa===t.key?t.color:"#e5e7eb"}`,
-                borderRadius:12,padding:"12px 14px",cursor:"pointer",fontFamily:"inherit",textAlign:"left",transition:"all .15s"}}>
-              <div style={{fontWeight:700,fontSize:13,color:activa===t.key?t.color:"#374151"}}>{t.label}</div>
-              <div style={{fontSize:11,color:"#9ca3af",marginTop:3}}>{t.desc}</div>
+      <div style={{display:"grid",gridTemplateColumns:"240px 1fr",gap:18,alignItems:"start"}}>
+
+        {/* Panel izquierdo — tipos de plantilla */}
+        <div style={{display:"flex",flexDirection:"column",gap:6}}>
+          <div style={{fontSize:10,fontWeight:800,color:"#9ca3af",letterSpacing:"0.08em",marginBottom:4}}>TIPO DE MENSAJE</div>
+          {PLANTILLAS_TIPOS.map(t=>(
+            <button key={t.key} onClick={()=>setTipoActivo(t.key)}
+              style={{background:tipoActivo===t.key?t.color+"18":"#fff",
+                border:`1.5px solid ${tipoActivo===t.key?t.color:"#e5e7eb"}`,
+                borderRadius:10,padding:"10px 13px",cursor:"pointer",fontFamily:"inherit",
+                textAlign:"left",transition:"all .15s"}}>
+              <div style={{fontWeight:700,fontSize:12,color:tipoActivo===t.key?t.color:"#374151"}}>
+                {t.icon} {t.label}
+              </div>
+              <div style={{fontSize:10,color:"#9ca3af",marginTop:2}}>{t.desc}</div>
             </button>
           ))}
 
-          {/* Variables disponibles */}
-          <div style={{background:"#f8fafc",borderRadius:12,padding:"12px 14px",marginTop:8}}>
-            <div style={{fontSize:11,fontWeight:800,color:"#6b7280",marginBottom:8}}>VARIABLES DISPONIBLES</div>
-            <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
-              {vars.map(v=>(
-                <span key={v} onClick={()=>{
-                  const ta = document.getElementById("editor-plantilla");
-                  if(ta){const s=ta.selectionStart,e=ta.selectionEnd,val=plantillas[activa];
-                    const nuevo=val.slice(0,s)+v+val.slice(e);
-                    setPlantillas(p=>({...p,[activa]:nuevo}));
-                    setTimeout(()=>{ta.focus();ta.setSelectionRange(s+v.length,s+v.length)},10);}
-                }}
-                  style={{background:"#e0f2fe",color:"#0369a1",fontSize:10,padding:"2px 8px",borderRadius:6,
-                    fontFamily:"monospace",cursor:"pointer",fontWeight:600}}
+          {/* Variables */}
+          <div style={{background:"#f8fafc",borderRadius:10,padding:"11px 13px",marginTop:6,border:"1px solid #e5e7eb"}}>
+            <div style={{fontSize:10,fontWeight:800,color:"#6b7280",marginBottom:7,letterSpacing:"0.06em"}}>VARIABLES</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
+              {VARS_DISPONIBLES.map(v=>(
+                <span key={v} onClick={()=>insertarVar(v, canal==="whatsapp"?"editor-wa":"editor-email")}
+                  style={{background:"#dbeafe",color:"#1d4ed8",fontSize:9,padding:"2px 7px",borderRadius:5,
+                    fontFamily:"monospace",cursor:"pointer",fontWeight:700}}
                   title="Clic para insertar">
                   {v}
                 </span>
               ))}
             </div>
           </div>
+
+          {/* Demo cliente */}
+          <div style={{background:"#f8fafc",borderRadius:10,padding:"11px 13px",border:"1px solid #e5e7eb"}}>
+            <div style={{fontSize:10,fontWeight:800,color:"#6b7280",marginBottom:7}}>VISTA PREVIA CON</div>
+            <select value={clienteDemo?.id||""}
+              onChange={e=>{const c=clientes.find(x=>x.id===Number(e.target.value));setClienteDemo(c||null);}}
+              style={{border:"1.5px solid #e5e7eb",borderRadius:7,padding:"6px 8px",fontSize:11,outline:"none",fontFamily:"inherit",background:"#fff",width:"100%"}}>
+              <option value="">Datos de ejemplo</option>
+              {clientes.map(c=><option key={c.id} value={c.id}>{c.nombre} {c.apellidoPaterno}</option>)}
+            </select>
+          </div>
         </div>
 
-        {/* Panel derecho — editor + preview */}
+        {/* Panel derecho */}
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
 
-          {/* Header del tipo activo */}
-          <div style={{background:tipoActivo.bg,borderRadius:12,padding:"14px 18px",border:`1.5px solid ${tipoActivo.color}30`}}>
-            <div style={{fontWeight:800,fontSize:15,color:tipoActivo.color}}>{tipoActivo.label}</div>
-            <div style={{fontSize:12,color:"#6b7280",marginTop:2}}>{tipoActivo.desc}</div>
-          </div>
-
-          {/* Editor */}
-          <div style={{background:"#fff",borderRadius:12,padding:16,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-            <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:8}}>EDITAR MENSAJE</div>
-            <textarea
-              id="editor-plantilla"
-              value={plantillas[activa]}
-              onChange={e=>setPlantillas(p=>({...p,[activa]:e.target.value}))}
-              rows={9}
-              style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:10,padding:"12px 14px",
-                fontSize:13,fontFamily:"inherit",lineHeight:1.7,outline:"none",
-                boxSizing:"border-box",resize:"vertical",color:"#374151"}}
-            />
-            <div style={{display:"flex",gap:10,marginTop:10}}>
-              <button onClick={()=>{setPlantillas(p=>({...p,[activa]:plantillasDefault[activa]}));showToast("Plantilla restaurada");}}
-                style={{background:"#f3f4f6",border:"none",borderRadius:8,padding:"8px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",color:"#6b7280"}}>
-                ↩ Restaurar default
-              </button>
-              <button onClick={()=>showToast("✅ Plantilla guardada")}
-                style={{background:"#25d366",border:"none",borderRadius:8,padding:"8px 22px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff",marginLeft:"auto"}}>
-                💾 Guardar
-              </button>
-            </div>
-          </div>
-
-          {/* Preview */}
-          <div style={{background:"#fff",borderRadius:12,padding:16,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-              <div style={{fontSize:11,fontWeight:700,color:"#6b7280"}}>👁 VISTA PREVIA</div>
-              <select value={clienteDemo?.id||""}
-                onChange={e=>{const c=clientes.find(x=>x.id===Number(e.target.value));setClienteDemo(c||null);}}
-                style={{border:"1.5px solid #e5e7eb",borderRadius:8,padding:"4px 10px",fontSize:12,outline:"none",fontFamily:"inherit",background:"#fff",color:"#374151"}}>
-                <option value="">Datos de ejemplo</option>
-                {clientes.map(c=><option key={c.id} value={c.id}>{c.nombre} {c.apellidoPaterno}</option>)}
-              </select>
-            </div>
-            {/* Burbuja estilo WhatsApp */}
-            <div style={{background:"#e9fbe9",borderRadius:"0 12px 12px 12px",padding:"12px 16px",maxWidth:"85%",boxShadow:"0 1px 3px rgba(0,0,0,0.1)"}}>
-              <pre style={{margin:0,fontSize:12,color:"#111",whiteSpace:"pre-wrap",fontFamily:"inherit",lineHeight:1.7}}>
-                {aplicarVars(plantillas[activa], demoData)}
-              </pre>
-              <div style={{fontSize:10,color:"#6b7280",textAlign:"right",marginTop:6}}>12:00 ✓✓</div>
-            </div>
-            {/* Botón abrir WA — solo si no es personalizado */}
-            {clienteDemo?.whatsapp && activa!=="personalizado" &&(
-              <button onClick={()=>{
-                const msg=encodeURIComponent(aplicarVars(plantillas[activa],demoData));
-                const tel=(clienteDemo.whatsapp||"").replace(/\D/g,"");
-                window.open(`https://wa.me/52${tel}?text=${msg}`,"_blank");
-              }}
-                style={{marginTop:12,display:"inline-flex",alignItems:"center",gap:8,background:"#25d366",border:"none",
-                  borderRadius:9,padding:"9px 20px",fontSize:13,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
-                <Icon name="whatsapp" size={15}/> Enviar a {clienteDemo.nombre}
-              </button>
-            )}
-            {activa==="personalizado"&&(
-              <div style={{marginTop:10,background:"#fffbeb",borderRadius:9,padding:"10px 13px",border:"1px solid #fde68a",fontSize:12,color:"#92400e"}}>
-                💬 El mensaje personalizado debe enviarse manualmente. Copia el texto y ábrelo en WhatsApp.
+          {/* ── WHATSAPP ── */}
+          {canal==="whatsapp"&&(
+            <>
+              <div style={{background:tipo.color+"12",borderRadius:11,padding:"12px 16px",border:`1.5px solid ${tipo.color}30`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div>
+                  <div style={{fontWeight:800,fontSize:14,color:tipo.color}}>{tipo.icon} {tipo.label} — WhatsApp</div>
+                  <div style={{fontSize:11,color:"#6b7280",marginTop:2}}>{tipo.desc} · Texto sin emojis para mayor compatibilidad</div>
+                </div>
+                <button onClick={()=>{setPlantillas(p=>({...p,[keyWA(tipoActivo)]:plantillasDefault[tipoActivo]}));showToast("Plantilla restaurada");}}
+                  style={{background:"#fff",border:"1.5px solid #e5e7eb",borderRadius:8,padding:"6px 12px",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"inherit",color:"#6b7280"}}>
+                  Restaurar
+                </button>
               </div>
-            )}
-          </div>
+
+              <div style={{background:"#fff",borderRadius:11,padding:16,boxShadow:"0 1px 6px rgba(0,0,0,0.06)"}}>
+                <div style={{fontSize:10,fontWeight:800,color:"#6b7280",marginBottom:8,letterSpacing:"0.06em"}}>MENSAJE</div>
+                <textarea id="editor-wa"
+                  value={plantillas[keyWA(tipoActivo)]||""}
+                  onChange={e=>setPlantillas(p=>({...p,[keyWA(tipoActivo)]:e.target.value}))}
+                  rows={9}
+                  placeholder="Escribe el mensaje de WhatsApp sin emojis..."
+                  style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:9,padding:"11px 13px",
+                    fontSize:13,fontFamily:"inherit",lineHeight:1.7,outline:"none",
+                    boxSizing:"border-box",resize:"vertical"}}/>
+                <button onClick={()=>showToast("Plantilla guardada")}
+                  style={{marginTop:10,background:"#25d366",border:"none",borderRadius:8,padding:"9px 22px",
+                    fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff"}}>
+                  Guardar plantilla
+                </button>
+              </div>
+
+              {/* Preview WhatsApp */}
+              <div style={{background:"#fff",borderRadius:11,padding:16,boxShadow:"0 1px 6px rgba(0,0,0,0.06)"}}>
+                <div style={{fontSize:10,fontWeight:800,color:"#6b7280",marginBottom:10}}>VISTA PREVIA</div>
+                <div style={{background:"#e9fbe9",borderRadius:"0 12px 12px 12px",padding:"12px 16px",maxWidth:"85%",boxShadow:"0 1px 3px rgba(0,0,0,0.08)"}}>
+                  <pre style={{margin:0,fontSize:12,color:"#111",whiteSpace:"pre-wrap",fontFamily:"inherit",lineHeight:1.7}}>
+                    {aplicarVars(plantillas[keyWA(tipoActivo)], demoPoliza)}
+                  </pre>
+                  <div style={{fontSize:10,color:"#6b7280",textAlign:"right",marginTop:6}}>12:00 ✓✓</div>
+                </div>
+                {clienteDemo?.whatsapp&&(
+                  <button onClick={()=>{
+                    const msg=encodeURIComponent(aplicarVars(plantillas[keyWA(tipoActivo)],demoPoliza));
+                    const tel=(clienteDemo.whatsapp||"").replace(/\D/g,"");
+                    window.open(`https://wa.me/52${tel}?text=${msg}`,"_blank");
+                  }}
+                    style={{marginTop:12,display:"inline-flex",alignItems:"center",gap:8,background:"#25d366",border:"none",
+                      borderRadius:9,padding:"9px 20px",fontSize:13,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
+                    Enviar WhatsApp a {clienteDemo.nombre}
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* ── CORREO ── */}
+          {canal==="correo"&&(
+            <>
+              {/* Sub-tabs correo */}
+              <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:10,padding:3,width:"fit-content"}}>
+                {[["plantilla","📝 Plantilla"],["smtp","⚙️ Config. SMTP"]].map(([t,l])=>(
+                  <button key={t} onClick={()=>setTabCorreo(t)}
+                    style={{background:tabCorreo===t?"#fff":"none",border:"none",borderRadius:8,padding:"7px 18px",
+                      fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",
+                      color:tabCorreo===t?"#111827":"#6b7280",
+                      boxShadow:tabCorreo===t?"0 1px 4px rgba(0,0,0,0.1)":"none"}}>
+                    {l}
+                  </button>
+                ))}
+              </div>
+
+              {tabCorreo==="plantilla"&&(
+                <>
+                  <div style={{background:tipo.color+"12",borderRadius:11,padding:"12px 16px",border:`1.5px solid ${tipo.color}30`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                    <div>
+                      <div style={{fontWeight:800,fontSize:14,color:tipo.color}}>{tipo.icon} {tipo.label} — Correo</div>
+                      <div style={{fontSize:11,color:"#6b7280",marginTop:2}}>Puedes usar HTML basico y subir imagenes</div>
+                    </div>
+                    <button onClick={()=>{setPlantillas(p=>({...p,[keyEmail(tipoActivo)]:plantillasDefault[keyEmail(tipoActivo)]||""}));showToast("Plantilla restaurada");}}
+                      style={{background:"#fff",border:"1.5px solid #e5e7eb",borderRadius:8,padding:"6px 12px",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"inherit",color:"#6b7280"}}>
+                      Restaurar
+                    </button>
+                  </div>
+
+                  {/* Asunto */}
+                  <div style={{background:"#fff",borderRadius:11,padding:14,boxShadow:"0 1px 6px rgba(0,0,0,0.06)"}}>
+                    <div style={{fontSize:10,fontWeight:800,color:"#6b7280",marginBottom:6}}>ASUNTO DEL CORREO</div>
+                    <input value={plantillas[keyAsunto(tipoActivo)]||""}
+                      onChange={e=>setPlantillas(p=>({...p,[keyAsunto(tipoActivo)]:e.target.value}))}
+                      placeholder="Ej: Tu poliza {numero} vence pronto — {aseguradora}"
+                      style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:9,padding:"9px 13px",
+                        fontSize:13,outline:"none",fontFamily:"inherit",boxSizing:"border-box"}}/>
+                  </div>
+
+                  {/* Cuerpo */}
+                  <div style={{background:"#fff",borderRadius:11,padding:16,boxShadow:"0 1px 6px rgba(0,0,0,0.06)"}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+                      <div style={{fontSize:10,fontWeight:800,color:"#6b7280"}}>CUERPO DEL CORREO</div>
+                      <div style={{display:"flex",gap:7}}>
+                        <input ref={imgRef} type="file" accept="image/*" style={{display:"none"}} onChange={e=>subirImagen(e.target.files[0])}/>
+                        <button onClick={()=>imgRef.current.click()}
+                          style={{background:"#eff6ff",border:"1.5px solid #bfdbfe",borderRadius:7,padding:"5px 12px",
+                            fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#1d4ed8",display:"flex",alignItems:"center",gap:4}}>
+                          🖼️ Subir imagen
+                        </button>
+                      </div>
+                    </div>
+                    <textarea id="editor-email"
+                      value={plantillas[keyEmail(tipoActivo)]||""}
+                      onChange={e=>setPlantillas(p=>({...p,[keyEmail(tipoActivo)]:e.target.value}))}
+                      rows={12}
+                      placeholder={`Estimado/a {nombre},\n\nTe informamos que tu poliza {numero} de {aseguradora} vence el {vencimiento}.\n\nPara renovar, contactanos.\n\nSaludos,\n${config.nombre||"Tu Agente de Seguros"}`}
+                      style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:9,padding:"11px 13px",
+                        fontSize:13,fontFamily:"inherit",lineHeight:1.7,outline:"none",
+                        boxSizing:"border-box",resize:"vertical"}}/>
+                    <div style={{fontSize:10,color:"#9ca3af",marginTop:6}}>Puedes usar HTML basico: &lt;b&gt;negrita&lt;/b&gt;, &lt;i&gt;italica&lt;/i&gt;, &lt;br&gt; para salto de linea</div>
+                    <button onClick={()=>showToast("Plantilla de correo guardada")}
+                      style={{marginTop:10,background:"#2563eb",border:"none",borderRadius:8,padding:"9px 22px",
+                        fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff"}}>
+                      Guardar plantilla
+                    </button>
+                  </div>
+
+                  {/* Preview correo */}
+                  <div style={{background:"#fff",borderRadius:11,padding:16,boxShadow:"0 1px 6px rgba(0,0,0,0.06)"}}>
+                    <div style={{fontSize:10,fontWeight:800,color:"#6b7280",marginBottom:10}}>VISTA PREVIA</div>
+                    <div style={{border:"1.5px solid #e5e7eb",borderRadius:10,overflow:"hidden"}}>
+                      <div style={{background:"#f9fafb",padding:"10px 16px",borderBottom:"1px solid #e5e7eb"}}>
+                        <div style={{fontSize:11,color:"#6b7280"}}>De: <strong>{smtpForm.smtpFromName||config.nombre||"Tu Agente"}</strong> &lt;{smtpForm.smtpUser||"tucorreo@gmail.com"}&gt;</div>
+                        <div style={{fontSize:12,fontWeight:700,color:"#111827",marginTop:3}}>
+                          Asunto: {aplicarVars(plantillas[keyAsunto(tipoActivo)]||"Sin asunto", demoPoliza)}
+                        </div>
+                      </div>
+                      <div style={{padding:"14px 16px",maxHeight:200,overflowY:"auto"}}
+                        dangerouslySetInnerHTML={{__html:aplicarVars(plantillas[keyEmail(tipoActivo)]||"", demoPoliza).replace(/\n/g,"<br/>")}}/>
+                    </div>
+                    {clienteDemo?.email&&(
+                      <a href={`mailto:${clienteDemo.email}?subject=${encodeURIComponent(aplicarVars(plantillas[keyAsunto(tipoActivo)]||"", demoPoliza))}&body=${encodeURIComponent(aplicarVars(plantillas[keyEmail(tipoActivo)]||"", demoPoliza))}`}
+                        style={{marginTop:12,display:"inline-flex",alignItems:"center",gap:8,background:"#2563eb",border:"none",
+                          borderRadius:9,padding:"9px 20px",fontSize:13,fontWeight:700,color:"#fff",textDecoration:"none"}}>
+                        Enviar correo a {clienteDemo.nombre}
+                      </a>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {tabCorreo==="smtp"&&(
+                <div style={{display:"flex",flexDirection:"column",gap:14}}>
+                  <div style={{background:"#eff6ff",borderRadius:11,padding:"12px 16px",border:"1.5px solid #bfdbfe",fontSize:12,color:"#1e40af"}}>
+                    <strong>Como configurar Gmail:</strong> Ve a tu cuenta Google → Seguridad → Verificacion en 2 pasos (activa) → Contrasenas de aplicacion → genera una para "Correo". Usa esa contrasena aqui, no la de tu cuenta.
+                  </div>
+
+                  {/* Proveedor */}
+                  <div style={{background:"#fff",borderRadius:11,padding:16,boxShadow:"0 1px 6px rgba(0,0,0,0.06)"}}>
+                    <div style={{fontSize:11,fontWeight:800,color:"#374151",marginBottom:10}}>PROVEEDOR DE CORREO</div>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:14}}>
+                      {SMTP_PROVIDERS.map(p=>(
+                        <button key={p.key} onClick={()=>{
+                          setSmtpForm(f=>({...f,smtpProvider:p.key,smtpHost:p.host,smtpPort:p.port}));
+                        }}
+                          style={{background:smtpForm.smtpProvider===p.key?"#0f172a":"#f9fafb",
+                            color:smtpForm.smtpProvider===p.key?"#fff":"#374151",
+                            border:`1.5px solid ${smtpForm.smtpProvider===p.key?"#0f172a":"#e5e7eb"}`,
+                            borderRadius:9,padding:"9px 6px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+                      <div>
+                        <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:5}}>SERVIDOR SMTP</div>
+                        <input value={smtpForm.smtpHost} onChange={e=>setSmtpForm(f=>({...f,smtpHost:e.target.value}))}
+                          placeholder="smtp.gmail.com"
+                          style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:13,outline:"none",fontFamily:"inherit",boxSizing:"border-box"}}/>
+                      </div>
+                      <div>
+                        <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:5}}>PUERTO</div>
+                        <input value={smtpForm.smtpPort} onChange={e=>setSmtpForm(f=>({...f,smtpPort:e.target.value}))}
+                          placeholder="587"
+                          style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:13,outline:"none",fontFamily:"inherit",boxSizing:"border-box"}}/>
+                      </div>
+                      <div>
+                        <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:5}}>CORREO REMITENTE</div>
+                        <input value={smtpForm.smtpUser} onChange={e=>setSmtpForm(f=>({...f,smtpUser:e.target.value}))}
+                          placeholder="tucorreo@gmail.com"
+                          style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:13,outline:"none",fontFamily:"inherit",boxSizing:"border-box"}}/>
+                      </div>
+                      <div>
+                        <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:5}}>CONTRASENA DE APP</div>
+                        <input type="password" value={smtpForm.smtpPass} onChange={e=>setSmtpForm(f=>({...f,smtpPass:e.target.value}))}
+                          placeholder="xxxx xxxx xxxx xxxx"
+                          style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:13,outline:"none",fontFamily:"inherit",boxSizing:"border-box"}}/>
+                      </div>
+                      <div style={{gridColumn:"1/-1"}}>
+                        <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:5}}>NOMBRE DEL REMITENTE</div>
+                        <input value={smtpForm.smtpFromName} onChange={e=>setSmtpForm(f=>({...f,smtpFromName:e.target.value}))}
+                          placeholder={config.nombre||"García Seguros"}
+                          style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:13,outline:"none",fontFamily:"inherit",boxSizing:"border-box"}}/>
+                      </div>
+                    </div>
+                    <button onClick={guardarSMTP}
+                      style={{marginTop:14,background:"#0f172a",border:"none",borderRadius:9,padding:"10px 24px",
+                        fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff"}}>
+                      Guardar configuracion SMTP
+                    </button>
+                  </div>
+
+                  {/* Test */}
+                  <div style={{background:"#fff",borderRadius:11,padding:16,boxShadow:"0 1px 6px rgba(0,0,0,0.06)"}}>
+                    <div style={{fontSize:11,fontWeight:800,color:"#374151",marginBottom:10}}>ENVIAR CORREO DE PRUEBA</div>
+                    <div style={{display:"flex",gap:10}}>
+                      <input value={testEmail} onChange={e=>setTestEmail(e.target.value)}
+                        placeholder="correo@destino.com"
+                        style={{flex:1,border:"1.5px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:13,outline:"none",fontFamily:"inherit"}}/>
+                      <button onClick={enviarTest} disabled={testando}
+                        style={{background:testando?"#e5e7eb":"#059669",border:"none",borderRadius:8,padding:"9px 20px",
+                          fontSize:13,fontWeight:700,cursor:testando?"not-allowed":"pointer",fontFamily:"inherit",color:testando?"#9ca3af":"#fff",whiteSpace:"nowrap"}}>
+                        {testando?"Enviando...":"Enviar prueba"}
+                      </button>
+                    </div>
+                    <div style={{fontSize:11,color:"#9ca3af",marginTop:6}}>
+                      Requiere que el servidor /api/email este configurado en Vercel.
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -6281,7 +6553,7 @@ function ModalPagoComision({ poliza, subagentes, calcComision, fmtMXN, onPagar, 
 // CONFIGURACIÓN
 // ═══════════════════════════════════════════════════════════════════
 
-function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios, setUsuarios, polizas, setPolizas }) {
+function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios, setUsuarios, polizas, setPolizas, plantillas, setPlantillas, plantillasDefault, clientes }) {
   const [tab, setTab] = useState("empresa");
   const [form, setForm] = useState({...config});
   const [saved, setSaved] = useState(false);
@@ -6306,7 +6578,7 @@ function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios,
       <SectionTitle title="Configuración" sub="Personaliza el sistema y gestiona usuarios y subagentes"/>
 
       <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:11,padding:4,width:"fit-content",flexWrap:"wrap"}}>
-        {[["empresa","🏢 Empresa / Agente"],["usuarios","👤 Usuarios"],["subagentes","🤝 Subagentes"]].map(([t,l])=>(
+        {[["empresa","🏢 Empresa"],["comunicacion","📨 Comunicacion"],["usuarios","👤 Usuarios"],["subagentes","🤝 Subagentes"]].map(([t,l])=>(
           <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?"#fff":"none",border:"none",borderRadius:8,padding:"7px 18px",fontSize:13,fontWeight:600,cursor:"pointer",color:tab===t?"#111827":"#6b7280",boxShadow:tab===t?"0 1px 4px rgba(0,0,0,0.1)":"none",fontFamily:"inherit"}}>{l}</button>
         ))}
       </div>
@@ -6369,6 +6641,18 @@ function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios,
         </div>
       )}
 
+      {tab==="comunicacion"&&(
+        <ComunicacionConfig
+          plantillas={plantillas}
+          setPlantillas={setPlantillas}
+          plantillasDefault={plantillasDefault}
+          clientes={clientes}
+          polizas={polizas}
+          config={config}
+          setConfig={setConfig}
+        />
+      )}
+
       {tab==="usuarios"&&(
         <Usuarios usuarios={usuarios} setUsuarios={setUsuarios}/>
       )}
@@ -6395,11 +6679,27 @@ export default function CRMSeguros() {
   const [config,setConfig]=useState({nombre:"SeguroCRM",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""});
 
   const PLANTILLAS_DEFAULT = {
-    vencimiento:  `Hola {nombre} 👋,\n\nTe escribo de *SeguroCRM* para recordarte sobre tu póliza:\n\n📄 *Póliza:* {numero}\n🏢 *Aseguradora:* {aseguradora}\n🔖 *Ramo:* {ramo}\n📅 *Vencimiento:* {vencimiento}\n💰 *Prima:* ${"{prima}"} ({frecuencia})\n\nPara renovar contáctame 😊\n\n_Tu agente de seguros_`,
-    pago:         `Hola {nombre} 👋,\n\nConfirmamos la recepción de tu pago 💳\n\n📄 *Póliza:* {numero}\n🏢 *Aseguradora:* {aseguradora}\n📅 *Vigencia hasta:* {vencimiento}\n\nGracias por tu puntualidad ✅\n\n_Tu agente de seguros_`,
-    bienvenida:   `Hola {nombre} 👋,\n\n¡Bienvenido/a como cliente! 🎉\n\nTu póliza ha sido registrada exitosamente:\n\n📄 *Póliza:* {numero}\n🏢 *Aseguradora:* {aseguradora}\n🔖 *Ramo:* {ramo}\n📅 *Vigente hasta:* {vencimiento}\n\nEstoy a tus órdenes para cualquier duda 😊\n\n_Tu agente de seguros_`,
-    renovacion:   `Hola {nombre} 👋,\n\nTu póliza ha sido renovada exitosamente 🔄\n\n📄 *Póliza:* {numero}\n🏢 *Aseguradora:* {aseguradora}\n📅 *Nueva vigencia hasta:* {vencimiento}\n💰 *Prima:* ${"{prima}"} ({frecuencia})\n\n¡Sigues protegido/a! ✅\n\n_Tu agente de seguros_`,
-    personalizado:`Hola {nombre} 👋,\n\nTe contacto respecto a tu póliza *{numero}* de {aseguradora}.\n\n[Escribe aquí tu mensaje personalizado]\n\n_Tu agente de seguros_`,
+    // WhatsApp — sin emojis
+    vencimiento:   `Hola {nombre},\n\nTe escribo para recordarte que tu poliza esta proxima a vencer:\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nRamo: {ramo}\nVencimiento: {vencimiento}\nPrima: ${"{prima}"} ({frecuencia})\n\nContactame para renovarla.\n\nSaludos,\nTu agente de seguros`,
+    pago:          `Hola {nombre},\n\nConfirmamos la recepcion de tu pago.\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nVigente hasta: {vencimiento}\n\nGracias por tu puntualidad.\n\nSaludos,\nTu agente de seguros`,
+    bienvenida:    `Hola {nombre},\n\nBienvenido/a como cliente. Tu poliza ha sido registrada:\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nRamo: {ramo}\nVigente hasta: {vencimiento}\n\nEstoy a tus ordenes.\n\nSaludos,\nTu agente de seguros`,
+    renovacion:    `Hola {nombre},\n\nTu poliza ha sido renovada exitosamente.\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nNueva vigencia hasta: {vencimiento}\nPrima: ${"{prima}"} ({frecuencia})\n\nSaludos,\nTu agente de seguros`,
+    cumpleanos:    `Hola {nombre},\n\nTe deseamos un muy feliz cumpleanos. Que tengas un excelente dia rodeado de las personas que mas quieres.\n\nSaludos,\nTu agente de seguros`,
+    personalizado: `Hola {nombre},\n\nMe comunico contigo respecto a tu poliza {numero} de {aseguradora}.\n\n[Escribe aqui tu mensaje]\n\nSaludos,\nTu agente de seguros`,
+    // Correo — asuntos
+    asunto_vencimiento:  `Tu poliza {numero} de {aseguradora} vence pronto`,
+    asunto_pago:         `Confirmacion de pago — Poliza {numero}`,
+    asunto_bienvenida:   `Bienvenido/a — Tu poliza {numero} esta activa`,
+    asunto_renovacion:   `Tu poliza {numero} ha sido renovada exitosamente`,
+    asunto_cumpleanos:   `Feliz cumpleanos {nombre}!`,
+    asunto_personalizado:`Mensaje de tu agente de seguros`,
+    // Correo — cuerpos
+    email_vencimiento:   `Estimado/a {nombre},\n\nTe informamos que tu poliza esta proxima a vencer:\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nRamo: {ramo}\nFecha de vencimiento: {vencimiento}\nPrima: ${"{prima}"} ({frecuencia})\n\nPara renovar tu poliza y continuar con tu proteccion, contactanos a la brevedad.\n\nAtentamente,\nTu agente de seguros`,
+    email_pago:          `Estimado/a {nombre},\n\nConfirmamos la recepcion de tu pago.\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nVigente hasta: {vencimiento}\n\nGracias por tu puntualidad. Tu poliza sigue activa.\n\nAtentamente,\nTu agente de seguros`,
+    email_bienvenida:    `Estimado/a {nombre},\n\nBienvenido/a. Es un gusto tenerte como cliente. Tu poliza ha sido registrada exitosamente:\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nRamo: {ramo}\nVigente hasta: {vencimiento}\n\nEstamos a tus ordenes para cualquier duda o aclaracion.\n\nAtentamente,\nTu agente de seguros`,
+    email_renovacion:    `Estimado/a {nombre},\n\nTe informamos que tu poliza ha sido renovada exitosamente:\n\nPoliza: {numero}\nAseguradora: {aseguradora}\nNueva vigencia hasta: {vencimiento}\nPrima: ${"{prima}"} ({frecuencia})\n\nSigues protegido/a. Gracias por tu confianza.\n\nAtentamente,\nTu agente de seguros`,
+    email_cumpleanos:    `Estimado/a {nombre},\n\nEn este dia especial queremos desearte un muy feliz cumpleanos. Que este nuevo ano de vida este lleno de salud, exito y momentos inolvidables.\n\nSeguimos a tu disposicion.\n\nAtentamente,\nTu agente de seguros`,
+    email_personalizado: `Estimado/a {nombre},\n\n[Escribe aqui tu mensaje personalizado]\n\nAtentamente,\nTu agente de seguros`,
   };
   const [plantillas, setPlantillas] = useState(PLANTILLAS_DEFAULT);
 
@@ -6481,7 +6781,7 @@ export default function CRMSeguros() {
         {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas}/>}
         {vista==="calendario"&&<Calendario polizas={polizas} clientes={clientes} tareas={tareas}/>}
         {vista==="importar"&&<Importador clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas}/>}
-        {vista==="configuracion"&&<Configuracion config={config} setConfig={setConfig} subagentes={subagentes} setSubagentes={setSubagentes} usuarios={usuarios} setUsuarios={setUsuarios} polizas={polizas} setPolizas={setPolizas}/>}
+        {vista==="configuracion"&&<Configuracion config={config} setConfig={setConfig} subagentes={subagentes} setSubagentes={setSubagentes} usuarios={usuarios} setUsuarios={setUsuarios} polizas={polizas} setPolizas={setPolizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes}/>}
       </div>
     </div>
   );

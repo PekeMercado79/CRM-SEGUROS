@@ -2,39 +2,45 @@ import { useState, useRef, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, RadialBarChart, RadialBar } from "recharts";
 
 // ═══════════════════════════════════════════════════════════════════
-// GOOGLE CALENDAR OAUTH
+// GOOGLE CALENDAR — Google Identity Services (GIS)
 // ═══════════════════════════════════════════════════════════════════
 const GOOGLE_CLIENT_ID = "73188297798-gspn2aoro2amhvmb3b98rk4vtv5i2v6s.apps.googleusercontent.com";
 const GOOGLE_SCOPE = "https://www.googleapis.com/auth/calendar.events";
 
-// Cargar Google API Script
-function cargarGoogleAPI() {
+let _googleToken = null;
+
+function cargarGISScript() {
   return new Promise((resolve) => {
-    if (window.gapi) { resolve(window.gapi); return; }
-    const script = document.createElement("script");
-    script.src = "https://apis.google.com/js/api.js";
-    script.onload = () => {
-      window.gapi.load("client:auth2", async () => {
-        await window.gapi.client.init({
-          clientId: GOOGLE_CLIENT_ID,
-          scope: GOOGLE_SCOPE,
-          discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"],
-        });
-        resolve(window.gapi);
-      });
-    };
-    document.head.appendChild(script);
+    if (window.google?.accounts) { resolve(); return; }
+    const s = document.createElement("script");
+    s.src = "https://accounts.google.com/gsi/client";
+    s.async = true;
+    s.defer = true;
+    s.onload = () => resolve();
+    document.head.appendChild(s);
   });
 }
 
-// Agregar evento a Google Calendar
-async function agregarEventoCalendar(titulo, descripcion, fecha, colorId="6") {
+async function obtenerTokenGoogle() {
+  await cargarGISScript();
+  return new Promise((resolve, reject) => {
+    const client = window.google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: GOOGLE_SCOPE,
+      callback: (resp) => {
+        if (resp.error) { reject(resp); return; }
+        _googleToken = resp.access_token;
+        resolve(resp.access_token);
+      },
+    });
+    if (_googleToken) { resolve(_googleToken); return; }
+    client.requestAccessToken({ prompt: "consent" });
+  });
+}
+
+async function agregarEventoCalendar(titulo, descripcion, fecha) {
   try {
-    const gapi = await cargarGoogleAPI();
-    const auth = gapi.auth2.getAuthInstance();
-    if (!auth.isSignedIn.get()) {
-      await auth.signIn();
-    }
+    const token = await obtenerTokenGoogle();
     const fechaISO = fecha.includes("/")
       ? fecha.split("/").reverse().join("-")
       : fecha;
@@ -43,44 +49,55 @@ async function agregarEventoCalendar(titulo, descripcion, fecha, colorId="6") {
       description: descripcion,
       start: { date: fechaISO },
       end:   { date: fechaISO },
-      colorId,
       reminders: {
         useDefault: false,
         overrides: [
-          { method: "email",  minutes: 24*60 },
-          { method: "popup",  minutes: 60 },
+          { method: "popup", minutes: 60 },
+          { method: "email", minutes: 1440 },
         ],
       },
     };
-    const res = await gapi.client.calendar.events.insert({
-      calendarId: "primary",
-      resource: evento,
+    const res = await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(evento),
     });
-    return { ok: true, id: res.result.id };
+    if (!res.ok) {
+      const err = await res.json();
+      // Token expirado — limpiar y reintentar
+      if (err.error?.code === 401) {
+        _googleToken = null;
+        return agregarEventoCalendar(titulo, descripcion, fecha);
+      }
+      throw new Error(err.error?.message || "Error al crear evento");
+    }
+    const data = await res.json();
+    return { ok: true, id: data.id, link: data.htmlLink };
   } catch (err) {
     console.error("Google Calendar error:", err);
     return { ok: false, error: err.message };
   }
 }
 
-// Generar archivo .ics como fallback
+// Fallback: generar archivo .ics descargable
 function descargarICS(titulo, descripcion, fecha) {
   const fechaISO = (fecha.includes("/") ? fecha.split("/").reverse().join("-") : fecha).replace(/-/g,"");
   const ics = [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
+    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//CRM Seguros//ES",
     "BEGIN:VEVENT",
     `DTSTART;VALUE=DATE:${fechaISO}`,
     `DTEND;VALUE=DATE:${fechaISO}`,
     `SUMMARY:${titulo}`,
-    `DESCRIPTION:${descripcion}`,
-    "END:VEVENT",
-    "END:VCALENDAR"
+    `DESCRIPTION:${descripcion.replace(/\n/g,"\\n")}`,
+    "END:VEVENT","END:VCALENDAR"
   ].join("\r\n");
-  const blob = new Blob([ics], {type:"text/calendar"});
+  const blob = new Blob([ics], {type:"text/calendar;charset=utf-8"});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url; a.download = "evento.ics"; a.click();
+  a.href = url; a.download = "evento_poliza.ics"; a.click();
   URL.revokeObjectURL(url);
 }
 

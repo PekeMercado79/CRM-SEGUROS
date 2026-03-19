@@ -6545,9 +6545,8 @@ function Calendario({ polizas, clientes, tareas }) {
             </div>
           )}
 
-          {/* Todos los eventos del mes — ELIMINADO: info visible en las celdas del calendario */}
+          {/* Todos los eventos del mes — info visible en las celdas del calendario */}
         </div>
-      </div>
 
       {/* Modal detalle póliza desde calendario */}
       {polizaCalendario&&(

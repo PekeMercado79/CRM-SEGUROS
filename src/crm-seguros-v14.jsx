@@ -6631,11 +6631,20 @@ function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios,
               <Inp label="Sitio web" value={form.web||""} onChange={e=>setForm(p=>({...p,web:e.target.value}))} placeholder="https://www.agencia.com"/>
               <Inp label="Aseguradora principal" value={form.aseguradoraPrincipal||""} onChange={e=>setForm(p=>({...p,aseguradoraPrincipal:e.target.value}))} placeholder="Ej: GNP, Sura, AXA"/>
             </div>
-            <div style={{marginTop:4,display:"flex",gap:10,alignItems:"center"}}>
+            <div style={{marginTop:4,display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
               <button onClick={guardar} style={{background:"#0f172a",color:"#fff",border:"none",borderRadius:9,padding:"10px 26px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
                 💾 Guardar cambios
               </button>
-              {saved&&<span style={{color:"#059669",fontWeight:700,fontSize:13}}>✅ Guardado</span>}
+              {saved&&<span style={{color:"#059669",fontWeight:700,fontSize:13}}>✅ Guardado correctamente</span>}
+              <button onClick={()=>{
+                if(window.confirm("¿Limpiar TODOS los datos del CRM? Esto borrará clientes, pólizas, prospectos y configuración. Esta acción no se puede deshacer.")){
+                  const keys=["crm_clientes","crm_polizas","crm_pipeline","crm_tareas","crm_usuarios","crm_paiMetas","crm_subagentes","crm_config","crm_plantillas"];
+                  keys.forEach(k=>localStorage.removeItem(k));
+                  window.location.reload();
+                }
+              }} style={{marginLeft:"auto",background:"#fef2f2",color:"#dc2626",border:"1.5px solid #fecaca",borderRadius:9,padding:"9px 16px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                🗑 Limpiar todos los datos
+              </button>
             </div>
           </div>
         </div>
@@ -6665,18 +6674,45 @@ function Configuracion({ config, setConfig, subagentes, setSubagentes, usuarios,
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// HOOK useLocalStorage — persiste datos en localStorage
+// ═══════════════════════════════════════════════════════════════════
+function useLocalStorage(key, initialValue) {
+  const [state, setState] = useState(() => {
+    try {
+      const stored = localStorage.getItem(key);
+      if (stored === null) return initialValue;
+      return JSON.parse(stored);
+    } catch {
+      return initialValue;
+    }
+  });
+
+  const setValue = (value) => {
+    try {
+      const valueToStore = value instanceof Function ? value(state) : value;
+      setState(valueToStore);
+      localStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch (e) {
+      console.warn("localStorage error:", e);
+    }
+  };
+
+  return [state, setValue];
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // APP PRINCIPAL
 // ═══════════════════════════════════════════════════════════════════
 export default function CRMSeguros() {
-  const [vista,setVista]=useState("dashboard");
-  const [clientes,setClientes]=useState(CLIENTES_INIT);
-  const [polizas,setPolizas]=useState(POLIZAS_INIT);
-  const [pipeline,setPipeline]=useState(PIPELINE_INIT);
-  const [tareas,setTareas]=useState(TAREAS_INIT);
-  const [usuarios,setUsuarios]=useState(USUARIOS_INIT);
-  const [paiMetas,setPaiMetas]=useState(PAI_METAS_INIT);
-  const [subagentes,setSubagentes]=useState(SUBAGENTES_INIT);
-  const [config,setConfig]=useState({nombre:"SeguroCRM",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""});
+  const [vista, setVista] = useState("dashboard");
+  const [clientes,   setClientes]   = useLocalStorage("crm_clientes",   CLIENTES_INIT);
+  const [polizas,    setPolizas]    = useLocalStorage("crm_polizas",    POLIZAS_INIT);
+  const [pipeline,   setPipeline]   = useLocalStorage("crm_pipeline",   PIPELINE_INIT);
+  const [tareas,     setTareas]     = useLocalStorage("crm_tareas",     TAREAS_INIT);
+  const [usuarios,   setUsuarios]   = useLocalStorage("crm_usuarios",   USUARIOS_INIT);
+  const [paiMetas,   setPaiMetas]   = useLocalStorage("crm_paiMetas",   PAI_METAS_INIT);
+  const [subagentes, setSubagentes] = useLocalStorage("crm_subagentes", SUBAGENTES_INIT);
+  const [config,     setConfig]     = useLocalStorage("crm_config",     {nombre:"SeguroCRM",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""});
 
   const PLANTILLAS_DEFAULT = {
     // WhatsApp — sin emojis
@@ -6701,7 +6737,7 @@ export default function CRMSeguros() {
     email_cumpleanos:    `Estimado/a {nombre},\n\nEn este dia especial queremos desearte un muy feliz cumpleanos. Que este nuevo ano de vida este lleno de salud, exito y momentos inolvidables.\n\nSeguimos a tu disposicion.\n\nAtentamente,\nTu agente de seguros`,
     email_personalizado: `Estimado/a {nombre},\n\n[Escribe aqui tu mensaje personalizado]\n\nAtentamente,\nTu agente de seguros`,
   };
-  const [plantillas, setPlantillas] = useState(PLANTILLAS_DEFAULT);
+  const [plantillas, setPlantillas] = useLocalStorage("crm_plantillas", PLANTILLAS_DEFAULT);
 
   const nav=[
     {id:"dashboard",      label:"Dashboard",       icon:"dashboard"},

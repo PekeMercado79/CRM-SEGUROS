@@ -273,7 +273,7 @@ const KPICard = ({ label, value, sub, icon, accent }) => (
       <span style={{fontSize:12,color:"#6b7280",fontWeight:500}}>{label}</span>
       <div style={{background:accent+"18",color:accent,borderRadius:10,padding:7,display:"flex"}}><Icon name={icon} size={19}/></div>
     </div>
-    <div style={{fontSize:28,fontWeight:800,color:"#111827",fontFamily:"'Playfair Display',serif",lineHeight:1}}>{value}</div>
+    <div style={{fontSize:32,fontWeight:900,color:"#111827",fontFamily:"'Playfair Display',serif",lineHeight:1,letterSpacing:"-0.5px"}}>{value}</div>
     {sub&&<div style={{fontSize:11,color:"#9ca3af"}}>{sub}</div>}
   </div>
 );
@@ -488,9 +488,9 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
           {polizas.filter(p=>["por vencer","vencida"].includes(getStDash(p))).map(p=>(
             <div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",background:getStDash(p)==="vencida"?"#fef2f2":"#fffbeb",borderRadius:10,marginBottom:7}}>
               <div style={{flex:1}}>
-                <div style={{fontWeight:600,fontSize:12}}>{p.numero}</div>
-                <div style={{fontSize:11,color:"#6b7280"}}>{p.cliente} · {p.aseguradora} · {p.vencimiento}</div>
-                <div style={{fontSize:11,color:"#9ca3af"}}>{p.ramo}{p.subramo?" · "+p.subramo:""} · Prima: ${(parseFloat(p.primaTotal)||parseFloat(p.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
+                <div style={{fontWeight:800,fontSize:13,fontFamily:"'Playfair Display',serif",color:"#111827"}}>{p.numero}</div>
+                <div style={{fontSize:11,color:"#6b7280",marginTop:1}}>{p.cliente} · {p.aseguradora} · {p.vencimiento}</div>
+                <div style={{fontSize:12,color:"#374151",fontWeight:700,marginTop:2}}>${(parseFloat(p.primaTotal)||parseFloat(p.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})} <span style={{fontWeight:400,color:"#9ca3af",fontSize:11}}>· {p.ramo}{p.subramo?" · "+p.subramo:""}</span></div>
               </div>
               <Badge status={getStDash(p)}/>
               <button onClick={()=>setAlertaDetalle(p)} title="Ver detalle"
@@ -2284,6 +2284,16 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
           ...c,
           rfc: c.rfc || data.rfcCliente || "",
           fechaNacimiento: c.fechaNacimiento || data.fechaNacimiento || "",
+          email:    c.email    || data.emailCliente    || "",
+          telefono: c.telefono || data.telefonoCliente || "",
+          whatsapp: c.whatsapp || data.whatsappCliente || data.telefonoCliente || "",
+          // Dirección: solo si no tiene
+          calle:    c.calle    || data.clienteCalle    || "",
+          numero:   c.numero   || data.clienteNumero   || "",
+          colonia:  c.colonia  || data.clienteColonia  || "",
+          cp:       c.cp       || data.clienteCp       || "",
+          ciudad:   c.ciudad   || data.clienteCiudad   || "",
+          estado:   c.estado   || data.clienteEstado   || "",
         } : c));
       } else {
         // Dividir nombre: para apellido compuesto tomar últimas 2 palabras como apellidos
@@ -2304,8 +2314,12 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
           apellidoMaterno: pApellidoM,
           rfc: data.rfcCliente || "",
           fechaNacimiento: data.fechaNacimiento || "",
-          calle: "",
-          numero: "", colonia: "", cp: "", ciudad: "", estado: "",
+          calle:   data.clienteCalle   || "",
+          numero:  data.clienteNumero  || "",
+          colonia: data.clienteColonia || "",
+          cp:      data.clienteCp      || "",
+          ciudad:  data.clienteCiudad  || "",
+          estado:  data.clienteEstado  || "",
           email:    data.emailCliente    || "",
           telefono: data.telefonoCliente || "",
           whatsapp: data.whatsappCliente || data.telefonoCliente || "",
@@ -2355,6 +2369,9 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
       documentoPoliza: docData?.base64full||null,
       documentoNombre: docData?.nombre||"",
       documentoTipo: docData?.tipo||"",
+      // Subagente (si aplica)
+      subagenteId: data.subagenteId||"",
+      comisionSubagente: parseFloat(data.comisionSubagente)||0,
     };
 
     setPolizas(prev => [...prev, mapped]);
@@ -2448,8 +2465,8 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
               style={{background:filtro===s?cfg.bg:"#fff",borderRadius:12,padding:"12px 16px",cursor:"pointer",
                 border:`2px solid ${filtro===s?cfg.color:"#e5e7eb"}`,boxShadow:"0 1px 4px rgba(0,0,0,.05)",transition:"all .15s"}}>
               <div style={{fontSize:20,marginBottom:4}}>{ic}</div>
-              <div style={{fontSize:22,fontWeight:900,color:cfg.color,fontFamily:"'Playfair Display',serif"}}>{counts[s]}</div>
-              <div style={{fontSize:11,fontWeight:600,color:"#6b7280"}}>{cfg.label.replace(/[●⚠✗○] /,"")}</div>
+              <div style={{fontSize:30,fontWeight:900,color:cfg.color,fontFamily:"'Playfair Display',serif",lineHeight:1,letterSpacing:"-0.5px"}}>{counts[s]}</div>
+              <div style={{fontSize:12,fontWeight:700,color:"#374151",marginTop:3}}>{cfg.label.replace(/[●⚠✗○] /,"")}</div>
             </div>
           );
         })}
@@ -2948,7 +2965,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
       )}
 
       {showModal&&<ModalPoliza clientes={clientes} subagentes={subagentes||[]} onGuardar={onGuardar} onClose={()=>setShowModal(false)}/>}
-      {showScan&&<ScanPoliza onClose={()=>setShowScan(false)} onExtracted={onExtracted}/>}
+      {showScan&&<ScanPoliza onClose={()=>setShowScan(false)} onExtracted={onExtracted} subagentes={subagentes||[]}/>}
     </div>
   );
 }
@@ -2956,7 +2973,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
 
 // ── Lector IA ─────────────────────────────────────────────────────
 // ─── Resultado editable del escáner IA ──────────────────────────
-function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, onVolver, onConfirmar }) {
+function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, onVolver, onConfirmar, subagentes }) {
   // Separar número y endoso si vienen juntos (ej: "2671100004205/24")
   useEffect(()=>{
     if(result && !editResult) {
@@ -3087,7 +3104,65 @@ function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, 
             <input value={er.whatsappCliente||""} onChange={e=>upd("whatsappCliente",e.target.value)} style={{...inpStyle,borderColor:"#bfdbfe"}} placeholder="10 dígitos"/>
           </div>
         </div>
+        {/* Dirección del cliente */}
+        <div style={{marginTop:10,paddingTop:10,borderTop:"1px dashed #bfdbfe"}}>
+          <div style={{fontSize:10,color:"#1e40af",fontWeight:800,marginBottom:8}}>📍 Dirección <span style={{fontWeight:600,color:"#3b82f6"}}>(solo se guarda si el cliente no tiene dirección registrada)</span></div>
+          <div style={{display:"grid",gridTemplateColumns:"2fr 0.8fr",gap:8,marginBottom:8}}>
+            <div>
+              <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:3}}>CALLE</div>
+              <input value={er.clienteCalle||""} onChange={e=>upd("clienteCalle",e.target.value)} style={{...inpStyle,borderColor:"#bfdbfe"}} placeholder="Nombre de la calle"/>
+            </div>
+            <div>
+              <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:3}}>NÚMERO</div>
+              <input value={er.clienteNumero||""} onChange={e=>upd("clienteNumero",e.target.value)} style={{...inpStyle,borderColor:"#bfdbfe"}} placeholder="123"/>
+            </div>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 0.7fr",gap:8,marginBottom:8}}>
+            <div>
+              <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:3}}>COLONIA</div>
+              <input value={er.clienteColonia||""} onChange={e=>upd("clienteColonia",e.target.value)} style={{...inpStyle,borderColor:"#bfdbfe"}} placeholder="Colonia"/>
+            </div>
+            <div>
+              <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:3}}>CIUDAD</div>
+              <input value={er.clienteCiudad||""} onChange={e=>upd("clienteCiudad",e.target.value)} style={{...inpStyle,borderColor:"#bfdbfe"}} placeholder="Ciudad"/>
+            </div>
+            <div>
+              <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:3}}>C.P.</div>
+              <input value={er.clienteCp||""} onChange={e=>upd("clienteCp",e.target.value)} style={{...inpStyle,borderColor:"#bfdbfe"}} placeholder="00000"/>
+            </div>
+          </div>
+          <div>
+            <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:3}}>ESTADO</div>
+            <select value={er.clienteEstado||""} onChange={e=>upd("clienteEstado",e.target.value)} style={{...inpStyle,borderColor:"#bfdbfe",paddingRight:4}}>
+              <option value="">— Seleccionar estado —</option>
+              {ESTADOS_MX.map(est=><option key={est}>{est}</option>)}
+            </select>
+          </div>
+        </div>
       </div>
+
+      {/* Subagente */}
+      {subagentes&&subagentes.length>0&&(
+        <div style={{background:"#f5f3ff",borderRadius:10,padding:"12px 14px",border:"1.5px solid #ddd6fe"}}>
+          <div style={{fontSize:11,fontWeight:800,color:"#5b21b6",marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
+            🤝 Subagente <span style={{fontSize:10,fontWeight:600,color:"#7c3aed"}}>(opcional — si aplica)</span>
+          </div>
+          <select value={er.subagenteId||""} onChange={e=>upd("subagenteId",e.target.value?Number(e.target.value):"")}
+            style={{...inpStyle,borderColor:"#ddd6fe",marginBottom:er.subagenteId?8:0}}>
+            <option value="">— Sin subagente —</option>
+            {subagentes.filter(s=>s.activo!==false).map(s=>(
+              <option key={s.id} value={s.id}>{s.nombre} {s.apellidoPaterno} {s.apellidoMaterno||""}</option>
+            ))}
+          </select>
+          {er.subagenteId&&(
+            <div>
+              <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:3}}>COMISIÓN SUBAGENTE (%)</div>
+              <input type="number" value={er.comisionSubagente||""} onChange={e=>upd("comisionSubagente",e.target.value)}
+                style={{...inpStyle,borderColor:"#ddd6fe"}} placeholder="0"/>
+            </div>
+          )}
+        </div>
+      )}
 
       {(er.coberturas||[]).length>0&&<div style={{background:"#f9fafb",borderRadius:9,padding:"10px 12px"}}>
         <div style={{fontSize:10,color:"#9ca3af",fontWeight:700,marginBottom:7}}>COBERTURAS DETECTADAS</div>
@@ -3101,7 +3176,7 @@ function ResultadoScan({ result, editResult, setEditResult, fileData, fileName, 
   );
 }
 
-function ScanPoliza({ onClose, onExtracted }) {
+function ScanPoliza({ onClose, onExtracted, subagentes }) {
   const [step,setStep]=useState("upload");
   const [dragOver,setDragOver]=useState(false);
   const [fileName,setFileName]=useState("");
@@ -3216,6 +3291,7 @@ function ScanPoliza({ onClose, onExtracted }) {
         setEditResult={setEditResult}
         fileData={fileData}
         fileName={fileName}
+        subagentes={subagentes||[]}
         onVolver={()=>{setStep("upload");setEditResult(null);}}
         onConfirmar={(er)=>{
           onExtracted(er, fileData ? {base64full:"data:"+fileData.type+";base64,"+fileData.base64,nombre:fileName,tipo:fileData.type} : null);
@@ -3226,481 +3302,6 @@ function ScanPoliza({ onClose, onExtracted }) {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// NOTIFICACIONES
-// ═══════════════════════════════════════════════════════════════════
-function Notificaciones({ polizas, plantillas, setPlantillas, plantillasDefault, clientes, configNotif:configNotifProp, setConfigNotif:setConfigNotifProp }) {
-  const [tab,setTab]=useState("recordatorios");
-  const [canal,setCanal]=useState("whatsapp");
-  const [diasAntes,setDiasAntes]=useState(30);
-  const [previewPoliza,setPreviewPoliza]=useState(null);
-  const [enviados,setEnviados]=useState([]);
-  const [toast,setToast]=useState(null);
-  // Plantillas
-  const [editandoTipo,setEditandoTipo]=useState("vencimiento");
-  const [editandoCanal,setEditandoCanalPlantilla]=useState("whatsapp");
-  const [clienteDemo,setClienteDemo]=useState(null);
-  const [nombreManual,setNombreManual]=useState("");
-
-  // Plantillas de email por defecto
-  const EMAIL_DEFAULT={
-    vencimiento:`Estimado/a {nombre},\n\nLe recordamos que su póliza está próxima a vencer:\n\n• Póliza: {numero}\n• Aseguradora: {aseguradora}\n• Ramo: {ramo}\n• Vencimiento: {vencimiento}\n• Prima: ${"{prima}"} ({frecuencia})\n\nPara renovar, contáctenos a la brevedad.\n\nAtentamente,\nSu Agente de Seguros`,
-    pago:`Estimado/a {nombre},\n\nConfirmamos la recepción de su pago:\n\n• Póliza: {numero}\n• Aseguradora: {aseguradora}\n• Vigencia hasta: {vencimiento}\n\nGracias por su puntualidad.\n\nAtentamente,\nSu Agente de Seguros`,
-    bienvenida:`Estimado/a {nombre},\n\n¡Bienvenido/a como cliente!\n\nSu póliza ha sido registrada:\n\n• Póliza: {numero}\n• Aseguradora: {aseguradora}\n• Ramo: {ramo}\n• Vigente hasta: {vencimiento}\n\nEstamos a sus órdenes.\n\nAtentamente,\nSu Agente de Seguros`,
-    renovacion:`Estimado/a {nombre},\n\nSu póliza ha sido renovada exitosamente:\n\n• Póliza: {numero}\n• Aseguradora: {aseguradora}\n• Nueva vigencia: {vencimiento}\n• Prima: ${"{prima}"} ({frecuencia})\n\nAtentamente,\nSu Agente de Seguros`,
-    personalizado:`Estimado/a {nombre},\n\nNos comunicamos con usted respecto a su póliza {numero}.\n\n[Escriba aquí su mensaje]\n\nAtentamente,\nSu Agente de Seguros`,
-  };
-  const [plantillasEmail,setPlantillasEmail]=useState(EMAIL_DEFAULT);
-
-  const TIPOS_PLANTILLA=[
-    {key:"vencimiento",label:"📅 Vencimiento",color:"#d97706",bg:"#fffbeb"},
-    {key:"pago",label:"💳 Pago recibido",color:"#059669",bg:"#f0fdf4"},
-    {key:"bienvenida",label:"🎉 Bienvenida",color:"#7c3aed",bg:"#f5f3ff"},
-    {key:"renovacion",label:"🔄 Renovación",color:"#2563eb",bg:"#eff6ff"},
-    {key:"personalizado",label:"✏️ Personalizado",color:"#6b7280",bg:"#f9fafb"},
-  ];
-  const [adjuntosEmail, setForm_adjuntos] = useState([]);
-  const configNotif = configNotifProp || {emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""};
-  const setConfigNotif = (updater) => {
-    const vals = typeof updater === "function" ? updater(configNotif) : updater;
-    if(setConfigNotifProp) setConfigNotifProp(vals);
-  };
-  const vars=["{nombre}","{numero}","{aseguradora}","{ramo}","{vencimiento}","{prima}","{frecuencia}"];
-
-  const aplicarVars = (tpl, p) => (tpl||"")
-    .replace(/{nombre}/g, p.cliente?.split(" ")[0]||p.cliente||"")
-    .replace(/{numero}/g, p.numero||"")
-    .replace(/{aseguradora}/g, p.aseguradora||"")
-    .replace(/{ramo}/g, p.subramo?`${p.ramo} › ${p.subramo}`:(p.ramo||""))
-    .replace(/{subramo}/g, p.subramo||"")
-    .replace(/{vencimiento}/g, p.vencimiento||"")
-    .replace(/{prima}/g, p.primaTotal?.toLocaleString()||p.prima?.toLocaleString()||"")
-    .replace(/{frecuencia}/g, p.formaPago||p.frecuencia||"");
-
-  const genWA   = (p) => aplicarVars(plantillas?.vencimiento, p);
-  const genEmail= (p) => aplicarVars(plantillas?.vencimiento, p);
-  const getMensaje=(p)=>canal==="whatsapp"?genWA(p):genEmail(p);
-
-  const showToast=(msg)=>{setToast(msg);setTimeout(()=>setToast(null),3000);};
-  const marcar=(id,tipo)=>{setEnviados(prev=>[...prev,{id,tipo,fecha:new Date().toLocaleString("es-MX")}]);showToast(`Notificación lista 🎉`);};
-  const yaEnviado=(id,tipo)=>enviados.some(e=>e.id===id&&e.tipo===tipo);
-
-  const enviarWA=(p)=>{const msg=encodeURIComponent(genWA(p));const tel=(p.telefonoCliente||"").replace(/\D/g,"");window.open(`https://wa.me/${tel?`52${tel}`:""}?text=${msg}`,"_blank");marcar(p.id,"whatsapp");};
-
-  const enviarEmail=(p)=>{window.open(`mailto:${p.emailCliente}?subject=${encodeURIComponent(`Recordatorio póliza ${p.numero}`)}&body=${encodeURIComponent(genEmail(p))}`,"_blank");marcar(p.id,"email");};
-
-  const proximasVencer=polizas.filter(p=>{
-    if(!p.vencimiento)return false;
-    const hoy=new Date();const venc=new Date(p.vencimiento);
-    const diff=Math.ceil((venc-hoy)/(1000*60*60*24));
-    return diff>=0&&diff<=diasAntes;
-  });
-
-  return(
-    <div style={{display:"flex",flexDirection:"column",gap:22}}>
-      {toast&&<div style={{position:"fixed",top:20,right:20,background:"#111827",color:"#fff",padding:"12px 20px",borderRadius:12,fontSize:13,fontWeight:600,zIndex:9999,boxShadow:"0 8px 24px rgba(0,0,0,0.3)"}}>{toast}</div>}
-      <SectionTitle title="Notificaciones" sub="Envía recordatorios de pago por WhatsApp o correo"/>
-
-      <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:11,padding:4,width:"fit-content"}}>
-        {[["recordatorios","📅 Recordatorios"],["historial","📋 Historial"],["plantillas","⚙️ Plantillas"],["config","🔧 Configuración"]].map(([t,l])=>(
-          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?"#fff":"none",border:"none",borderRadius:8,padding:"7px 18px",fontSize:13,fontWeight:600,cursor:"pointer",color:tab===t?"#111827":"#6b7280",boxShadow:tab===t?"0 1px 4px rgba(0,0,0,0.1)":"none",fontFamily:"inherit"}}>{l}</button>
-        ))}
-      </div>
-
-      {tab==="recordatorios"&&(
-        <>
-          <div style={{background:"#fff",borderRadius:14,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,0.07)",display:"flex",alignItems:"center",gap:20,flexWrap:"wrap"}}>
-            <div>
-              <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:8}}>CANAL</div>
-              <div style={{display:"flex",gap:8}}>
-                {[["whatsapp","💬 WhatsApp","#25d366","#f0fdf4","#15803d"],["email","📧 Correo","#2563eb","#eff6ff","#1d4ed8"]].map(([k,l,bc,bg,tc])=>(
-                  <button key={k} onClick={()=>setCanal(k)} style={{padding:"8px 16px",borderRadius:9,border:"2px solid",borderColor:canal===k?bc:"#e5e7eb",background:canal===k?bg:"#fff",color:canal===k?tc:"#6b7280",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:"inherit"}}>{l}</button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:6}}>DÍAS DE ANTICIPACIÓN: <strong style={{color:"#111827"}}>{diasAntes}</strong></div>
-              <input type="range" min={7} max={90} step={7} value={diasAntes} onChange={e=>setDiasAntes(Number(e.target.value))} style={{width:180}}/>
-            </div>
-            <div style={{marginLeft:"auto",background:"#fef3c7",borderRadius:11,padding:"10px 16px"}}>
-              <div style={{fontSize:11,fontWeight:700,color:"#92400e"}}>POR VENCER</div>
-              <div style={{fontSize:24,fontWeight:800,color:"#d97706"}}>{proximasVencer.length}</div>
-            </div>
-          </div>
-
-          {proximasVencer.length===0?(
-            <div style={{background:"#fff",borderRadius:14,padding:"40px 24px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-              <div style={{fontSize:36,marginBottom:8}}>✅</div>
-              <div style={{fontWeight:700,color:"#111827"}}>Sin vencimientos en los próximos {diasAntes} días</div>
-            </div>
-          ):(
-            <div style={{display:"flex",flexDirection:"column",gap:12}}>
-              {proximasVencer.map(p=>{
-                const dias=Math.ceil((new Date(p.vencimiento)-new Date())/(1000*60*60*24));
-                const prima = p.primaTotal||p.prima||0;
-                const frecuencia = p.formaPago||p.frecuencia||"";
-                const rc = ramoColor(p.ramo||"");
-                return(
-                  <div key={p.id} style={{background:"#fff",borderRadius:14,padding:18,boxShadow:"0 1px 6px rgba(0,0,0,0.07)",border:`1px solid ${dias<=7?"#fecaca":dias<=15?"#fde68a":"#e5e7eb"}`}}>
-                    <div style={{display:"flex",alignItems:"flex-start",gap:16}}>
-                      <div style={{flex:1}}>
-                        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
-                          <div style={{fontWeight:800,fontSize:14}}>{p.cliente||"—"}</div>
-                          <div style={{background:dias<=7?"#fee2e2":dias<=15?"#fef3c7":"#dbeafe",color:dias<=7?"#991b1b":dias<=15?"#92400e":"#1e40af",padding:"2px 9px",borderRadius:20,fontSize:12,fontWeight:700}}>
-                            {dias===0?"¡Hoy!":`${dias}d`}
-                          </div>
-                          {p.ramo&&<span style={{background:rc+"15",color:rc,padding:"2px 9px",borderRadius:20,fontSize:11,fontWeight:700}}>{p.ramo}{p.subramo?` · ${p.subramo}`:""}</span>}
-                        </div>
-                        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(120px,1fr))",gap:8}}>
-                          {[["Póliza",p.numero||"—"],["Aseguradora",p.aseguradora||"—"],["Prima",prima?`$${Number(prima).toLocaleString()} ${frecuencia}`:"—"],["Vencimiento",p.vencimiento||"—"],["Email",p.emailCliente||"—"]].map(([l,v])=>(
-                            <div key={l}><div style={{fontSize:10,color:"#9ca3af",fontWeight:700}}>{l}</div><div style={{fontSize:12,fontWeight:600}}>{v}</div></div>
-                          ))}
-                        </div>
-                      </div>
-                      <div style={{display:"flex",flexDirection:"column",gap:7,flexShrink:0}}>
-                        <button onClick={()=>setPreviewPoliza(previewPoliza?.id===p.id?null:p)} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 12px",borderRadius:8,border:"1.5px solid #e5e7eb",background:"#fff",color:"#374151",fontWeight:600,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>
-                          <Icon name="eye" size={13}/> Preview
-                        </button>
-                        <button onClick={()=>{navigator.clipboard.writeText(getMensaje(p));showToast("Copiado ✓");}} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 12px",borderRadius:8,border:"1.5px solid #e5e7eb",background:"#fff",color:"#374151",fontWeight:600,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>
-                          <Icon name="copy" size={13}/> Copiar
-                        </button>
-                        <button onClick={()=>enviarWA(p)} style={{display:"flex",alignItems:"center",gap:6,padding:"8px 12px",borderRadius:8,border:"none",background:yaEnviado(p.id,"whatsapp")?"#d1fae5":"#25d366",color:yaEnviado(p.id,"whatsapp")?"#065f46":"#fff",fontWeight:700,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>
-                          <Icon name="whatsapp" size={13}/> {yaEnviado(p.id,"whatsapp")?"WA ✓":"WhatsApp"}
-                        </button>
-                        <button onClick={()=>enviarEmail(p)} style={{display:"flex",alignItems:"center",gap:6,padding:"8px 12px",borderRadius:8,border:"none",background:yaEnviado(p.id,"email")?"#dbeafe":"#2563eb",color:yaEnviado(p.id,"email")?"#1e40af":"#fff",fontWeight:700,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>
-                          <Icon name="mail" size={13}/> {yaEnviado(p.id,"email")?"Email ✓":"Email"}
-                        </button>
-                      </div>
-                    </div>
-                    {previewPoliza?.id===p.id&&(
-                      <div style={{marginTop:14,background:canal==="whatsapp"?"#f0fdf4":"#eff6ff",borderRadius:10,padding:"14px 16px"}}>
-                        <div style={{fontSize:10,fontWeight:700,color:canal==="whatsapp"?"#15803d":"#1d4ed8",marginBottom:8,letterSpacing:"0.05em"}}>{canal==="whatsapp"?"📱 MENSAJE WHATSAPP":"📧 CORREO ELECTRÓNICO"}</div>
-                        <pre style={{margin:0,fontSize:12,color:"#374151",whiteSpace:"pre-wrap",fontFamily:"inherit",lineHeight:1.6}}>{getMensaje(p)}</pre>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </>
-      )}
-
-      {tab==="historial"&&(
-        <div style={{background:"#fff",borderRadius:14,padding:22,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-          <h3 style={{margin:"0 0 16px",fontSize:14,fontWeight:700}}>Historial de envíos</h3>
-          {enviados.length===0?<div style={{textAlign:"center",padding:"24px",color:"#9ca3af",fontSize:13}}>Sin envíos en esta sesión</div>:(
-            <table style={{width:"100%",borderCollapse:"collapse"}}>
-              <thead><tr style={{background:"#f9fafb"}}>{["Póliza — Cliente","Canal","Fecha"].map(h=><th key={h} style={{padding:"10px 13px",textAlign:"left",fontSize:11,fontWeight:700,color:"#6b7280"}}>{h}</th>)}</tr></thead>
-              <tbody>{enviados.map((e,i)=>{const p=polizas.find(x=>x.id===e.id);return(
-                <tr key={i} style={{borderTop:"1px solid #f3f4f6"}}>
-                  <td style={{padding:"11px 13px",fontSize:13}}>{p?.numero} — {p?.cliente}</td>
-                  <td style={{padding:"11px 13px"}}>{e.tipo==="whatsapp"?<span style={{color:"#15803d",fontWeight:700,fontSize:13}}>💬 WhatsApp</span>:<span style={{color:"#1d4ed8",fontWeight:700,fontSize:13}}>📧 Email</span>}</td>
-                  <td style={{padding:"11px 13px",fontSize:12,color:"#6b7280"}}>{e.fecha}</td>
-                </tr>
-              );})}</tbody>
-            </table>
-          )}
-        </div>
-      )}
-
-      {tab==="plantillas"&&(()=>{
-        const esMail=editandoCanal==="email";
-        const plantillasActuales=esMail?plantillasEmail:plantillas;
-        const setPlantillasActuales=esMail?setPlantillasEmail:setPlantillas;
-        const defaultActuales=esMail?EMAIL_DEFAULT:plantillasDefault;
-        const demoPoliza=clienteDemo?polizas.find(p=>p.clienteId===clienteDemo.id)||{cliente:`${clienteDemo.nombre} ${clienteDemo.apellidoPaterno}`}
-          :{cliente:"María González Ruiz",numero:"GNP-2024-001234",aseguradora:"GNP",ramo:"Vida",subramo:"Vida Individual",vencimiento:"2025-01-15",primaTotal:8400,formaPago:"Anual"};
-
-        const nombreVars = nombreManual.trim() || demoPoliza.cliente?.split(" ")[0] || "María";
-        const aplicarVarsDemo=(tpl)=>(tpl||"")
-          .replace(/{nombre}/g,nombreVars)
-          .replace(/{numero}/g,demoPoliza.numero||"GNP-2024-001234")
-          .replace(/{aseguradora}/g,demoPoliza.aseguradora||"GNP")
-          .replace(/{ramo}/g,demoPoliza.ramo||"Vida")
-          .replace(/{vencimiento}/g,demoPoliza.vencimiento||"2025-01-15")
-          .replace(/{prima}/g,(demoPoliza.primaTotal||demoPoliza.prima||8400).toLocaleString())
-          .replace(/{frecuencia}/g,demoPoliza.formaPago||"Anual");
-
-        return(
-          <div style={{display:"flex",flexDirection:"column",gap:16}}>
-            {/* Selector WhatsApp / Email */}
-            <div style={{display:"flex",gap:8}}>
-              {[["whatsapp","💬 WhatsApp","#25d366","#f0fdf4","#15803d"],["email","📧 Correo electrónico","#2563eb","#eff6ff","#1d4ed8"]].map(([k,l,bc,bg,tc])=>(
-                <button key={k} onClick={()=>setEditandoCanalPlantilla(k)}
-                  style={{padding:"9px 20px",borderRadius:10,border:`2px solid ${editandoCanal===k?bc:"#e5e7eb"}`,
-                    background:editandoCanal===k?bg:"#fff",color:editandoCanal===k?tc:"#6b7280",
-                    fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:"inherit"}}>
-                  {l}
-                </button>
-              ))}
-            </div>
-
-            <div style={{display:"grid",gridTemplateColumns:"220px 1fr",gap:16,alignItems:"start"}}>
-              {/* Lista de tipos */}
-              <div style={{display:"flex",flexDirection:"column",gap:7}}>
-                {TIPOS_PLANTILLA.map(t=>(
-                  <button key={t.key} onClick={()=>setEditandoTipo(t.key)}
-                    style={{background:editandoTipo===t.key?t.bg:"#fff",border:`2px solid ${editandoTipo===t.key?t.color:"#e5e7eb"}`,
-                      borderRadius:10,padding:"10px 13px",cursor:"pointer",fontFamily:"inherit",textAlign:"left"}}>
-                    <div style={{fontWeight:700,fontSize:13,color:editandoTipo===t.key?t.color:"#374151"}}>{t.label}</div>
-                  </button>
-                ))}
-                {/* Variables */}
-                <div style={{background:"#f8fafc",borderRadius:10,padding:"10px 12px",marginTop:4}}>
-                  <div style={{fontSize:10,fontWeight:800,color:"#6b7280",marginBottom:6}}>VARIABLES</div>
-                  <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
-                    {vars.map(v=>(
-                      <span key={v} onClick={()=>{
-                        const ta=document.getElementById("editor-notif-plantilla");
-                        if(ta){const s=ta.selectionStart,e=ta.selectionEnd,val=plantillasActuales[editandoTipo];
-                          const nv=val.slice(0,s)+v+val.slice(e);
-                          setPlantillasActuales(p=>({...p,[editandoTipo]:nv}));
-                          setTimeout(()=>{ta.focus();ta.setSelectionRange(s+v.length,s+v.length)},10);}
-                      }} style={{background:"#e0f2fe",color:"#0369a1",fontSize:10,padding:"2px 7px",borderRadius:5,fontFamily:"monospace",cursor:"pointer",fontWeight:600}}>{v}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Editor + preview */}
-              <div style={{display:"flex",flexDirection:"column",gap:12}}>
-                <div style={{background:"#fff",borderRadius:12,padding:16,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-                  <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:8}}>
-                    {esMail?"📧 PLANTILLA DE CORREO":"💬 PLANTILLA DE WHATSAPP"} — {TIPOS_PLANTILLA.find(t=>t.key===editandoTipo)?.label}
-                  </div>
-                  <textarea id="editor-notif-plantilla"
-                    value={plantillasActuales[editandoTipo]||""}
-                    onChange={e=>setPlantillasActuales(p=>({...p,[editandoTipo]:e.target.value}))}
-                    rows={8}
-                    style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:9,padding:"11px 13px",fontSize:13,fontFamily:"inherit",lineHeight:1.7,outline:"none",boxSizing:"border-box",resize:"vertical",color:"#374151"}}
-                  />
-                  <div style={{display:"flex",gap:9,marginTop:10}}>
-                    <button onClick={()=>setPlantillasActuales(p=>({...p,[editandoTipo]:defaultActuales[editandoTipo]}))}
-                      style={{background:"#f3f4f6",border:"none",borderRadius:8,padding:"8px 14px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",color:"#6b7280"}}>
-                      ↩ Restaurar
-                    </button>
-                    <button onClick={()=>showToast(esMail?"📧 Plantilla de correo guardada ✓":"💬 Plantilla WhatsApp guardada ✓")}
-                      style={{background:esMail?"#2563eb":"#25d366",border:"none",borderRadius:8,padding:"8px 20px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#fff",marginLeft:"auto"}}>
-                      💾 Guardar plantilla
-                    </button>
-                  </div>
-                </div>
-
-                {/* Preview */}
-                <div style={{background:esMail?"#eff6ff":"#f0fdf4",borderRadius:12,padding:14,border:`1.5px solid ${esMail?"#bfdbfe":"#bbf7d0"}`}}>
-                  <div style={{marginBottom:10}}>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-                      <div style={{fontSize:11,fontWeight:800,color:esMail?"#1e40af":"#065f46"}}>👁 VISTA PREVIA</div>
-                    </div>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                      <div>
-                        <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>SELECCIONAR CLIENTE</div>
-                        <select value={clienteDemo?.id||""}
-                          onChange={e=>{
-                            const c=clientes?.find(x=>x.id===Number(e.target.value));
-                            setClienteDemo(c||null);
-                            if(c) setNombreManual("");
-                          }}
-                          style={{border:"1.5px solid #e5e7eb",borderRadius:8,padding:"7px 10px",fontSize:12,outline:"none",fontFamily:"inherit",background:"#fff",width:"100%"}}>
-                          <option value="">— Datos de ejemplo —</option>
-                          {(clientes||[]).map(c=><option key={c.id} value={c.id}>{c.nombre} {c.apellidoPaterno}</option>)}
-                        </select>
-                      </div>
-                      <div>
-                        <div style={{fontSize:10,color:"#6b7280",fontWeight:700,marginBottom:4}}>O ESCRIBE EL NOMBRE</div>
-                        <input
-                          value={nombreManual}
-                          onChange={e=>{setNombreManual(e.target.value); if(e.target.value) setClienteDemo(null);}}
-                          placeholder="Ej: Juan, María..."
-                          style={{border:"1.5px solid "+(nombreManual?"#2563eb":"#e5e7eb"),borderRadius:8,padding:"7px 10px",fontSize:12,outline:"none",fontFamily:"inherit",background:"#fff",width:"100%",boxSizing:"border-box",transition:"border-color .15s"}}
-                        />
-                      </div>
-                    </div>
-                    {(clienteDemo||nombreManual)&&(
-                      <div style={{marginTop:6,fontSize:11,color:"#059669",fontWeight:600}}>
-                        ✓ Vista previa con nombre: <strong>{nombreManual||clienteDemo?.nombre}</strong>
-                      </div>
-                    )}
-                  </div>
-                  {esMail?(
-                    <div style={{background:"#fff",borderRadius:9,padding:"12px 14px",border:"1px solid #e5e7eb"}}>
-                      <pre style={{margin:0,fontSize:12,color:"#374151",whiteSpace:"pre-wrap",fontFamily:"inherit",lineHeight:1.7}}>
-                        {aplicarVarsDemo(plantillasActuales[editandoTipo])}
-                      </pre>
-                    </div>
-                  ):(
-                    <div style={{background:"#e9fbe9",borderRadius:"0 12px 12px 12px",padding:"11px 14px",maxWidth:"85%",boxShadow:"0 1px 3px rgba(0,0,0,0.08)"}}>
-                      <pre style={{margin:0,fontSize:12,color:"#111",whiteSpace:"pre-wrap",fontFamily:"inherit",lineHeight:1.7}}>
-                        {aplicarVarsDemo(plantillasActuales[editandoTipo])}
-                      </pre>
-                      <div style={{fontSize:10,color:"#6b7280",textAlign:"right",marginTop:5}}>12:00 ✓✓</div>
-                    </div>
-                  )}
-
-                  {/* ── BOTONES DE ENVÍO — aparecen en todos los tipos ── */}
-                  <div style={{marginTop:12,display:"flex",flexDirection:"column",gap:10}}>
-
-                    {!esMail&&(
-                      // ── WhatsApp ──
-                      clienteDemo?.whatsapp ? (
-                        <button onClick={()=>{
-                          const msg=encodeURIComponent(aplicarVarsDemo(plantillasActuales[editandoTipo]));
-                          const tel=(clienteDemo.whatsapp||"").replace(/\D/g,"");
-                          window.open(`https://wa.me/52${tel}?text=${msg}`,"_blank");
-                        }}
-                          style={{display:"inline-flex",alignItems:"center",gap:8,background:"#25d366",border:"none",
-                            borderRadius:9,padding:"10px 20px",fontSize:13,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit",width:"fit-content"}}>
-                          <Icon name="whatsapp" size={14}/> Enviar WhatsApp a {clienteDemo.nombre}
-                        </button>
-                      ) : (
-                        <div style={{background:"#f0fdf4",border:"1.5px dashed #86efac",borderRadius:9,padding:"10px 14px",fontSize:12,color:"#16a34a"}}>
-                          💬 <strong>Para enviar por WhatsApp:</strong> selecciona un cliente en "Vista previa" que tenga número de WhatsApp registrado.
-                        </div>
-                      )
-                    )}
-
-                    {esMail&&(
-                      // ── Correo ──
-                      <>
-                        {/* Adjuntos */}
-                        <div>
-                          <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:6}}>📎 Adjuntar archivos o imágenes (opcional)</div>
-                          <label style={{display:"inline-flex",alignItems:"center",gap:8,background:"#eff6ff",border:"1.5px dashed #93c5fd",
-                            borderRadius:9,padding:"8px 16px",fontSize:12,fontWeight:600,color:"#1d4ed8",cursor:"pointer"}}>
-                            <input type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
-                              onChange={e=>{
-                                const files=Array.from(e.target.files);
-                                setForm_adjuntos(prev=>[...prev,...files.map(f=>({name:f.name,size:f.size,type:f.type}))]);
-                              }}
-                              style={{display:"none"}}/>
-                            📁 Seleccionar archivos
-                          </label>
-                          {adjuntosEmail.length>0&&(
-                            <div style={{display:"flex",flexWrap:"wrap",gap:7,marginTop:8}}>
-                              {adjuntosEmail.map((a,i)=>(
-                                <div key={i} style={{background:"#f0f9ff",border:"1px solid #bae6fd",borderRadius:8,padding:"5px 10px",
-                                  fontSize:11,display:"flex",alignItems:"center",gap:6}}>
-                                  <span>{a.type.startsWith("image/")?"🖼":"📄"}</span>
-                                  <span style={{fontWeight:600,color:"#0369a1",maxWidth:130,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.name}</span>
-                                  <span style={{color:"#94a3b8"}}>({(a.size/1024).toFixed(0)}kb)</span>
-                                  <button onClick={()=>setForm_adjuntos(prev=>prev.filter((_,j)=>j!==i))}
-                                    style={{background:"none",border:"none",color:"#dc2626",cursor:"pointer",fontSize:14,padding:0,lineHeight:1}}>×</button>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Botón enviar email */}
-                        {clienteDemo?.email ? (
-                          <button onClick={()=>{
-                            const tipo=TIPOS_PLANTILLA.find(t=>t.key===editandoTipo);
-                            const asunto=encodeURIComponent(`${tipo?.label.replace(/[^\w ]/g,"")||"Mensaje"} — Póliza`);
-                            const cuerpo=encodeURIComponent(aplicarVarsDemo(plantillasActuales[editandoTipo]));
-                            window.open(`mailto:${clienteDemo.email}?subject=${asunto}&body=${cuerpo}`,"_blank");
-                          }}
-                            style={{display:"inline-flex",alignItems:"center",gap:8,background:"#2563eb",border:"none",
-                              borderRadius:9,padding:"10px 20px",fontSize:13,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit",width:"fit-content"}}>
-                            📧 Enviar correo a {clienteDemo.nombre}
-                          </button>
-                        ) : (
-                          <div style={{background:"#eff6ff",border:"1.5px dashed #93c5fd",borderRadius:9,padding:"10px 14px",fontSize:12,color:"#1d4ed8"}}>
-                            📧 <strong>Para enviar correo:</strong> selecciona un cliente en "Vista previa" que tenga email registrado.
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
-
-      {tab==="config"&&(
-        <div style={{display:"flex",flexDirection:"column",gap:20}}>
-          <div style={{background:"#fff",borderRadius:14,padding:22,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-            <div style={{fontWeight:800,fontSize:15,color:"#111827",marginBottom:4}}>📱 WhatsApp — Número de envío</div>
-            <div style={{fontSize:12,color:"#6b7280",marginBottom:16}}>Este es el número desde el cual se abrirán los chats de WhatsApp para enviar mensajes a tus clientes.</div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
-              <div>
-                <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:5}}>NÚMERO DE CELULAR (WhatsApp)</div>
-                <div style={{display:"flex",alignItems:"center",gap:8,background:"#f9fafb",border:"1.5px solid #e5e7eb",borderRadius:10,padding:"10px 14px"}}>
-                  <span style={{fontSize:16}}>📱</span>
-                  <input value={configNotif.celularWA} onChange={e=>setConfigNotif(p=>({...p,celularWA:e.target.value}))}
-                    placeholder="55 1234 5678" style={{border:"none",outline:"none",fontSize:13,flex:1,background:"transparent",fontFamily:"inherit"}}/>
-                </div>
-                <div style={{fontSize:11,color:"#9ca3af",marginTop:4}}>Sin prefijo +52 — solo los 10 dígitos</div>
-              </div>
-              <div>
-                <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:5}}>FIRMA EN MENSAJES WA</div>
-                <textarea value={configNotif.firmaWA} onChange={e=>setConfigNotif(p=>({...p,firmaWA:e.target.value}))}
-                  rows={2} placeholder="Ej: _Tu agente de seguros
-Tel: 55 1234 5678_"
-                  style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:10,padding:"10px 14px",fontSize:12,fontFamily:"inherit",resize:"none",outline:"none",boxSizing:"border-box",background:"#f9fafb"}}/>
-              </div>
-            </div>
-            <div style={{marginTop:14,background:"#f0fdf4",borderRadius:10,padding:"11px 14px",fontSize:12,color:"#065f46",border:"1px solid #bbf7d0"}}>
-              ✅ <strong>¿Cómo funciona?</strong> Al hacer clic en "Enviar WhatsApp" se abre <strong>wa.me</strong> con tu número como origen y el mensaje prellenado. No requiere integración adicional.
-            </div>
-          </div>
-
-          <div style={{background:"#fff",borderRadius:14,padding:22,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-            <div style={{fontWeight:800,fontSize:15,color:"#111827",marginBottom:4}}>📧 Correo Electrónico — Cuenta de envío</div>
-            <div style={{fontSize:12,color:"#6b7280",marginBottom:16}}>Configura la cuenta desde la cual se enviarán los correos a tus clientes.</div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
-              <div>
-                <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:5}}>CORREO REMITENTE</div>
-                <div style={{display:"flex",alignItems:"center",gap:8,background:"#f9fafb",border:"1.5px solid #e5e7eb",borderRadius:10,padding:"10px 14px"}}>
-                  <span style={{fontSize:16}}>📧</span>
-                  <input type="email" value={configNotif.emailRemitente} onChange={e=>setConfigNotif(p=>({...p,emailRemitente:e.target.value}))}
-                    placeholder="agente@tudominio.com" style={{border:"none",outline:"none",fontSize:13,flex:1,background:"transparent",fontFamily:"inherit"}}/>
-                </div>
-              </div>
-              <div>
-                <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:5}}>NOMBRE DEL REMITENTE</div>
-                <div style={{display:"flex",alignItems:"center",gap:8,background:"#f9fafb",border:"1.5px solid #e5e7eb",borderRadius:10,padding:"10px 14px"}}>
-                  <span style={{fontSize:16}}>👤</span>
-                  <input value={configNotif.nombreRemitente} onChange={e=>setConfigNotif(p=>({...p,nombreRemitente:e.target.value}))}
-                    placeholder="Ej: Ana Torres — Seguros" style={{border:"none",outline:"none",fontSize:13,flex:1,background:"transparent",fontFamily:"inherit"}}/>
-                </div>
-              </div>
-            </div>
-            <div style={{marginTop:14}}>
-              <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:5}}>FIRMA DE CORREO</div>
-              <textarea value={configNotif.firmaEmail} onChange={e=>setConfigNotif(p=>({...p,firmaEmail:e.target.value}))}
-                rows={4} placeholder={"Ej:\nAtentamente,\nAna Torres\nAgente de Seguros\nTel: 55 1234 5678\nwww.miseguros.com"}
-                style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:10,padding:"12px 14px",fontSize:12,fontFamily:"inherit",resize:"vertical",outline:"none",boxSizing:"border-box",background:"#f9fafb"}}/>
-            </div>
-            <div style={{marginTop:14,background:"#eff6ff",borderRadius:10,padding:"11px 14px",fontSize:12,color:"#1e40af",border:"1px solid #bfdbfe"}}>
-              📧 <strong>¿Cómo funciona?</strong> Al hacer clic en "Enviar correo" se abre tu cliente de email (Outlook, Gmail, etc.) con el destinatario, asunto y cuerpo prellenados usando estas configuraciones.
-            </div>
-            <div style={{marginTop:10,display:"flex",justifyContent:"flex-end"}}>
-              <button onClick={()=>{
-                setConfigNotif({
-                  emailRemitente: configNotif.emailRemitente,
-                  nombreRemitente: configNotif.nombreRemitente,
-                  firmaEmail: configNotif.firmaEmail,
-                  celularWA: configNotif.celularWA,
-                  firmaWA: configNotif.firmaWA,
-                });
-                showToast("✅ Configuración guardada correctamente");
-              }}
-                style={{background:"#0f172a",color:"#fff",border:"none",borderRadius:9,padding:"9px 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                💾 Guardar configuración
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// WHATSAPP CONFIG — Módulo de plantillas de mensajes
 // ═══════════════════════════════════════════════════════════════════
 function WhatsAppConfig({ plantillas, setPlantillas, plantillasDefault, clientes, polizas }) {
   const [activa, setActiva] = useState("vencimiento");
@@ -3902,7 +3503,7 @@ function PAI({ paiMetas, setPaiMetas }) {
   return(
     <div style={{display:"flex",flexDirection:"column",gap:24}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-        <SectionTitle title="PAI — Plan de Acción Individual" sub="Metas de bono por ramo · Seguimiento trimestral"/>
+        <SectionTitle title="Metas" sub="Plan de acción por ramo · Seguimiento de bono"/>
         <div style={{display:"flex",gap:10}}>
           {metasActivas.length>0&&<Btn onClick={generarAlertaIA} color="#7c3aed" icon="spark">Alerta Semanal IA</Btn>}
           <Btn onClick={()=>setShowModal(true)} color="#059669" icon="plus">Nueva Meta</Btn>
@@ -3912,7 +3513,7 @@ function PAI({ paiMetas, setPaiMetas }) {
       {paiMetas.length===0&&(
         <div style={{background:"#fff",borderRadius:16,padding:"48px 24px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
           <div style={{fontSize:44,marginBottom:12}}>🎯</div>
-          <div style={{fontWeight:800,fontSize:16,fontFamily:"'Playfair Display',serif",marginBottom:6}}>Sin metas PAI registradas</div>
+          <div style={{fontWeight:800,fontSize:16,fontFamily:"'Playfair Display',serif",marginBottom:6}}>Sin metas registradas</div>
           <div style={{fontSize:13,color:"#6b7280",marginBottom:20}}>Agrega tu primera meta de bono por ramo para comenzar el seguimiento</div>
           <Btn onClick={()=>setShowModal(true)} color="#059669" icon="plus">Crear primera meta</Btn>
         </div>
@@ -5621,6 +5222,7 @@ function Calendario({ polizas, clientes }) {
   const [anio, setAnio] = useState(new Date().getFullYear());
   const [filtro, setFiltro] = useState("todos");
   const [diaSelec, setDiaSelec] = useState(null);
+  const [polizaCalendario, setPolizaCalendario] = useState(null);
 
   const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
   const DIAS_SEMANA = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
@@ -5709,8 +5311,8 @@ function Calendario({ polizas, clientes }) {
           <div key={l} style={{background:"#fff",borderRadius:12,padding:"14px 18px",display:"flex",alignItems:"center",gap:12,boxShadow:"0 1px 6px rgba(0,0,0,.06)"}}>
             <span style={{fontSize:26}}>{ic}</span>
             <div>
-              <div style={{fontSize:28,fontWeight:900,color:c,fontFamily:"'Playfair Display',serif",lineHeight:1}}>{n}</div>
-              <div style={{fontSize:11,color:"#6b7280",marginTop:2}}>{l}</div>
+              <div style={{fontSize:32,fontWeight:900,color:c,fontFamily:"'Playfair Display',serif",lineHeight:1,letterSpacing:"-0.5px"}}>{n}</div>
+              <div style={{fontSize:12,color:"#374151",fontWeight:600,marginTop:3}}>{l}</div>
             </div>
           </div>
         ))}
@@ -5813,10 +5415,47 @@ function Calendario({ polizas, clientes }) {
                     {ev.sub&&<div style={{fontSize:10,color:"#6b7280"}}>{ev.sub}</div>}
                     <div style={{display:"flex",gap:6,marginTop:7,flexWrap:"wrap"}}>
                       {ev.tipo==="cumpleanos"&&(
-                        <button style={{background:"#25d366",color:"#fff",border:"none",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}
-                          onClick={()=>window.open("https://wa.me/?text="+encodeURIComponent("🎂 ¡Feliz cumpleaños "+ev.label+"! Que tengas un excelente día. — Tu Agente de Seguros"))}>
-                          💬 WhatsApp
-                        </button>
+                        <>
+                          <button style={{background:"#25d366",color:"#fff",border:"none",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}
+                            onClick={()=>{
+                              const num = ev.obj?.whatsapp||ev.obj?.telefono||"";
+                              const tel = num ? num.replace(/\D/g,"") : "";
+                              const msg = encodeURIComponent("🎂 ¡Feliz cumpleaños "+ev.label+"! Que tengas un excelente día. — Tu Agente de Seguros");
+                              window.open("https://wa.me/"+(tel?"52"+tel:"")+"?text="+msg);
+                            }}>
+                            💬 WhatsApp
+                          </button>
+                          {ev.obj?.email&&(
+                            <a href={`mailto:${ev.obj.email}?subject=${encodeURIComponent("🎂 ¡Feliz cumpleaños "+ev.label+"!")}&body=${encodeURIComponent("¡Hola "+ev.label+"!\n\nTe deseamos un feliz cumpleaños y un excelente día.\n\nSaludos,\nTu Agente de Seguros")}`}
+                              style={{background:"#2563eb",color:"#fff",border:"none",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit",textDecoration:"none",display:"inline-flex",alignItems:"center",gap:4}}>
+                              ✉️ Correo
+                            </a>
+                          )}
+                        </>
+                      )}
+                      {(ev.tipo==="vencimiento"||ev.tipo==="inicio")&&(
+                        <>
+                          <button style={{background:"#eff6ff",color:"#1d4ed8",border:"1px solid #bfdbfe",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}
+                            onClick={()=>setPolizaCalendario(ev.obj)}>
+                            👁 Ver póliza
+                          </button>
+                          {(ev.obj?.telefonoCliente||ev.obj?.whatsappCliente)&&(
+                            <button style={{background:"#25d366",color:"#fff",border:"none",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}
+                              onClick={()=>{
+                                const num = (ev.obj?.whatsappCliente||ev.obj?.telefonoCliente||"").replace(/\D/g,"");
+                                const msg = encodeURIComponent("Hola "+ev.obj?.cliente?.split(" ")[0]+", te recordamos que tu póliza "+ev.obj?.numero+" de "+ev.obj?.aseguradora+" vence el "+ev.obj?.vencimiento+". Contáctanos para renovarla. — Tu Agente de Seguros");
+                                window.open("https://wa.me/52"+num+"?text="+msg);
+                              }}>
+                              💬 WhatsApp
+                            </button>
+                          )}
+                          {ev.obj?.emailCliente&&(
+                            <a href={`mailto:${ev.obj.emailCliente}?subject=${encodeURIComponent("Tu póliza "+ev.obj.numero+" vence pronto")}&body=${encodeURIComponent("Hola "+ev.obj?.cliente?.split(" ")[0]+",\n\nTe recordamos que tu póliza "+ev.obj?.numero+" de "+ev.obj?.aseguradora+" vence el "+ev.obj?.vencimiento+".\n\nContáctanos para renovarla.\n\nSaludos,\nTu Agente de Seguros")}`}
+                              style={{background:"#2563eb",color:"#fff",border:"none",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit",textDecoration:"none",display:"inline-flex",alignItems:"center",gap:4}}>
+                              ✉️ Correo
+                            </a>
+                          )}
+                        </>
                       )}
                       {gcalUrl(ev)&&(
                         <a href={gcalUrl(ev)} target="_blank" rel="noopener noreferrer"
@@ -5859,13 +5498,61 @@ function Calendario({ polizas, clientes }) {
           </div>
         </div>
       </div>
+
+      {/* Modal detalle póliza desde calendario */}
+      {polizaCalendario&&(
+        <Modal title={`Póliza ${polizaCalendario.numero}`} onClose={()=>setPolizaCalendario(null)} wide maxW={580}>
+          <div style={{display:"flex",flexDirection:"column",gap:12}}>
+            <div style={{background:`linear-gradient(135deg,${ramoColor(polizaCalendario.ramo)},${ramoColor(polizaCalendario.ramo)}bb)`,borderRadius:12,padding:"14px 18px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div>
+                <div style={{fontSize:10,opacity:.8,fontWeight:700}}>{polizaCalendario.ramo?.toUpperCase()}{polizaCalendario.subramo?" · "+polizaCalendario.subramo.toUpperCase():""} · {polizaCalendario.aseguradora}</div>
+                <div style={{fontSize:18,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>{polizaCalendario.numero}</div>
+                <div style={{fontSize:12,opacity:.9,marginTop:2}}>{polizaCalendario.cliente}</div>
+              </div>
+              <div style={{textAlign:"right"}}>
+                <div style={{fontSize:9,opacity:.7}}>PRIMA TOTAL</div>
+                <div style={{fontSize:22,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>${(parseFloat(polizaCalendario.primaTotal)||parseFloat(polizaCalendario.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
+              </div>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
+              {[["Aseguradora",polizaCalendario.aseguradora||"—"],["Forma de pago",polizaCalendario.formaPago||polizaCalendario.frecuencia||"—"],["Inicio vigencia",polizaCalendario.inicio||"—"],["Fin vigencia",polizaCalendario.vencimiento||"—"],["Prima neta",polizaCalendario.primaNeta?`$${Number(polizaCalendario.primaNeta).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],["Agente",polizaCalendario.agentePoliza||"—"]].map(([l,v])=>(
+                <div key={l} style={{background:"#f9fafb",borderRadius:9,padding:"9px 12px"}}>
+                  <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>{l.toUpperCase()}</div>
+                  <div style={{fontSize:13,fontWeight:600,color:"#111827"}}>{v}</div>
+                </div>
+              ))}
+            </div>
+            {polizaCalendario.coberturas?.length>0&&(
+              <div style={{background:"#f0fdf4",borderRadius:9,padding:"10px 13px"}}>
+                <div style={{fontSize:9,color:"#065f46",fontWeight:700,marginBottom:6}}>COBERTURAS</div>
+                <div style={{display:"flex",flexWrap:"wrap",gap:5}}>{polizaCalendario.coberturas.map(c=><span key={c} style={{background:"#d1fae5",color:"#065f46",fontSize:11,padding:"2px 8px",borderRadius:14,fontWeight:600}}>{c}</span>)}</div>
+              </div>
+            )}
+            {/* Botones de contacto */}
+            <div style={{display:"flex",gap:9,flexWrap:"wrap",paddingTop:4}}>
+              {(polizaCalendario.whatsappCliente||polizaCalendario.telefonoCliente)&&(
+                <button style={{background:"#25d366",color:"#fff",border:"none",borderRadius:9,padding:"9px 16px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:6}}
+                  onClick={()=>{
+                    const num=(polizaCalendario.whatsappCliente||polizaCalendario.telefonoCliente||"").replace(/\D/g,"");
+                    const msg=encodeURIComponent("Hola "+polizaCalendario.cliente?.split(" ")[0]+", te recordamos que tu póliza "+polizaCalendario.numero+" de "+polizaCalendario.aseguradora+" vence el "+polizaCalendario.vencimiento+". Contáctanos para renovarla. — Tu Agente de Seguros");
+                    window.open("https://wa.me/52"+num+"?text="+msg);
+                  }}>
+                  💬 WhatsApp
+                </button>
+              )}
+              {polizaCalendario.emailCliente&&(
+                <a href={`mailto:${polizaCalendario.emailCliente}?subject=${encodeURIComponent("Tu póliza "+polizaCalendario.numero+" vence pronto")}&body=${encodeURIComponent("Hola "+polizaCalendario.cliente?.split(" ")[0]+",\n\nTe recordamos que tu póliza "+polizaCalendario.numero+" de "+polizaCalendario.aseguradora+" vence el "+polizaCalendario.vencimiento+".\n\nContáctanos para renovarla.\n\nSaludos,\nTu Agente de Seguros")}`}
+                  style={{background:"#2563eb",color:"#fff",border:"none",borderRadius:9,padding:"9px 16px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",textDecoration:"none",display:"inline-flex",alignItems:"center",gap:6}}>
+                  ✉️ Enviar correo
+                </a>
+              )}
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
-
-
-// ═══════════════════════════════════════════════════════════════════
-// SUBAGENTES
 // ═══════════════════════════════════════════════════════════════════
 function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
   const [tab, setTab] = useState("directorio"); // directorio | comisiones | reporte
@@ -6487,9 +6174,8 @@ export default function CRMSeguros() {
     {id:"clientes",       label:"Clientes",        icon:"clients"},
     {id:"polizas",        label:"Pólizas",         icon:"policies", badge:"IA"},
     {id:"pipeline",       label:"Prospectos",      icon:"pipeline"},
-    {id:"notificaciones", label:"Notificaciones",  icon:"bell"},
     {id:"importar",       label:"Importar BD",     icon:"scan"},
-    {id:"pai",            label:"PAI",             icon:"trophy"},
+    {id:"pai",            label:"Metas",           icon:"trophy"},
     {id:"configuracion",  label:"Configuración",   icon:"users", badge:"NEW"},
   ];
   const badgeColors={IA:"#2563eb",NEW:"#25d366"};
@@ -6534,7 +6220,7 @@ export default function CRMSeguros() {
         {vista==="dashboard"&&<Dashboard clientes={clientes} polizas={polizas} pipeline={pipeline} tareas={tareas} paiMetas={paiMetas}/>}
         {vista==="clientes"&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas}/>}
         {vista==="polizas"&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes} plantillas={plantillas}/>}
-        {vista==="notificaciones"&&<Notificaciones polizas={polizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes} configNotif={config} setConfigNotif={(vals)=>setConfig(p=>({...p,...vals}))}/>}
+
         {vista==="pai"&&<PAI paiMetas={paiMetas} setPaiMetas={setPaiMetas}/>}
         {vista==="pipeline"&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}
         {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas}/>}

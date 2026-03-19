@@ -3811,10 +3811,217 @@ function Pipeline({ pipeline, setPipeline }) {
   const [showModal,setShowModal]=useState(false);
   const [tab,setTab]=useState("kanban");
   const [tabPipeline,setTabPipeline]=useState("prospectos");
+  const [prospectoHistorial,setProspectoHistorial]=useState(null); // prospecto seleccionado para historial
   const [form,setForm]=useState({cliente:"",tipo:"",etapa:"Contacto",probabilidad:20,seguimiento:"",telefono:"",email:"",ciudad:"",edad:"",fuente:"Manual",landingUrl:"",redSocial:"",notas:""});
   const fuenteOpts=["Manual","Landing Page","Facebook","Instagram","LinkedIn","Referido","WhatsApp","Otro"];
   const fuenteColor={Manual:"#6b7280","Landing Page":"#2563eb",Facebook:"#1877f2",Instagram:"#e1306c",LinkedIn:"#0a66c2",Referido:"#059669",WhatsApp:"#25d366",Otro:"#6b7280"};
-  const guardar=()=>{if(!form.cliente)return;setPipeline(prev=>[...prev,{...form,id:Date.now(),probabilidad:Number(form.probabilidad),edad:Number(form.edad)||null,fechaAlta:new Date().toLocaleDateString("es-MX")}]);setShowModal(false);setForm({cliente:"",tipo:"",etapa:"Contacto",probabilidad:20,seguimiento:"",telefono:"",email:"",ciudad:"",edad:"",fuente:"Manual",landingUrl:"",redSocial:"",notas:""});};
+
+  // Guardar nuevo prospecto
+  const guardar=()=>{
+    if(!form.cliente)return;
+    setPipeline(prev=>[...prev,{
+      ...form,id:Date.now(),
+      probabilidad:Number(form.probabilidad),
+      edad:Number(form.edad)||null,
+      fechaAlta:new Date().toLocaleDateString("es-MX"),
+      historial:[{
+        id:Date.now(),
+        tipo:"etapa",
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+        texto:"Prospecto registrado",
+        etapa:"Contacto",
+      }]
+    }]);
+    setShowModal(false);
+    setForm({cliente:"",tipo:"",etapa:"Contacto",probabilidad:20,seguimiento:"",telefono:"",email:"",ciudad:"",edad:"",fuente:"Manual",landingUrl:"",redSocial:"",notas:""});
+  };
+
+  // Agregar entrada al historial
+  const agregarHistorial = (prospectoId, entrada) => {
+    setPipeline(prev=>prev.map(p=>p.id===prospectoId?{
+      ...p,
+      historial:[...(p.historial||[]), {
+        ...entrada,
+        id:Date.now(),
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+      }]
+    }:p));
+    // Actualizar el prospecto en el modal
+    setProspectoHistorial(prev=>prev?{
+      ...prev,
+      historial:[...(prev.historial||[]),{
+        ...entrada,
+        id:Date.now()+1,
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+      }]
+    }:null);
+  };
+
+  // Cambiar etapa con registro en historial
+  const cambiarEtapa = (prospectoId, nuevaEtapa) => {
+    const p = pipeline.find(x=>x.id===prospectoId);
+    if (!p||p.etapa===nuevaEtapa) return;
+    setPipeline(prev=>prev.map(x=>x.id===prospectoId?{
+      ...x,
+      etapa:nuevaEtapa,
+      historial:[...(x.historial||[]),{
+        id:Date.now(),
+        tipo:"etapa",
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+        texto:`Etapa cambiada a ${nuevaEtapa}`,
+        etapaAnterior:x.etapa,
+        etapa:nuevaEtapa,
+      }]
+    }:x));
+    setProspectoHistorial(prev=>prev&&prev.id===prospectoId?{
+      ...prev,etapa:nuevaEtapa,
+      historial:[...(prev.historial||[]),{
+        id:Date.now()+1,tipo:"etapa",
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+        texto:`Etapa cambiada a ${nuevaEtapa}`,etapaAnterior:prev.etapa,etapa:nuevaEtapa,
+      }]
+    }:prev);
+  };
+
+  // Config de tipos de entrada en historial
+  const TIPOS_HISTORIAL = [
+    {key:"nota",     label:"Nota",           icon:"📝", color:"#6b7280"},
+    {key:"llamada",  label:"Llamada",         icon:"📞", color:"#2563eb"},
+    {key:"cita",     label:"Cita",            icon:"📅", color:"#7c3aed"},
+    {key:"cotizacion",label:"Cotización",     icon:"📄", color:"#d97706"},
+    {key:"etapa",    label:"Cambio de etapa", icon:"🔄", color:"#059669"},
+  ];
+
+  // Modal historial
+  const ModalHistorial = ({ prospecto, onClose }) => {
+    const [tipoEntrada, setTipoEntrada] = useState("nota");
+    const [textoEntrada, setTextoEntrada] = useState("");
+    const [nuevaEtapa, setNuevaEtapa] = useState(prospecto.etapa);
+    const historial = [...(prospecto.historial||[])].reverse();
+
+    const guardarEntrada = () => {
+      if (!textoEntrada.trim() && tipoEntrada!=="etapa") return;
+      if (tipoEntrada==="etapa") {
+        cambiarEtapa(prospecto.id, nuevaEtapa);
+        setTextoEntrada("");
+        return;
+      }
+      const cfg = TIPOS_HISTORIAL.find(t=>t.key===tipoEntrada);
+      agregarHistorial(prospecto.id, {tipo:tipoEntrada, texto:textoEntrada, icon:cfg?.icon});
+      setTextoEntrada("");
+    };
+
+    return (
+      <Modal title={`📋 ${prospecto.cliente}`} onClose={onClose} wide maxW={680}>
+        <div style={{display:"flex",flexDirection:"column",gap:16}}>
+
+          {/* Header prospecto */}
+          <div style={{background:`linear-gradient(135deg,${colors[prospecto.etapa]||"#6b7280"},${colors[prospecto.etapa]||"#6b7280"}bb)`,borderRadius:12,padding:"14px 18px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div>
+              <div style={{fontSize:11,opacity:.8,fontWeight:700,letterSpacing:"0.06em"}}>{prospecto.fuente||"MANUAL"} · {prospecto.tipo||"Por definir"}</div>
+              <div style={{fontSize:20,fontWeight:800,fontFamily:"'Playfair Display',serif"}}>{prospecto.cliente}</div>
+              {prospecto.telefono&&<div style={{fontSize:12,opacity:.85,marginTop:2}}>📱 {prospecto.telefono}</div>}
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontSize:9,opacity:.7}}>PROBABILIDAD</div>
+              <div style={{fontSize:28,fontWeight:800,fontFamily:"'Inter',sans-serif"}}>{prospecto.probabilidad}%</div>
+              <div style={{fontSize:11,opacity:.8}}>{prospecto.etapa}</div>
+            </div>
+          </div>
+
+          {/* Cambiar etapa rápido */}
+          <div style={{background:"#f9fafb",borderRadius:11,padding:"12px 14px"}}>
+            <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:8}}>ETAPA ACTUAL</div>
+            <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+              {etapas.map(e=>(
+                <button key={e} onClick={()=>cambiarEtapa(prospecto.id,e)}
+                  style={{background:prospecto.etapa===e?colors[e]:"#fff",color:prospecto.etapa===e?"#fff":colors[e],
+                    border:`2px solid ${colors[e]}`,borderRadius:20,padding:"5px 14px",fontSize:11,
+                    fontWeight:700,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
+                  {e}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Registrar nueva entrada */}
+          <div style={{background:"#fff",border:"1.5px solid #e5e7eb",borderRadius:12,padding:"14px 16px"}}>
+            <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:10}}>REGISTRAR ACTIVIDAD</div>
+            <div style={{display:"flex",gap:6,marginBottom:12,flexWrap:"wrap"}}>
+              {TIPOS_HISTORIAL.filter(t=>t.key!=="etapa").map(t=>(
+                <button key={t.key} onClick={()=>setTipoEntrada(t.key)}
+                  style={{background:tipoEntrada===t.key?t.color:"#f3f4f6",color:tipoEntrada===t.key?"#fff":"#374151",
+                    border:"none",borderRadius:20,padding:"5px 13px",fontSize:11,fontWeight:700,
+                    cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:4}}>
+                  {t.icon} {t.label}
+                </button>
+              ))}
+            </div>
+            <textarea value={textoEntrada} onChange={e=>setTextoEntrada(e.target.value)}
+              placeholder={tipoEntrada==="llamada"?"Ej: Llamada realizada, interesado en GMM familiar, solicita cotización...":
+                tipoEntrada==="cita"?"Ej: Cita agendada para el martes a las 4pm en oficina...":
+                tipoEntrada==="cotizacion"?"Ej: Cotización enviada por WhatsApp — GNP GMM $8,400 anuales...":
+                "Escribe una nota sobre este prospecto..."}
+              rows={3} style={{border:"1.5px solid #e5e7eb",borderRadius:9,padding:"9px 12px",fontSize:13,
+                outline:"none",fontFamily:"inherit",width:"100%",resize:"none",boxSizing:"border-box"}}/>
+            <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}>
+              <Btn onClick={guardarEntrada} color="#0f172a" icon="plus">Registrar</Btn>
+            </div>
+          </div>
+
+          {/* Línea de tiempo */}
+          <div>
+            <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:14,letterSpacing:"0.06em"}}>HISTORIAL DE ACTIVIDAD</div>
+            {historial.length===0?(
+              <div style={{textAlign:"center",color:"#9ca3af",fontSize:13,padding:"24px 0"}}>Sin actividad registrada aún</div>
+            ):(
+              <div style={{position:"relative",paddingLeft:28}}>
+                {/* Línea vertical */}
+                <div style={{position:"absolute",left:9,top:4,bottom:4,width:2,background:"#e5e7eb",borderRadius:2}}/>
+                {historial.map((h,i)=>{
+                  const cfg = TIPOS_HISTORIAL.find(t=>t.key===h.tipo)||{icon:"📝",color:"#6b7280"};
+                  return(
+                    <div key={h.id||i} style={{position:"relative",marginBottom:18}}>
+                      {/* Punto en la línea */}
+                      <div style={{position:"absolute",left:-24,top:2,width:18,height:18,borderRadius:"50%",
+                        background:cfg.color,display:"flex",alignItems:"center",justifyContent:"center",
+                        fontSize:9,boxShadow:`0 0 0 3px #fff, 0 0 0 4px ${cfg.color}44`}}>
+                        <span style={{fontSize:10}}>{cfg.icon}</span>
+                      </div>
+                      {/* Contenido */}
+                      <div style={{background:"#f9fafb",borderRadius:10,padding:"10px 13px",border:"1px solid #f3f4f6"}}>
+                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+                          <span style={{fontSize:10,fontWeight:800,color:cfg.color,textTransform:"uppercase",letterSpacing:"0.05em"}}>
+                            {cfg.icon} {TIPOS_HISTORIAL.find(t=>t.key===h.tipo)?.label||h.tipo}
+                          </span>
+                          <span style={{fontSize:10,color:"#9ca3af"}}>{h.fecha} {h.hora}</span>
+                        </div>
+                        <div style={{fontSize:13,color:"#1e293b",fontWeight:500,lineHeight:1.5}}>{h.texto}</div>
+                        {h.etapaAnterior&&(
+                          <div style={{marginTop:5,display:"flex",alignItems:"center",gap:6,fontSize:11}}>
+                            <span style={{background:colors[h.etapaAnterior]+"22",color:colors[h.etapaAnterior],padding:"2px 9px",borderRadius:20,fontWeight:700}}>{h.etapaAnterior}</span>
+                            <span style={{color:"#9ca3af"}}>→</span>
+                            <span style={{background:colors[h.etapa]+"22",color:colors[h.etapa],padding:"2px 9px",borderRadius:20,fontWeight:700}}>{h.etapa}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+        </div>
+      </Modal>
+    );
+  };
+
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
@@ -3852,6 +4059,12 @@ function Pipeline({ pipeline, setPipeline }) {
                     <div style={{height:3,background:"#e5e7eb",borderRadius:2,width:50}}><div style={{height:"100%",width:`${item.probabilidad}%`,background:colors[etapa],borderRadius:2}}/></div>
                   </div>
                   <div style={{fontSize:10,color:"#9ca3af",marginTop:2}}>{item.probabilidad}% · {item.seguimiento||"—"}</div>
+                  <button onClick={()=>setProspectoHistorial(item)}
+                    style={{marginTop:7,width:"100%",background:"#f8fafc",border:"1.5px solid #e5e7eb",borderRadius:7,
+                      padding:"5px 0",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit",
+                      color:"#374151",display:"flex",alignItems:"center",justifyContent:"center",gap:4}}>
+                    📋 Ver historial {item.historial?.length?`(${item.historial.length})`:""}
+                  </button>
                 </div>
               ))}
             </div>
@@ -3861,7 +4074,7 @@ function Pipeline({ pipeline, setPipeline }) {
       {tab==="lista"&&(
         <div style={{background:"#fff",borderRadius:14,boxShadow:"0 1px 6px rgba(0,0,0,0.07)",overflow:"hidden"}}>
           <table style={{width:"100%",borderCollapse:"collapse"}}>
-            <thead><tr style={{background:"#f9fafb"}}>{["Nombre","Tipo","Ciudad","Edad","Fuente","Etapa","Seguimiento"].map(h=><th key={h} style={{padding:"10px 14px",textAlign:"left",fontSize:11,fontWeight:700,color:"#6b7280"}}>{h}</th>)}</tr></thead>
+            <thead><tr style={{background:"#f9fafb"}}>{["Nombre","Tipo","Ciudad","Edad","Fuente","Etapa","Seguimiento",""].map(h=><th key={h} style={{padding:"10px 14px",textAlign:"left",fontSize:11,fontWeight:700,color:"#6b7280"}}>{h}</th>)}</tr></thead>
             <tbody>{pipeline.map(p=>(
               <tr key={p.id} style={{borderTop:"1px solid #f3f4f6"}}>
                 <td style={{padding:"11px 14px",fontWeight:700,fontSize:13}}>{p.cliente}</td>
@@ -3871,6 +4084,14 @@ function Pipeline({ pipeline, setPipeline }) {
                 <td style={{padding:"11px 14px"}}><span style={{background:(fuenteColor[p.fuente]||"#6b7280")+"20",color:fuenteColor[p.fuente]||"#6b7280",padding:"2px 8px",borderRadius:6,fontSize:11,fontWeight:700}}>{p.fuente||"Manual"}</span></td>
                 <td style={{padding:"11px 14px"}}><span style={{background:(colors[p.etapa]||"#6b7280")+"20",color:colors[p.etapa]||"#6b7280",padding:"2px 8px",borderRadius:6,fontSize:11,fontWeight:700}}>{p.etapa}</span></td>
                 <td style={{padding:"11px 14px",fontSize:12,color:"#6b7280"}}>{p.seguimiento||"—"}</td>
+                <td style={{padding:"11px 14px"}}>
+                  <button onClick={()=>setProspectoHistorial(p)}
+                    style={{background:"#f3f4f6",border:"none",borderRadius:7,padding:"5px 12px",
+                      fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:"#374151",
+                      display:"flex",alignItems:"center",gap:4,whiteSpace:"nowrap"}}>
+                    📋 Historial {p.historial?.length?`(${p.historial.length})`:""}
+                  </button>
+                </td>
               </tr>
             ))}</tbody>
           </table>
@@ -3911,6 +4132,14 @@ function Pipeline({ pipeline, setPipeline }) {
             <Btn onClick={guardar} color="#7c3aed" style={{width:"100%",justifyContent:"center"}}>Guardar Prospecto</Btn>
           </div>
         </Modal>
+      )}
+
+      {/* Modal historial prospecto */}
+      {prospectoHistorial&&(
+        <ModalHistorial
+          prospecto={prospectoHistorial}
+          onClose={()=>setProspectoHistorial(null)}
+        />
       )}
     </div>
   );

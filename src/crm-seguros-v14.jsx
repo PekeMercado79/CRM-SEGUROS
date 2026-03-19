@@ -373,14 +373,7 @@ const KPICard = ({ label, value, sub, icon, accent }) => (
       <Icon name={icon} size={18}/>
     </div>
     <span style={{fontSize:10,color:"#94a3b8",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.1em"}}>{label}</span>
-    <div style={{
-      fontSize:32,
-      fontWeight:700,
-      color:"#0f172a",
-      fontFamily:"'Inter','DM Sans','Segoe UI',sans-serif",
-      lineHeight:1.1,
-      letterSpacing:"-0.5px"
-    }}>{value}</div>
+    <div style={{fontSize:30,fontWeight:700,color:"#0f172a",fontFamily:"'Inter',sans-serif",lineHeight:1.1,letterSpacing:"-0.5px"}}>{value}</div>
     {sub&&<div style={{fontSize:11,color:accent,fontWeight:600}}>{sub}</div>}
   </div>
 );
@@ -1746,13 +1739,22 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
               <div>
                 <label style={{fontSize:12,fontWeight:700,color:"#374151",display:"block",marginBottom:5}}>Inicio de vigencia *</label>
-                <Inp type="date" value={form.inicio} onChange={e=>sf("inicio",e.target.value)}/>
+                <Inp type="date" value={form.inicio} onChange={e=>{
+                  const inicio = e.target.value;
+                  sf("inicio", inicio);
+                  // Auto-calcular vencimiento = mismo día del año siguiente
+                  if (inicio) {
+                    const f = new Date(inicio+"T12:00:00");
+                    f.setFullYear(f.getFullYear()+1);
+                    sf("vencimiento", f.toISOString().slice(0,10));
+                  }
+                }}/>
                 <div style={{fontSize:11,color:"#9ca3af",marginTop:4}}>Desde las 12:00 hrs. del día indicado</div>
               </div>
               <div>
                 <label style={{fontSize:12,fontWeight:700,color:"#374151",display:"block",marginBottom:5}}>Fin de vigencia *</label>
                 <Inp type="date" value={form.vencimiento} onChange={e=>sf("vencimiento",e.target.value)}/>
-                <div style={{fontSize:11,color:"#9ca3af",marginTop:4}}>Hasta las 12:00 hrs. del día indicado</div>
+                <div style={{fontSize:11,color:"#9ca3af",marginTop:4}}>Se calcula automático — puedes editarlo</div>
               </div>
             </div>
             {form.inicio&&form.vencimiento&&(
@@ -2750,12 +2752,17 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                 </div>
               )}
               {/* Header ramo */}
-              <div style={{background:`linear-gradient(135deg,${ramoColor(p.ramo)},${ramoColor(p.ramo)}cc)`,padding:"13px 16px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-                <div>
-                  <div style={{fontSize:9,fontWeight:800,opacity:.8,letterSpacing:"0.1em"}}>{p.ramo?.toUpperCase()}{p.subramo?` · ${p.subramo.toUpperCase()}`:""}</div>
-                  <div style={{fontSize:12,fontWeight:700,letterSpacing:"0.04em",marginTop:2,fontFamily:"'Inter','Segoe UI',system-ui,sans-serif"}}>{p.numero}</div>
+              <div style={{background:`linear-gradient(135deg,${ramoColor(p.ramo)},${ramoColor(p.ramo)}cc)`,padding:"13px 16px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div style={{display:"flex",alignItems:"center",gap:10}}>
+                  <div style={{width:32,height:32,borderRadius:8,background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    <Icon name="policies" size={16}/>
+                  </div>
+                  <div>
+                    <div style={{fontSize:9,fontWeight:800,opacity:.75,letterSpacing:"0.1em"}}>{p.ramo?.toUpperCase()}{p.subramo?` · ${p.subramo.toUpperCase()}`:""}</div>
+                    <div style={{fontSize:13,fontWeight:800,letterSpacing:"0.03em",fontFamily:"'Inter','Segoe UI',sans-serif"}}>{p.numero}</div>
+                  </div>
                 </div>
-                <span style={{background:cfg.badge,color:cfg.color,padding:"2px 9px",borderRadius:20,fontSize:10,fontWeight:800}}>
+                <span style={{background:cfg.badge,color:cfg.color,padding:"2px 9px",borderRadius:20,fontSize:10,fontWeight:800,flexShrink:0}}>
                   {cfg.label}
                 </span>
               </div>
@@ -5827,8 +5834,11 @@ function ModalEditarPoliza({ poliza, subagentes, onGuardar, onClose }) {
           <div>{lbl("Aseguradora")}<input value={form.aseguradora} onChange={e=>upd("aseguradora",e.target.value)} style={inpS}/></div>
           <div>{lbl("Ramo")}<input value={form.ramo} onChange={e=>upd("ramo",e.target.value)} style={inpS}/></div>
           <div>{lbl("Subramo")}<input value={form.subramo} onChange={e=>upd("subramo",e.target.value)} style={inpS}/></div>
-          <div>{lbl("Inicio Vigencia")}<input type="date" value={form.inicio} onChange={e=>upd("inicio",e.target.value)} style={inpS}/></div>
-          <div>{lbl("Fin Vigencia")}<input type="date" value={form.vencimiento} onChange={e=>upd("vencimiento",e.target.value)} style={inpS}/></div>
+          <div>{lbl("Inicio Vigencia")}<input type="date" value={form.inicio} onChange={e=>{
+            upd("inicio",e.target.value);
+            if(e.target.value){const f=new Date(e.target.value+"T12:00:00");f.setFullYear(f.getFullYear()+1);upd("vencimiento",f.toISOString().slice(0,10));}
+          }} style={inpS}/></div>
+          <div>{lbl("Fin Vigencia")}<input type="date" value={form.vencimiento} onChange={e=>upd("vencimiento",e.target.value)} style={{...inpS,borderColor:"#6ee7b7"}}/></div>
         </div>
       </div>
 
@@ -6350,14 +6360,32 @@ function Calendario({ polizas, clientes, tareas }) {
       <div style={{display:"flex",gap:16,alignItems:"flex-start"}}>
         {/* Calendario */}
         <div style={{flex:1,background:"#fff",borderRadius:16,padding:"20px",boxShadow:"0 1px 8px rgba(0,0,0,.07)"}}>
-          {/* Navegación mes */}
+          {/* Navegación mes — con selectores */}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-            <button onClick={prevMes} style={{background:"#f3f4f6",border:"none",borderRadius:8,width:34,height:34,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}}>‹</button>
-            <div style={{textAlign:"center"}}>
-              <div style={{fontWeight:900,fontSize:19,color:"#0f172a",fontFamily:"'Playfair Display',serif"}}>{MESES[mes]}</div>
-              <div style={{fontSize:12,color:"#9ca3af",fontWeight:600}}>{anio}</div>
+            <button onClick={prevMes} style={{background:"#f1f5f9",border:"none",borderRadius:10,width:36,height:36,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",color:"#374151",transition:"all .15s"}}
+              onMouseEnter={e=>e.currentTarget.style.background="#e2e8f0"}
+              onMouseLeave={e=>e.currentTarget.style.background="#f1f5f9"}>‹</button>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              {/* Selector mes */}
+              <select value={mes} onChange={e=>setMes(Number(e.target.value))}
+                style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:9,padding:"6px 10px",
+                  fontSize:14,fontWeight:800,color:"#0f172a",fontFamily:"'Playfair Display',serif",
+                  cursor:"pointer",outline:"none",appearance:"none",textAlign:"center"}}>
+                {MESES.map((m,i)=><option key={i} value={i}>{m}</option>)}
+              </select>
+              {/* Selector año */}
+              <select value={anio} onChange={e=>setAnio(Number(e.target.value))}
+                style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:9,padding:"6px 10px",
+                  fontSize:14,fontWeight:700,color:"#475569",fontFamily:"'Inter',sans-serif",
+                  cursor:"pointer",outline:"none",appearance:"none",textAlign:"center"}}>
+                {Array.from({length:10},(_,i)=>new Date().getFullYear()-3+i).map(y=>(
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
             </div>
-            <button onClick={nextMes} style={{background:"#f3f4f6",border:"none",borderRadius:8,width:34,height:34,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}}>›</button>
+            <button onClick={nextMes} style={{background:"#f1f5f9",border:"none",borderRadius:10,width:36,height:36,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",color:"#374151",transition:"all .15s"}}
+              onMouseEnter={e=>e.currentTarget.style.background="#e2e8f0"}
+              onMouseLeave={e=>e.currentTarget.style.background="#f1f5f9"}>›</button>
           </div>
 
           {/* Filtros */}
@@ -6371,9 +6399,14 @@ function Calendario({ polizas, clientes, tareas }) {
             ))}
           </div>
 
-          {/* Encabezado días */}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:3}}>
-            {DIAS_SEMANA.map(d=><div key={d} style={{textAlign:"center",fontSize:10,fontWeight:800,color:"#9ca3af",padding:"3px 0"}}>{d}</div>)}
+          {/* Encabezado días — más estético */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:4}}>
+            {DIAS_SEMANA.map((d,i)=>(
+              <div key={d} style={{textAlign:"center",fontSize:10,fontWeight:800,
+                color:i>=5?"#dc2626":"#94a3b8",padding:"4px 0",letterSpacing:"0.05em"}}>
+                {d}
+              </div>
+            ))}
           </div>
 
           {/* Celdas */}
@@ -6388,23 +6421,27 @@ function Calendario({ polizas, clientes, tareas }) {
               const hayPorVenc=evs.some(e=>e.tipo==="vencimiento"&&e.st==="por vencer");
               const hayCumple=evs.some(e=>e.tipo==="cumpleanos");
               const hayInicio=evs.some(e=>e.tipo==="inicio");
+              const hayTarea=evs.some(e=>e.tipo==="tarea");
+              const esFinde = valido && ((i % 7) === 5 || (i % 7) === 6);
               return (
                 <div key={i} onClick={()=>valido&&setDiaSelec(diaSelec===dia?null:dia)}
-                  style={{minHeight:62,borderRadius:9,padding:"4px 5px",cursor:valido?"pointer":"default",
-                    background:!valido?"transparent":hoyF?"#0f172a":selec?"#e0e7ff":hayVenc?"#fef2f2":hayPorVenc?"#fffbeb":hayCumple?"#faf5ff":"#f9fafb",
-                    border:hoyF?"2px solid #3b82f6":selec?"2px solid #6366f1":hayVenc?"1.5px solid #fca5a5":hayPorVenc?"1.5px solid #fbbf24":hayCumple?"1.5px solid #c4b5fd":hayInicio?"1.5px solid #93c5fd":"1.5px solid transparent",
-                    transition:"all .1s"}}>
+                  style={{minHeight:64,borderRadius:10,padding:"4px 5px",cursor:valido?"pointer":"default",
+                    background:!valido?"transparent":hoyF?"#0f172a":selec?"#eff6ff":hayVenc?"#fef2f2":hayPorVenc?"#fffbeb":hayCumple?"#faf5ff":esFinde?"#fafafa":"#fff",
+                    border:hoyF?"2px solid #3b82f6":selec?"2px solid #6366f1":hayVenc?"1.5px solid #fca5a5":hayPorVenc?"1.5px solid #fbbf24":hayCumple?"1.5px solid #c4b5fd":hayInicio?"1.5px solid #93c5fd":hayTarea?"1.5px solid #fde68a":"1.5px solid #f1f5f9",
+                    transition:"all .1s",boxShadow:selec?"0 2px 8px rgba(99,102,241,0.15)":"none"}}>
                   {valido&&(
                     <>
-                      <div style={{fontSize:11,fontWeight:hoyF?900:600,color:hoyF?"#fff":"#374151",marginBottom:2}}>{dia}</div>
+                      <div style={{fontSize:12,fontWeight:hoyF?900:esFinde?600:500,
+                        color:hoyF?"#fff":esFinde?"#94a3b8":"#374151",
+                        marginBottom:2,textAlign:"center"}}>{dia}</div>
                       {evs.slice(0,2).map((ev,ei)=>(
                         <div key={ei} title={`${ev.label} — ${ev.sub}`}
-                          style={{fontSize:8,fontWeight:700,color:"#fff",background:ev.color,borderRadius:3,padding:"1px 3px",marginBottom:1,
+                          style={{fontSize:8,fontWeight:700,color:"#fff",background:ev.color,borderRadius:4,padding:"1px 4px",marginBottom:1,
                             overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                           {ev.icon} {ev.label}
                         </div>
                       ))}
-                      {evs.length>2&&<div style={{fontSize:8,color:"#9ca3af",textAlign:"right"}}>+{evs.length-2}</div>}
+                      {evs.length>2&&<div style={{fontSize:8,color:"#9ca3af",textAlign:"right",marginTop:1}}>+{evs.length-2}</div>}
                     </>
                   )}
                 </div>

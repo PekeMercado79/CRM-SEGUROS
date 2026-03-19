@@ -268,21 +268,20 @@ const Badge = ({ status }) => {
 };
 
 const KPICard = ({ label, value, sub, icon, accent }) => (
-  <div style={{background:"#fff",borderRadius:16,padding:"22px 24px",boxShadow:"0 2px 10px rgba(0,0,0,0.08)",borderTop:`4px solid ${accent}`,display:"flex",flexDirection:"column",gap:6,position:"relative",overflow:"hidden"}}>
-    <div style={{position:"absolute",right:14,top:14,background:accent+"18",color:accent,borderRadius:10,padding:7,display:"flex"}}>
+  <div style={{background:"#fff",borderRadius:16,padding:"20px 22px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)",borderTop:`3px solid ${accent}`,display:"flex",flexDirection:"column",gap:6,position:"relative",overflow:"hidden"}}>
+    <div style={{position:"absolute",right:14,top:14,background:accent+"15",color:accent,borderRadius:10,padding:7,display:"flex"}}>
       <Icon name={icon} size={18}/>
     </div>
-    <span style={{fontSize:10,color:"#9ca3af",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em"}}>{label}</span>
+    <span style={{fontSize:10,color:"#94a3b8",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.1em"}}>{label}</span>
     <div style={{
-      fontSize:36,
-      fontWeight:800,
+      fontSize:32,
+      fontWeight:700,
       color:"#0f172a",
-      fontFamily:"'Playfair Display',Georgia,'Times New Roman',serif",
+      fontFamily:"'Inter','DM Sans','Segoe UI',sans-serif",
       lineHeight:1.1,
-      letterSpacing:"-1.5px",
-      fontStyle:"normal"
+      letterSpacing:"-0.5px"
     }}>{value}</div>
-    {sub&&<div style={{fontSize:11,color:accent,fontWeight:700,letterSpacing:"0.02em"}}>{sub}</div>}
+    {sub&&<div style={{fontSize:11,color:accent,fontWeight:600}}>{sub}</div>}
   </div>
 );
 
@@ -487,60 +486,6 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
             <Bar dataKey="faltante" name="Faltante" fill="#e5e7eb" radius={[0,4,4,0]} stackId="a"/>
           </BarChart>
         </ResponsiveContainer>
-      </div>
-
-      {/* Alertas y tareas */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:18}}>
-        <div style={{background:"#fff",borderRadius:16,padding:20,boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>
-          <h3 style={{margin:"0 0 14px",fontSize:15,fontWeight:800,color:"#111827",fontFamily:"'Playfair Display',serif",display:"flex",alignItems:"center",gap:8}}>
-            <span style={{background:"#fef2f2",borderRadius:8,padding:"4px 8px",fontSize:14}}>⚠️</span> Alertas de Pólizas
-          </h3>
-          {polizas.filter(p=>["por vencer","vencida"].includes(getStDash(p))).map(p=>(
-            <div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 13px",background:getStDash(p)==="vencida"?"#fef2f2":"#fffbeb",borderRadius:11,marginBottom:8,borderLeft:`3px solid ${getStDash(p)==="vencida"?"#dc2626":"#d97706"}`}}>
-              <div style={{flex:1}}>
-                <div style={{fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif",color:"#0f172a"}}>{p.numero}</div>
-                <div style={{fontSize:11,color:"#6b7280",marginTop:2}}>{p.cliente} · {p.aseguradora}</div>
-                <div style={{display:"flex",alignItems:"center",gap:6,marginTop:4}}>
-                  <span style={{fontSize:13,fontWeight:900,color:getStDash(p)==="vencida"?"#dc2626":"#d97706",fontFamily:"'Playfair Display',serif"}}>${(parseFloat(p.primaTotal)||parseFloat(p.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</span>
-                  <span style={{fontSize:10,color:"#9ca3af"}}>· {p.vencimiento}</span>
-                </div>
-              </div>
-              <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5}}>
-                <Badge status={getStDash(p)}/>
-                <button onClick={()=>setAlertaDetalle(p)} title="Ver detalle"
-                  style={{background:"#eff6ff",border:"1px solid #bfdbfe",borderRadius:7,width:28,height:28,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13}}>
-                  👁
-                </button>
-              </div>
-            </div>
-          ))}
-          {!polizas.filter(p=>["por vencer","vencida"].includes(getStDash(p))).length&&(
-            <div style={{color:"#9ca3af",fontSize:13,textAlign:"center",padding:"24px 0"}}>
-              <div style={{fontSize:28,marginBottom:6}}>✅</div>
-              Sin alertas activas
-            </div>
-          )}
-        </div>
-        <div style={{background:"#fff",borderRadius:16,padding:20,boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>
-          <h3 style={{margin:"0 0 14px",fontSize:15,fontWeight:800,color:"#111827",fontFamily:"'Playfair Display',serif",display:"flex",alignItems:"center",gap:8}}>
-            <span style={{background:"#fef2f2",borderRadius:8,padding:"4px 8px",fontSize:14}}>📋</span> Tareas Urgentes
-          </h3>
-          {tareas.filter(t=>!t.done&&t.prioridad==="alta").slice(0,4).map(t=>(
-            <div key={t.id} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"10px 13px",background:"#fef2f2",borderRadius:11,marginBottom:8,borderLeft:"3px solid #dc2626"}}>
-              <div style={{width:8,height:8,borderRadius:"50%",background:"#dc2626",flexShrink:0,marginTop:4}}/>
-              <div style={{flex:1}}>
-                <div style={{fontSize:12,fontWeight:700,color:"#111827"}}>{t.titulo}</div>
-                <div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>📅 {t.fecha}</div>
-              </div>
-            </div>
-          ))}
-          {!tareas.filter(t=>!t.done&&t.prioridad==="alta").length&&(
-            <div style={{color:"#9ca3af",fontSize:13,textAlign:"center",padding:"24px 0"}}>
-              <div style={{fontSize:28,marginBottom:6}}>✅</div>
-              Sin tareas urgentes
-            </div>
-          )}
-        </div>
       </div>
 
       {alertaDetalle&&(
@@ -2495,8 +2440,8 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
               style={{background:filtro===s?cfg.bg:"#fff",borderRadius:12,padding:"12px 16px",cursor:"pointer",
                 border:`2px solid ${filtro===s?cfg.color:"#e5e7eb"}`,boxShadow:"0 1px 4px rgba(0,0,0,.05)",transition:"all .15s"}}>
               <div style={{fontSize:20,marginBottom:4}}>{ic}</div>
-              <div style={{fontSize:30,fontWeight:900,color:cfg.color,fontFamily:"'Playfair Display',serif",lineHeight:1,letterSpacing:"-0.5px"}}>{counts[s]}</div>
-              <div style={{fontSize:12,fontWeight:700,color:"#374151",marginTop:3}}>{cfg.label.replace(/[●⚠✗○] /,"")}</div>
+              <div style={{fontSize:30,fontWeight:700,color:cfg.color,fontFamily:"'Inter','DM Sans',sans-serif",lineHeight:1,letterSpacing:"-0.5px"}}>{counts[s]}</div>
+              <div style={{fontSize:12,fontWeight:600,color:"#374151",marginTop:3}}>{cfg.label.replace(/[●⚠✗○] /,"")}</div>
             </div>
           );
         })}
@@ -5367,7 +5312,7 @@ function Calendario({ polizas, clientes, tareas }) {
           <div key={l} style={{background:"#fff",borderRadius:12,padding:"14px 18px",display:"flex",alignItems:"center",gap:12,boxShadow:"0 1px 6px rgba(0,0,0,.06)"}}>
             <span style={{fontSize:26}}>{ic}</span>
             <div>
-              <div style={{fontSize:32,fontWeight:900,color:c,fontFamily:"'Playfair Display',serif",lineHeight:1,letterSpacing:"-0.5px"}}>{n}</div>
+              <div style={{fontSize:32,fontWeight:700,color:c,fontFamily:"'Inter','DM Sans',sans-serif",lineHeight:1,letterSpacing:"-0.5px"}}>{n}</div>
               <div style={{fontSize:12,color:"#374151",fontWeight:600,marginTop:3}}>{l}</div>
             </div>
           </div>
@@ -6242,20 +6187,19 @@ export default function CRMSeguros() {
   const badgeColors={IA:"#2563eb",NEW:"#25d366"};
 
   useEffect(()=>{
-    // Garantizar carga de fuentes en <head>
-    if (!document.getElementById("playfair-font")) {
+    if (!document.getElementById("crm-fonts")) {
       const link = document.createElement("link");
-      link.id = "playfair-font";
+      link.id = "crm-fonts";
       link.rel = "stylesheet";
-      link.href = "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap";
+      link.href = "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap";
       document.head.appendChild(link);
     }
     if (!document.getElementById("crm-global-style")) {
       const style = document.createElement("style");
       style.id = "crm-global-style";
       style.textContent = `
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
-        .playfair { font-family: 'Playfair Display', Georgia, 'Times New Roman', serif !important; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+        * { box-sizing: border-box; }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes bounce { 0%,80%,100%{transform:scale(.8);opacity:.5} 40%{transform:scale(1.2);opacity:1} }
       `;
@@ -6264,7 +6208,7 @@ export default function CRMSeguros() {
   },[]);
 
   return(
-    <div style={{display:"flex",height:"100vh",fontFamily:"'DM Sans','Segoe UI',sans-serif",background:"#f1f5f9"}}>
+    <div style={{display:"flex",height:"100vh",fontFamily:"'Inter','DM Sans','Segoe UI',sans-serif",background:"#f1f5f9"}}>
 
       {/* Sidebar */}
       <div style={{width:228,background:"#0f172a",display:"flex",flexDirection:"column",padding:"20px 0",flexShrink:0}}>

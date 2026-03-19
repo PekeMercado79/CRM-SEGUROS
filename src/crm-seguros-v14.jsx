@@ -7521,6 +7521,19 @@ function LoginScreen({ usuarios, config, onLogin }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// HOOK useIsMobile
+// ═══════════════════════════════════════════════════════════════════
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+  return isMobile;
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // APP PRINCIPAL
 // ═══════════════════════════════════════════════════════════════════
 export default function CRMSeguros() {
@@ -7642,6 +7655,7 @@ export default function CRMSeguros() {
 
   const rol = sesion.rol || "capturista";
   const puede = (accion) => puedeVer(rol, accion);
+  const isMobile = useIsMobile();
 
   const nav=[
     {id:"dashboard",     label:"Dashboard",    icon:"dashboard"},
@@ -7672,15 +7686,21 @@ export default function CRMSeguros() {
         * { box-sizing: border-box; }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes bounce { 0%,80%,100%{transform:scale(.8);opacity:.5} 40%{transform:scale(1.2);opacity:1} }
+        @keyframes slideUp { from { transform:translateY(100%); opacity:0; } to { transform:translateY(0); opacity:1; } }
+        .crm-main-content { padding: 28px 32px; }
+        @media (max-width: 768px) {
+          .crm-main-content { padding: 16px 14px 80px 14px !important; }
+        }
       `;
       document.head.appendChild(style);
     }
   },[]);
 
   return(
-    <div style={{display:"flex",height:"100vh",fontFamily:"'Inter','DM Sans','Segoe UI',sans-serif",background:"#f1f5f9"}}>
+    <div style={{display:"flex",height:"100vh",fontFamily:"'Inter','DM Sans','Segoe UI',sans-serif",background:"#f1f5f9",flexDirection:isMobile?"column":"row"}}>
 
-      {/* Sidebar */}
+      {/* Sidebar — solo desktop */}
+      {!isMobile&&(
       <div style={{width:228,background:"#0f172a",display:"flex",flexDirection:"column",padding:"20px 0",flexShrink:0}}>
         <div style={{padding:"0 16px 20px"}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
@@ -7733,9 +7753,34 @@ export default function CRMSeguros() {
           </div>
         </div>
       </div>
+      )}
+
+      {/* Header móvil */}
+      {isMobile&&(
+        <div style={{background:"#0f172a",padding:"12px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,zIndex:10}}>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <div style={{width:28,height:28,background:"linear-gradient(135deg,#2563eb,#7c3aed)",borderRadius:7,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}>
+              <Icon name="shield" size={14}/>
+            </div>
+            <span style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>SeguroCRM</span>
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
+            {totalNotif>0&&(
+              <button onClick={()=>setNotifPanel(v=>!v)}
+                style={{background:"rgba(220,38,38,0.2)",border:"none",borderRadius:8,padding:"6px 10px",cursor:"pointer",display:"flex",alignItems:"center",gap:5,color:"#fca5a5"}}>
+                <Icon name="bell" size={14}/>
+                <span style={{fontSize:11,fontWeight:800}}>{totalNotif}</span>
+              </button>
+            )}
+            <div style={{width:28,height:28,borderRadius:"50%",background:"linear-gradient(135deg,#2563eb,#7c3aed)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:700,fontSize:10}}>
+              {(sesion.nombre||"U").slice(0,2).toUpperCase()}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Contenido */}
-      <div style={{flex:1,overflowY:"auto",padding:"28px 32px",position:"relative"}}>
+      <div style={{flex:1,overflowY:"auto",padding:"28px 32px",position:"relative"}} className="crm-main-content">
 
         {/* Toast Google Calendar */}
         {gcalToast&&(
@@ -7863,6 +7908,48 @@ export default function CRMSeguros() {
           </div>
         )}
       </div>
+
+      {/* Barra navegación inferior — solo móvil */}
+      {isMobile&&(
+        <div style={{position:"fixed",bottom:0,left:0,right:0,background:"#0f172a",
+          borderTop:"1px solid #1e293b",display:"flex",alignItems:"center",
+          justifyContent:"space-around",padding:"6px 0 10px",zIndex:100,
+          boxShadow:"0 -4px 20px rgba(0,0,0,0.3)"}}>
+          {[
+            {id:"dashboard",  label:"Inicio",    icon:"dashboard"},
+            {id:"clientes",   label:"Clientes",  icon:"clients"},
+            {id:"polizas",    label:"Pólizas",   icon:"policies"},
+            {id:"calendario", label:"Agenda",    icon:"tasks"},
+            {id:"_mas",       label:"Más",       icon:"users"},
+          ].filter(item=>item.id==="polizas"||item.id==="_mas"||puede(item.id)).map(item=>{
+            const activo = item.id==="_mas"
+              ? ["pai","pipeline","importar","configuracion"].includes(vista)
+              : vista===item.id;
+            return (
+              <button key={item.id} onClick={()=>{
+                if(item.id==="_mas") setVista(vista==="configuracion"?"dashboard":"configuracion");
+                else setVista(item.id);
+              }}
+                style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,
+                  background:"none",border:"none",cursor:"pointer",padding:"4px 8px",
+                  color:activo?"#93c5fd":"#475569",fontFamily:"inherit",flex:1,
+                  position:"relative",transition:"color .15s"}}>
+                <Icon name={item.icon} size={20}/>
+                <span style={{fontSize:9,fontWeight:activo?800:500}}>{item.label}</span>
+                {activo&&<div style={{position:"absolute",top:-6,left:"50%",transform:"translateX(-50%)",width:4,height:4,borderRadius:"50%",background:"#3b82f6"}}/>}
+              </button>
+            );
+          })}
+          <button onClick={()=>setNotifPanel(v=>!v)}
+            style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,
+              background:"none",border:"none",cursor:"pointer",padding:"4px 8px",
+              color:totalNotif>0?"#fca5a5":"#475569",fontFamily:"inherit",flex:1,position:"relative"}}>
+            <Icon name="bell" size={20}/>
+            <span style={{fontSize:9,fontWeight:500}}>Alertas</span>
+            {totalNotif>0&&<span style={{position:"absolute",top:0,right:"20%",background:"#dc2626",color:"#fff",fontSize:8,borderRadius:"50%",width:14,height:14,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800}}>{totalNotif}</span>}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -268,13 +268,21 @@ const Badge = ({ status }) => {
 };
 
 const KPICard = ({ label, value, sub, icon, accent }) => (
-  <div style={{background:"#fff",borderRadius:16,padding:"20px 22px",boxShadow:"0 2px 8px rgba(0,0,0,0.08)",borderTop:`4px solid ${accent}`,display:"flex",flexDirection:"column",gap:8,position:"relative",overflow:"hidden"}}>
-    <div style={{position:"absolute",right:16,top:16,background:accent+"15",color:accent,borderRadius:12,padding:8,display:"flex"}}>
-      <Icon name={icon} size={20}/>
+  <div style={{background:"#fff",borderRadius:16,padding:"22px 24px",boxShadow:"0 2px 10px rgba(0,0,0,0.08)",borderTop:`4px solid ${accent}`,display:"flex",flexDirection:"column",gap:6,position:"relative",overflow:"hidden"}}>
+    <div style={{position:"absolute",right:14,top:14,background:accent+"18",color:accent,borderRadius:10,padding:7,display:"flex"}}>
+      <Icon name={icon} size={18}/>
     </div>
-    <span style={{fontSize:11,color:"#6b7280",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em"}}>{label}</span>
-    <div style={{fontSize:34,fontWeight:900,color:"#0f172a",fontFamily:"'Playfair Display',serif",lineHeight:1,letterSpacing:"-1px"}}>{value}</div>
-    {sub&&<div style={{fontSize:11,color:accent,fontWeight:600}}>{sub}</div>}
+    <span style={{fontSize:10,color:"#9ca3af",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em"}}>{label}</span>
+    <div style={{
+      fontSize:36,
+      fontWeight:800,
+      color:"#0f172a",
+      fontFamily:"'Playfair Display',Georgia,'Times New Roman',serif",
+      lineHeight:1.1,
+      letterSpacing:"-1.5px",
+      fontStyle:"normal"
+    }}>{value}</div>
+    {sub&&<div style={{fontSize:11,color:accent,fontWeight:700,letterSpacing:"0.02em"}}>{sub}</div>}
   </div>
 );
 
@@ -6233,9 +6241,30 @@ export default function CRMSeguros() {
   ];
   const badgeColors={IA:"#2563eb",NEW:"#25d366"};
 
+  useEffect(()=>{
+    // Garantizar carga de fuentes en <head>
+    if (!document.getElementById("playfair-font")) {
+      const link = document.createElement("link");
+      link.id = "playfair-font";
+      link.rel = "stylesheet";
+      link.href = "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap";
+      document.head.appendChild(link);
+    }
+    if (!document.getElementById("crm-global-style")) {
+      const style = document.createElement("style");
+      style.id = "crm-global-style";
+      style.textContent = `
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
+        .playfair { font-family: 'Playfair Display', Georgia, 'Times New Roman', serif !important; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes bounce { 0%,80%,100%{transform:scale(.8);opacity:.5} 40%{transform:scale(1.2);opacity:1} }
+      `;
+      document.head.appendChild(style);
+    }
+  },[]);
+
   return(
     <div style={{display:"flex",height:"100vh",fontFamily:"'DM Sans','Segoe UI',sans-serif",background:"#f1f5f9"}}>
-      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet"/>
 
       {/* Sidebar */}
       <div style={{width:228,background:"#0f172a",display:"flex",flexDirection:"column",padding:"20px 0",flexShrink:0}}>

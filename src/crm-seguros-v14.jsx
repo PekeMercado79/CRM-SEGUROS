@@ -4194,13 +4194,21 @@ function ComunicacionConfig({ plantillas, setPlantillas, plantillasDefault, clie
 // ═══════════════════════════════════════════════════════════════════
 // COMISIONES
 // ═══════════════════════════════════════════════════════════════════
-function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, pagosComision, setPagosComision }) {
+function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, pagosComision, setPagosComision, onMontarCallbacks }) {
+  useEffect(()=>{ if(onMontarCallbacks) onMontarCallbacks(); },[]);
   const [tab, setTab] = useState("resumen");
   const [mesSelec, setMesSelec] = useState(new Date().getMonth());
   const [anioSelec, setAnioSelec] = useState(new Date().getFullYear());
   const [showModalTabla, setShowModalTabla] = useState(false);
   const [formTabla, setFormTabla] = useState({ramo:"Autos",aseguradora:"GNP",porcentaje:""});
   const [editandoTabla, setEditandoTabla] = useState(null);
+  // Importar Excel
+  const [excelFile, setExcelFile] = useState(null);
+  const [excelData, setExcelData] = useState(null);  // filas extraídas
+  const [procesando, setProcesando] = useState(false);
+  const [resultados, setResultados] = useState([]); // pólizas encontradas
+  const [aplicados, setAplicados] = useState({}); // id => aplicado
+  const excelRef = useRef();
 
   const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
   const RAMOS_COM = ["Autos","Vida","Gastos Médicos","Daños"];
@@ -4260,6 +4268,35 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
     return {sa,detalle,totalBruto:detalle.reduce((a,d)=>a+d.comisionBruta,0),totalImp:detalle.reduce((a,d)=>a+d.montoImpuestos,0),totalNeto:detalle.reduce((a,d)=>a+d.comisionNeta,0)};
   }).filter(c=>c.totalBruto>0);
 
+  const aplicarPago = (r) => {
+    if (!r.poliza || !r.encontrada) return;
+    // Registrar pago en la póliza
+    const nuevoPago = {
+      id: Date.now(),
+      fechaPago: r.fechaPago || new Date().toISOString().slice(0,10),
+      monto: r.primaBase || 0,
+      formaPago: "Transferencia",
+      reciboNum: r.recibo || "",
+      comisionAgente: r.importe || 0,
+      origenExcel: true,
+    };
+    // Actualizar póliza con el pago
+    if (typeof window.__setPolizasComision === "function") {
+      window.__setPolizasComision(r.poliza.id, nuevoPago, r);
+    }
+    setAplicados(prev=>({...prev,[r.id]:true}));
+  };
+
+  // Referencia a setPolizas — se inyecta desde el prop
+  useEffect(()=>{
+    window.__setPolizasComision = (polizaId, pago, r) => {
+      // Este callback se conecta desde afuera via prop onAplicarPago
+      if (typeof window.__onAplicarPagoComision === "function") {
+        window.__onAplicarPagoComision(polizaId, pago, r);
+      }
+    };
+  },[]);
+
   const marcarEstado=(polizaId,estado)=>{
     const existe=pagosComision.find(pc=>pc.polizaId===polizaId&&pc.mes===mesSelec&&pc.anio===anioSelec&&!pc.subagentId);
     if(existe) setPagosComision(prev=>prev.map(pc=>pc.id===existe.id?{...pc,estado}:pc));
@@ -4313,13 +4350,195 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
 
       {/* Tabs */}
       <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:12,padding:4,width:"fit-content"}}>
-        {[["resumen","📊 Resumen"],["tabla","⚙️ Tabla %"],["subagentes","👥 Subagentes"],["historial","📜 Historial"]].map(([t,l])=>(
+        {[["resumen","📊 Resumen"],["tabla","⚙️ Tabla %"],["importar","📥 Importar Excel"],["subagentes","👥 Subagentes"],["historial","📜 Historial"]].map(([t,l])=>(
           <button key={t} onClick={()=>setTab(t)}
             style={{background:tab===t?"#fff":"none",border:"none",borderRadius:9,padding:"8px 18px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:tab===t?"#111827":"#6b7280",boxShadow:tab===t?"0 1px 4px rgba(0,0,0,0.1)":"none"}}>
             {l}
           </button>
         ))}
       </div>
+
+      {/* IMPORTAR EXCEL */}
+      {tab==="importar"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:16}}>
+          <div style={{background:"#eff6ff",borderRadius:12,padding:"14px 18px",border:"1px solid #bfdbfe",fontSize:13,color:"#1e40af"}}>
+            <div style={{fontWeight:800,marginBottom:4}}>📥 Lector IA de Excel de comisiones</div>
+            <div style={{fontSize:12}}>Sube el reporte de actividades de tu aseguradora. La IA identificará automáticamente las pólizas, primas pagadas, comisiones e importes. Compatible con GNP NewTron, TronWeb y otros formatos.</div>
+          </div>
+
+          {/* Subir archivo */}
+          {!excelData&&(
+            <div style={{background:"#fff",borderRadius:14,padding:"32px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,0.07)",border:"2px dashed #e2e8f0"}}>
+              <div style={{fontSize:40,marginBottom:12}}>📊</div>
+              <div style={{fontSize:14,fontWeight:700,color:"#374151",marginBottom:6}}>Sube tu Excel de comisiones</div>
+              <div style={{fontSize:12,color:"#9ca3af",marginBottom:16}}>Formatos soportados: .xlsx, .xls</div>
+              <input ref={excelRef} type="file" accept=".xlsx,.xls" style={{display:"none"}}
+                onChange={async (e)=>{
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  setExcelFile(file.name);
+                  setProcesando(true);
+                  setResultados([]);
+                  setAplicados({});
+                  // Leer Excel con SheetJS
+                  try {
+                    const XLSX = await import("https://cdn.sheetjs.com/xlsx-0.20.1/package/xlsx.mjs");
+                    const buffer = await file.arrayBuffer();
+                    const wb = XLSX.read(buffer);
+                    // Extraer todas las hojas
+                    let filas = [];
+                    wb.SheetNames.forEach(sheetName=>{
+                      const ws = wb.Sheets[sheetName];
+                      const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:""});
+                      rows.forEach(row=>{
+                        // Filtrar filas con número de póliza (columna 1, index 1)
+                        const polizaNum = String(row[1]||"").trim();
+                        if (polizaNum && polizaNum.length >= 8 && !isNaN(polizaNum.replace(/\D/g,""))) {
+                          const clave = String(row[6]||"").trim();
+                          if (clave==="CT"||clave==="ct"||clave==="Ct"||clave==="") {
+                            // Parsear fecha de la última columna (DDMMYYYY)
+                            const fechaRaw = String(row[row.length-1]||"").trim();
+                            let fechaPago = "";
+                            if (/^\d{8}$/.test(fechaRaw)) {
+                              fechaPago = `${fechaRaw.slice(6,8)}/${fechaRaw.slice(4,6)}/${fechaRaw.slice(0,4)}`.replace(/^(\d{2})\/(\d{2})\/(\d{4})$/,"$3-$2-$1");
+                            }
+                            filas.push({
+                              polizaNum,
+                              endoso: String(row[2]||"").trim(),
+                              ramo: String(row[3]||"").trim(),
+                              recibo: String(row[4]||"").trim(),
+                              cliente: String(row[7]||"").trim(),
+                              primaBase: parseFloat(String(row[8]||"0").replace(/[,$]/g,""))||0,
+                              importe: parseFloat(String(row[9]||"0").replace(/[,$]/g,""))||0,
+                              fechaPago,
+                              hoja: sheetName,
+                            });
+                          }
+                        }
+                      });
+                    });
+                    // Buscar cada póliza en el sistema
+                    const encontradas = filas.map(f=>{
+                      const poliza = polizas.find(p=>{
+                        const n = String(p.numero||"").replace(/[\s\-]/g,"");
+                        const b = String(f.polizaNum||"").replace(/[\s\-]/g,"");
+                        return n===b || n.endsWith(b) || b.endsWith(n);
+                      });
+                      const subagente = poliza?.subagenteId ? subagentes.find(s=>s.id===poliza.subagenteId) : null;
+                      const pctSA = parseFloat(subagente?.comision||0);
+                      const isrSA = parseFloat(subagente?.impuestos||15);
+                      const comBruta = f.importe > 0 ? f.importe : (f.primaBase * (getPct(poliza||{})/100));
+                      const comSABruta = f.primaBase * pctSA / 100;
+                      const comSAIsr = comSABruta * isrSA / 100;
+                      const comSANeta = comSABruta - comSAIsr;
+                      return {
+                        ...f,
+                        id: Date.now()+Math.random(),
+                        poliza,
+                        subagente,
+                        comisionAgente: comBruta,
+                        comSABruta, comSAIsr, comSANeta, pctSA, isrSA,
+                        encontrada: !!poliza,
+                      };
+                    });
+                    setResultados(encontradas);
+                    setExcelData(filas);
+                    setProcesando(false);
+                  } catch(err) {
+                    setProcesando(false);
+                    alert("Error al leer el Excel: "+err.message);
+                  }
+                }}/>
+              <button onClick={()=>excelRef.current.click()}
+                style={{background:"linear-gradient(135deg,#2563eb,#7c3aed)",color:"#fff",border:"none",borderRadius:10,padding:"12px 28px",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                📂 Seleccionar archivo Excel
+              </button>
+            </div>
+          )}
+
+          {/* Procesando */}
+          {procesando&&(
+            <div style={{background:"#fff",borderRadius:14,padding:"40px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+              <div style={{fontSize:36,marginBottom:12}}>🤖</div>
+              <div style={{fontWeight:700,fontSize:15,color:"#111827"}}>Procesando Excel...</div>
+              <div style={{fontSize:12,color:"#9ca3af",marginTop:4}}>Identificando pólizas y calculando comisiones</div>
+            </div>
+          )}
+
+          {/* Resultados */}
+          {excelData&&!procesando&&(
+            <div style={{display:"flex",flexDirection:"column",gap:12}}>
+              {/* Header resultados */}
+              <div style={{background:"#fff",borderRadius:14,padding:"16px 20px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
+                <div>
+                  <div style={{fontWeight:800,fontSize:14,color:"#111827"}}>{excelFile}</div>
+                  <div style={{fontSize:12,color:"#6b7280",marginTop:2}}>
+                    {resultados.length} registros · {resultados.filter(r=>r.encontrada).length} pólizas encontradas · {resultados.filter(r=>!r.encontrada).length} no encontradas
+                  </div>
+                </div>
+                <div style={{display:"flex",gap:8"}}>
+                  <button onClick={()=>{setExcelData(null);setExcelFile(null);setResultados([]);setAplicados({});}}
+                    style={{background:"#f3f4f6",color:"#374151",border:"none",borderRadius:8,padding:"8px 14px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                    🔄 Nuevo archivo
+                  </button>
+                  <button onClick={()=>{
+                    // Aplicar todos los encontrados de una vez
+                    resultados.filter(r=>r.encontrada&&!aplicados[r.id]).forEach(r=>{
+                      aplicarPago(r);
+                    });
+                  }} style={{background:"#059669",color:"#fff",border:"none",borderRadius:8,padding:"8px 16px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                    ✅ Aplicar todos
+                  </button>
+                </div>
+              </div>
+
+              {/* Tabla resultados */}
+              <div style={{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+                <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
+                  <thead>
+                    <tr style={{background:"#0f172a"}}>
+                      {["Póliza","Cliente","Ramo","Prima base","Comisión","Fecha pago","Subagente","Com. SA neta","Estado","Acción"].map(h=>(
+                        <th key={h} style={{padding:"10px 12px",textAlign:"left",color:"#fff",fontWeight:700,fontSize:10,whiteSpace:"nowrap"}}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {resultados.map((r,i)=>(
+                      <tr key={i} style={{borderTop:"1px solid #f1f5f9",background:!r.encontrada?"#fef2f2":aplicados[r.id]?"#f0fdf4":i%2===0?"#fff":"#fafafa"}}>
+                        <td style={{padding:"8px 12px",fontFamily:"monospace",fontWeight:700,color:r.encontrada?"#1d4ed8":"#dc2626",fontSize:10}}>{r.polizaNum}</td>
+                        <td style={{padding:"8px 12px",color:"#374151",maxWidth:140,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.cliente}</td>
+                        <td style={{padding:"8px 12px",color:"#6b7280",fontSize:10}}>{r.ramo}</td>
+                        <td style={{padding:"8px 12px",fontWeight:600,color:"#059669"}}>{r.primaBase>0?`$${r.primaBase.toLocaleString("es-MX",{maximumFractionDigits:2})}`:"—"}</td>
+                        <td style={{padding:"8px 12px",fontWeight:700,color:"#2563eb"}}>{r.importe>0?`$${r.importe.toLocaleString("es-MX",{maximumFractionDigits:2})}`:"—"}</td>
+                        <td style={{padding:"8px 12px",color:"#6b7280",fontSize:10,whiteSpace:"nowrap"}}>{r.fechaPago||"—"}</td>
+                        <td style={{padding:"8px 12px",color:"#7c3aed",fontSize:10}}>{r.subagente?`${r.subagente.nombre} (${r.pctSA}%)`:"—"}</td>
+                        <td style={{padding:"8px 12px",fontWeight:700,color:"#059669"}}>{r.comSANeta>0?`$${r.comSANeta.toLocaleString("es-MX",{maximumFractionDigits:2})}`:"—"}</td>
+                        <td style={{padding:"8px 12px"}}>
+                          {!r.encontrada?(
+                            <span style={{background:"#fee2e2",color:"#dc2626",padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:9}}>No encontrada</span>
+                          ):aplicados[r.id]?(
+                            <span style={{background:"#d1fae5",color:"#059669",padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:9}}>✓ Aplicado</span>
+                          ):(
+                            <span style={{background:"#fef3c7",color:"#d97706",padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:9}}>Pendiente</span>
+                          )}
+                        </td>
+                        <td style={{padding:"8px 12px"}}>
+                          {r.encontrada&&!aplicados[r.id]&&(
+                            <button onClick={()=>aplicarPago(r)}
+                              style={{background:"#059669",color:"#fff",border:"none",borderRadius:7,padding:"4px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                              💳 Aplicar
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* RESUMEN */}
       {tab==="resumen"&&(
@@ -7055,7 +7274,7 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
   const [showModal, setShowModal] = useState(false);
   const [editando, setEditando] = useState(null);
   const [showComision, setShowComision] = useState(null); // póliza seleccionada para registrar pago
-  const FORM_INIT = { nombre:"", apellidoPaterno:"", apellidoMaterno:"", email:"", telefono:"", whatsapp:"", activo:true, notas:"" };
+  const FORM_INIT = { nombre:"", apellidoPaterno:"", apellidoMaterno:"", email:"", telefono:"", whatsapp:"", activo:true, notas:"", comision:"", impuestos:"15" };
   const [form, setForm] = useState(FORM_INIT);
   const upd = (k,v) => setForm(p=>({...p,[k]:v}));
 
@@ -7467,6 +7686,39 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
                 {form.activo?"● Activo":"○ Inactivo"}
               </button>
             </div>
+
+            {/* Comisión e Impuestos */}
+            <div style={{background:"#f8fafc",borderRadius:10,padding:"12px 14px",border:"1px solid #e2e8f0"}}>
+              <div style={{fontSize:11,fontWeight:800,color:"#374151",marginBottom:10,letterSpacing:"0.05em"}}>COMISIÓN E IMPUESTOS</div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
+                <div>
+                  <label style={{fontSize:11,fontWeight:700,color:"#374151",display:"block",marginBottom:5}}>% COMISIÓN</label>
+                  <div style={{position:"relative"}}>
+                    <input type="number" min="0" max="100" step="0.5" value={form.comision||""}
+                      onChange={e=>upd("comision",e.target.value)} placeholder="Ej: 10"
+                      style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:9,padding:"9px 36px 9px 12px",fontSize:13,fontFamily:"inherit",outline:"none",boxSizing:"border-box",fontWeight:600}}/>
+                    <span style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",color:"#6b7280",fontWeight:700}}>%</span>
+                  </div>
+                  <div style={{fontSize:10,color:"#9ca3af",marginTop:3}}>% de la prima que gana el subagente</div>
+                </div>
+                <div>
+                  <label style={{fontSize:11,fontWeight:700,color:"#374151",display:"block",marginBottom:5}}>% IMPUESTOS (ISR)</label>
+                  <div style={{position:"relative"}}>
+                    <input type="number" min="0" max="100" step="0.5" value={form.impuestos||"15"}
+                      onChange={e=>upd("impuestos",e.target.value)} placeholder="15"
+                      style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:9,padding:"9px 36px 9px 12px",fontSize:13,fontFamily:"inherit",outline:"none",boxSizing:"border-box",fontWeight:600}}/>
+                    <span style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",color:"#6b7280",fontWeight:700}}>%</span>
+                  </div>
+                  <div style={{fontSize:10,color:"#9ca3af",marginTop:3}}>% que se le retiene de impuestos</div>
+                </div>
+              </div>
+              {form.comision&&form.impuestos&&(
+                <div style={{marginTop:10,background:"#f0fdf4",borderRadius:8,padding:"8px 12px",fontSize:11,color:"#065f46"}}>
+                  💡 Por cada $1,000 de prima: comisión bruta <strong>${(1000*parseFloat(form.comision||0)/100).toFixed(2)}</strong> − ISR <strong>${(1000*parseFloat(form.comision||0)/100*parseFloat(form.impuestos||15)/100).toFixed(2)}</strong> = neto <strong>${(1000*parseFloat(form.comision||0)/100*(1-parseFloat(form.impuestos||15)/100)).toFixed(2)}</strong>
+                </div>
+              )}
+            </div>
+
             {(!form.nombre||!form.apellidoPaterno)&&(
               <div style={{fontSize:11,color:"#9ca3af"}}>* Nombre y apellido paterno son requeridos</div>
             )}
@@ -8281,7 +8533,25 @@ export default function CRMSeguros() {
         {vista==="dashboard"&&puede("dashboard")&&<Dashboard clientes={clientes} polizas={polizas} pipeline={pipeline} tareas={tareas} paiMetas={paiMetas}/>}
         {vista==="clientes"&&puede("clientes")&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas}/>}
         {vista==="polizas"&&puede("polizas")&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes} plantillas={plantillas} puede={puede} sesion={sesion}/>}
-        {vista==="comisiones"&&puede("comisiones")&&<Comisiones polizas={polizas} subagentes={subagentes} tablaComisiones={tablaComisiones} setTablaComisiones={setTablaComisiones} pagosComision={pagosComision} setPagosComision={setPagosComision}/>}}
+        {vista==="comisiones"&&puede("comisiones")&&<Comisiones
+          polizas={polizas}
+          subagentes={subagentes}
+          tablaComisiones={tablaComisiones}
+          setTablaComisiones={setTablaComisiones}
+          pagosComision={pagosComision}
+          setPagosComision={setPagosComision}
+          onMontarCallbacks={()=>{
+            window.__onAplicarPagoComision = (polizaId, pago, r) => {
+              setPolizas(prev=>prev.map(p=>p.id===polizaId?{
+                ...p,
+                pagos:[...(p.pagos||[]),pago],
+                ultimoPago:pago,
+                comisionPagada:true,
+                fechaPagoComision:pago.fechaPago,
+              }:p));
+            };
+          }}
+        />}}
         {vista==="pipeline"&&puede("pipeline")&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}
         {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas}/>}
         {vista==="calendario"&&puede("calendario")&&<Calendario polizas={polizas} clientes={clientes} tareas={tareas} setPolizas={setPolizas}/>}

@@ -4232,9 +4232,13 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
     const pagosMes=(p.pagos||[]).filter(pg=>{const f=new Date(pg.fechaPago||"");return f.getMonth()===mesSelec&&f.getFullYear()===anioSelec;});
     const montoPagado=pagosMes.reduce((a,pg)=>a+(parseFloat(pg.monto)||0),0);
     const pct=getPct(p);
-    const comisionBruta=montoPagado*pct/100;
+    // Si hay comisión directa del Excel en algún pago, usarla
+    const comisionDirecta=pagosMes.reduce((a,pg)=>a+(parseFloat(pg.comisionAgente)||0),0);
+    const comisionBruta=comisionDirecta>0 ? comisionDirecta : montoPagado*pct/100;
     const reg=pagosComision.find(pc=>pc.polizaId===p.id&&pc.mes===mesSelec&&pc.anio===anioSelec&&!pc.subagentId);
-    return {poliza:p,montoPagado,pct,comisionBruta,estado:reg?.estado||"pendiente"};
+    // Si hay importe registrado del Excel, usarlo
+    const comisionFinal = reg?.comisionImporte || comisionBruta;
+    return {poliza:p,montoPagado,pct,comisionBruta:comisionFinal,estado:reg?.estado||"pendiente"};
   }).filter(c=>c.comisionBruta>0);
 
   const totalMes=comisionesMes.reduce((a,c)=>a+c.comisionBruta,0);
@@ -4270,32 +4274,42 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
 
   const aplicarPago = (r) => {
     if (!r.poliza || !r.encontrada) return;
-    // Registrar pago en la póliza
-    const nuevoPago = {
-      id: Date.now(),
-      fechaPago: r.fechaPago || new Date().toISOString().slice(0,10),
-      monto: r.primaBase || 0,
-      formaPago: "Transferencia",
-      reciboNum: r.recibo || "",
-      comisionAgente: r.importe || 0,
-      origenExcel: true,
-    };
-    // Actualizar póliza con el pago
-    if (typeof window.__setPolizasComision === "function") {
-      window.__setPolizasComision(r.poliza.id, nuevoPago, r);
+    const poliza = r.poliza;
+    const pagosExistentes = poliza.pagos || [];
+
+    // Verificar si ya existe un pago con el mismo recibo
+    const yaExiste = r.recibo && pagosExistentes.some(pg =>
+      String(pg.reciboNum||"").trim() === String(r.recibo||"").trim()
+    );
+
+    if (!yaExiste) {
+      // Registrar el pago de prima
+      const nuevoPago = {
+        id: Date.now(),
+        fechaPago: r.fechaPago || new Date().toISOString().slice(0,10),
+        monto: r.primaBase || 0,
+        formaPago: "Transferencia",
+        reciboNum: r.recibo || "",
+        comisionAgente: r.importe || 0,
+        origenExcel: true,
+      };
+      if (typeof window.__onAplicarPagoComision === "function") {
+        window.__onAplicarPagoComision(poliza.id, nuevoPago, r);
+      }
     }
+
+    // Registrar comisión como cobrada en pagosComision
+    const fechaObj = r.fechaPago ? new Date(r.fechaPago) : new Date();
+    const mes = fechaObj.getMonth();
+    const anio = fechaObj.getFullYear();
+    setPagosComision(prev=>{
+      const existe = prev.find(pc=>pc.polizaId===poliza.id&&pc.mes===mes&&pc.anio===anio&&!pc.subagentId);
+      if (existe) return prev.map(pc=>pc.id===existe.id?{...pc,estado:"cobrada",comisionImporte:r.importe}:pc);
+      return [...prev,{id:Date.now()+1,polizaId:poliza.id,mes,anio,estado:"cobrada",comisionImporte:r.importe,fecha:new Date().toLocaleDateString("es-MX")}];
+    });
+
     setAplicados(prev=>({...prev,[r.id]:true}));
   };
-
-  // Referencia a setPolizas — se inyecta desde el prop
-  useEffect(()=>{
-    window.__setPolizasComision = (polizaId, pago, r) => {
-      // Este callback se conecta desde afuera via prop onAplicarPago
-      if (typeof window.__onAplicarPagoComision === "function") {
-        window.__onAplicarPagoComision(polizaId, pago, r);
-      }
-    };
-  },[]);
 
   const marcarEstado=(polizaId,estado)=>{
     const existe=pagosComision.find(pc=>pc.polizaId===polizaId&&pc.mes===mesSelec&&pc.anio===anioSelec&&!pc.subagentId);
@@ -4479,7 +4493,7 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
                 <div style={{display:"flex",gap:8}}>
                   <button onClick={()=>{setExcelData(null);setExcelFile(null);setResultados([]);setAplicados({});}}
                     style={{background:"#f3f4f6",color:"#374151",border:"none",borderRadius:8,padding:"8px 14px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                    🔄 Nuevo archivo
+                    Nuevo archivo
                   </button>
                   <button onClick={()=>{
                     // Aplicar todos los encontrados de una vez

@@ -4476,7 +4476,7 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
                     {resultados.length} registros · {resultados.filter(r=>r.encontrada).length} pólizas encontradas · {resultados.filter(r=>!r.encontrada).length} no encontradas
                   </div>
                 </div>
-                <div style={{display:"flex",gap:8"}}>
+                <div style={{display:"flex",gap:8}}>
                   <button onClick={()=>{setExcelData(null);setExcelFile(null);setResultados([]);setAplicados({});}}
                     style={{background:"#f3f4f6",color:"#374151",border:"none",borderRadius:8,padding:"8px 14px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
                     🔄 Nuevo archivo

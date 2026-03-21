@@ -4247,12 +4247,13 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
 
   const comparativo=Array.from({length:6},(_,i)=>{
     const d=new Date(anioSelec,mesSelec-i,1);const m=d.getMonth();const a=d.getFullYear();
+    const mesNombre = MESES[m] || "---";
     const total=polizas.reduce((sum,p)=>{
       const pct=getPct(p);
       const pagos=(p.pagos||[]).filter(pg=>{const f=new Date(pg.fechaPago||"");return f.getMonth()===m&&f.getFullYear()===a;});
       return sum+(pagos.reduce((s,pg)=>s+(parseFloat(pg.monto)||0),0)*pct/100);
     },0);
-    return {mes:`${MESES[m].slice(0,3)} ${a}`,total};
+    return {mes:`${mesNombre.slice(0,3)} ${a}`,total};
   }).reverse();
   const maxComp=Math.max(...comparativo.map(c=>c.total),1);
 

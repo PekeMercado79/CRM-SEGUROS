@@ -4283,9 +4283,8 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
     );
 
     if (!yaExiste) {
-      // Registrar el pago de prima
       const nuevoPago = {
-        id: Date.now(),
+        id: Date.now() + Math.floor(Math.random()*10000),
         fechaPago: r.fechaPago || new Date().toISOString().slice(0,10),
         monto: r.primaBase || 0,
         formaPago: "Transferencia",
@@ -4298,17 +4297,87 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
       }
     }
 
-    // Registrar comisión como cobrada en pagosComision
+    // Registrar comisión como cobrada
     const fechaObj = r.fechaPago ? new Date(r.fechaPago) : new Date();
     const mes = fechaObj.getMonth();
     const anio = fechaObj.getFullYear();
+    const entradaComision = {
+      id: Date.now() + Math.floor(Math.random()*10000),
+      polizaId: poliza.id,
+      mes, anio,
+      estado: "cobrada",
+      comisionImporte: r.importe || 0,
+      fecha: new Date().toLocaleDateString("es-MX"),
+    };
     setPagosComision(prev=>{
       const existe = prev.find(pc=>pc.polizaId===poliza.id&&pc.mes===mes&&pc.anio===anio&&!pc.subagentId);
-      if (existe) return prev.map(pc=>pc.id===existe.id?{...pc,estado:"cobrada",comisionImporte:r.importe}:pc);
-      return [...prev,{id:Date.now()+1,polizaId:poliza.id,mes,anio,estado:"cobrada",comisionImporte:r.importe,fecha:new Date().toLocaleDateString("es-MX")}];
+      if (existe) return prev.map(pc=>pc.id===existe.id?{...pc,estado:"cobrada",comisionImporte:r.importe||0}:pc);
+      return [...prev, entradaComision];
     });
 
+    // Sincronizar selector de mes al mes del Excel
+    setMesSelec(mes);
+    setAnioSelec(anio);
     setAplicados(prev=>({...prev,[r.id]:true}));
+  };
+
+  const aplicarTodos = () => {
+    const pendientes = resultados.filter(r=>r.encontrada&&!aplicados[r.id]);
+    if (pendientes.length===0) return;
+
+    // Aplicar pagos a pólizas
+    const nuevosAplicados = {};
+    const nuevasComisiones = [];
+
+    pendientes.forEach(r=>{
+      const poliza = r.poliza;
+      const pagosExistentes = poliza.pagos||[];
+      const yaExiste = r.recibo && pagosExistentes.some(pg=>String(pg.reciboNum||"").trim()===String(r.recibo||"").trim());
+
+      if (!yaExiste && typeof window.__onAplicarPagoComision === "function") {
+        const nuevoPago = {
+          id: Date.now()+Math.floor(Math.random()*100000),
+          fechaPago: r.fechaPago||new Date().toISOString().slice(0,10),
+          monto: r.primaBase||0,
+          formaPago: "Transferencia",
+          reciboNum: r.recibo||"",
+          comisionAgente: r.importe||0,
+          origenExcel: true,
+        };
+        window.__onAplicarPagoComision(poliza.id, nuevoPago, r);
+      }
+
+      const fechaObj = r.fechaPago ? new Date(r.fechaPago) : new Date();
+      nuevasComisiones.push({
+        id: Date.now()+Math.floor(Math.random()*100000),
+        polizaId: poliza.id,
+        mes: fechaObj.getMonth(),
+        anio: fechaObj.getFullYear(),
+        estado: "cobrada",
+        comisionImporte: r.importe||0,
+        fecha: new Date().toLocaleDateString("es-MX"),
+      });
+      nuevosAplicados[r.id] = true;
+    });
+
+    // Actualizar pagosComision de una sola vez
+    setPagosComision(prev=>{
+      let updated = [...prev];
+      nuevasComisiones.forEach(nc=>{
+        const idx = updated.findIndex(pc=>pc.polizaId===nc.polizaId&&pc.mes===nc.mes&&pc.anio===nc.anio&&!pc.subagentId);
+        if (idx>=0) updated[idx]={...updated[idx],estado:"cobrada",comisionImporte:nc.comisionImporte};
+        else updated.push(nc);
+      });
+      return updated;
+    });
+
+    // Sincronizar mes al primer resultado
+    if (pendientes[0]?.fechaPago) {
+      const f = new Date(pendientes[0].fechaPago);
+      setMesSelec(f.getMonth());
+      setAnioSelec(f.getFullYear());
+    }
+    setAplicados(prev=>({...prev,...nuevosAplicados}));
   };
 
   const marcarEstado=(polizaId,estado)=>{
@@ -4495,12 +4564,8 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
                     style={{background:"#f3f4f6",color:"#374151",border:"none",borderRadius:8,padding:"8px 14px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
                     Nuevo archivo
                   </button>
-                  <button onClick={()=>{
-                    // Aplicar todos los encontrados de una vez
-                    resultados.filter(r=>r.encontrada&&!aplicados[r.id]).forEach(r=>{
-                      aplicarPago(r);
-                    });
-                  }} style={{background:"#059669",color:"#fff",border:"none",borderRadius:8,padding:"8px 16px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                  <button onClick={aplicarTodos}
+                    style={{background:"#059669",color:"#fff",border:"none",borderRadius:8,padding:"8px 16px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
                     ✅ Aplicar todos
                   </button>
                 </div>

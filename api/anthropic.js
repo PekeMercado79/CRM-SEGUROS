@@ -1,8 +1,14 @@
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "https://crm-seguros.vercel.app";
+
 export default async function handler(req, res) {
-  // Permitir CORS
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  // CORS restringido al dominio propio — nunca wildcard (*)
+  const origin = req.headers.origin || "";
+  if (origin === ALLOWED_ORIGIN) {
+    res.setHeader("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
+  }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Vary", "Origin");
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();

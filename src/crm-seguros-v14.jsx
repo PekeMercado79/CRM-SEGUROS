@@ -3642,16 +3642,20 @@ function ScanPoliza({ onClose, onExtracted, subagentes }) {
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({
           model:"claude-sonnet-4-20250514",
-          max_tokens:1500,
+          max_tokens:4000,
           messages:[{role:"user",content:[block,{type:"text",text:prompt}]}]
         })
       });
-      const data=await res.json();
-      if(!res.ok)throw new Error(data.error?.message||"Error en API");
+      // Leer respuesta como texto primero para evitar error si viene mal formada
+      const rawText = await res.text();
+      let data;
+      try { data = JSON.parse(rawText); }
+      catch(je) { throw new Error("Respuesta inválida del servidor. El PDF puede ser demasiado grande — intenta con una imagen JPG de la póliza."); }
+      if(!res.ok) throw new Error(data.error?.message||"Error en API");
       const text=data.content.map(b=>b.text||"").join("");
       // Extraer JSON robusto — busca el primer { hasta el ultimo }
       const match = text.match(/\{[\s\S]*\}/);
-      if(!match) throw new Error("La IA no devolvio un JSON valido");
+      if(!match) throw new Error("La IA no devolvió un JSON válido. Intenta con una imagen de la póliza.");
       const parsed = JSON.parse(match[0]);
       setResult(parsed);
       setStep("result");

@@ -7387,6 +7387,7 @@ function Siniestros({ siniestros, setSiniestros, clientes, polizas, sesion }) {
   const [toast, setToast]               = useState(null);
   const [showSeguimiento, setShowSeguimiento] = useState(null);
   const [notaSeguimiento, setNotaSeguimiento] = useState("");
+  const [sugerenciasCliente, setSugerenciasCliente] = useState([]);
 
   const showToast = (msg, color="#059669") => {
     setToast({msg,color});
@@ -7668,15 +7669,65 @@ function Siniestros({ siniestros, setSiniestros, clientes, polizas, sesion }) {
           </div>
 
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-            {/* Cliente — solo texto libre */}
-            <div style={{gridColumn:"1 / -1"}}>
+            {/* Cliente — texto libre con autocomplete de clientes existentes */}
+            <div style={{gridColumn:"1 / -1", position:"relative"}}>
               <label style={{fontSize:11,fontWeight:700,color:"#64748b",display:"block",marginBottom:4}}>CLIENTE *</label>
-              <input value={form.clienteManual} onChange={e=>setForm(f=>({...f,clienteManual:e.target.value}))}
-                placeholder="Escribe el nombre completo del cliente"
-                style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,boxSizing:"border-box"}}/>
+              <input value={form.clienteManual}
+                onChange={e=>{
+                  const val = e.target.value;
+                  setForm(f=>({...f, clienteManual:val, clienteId:"", polizaId:"", ramo:"", tipo:""}));
+                  if(val.length>=2){
+                    const q = val.toLowerCase();
+                    setSugerenciasCliente(clientes.filter(c=>{
+                      const nombre = `${c.nombre} ${c.apellidoPaterno} ${c.apellidoMaterno||""}`.toLowerCase();
+                      return nombre.includes(q);
+                    }).slice(0,6));
+                  } else {
+                    setSugerenciasCliente([]);
+                  }
+                }}
+                onBlur={()=>setTimeout(()=>setSugerenciasCliente([]),200)}
+                placeholder="Escribe el nombre del cliente..."
+                style={{width:"100%",padding:"9px 12px",borderRadius:8,border:`1.5px solid ${form.clienteId?"#2563eb":"#e2e8f0"}`,fontSize:13,boxSizing:"border-box"}}/>
+              {form.clienteId&&(
+                <div style={{fontSize:11,color:"#2563eb",marginTop:3,fontWeight:600}}>
+                  ✓ Cliente vinculado — sus pólizas están disponibles
+                  <button onClick={()=>setForm(f=>({...f,clienteId:"",polizaId:"",ramo:"",tipo:""}))}
+                    style={{marginLeft:8,fontSize:10,color:"#64748b",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"}}>
+                    desvincular
+                  </button>
+                </div>
+              )}
+              {sugerenciasCliente.length>0&&(
+                <div style={{position:"absolute",top:"100%",left:0,right:0,zIndex:999,background:"#fff",border:"1.5px solid #e2e8f0",borderRadius:8,boxShadow:"0 8px 24px rgba(0,0,0,.1)",marginTop:2,overflow:"hidden"}}>
+                  {sugerenciasCliente.map(c=>{
+                    const nombre = `${c.nombre} ${c.apellidoPaterno} ${c.apellidoMaterno||""}`.trim();
+                    const polizasCliente = polizas.filter(p=>String(p.clienteId)===String(c.id));
+                    return (
+                      <div key={c.id}
+                        onMouseDown={()=>{
+                          setForm(f=>({...f, clienteManual:nombre, clienteId:c.id, polizaId:"", ramo:"", tipo:""}));
+                          setSugerenciasCliente([]);
+                        }}
+                        style={{padding:"10px 14px",cursor:"pointer",borderBottom:"1px solid #f1f5f9",
+                          display:"flex",justifyContent:"space-between",alignItems:"center"}}
+                        onMouseEnter={e=>e.currentTarget.style.background="#f8fafc"}
+                        onMouseLeave={e=>e.currentTarget.style.background="#fff"}>
+                        <div>
+                          <div style={{fontSize:13,fontWeight:600,color:"#1e293b"}}>{nombre}</div>
+                          <div style={{fontSize:11,color:"#64748b"}}>{c.telefono||c.email||""}</div>
+                        </div>
+                        <div style={{fontSize:11,color:"#2563eb",fontWeight:600}}>
+                          {polizasCliente.length} póliza{polizasCliente.length!==1?"s":""}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
-            {/* Póliza — al seleccionar detecta ramo y carga tipos */}
+            {/* Póliza — filtrada por cliente si está vinculado, al seleccionar detecta ramo */}
             <div>
               <label style={{fontSize:11,fontWeight:700,color:"#64748b",display:"block",marginBottom:4}}>PÓLIZA (opcional)</label>
               <select value={form.polizaId} onChange={e=>{
@@ -7685,7 +7736,10 @@ function Siniestros({ siniestros, setSiniestros, clientes, polizas, sesion }) {
               }}
                 style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,background:"#fff"}}>
                 <option value="">Sin póliza vinculada</option>
-                {polizas.map(p=>(
+                {(form.clienteId
+                  ? polizas.filter(p=>String(p.clienteId)===String(form.clienteId))
+                  : polizas
+                ).map(p=>(
                   <option key={p.id} value={p.id}>{p.numero} — {p.ramo} · {p.cliente} ({p.aseguradora})</option>
                 ))}
               </select>

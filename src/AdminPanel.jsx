@@ -116,11 +116,6 @@ function ModalCrearAgente({ onClose, onCreated }) {
       activo: true
     }).eq('id', data.user.id)  // ✅ usa .id en vez de .email — más confiable
 
-    setMsg({ ok: true, text: `✓ Agente creado. Comparte con ${form.email} la contraseña temporal: ${passwordTemporal}` })
-    setTimeout(() => { onCreated(); onClose() }, 3000)
-  } catch (e) {
-    setMsg({ ok: false, text: e.message })
-  }
   setLoading(false)
 }
       setMsg({ ok: true, text: `✓ Invitación enviada a ${form.email}. El agente recibirá un correo para activar su cuenta.` })

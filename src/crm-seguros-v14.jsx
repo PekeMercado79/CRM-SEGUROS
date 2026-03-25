@@ -7363,10 +7363,10 @@ const SINIESTRO_STATUS_COLOR = {
   "rechazado":              "#dc2626",
 };
 const SINIESTRO_TIPOS = {
-  Autos:            ["Choque","Robo total","Robo parcial","Daño a terceros","Responsabilidad civil","Cristales","Asistencia vial","Pérdida total"],
-  "Gastos Médicos": ["Hospitalización","Cirugía","Urgencia","Maternidad","Accidente","Enfermedad grave","Reembolso"],
-  Vida:             ["Fallecimiento","Invalidez total","Invalidez parcial","Enfermedad grave","Desmembración"],
-  Daños:            ["Incendio","Robo con violencia","Daño por agua","Daño estructural","Responsabilidad civil","Fenómeno natural"],
+  "Autos":           ["Choque","Robo total","Robo parcial","Da\u00f1o a terceros","Responsabilidad civil","Cristales","Asistencia vial","P\u00e9rdida total"],
+  "Gastos M\u00e9dicos": ["Hospitalizaci\u00f3n","Cirug\u00eda","Urgencia","Maternidad","Accidente","Enfermedad grave","Reembolso"],
+  "Vida":            ["Fallecimiento","Invalidez total","Invalidez parcial","Enfermedad grave","Desmembraci\u00f3n"],
+  "Da\u00f1os":          ["Incendio","Robo con violencia","Da\u00f1o por agua","Da\u00f1o estructural","Responsabilidad civil","Fen\u00f3meno natural"],
 };
 const SINIESTRO_FORM_INIT = {
   clienteId:"", clienteManual:"", ramo:"", polizaId:"", fechaSiniestro:"", tipo:"", descripcion:"",
@@ -7422,11 +7422,12 @@ function Siniestros({ siniestros, setSiniestros, clientes, polizas, sesion }) {
   // ── Normalizar ramo a las 4 categorías principales ───────────────
   const normalizarRamo = (ramo) => {
     if (!ramo) return "";
-    if (ramo === "Autos" || ramo === "Flotilla") return "Autos";
-    if (["Vida","Vida Individual","Vida Grupo","Vida Universal"].includes(ramo)) return "Vida";
-    if (["Gastos Médicos","Accidentes Personales","Tradicional","PMM (Plan Médico Mayor)","Segurviaje","Escolar"].includes(ramo)) return "Gastos Médicos";
-    if (["Daños","Hogar","Empresarial","Responsabilidad Civil","Transporte","Incendio"].includes(ramo)) return "Daños";
-    return ramo;
+    const r = ramo.trim();
+    if (["Autos","Flotilla","Individual","Flotilla"].includes(r)) return "Autos";
+    if (["Vida","Vida Individual","Vida Grupo","Vida Universal"].includes(r)) return "Vida";
+    if (["Gastos M\u00e9dicos","Accidentes Personales","Tradicional","PMM (Plan M\u00e9dico Mayor)","Segurviaje","Escolar"].includes(r)) return "Gastos M\u00e9dicos";
+    if (["Da\u00f1os","Hogar","Empresarial","Responsabilidad Civil","Transporte","Incendio"].includes(r)) return "Da\u00f1os";
+    return r;
   };
 
   // ── Obtener tipos según ramo ──────────────────────────────────────
@@ -7752,19 +7753,19 @@ function Siniestros({ siniestros, setSiniestros, clientes, polizas, sesion }) {
               {form.ramo&&<div style={{fontSize:11,color:"#2563eb",marginTop:4,fontWeight:600}}>Ramo detectado: {form.ramo}</div>}
             </div>
 
-            {/* Tipo de siniestro — aparece automáticamente al detectar ramo */}
+            {/* Tipo de siniestro — carga al detectar ramo */}
             <div>
               <label style={{fontSize:11,fontWeight:700,color:"#64748b",display:"block",marginBottom:4}}>TIPO DE SINIESTRO *</label>
-              {getTipos().length > 0 ? (
+              {form.ramo ? (
                 <select value={form.tipo} onChange={e=>setForm(f=>({...f,tipo:e.target.value}))}
-                  style={{width:"100%",padding:"9px 12px",borderRadius:8,border:`1.5px solid ${form.ramo?"#2563eb":"#e2e8f0"}`,fontSize:13,background:"#fff"}}>
-                  <option value="">Seleccionar tipo</option>
-                  {getTipos().map(t=><option key={t} value={t}>{t}</option>)}
+                  style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #2563eb",fontSize:13,background:"#fff"}}>
+                  <option value="">-- Seleccionar tipo --</option>
+                  {(SINIESTRO_TIPOS[form.ramo]||[]).map(t=><option key={t} value={t}>{t}</option>)}
                 </select>
               ) : (
                 <input value={form.tipo} onChange={e=>setForm(f=>({...f,tipo:e.target.value}))}
-                  placeholder="Describe el tipo de siniestro"
-                  style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,boxSizing:"border-box"}}/>
+                  placeholder="Selecciona una póliza para ver los tipos"
+                  style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,boxSizing:"border-box",background:"#f8fafc",color:"#94a3b8"}}/>
               )}
             </div>
 

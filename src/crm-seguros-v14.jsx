@@ -9309,7 +9309,7 @@ export default function CRMSeguros() {
   const [usuarios,   setUsuarios]   = useLocalStorage("crm_usuarios",   USUARIOS_INIT);
   const [paiMetas,   setPaiMetas]   = useLocalStorage("crm_paiMetas",   PAI_METAS_INIT);
   const [subagentes, setSubagentes] = useLocalStorage("crm_subagentes", SUBAGENTES_INIT);
-  const [config,     setConfig]     = useLocalStorage("crm_config",     {nombre:"SeguroCRM",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""});
+  const [config,     setConfig]     = useLocalStorage("crm_config",     {nombre:"SeguCore",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""});
   const [historialNotif, setHistorialNotif] = useLocalStorage("crm_historial_notif", []);
   const [tablaComisiones, setTablaComisiones] = useLocalStorage("crm_tabla_comisiones", []);
   const [pagosComision, setPagosComision] = useLocalStorage("crm_pagos_comision", []);
@@ -9475,7 +9475,7 @@ export default function CRMSeguros() {
         <div style={{padding:"0 16px 20px"}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
             <div style={{width:36,height:36,background:"linear-gradient(135deg,#2563eb,#7c3aed)",borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}><Icon name="shield" size={19}/></div>
-            <div><div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>SeguroCRM</div><div style={{color:"#475569",fontSize:10}}>Agente Profesional</div></div>
+            <div><div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>SeguCore</div><div style={{color:"#475569",fontSize:10}}>Agente Profesional</div></div>
           </div>
         </div>
         <nav style={{flex:1,overflowY:"auto"}}>
@@ -9532,7 +9532,7 @@ export default function CRMSeguros() {
             <div style={{width:28,height:28,background:"linear-gradient(135deg,#2563eb,#7c3aed)",borderRadius:7,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}>
               <Icon name="shield" size={14}/>
             </div>
-            <span style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>SeguroCRM</span>
+            <span style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>SeguCore</span>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
             {totalNotif>0&&(

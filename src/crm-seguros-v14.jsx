@@ -646,12 +646,34 @@ const FORM_CLIENTE_INIT = {
 // ═══════════════════════════════════════════════════════════════════
 // DETALLE CLIENTE MODAL
 // ═══════════════════════════════════════════════════════════════════
-function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar, onRegistrarPago }) {
+function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar, onRegistrarPago, sesion }) {
   const [editando, setEditando] = useState(false);
   const [form, setForm] = useState({...cliente});
   const [guardado, setGuardado] = useState(false);
   const [polizaVer, setPolizaVer] = useState(null);
   const [polizaPago, setPolizaPago] = useState(null);
+  const [nuevaNota, setNuevaNota] = useState("");
+  const [agregandoNota, setAgregandoNota] = useState(false);
+
+  const agregarNota = () => {
+    if (!nuevaNota.trim()) return;
+    const nota = {
+      id: Date.now(),
+      texto: nuevaNota.trim(),
+      fecha: new Date().toLocaleDateString("es-MX", {day:"2-digit",month:"2-digit",year:"numeric"}),
+      hora: new Date().toLocaleTimeString("es-MX", {hour:"2-digit",minute:"2-digit"}),
+      autor: sesion?.nombre || "Usuario",
+    };
+    const notasActualizadas = [...(cliente.notasHistorial||[]), nota];
+    onGuardar({...cliente, notasHistorial: notasActualizadas});
+    setNuevaNota("");
+    setAgregandoNota(false);
+  };
+
+  const eliminarNota = (id) => {
+    const notasActualizadas = (cliente.notasHistorial||[]).filter(n=>n.id!==id);
+    onGuardar({...cliente, notasHistorial: notasActualizadas});
+  };
 
   const upd = (k,v) => setForm(p=>({...p,[k]:v}));
 
@@ -738,6 +760,68 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar, onRegist
                   <Btn onClick={()=>window.open("https://wa.me/52"+cliente.whatsapp.replace(/\D/g,""),"_blank")} color="#25d366" icon="whatsapp">
                     Abrir WhatsApp
                   </Btn>
+                </div>
+              )}
+            </div>
+
+            {/* SECCIÓN NOTAS */}
+            <div style={{background:"#f8fafc",borderRadius:12,padding:"16px 18px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                <div style={{fontSize:11,fontWeight:800,color:"#6b7280",letterSpacing:"0.08em"}}>
+                  📝 NOTAS ({(cliente.notasHistorial||[]).length})
+                </div>
+                <button onClick={()=>setAgregandoNota(v=>!v)}
+                  style={{background:"#0f172a",color:"#fff",border:"none",borderRadius:7,padding:"5px 14px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                  + Agregar nota
+                </button>
+              </div>
+
+              {/* Formulario nueva nota */}
+              {agregandoNota&&(
+                <div style={{background:"#fff",borderRadius:10,padding:"12px",marginBottom:12,border:"1.5px solid #2563eb33"}}>
+                  <textarea
+                    value={nuevaNota}
+                    onChange={e=>setNuevaNota(e.target.value)}
+                    placeholder="Escribe una nota o comentario sobre este cliente..."
+                    rows={3}
+                    style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:8,padding:"8px 10px",fontSize:12,fontFamily:"inherit",resize:"none",lineHeight:1.6,boxSizing:"border-box",outline:"none"}}
+                    autoFocus
+                  />
+                  <div style={{display:"flex",gap:8,marginTop:8}}>
+                    <button onClick={()=>{setAgregandoNota(false);setNuevaNota("");}}
+                      style={{background:"#f3f4f6",border:"none",borderRadius:7,padding:"6px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",color:"#6b7280"}}>
+                      Cancelar
+                    </button>
+                    <button onClick={agregarNota}
+                      style={{background:"#059669",color:"#fff",border:"none",borderRadius:7,padding:"6px 18px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                      💾 Guardar nota
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Lista de notas */}
+              {(cliente.notasHistorial||[]).length===0&&!agregandoNota?(
+                <div style={{textAlign:"center",color:"#9ca3af",fontSize:12,padding:"16px 0"}}>
+                  No hay notas registradas para este cliente
+                </div>
+              ):(
+                <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                  {[...(cliente.notasHistorial||[])].reverse().map(nota=>(
+                    <div key={nota.id} style={{background:"#fff",borderRadius:9,padding:"10px 12px",border:"1px solid #e5e7eb",position:"relative"}}>
+                      <div style={{fontSize:12,color:"#111827",lineHeight:1.6,paddingRight:24}}>{nota.texto}</div>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:6}}>
+                        <div style={{fontSize:10,color:"#9ca3af"}}>
+                          🕐 {nota.fecha} {nota.hora} · {nota.autor}
+                        </div>
+                        <button onClick={()=>eliminarNota(nota.id)}
+                          style={{background:"none",border:"none",color:"#dc2626",cursor:"pointer",fontSize:11,padding:"0 4px",fontFamily:"inherit",opacity:0.6}}
+                          title="Eliminar nota">
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -1034,7 +1118,7 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar, onRegist
   );
 }
 
-function Clientes({ clientes, setClientes, polizas=[], setPolizas }) {
+function Clientes({ clientes, setClientes, polizas=[], setPolizas, sesion }) {
   const [busqueda, setBusqueda] = useState("");
   const [viewModeC, setViewModeC] = useState("cards");
   const [showModal, setShowModal] = useState(false);
@@ -1276,6 +1360,7 @@ function Clientes({ clientes, setClientes, polizas=[], setPolizas }) {
           setShowDetalle(clienteEditado);
         }}
         onRegistrarPago={registrarPagoDesdeCliente}
+        sesion={sesion}
       />}
     </div>
   );
@@ -9670,7 +9755,7 @@ export default function CRMSeguros() {
         )}
 
         {vista==="dashboard"&&puede("dashboard")&&<Dashboard clientes={clientes} polizas={polizas} pipeline={pipeline} tareas={tareas} paiMetas={paiMetas}/>}
-        {vista==="clientes"&&puede("clientes")&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas}/>}
+        {vista==="clientes"&&puede("clientes")&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas} sesion={sesion}/>}
         {vista==="polizas"&&puede("polizas")&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes} plantillas={plantillas} puede={puede} sesion={sesion}/>}
         {vista==="comisiones"&&puede("comisiones")&&<Comisiones
           polizas={polizas}

@@ -655,7 +655,7 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar, onRegist
   const [nuevaNota, setNuevaNota] = useState("");
   const [agregandoNota, setAgregandoNota] = useState(false);
   const [subiendoArchivo, setSubiendoArchivo] = useState(false);
-  const fileInputRef = React.useRef(null);
+  const fileInputRef = useRef(null);
 
   const agregarNota = () => {
     if (!nuevaNota.trim()) return;

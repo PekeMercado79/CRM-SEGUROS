@@ -7419,16 +7419,21 @@ function Siniestros({ siniestros, setSiniestros, clientes, polizas, sesion }) {
     return matchQ && matchS;
   });
 
-  // ── Obtener tipos según ramo seleccionado en el form ─────────────
+  // ── Normalizar ramo a las 4 categorías principales ───────────────
+  const normalizarRamo = (ramo) => {
+    if (!ramo) return "";
+    if (ramo === "Autos" || ramo === "Flotilla") return "Autos";
+    if (["Vida","Vida Individual","Vida Grupo","Vida Universal"].includes(ramo)) return "Vida";
+    if (["Gastos Médicos","Accidentes Personales","Tradicional","PMM (Plan Médico Mayor)","Segurviaje","Escolar"].includes(ramo)) return "Gastos Médicos";
+    if (["Daños","Hogar","Empresarial","Responsabilidad Civil","Transporte","Incendio"].includes(ramo)) return "Daños";
+    return ramo;
+  };
+
+  // ── Obtener tipos según ramo ──────────────────────────────────────
   const getTipos = () => {
-    // Prioridad 1: ramo seleccionado manualmente en el form
-    if (form.ramo) return SINIESTRO_TIPOS[form.ramo] || [];
-    // Prioridad 2: ramo de la póliza seleccionada
-    if (form.polizaId) {
-      const pol = polizas.find(p=>String(p.id)===String(form.polizaId));
-      return pol ? SINIESTRO_TIPOS[pol.ramo] || [] : [];
-    }
-    return [];
+    const ramo = normalizarRamo(form.ramo) ||
+      normalizarRamo(polizas.find(p=>String(p.id)===String(form.polizaId))?.ramo) || "";
+    return ramo ? (SINIESTRO_TIPOS[ramo] || []) : [];
   };
 
   // ── Guardar siniestro ─────────────────────────────────────────────
@@ -7732,7 +7737,8 @@ function Siniestros({ siniestros, setSiniestros, clientes, polizas, sesion }) {
               <label style={{fontSize:11,fontWeight:700,color:"#64748b",display:"block",marginBottom:4}}>PÓLIZA (opcional)</label>
               <select value={form.polizaId} onChange={e=>{
                 const pol = polizas.find(p=>String(p.id)===e.target.value);
-                setForm(f=>({...f, polizaId:e.target.value, ramo:pol?.ramo||"", tipo:""}));
+                const ramoDetectado = normalizarRamo(pol?.ramo || "");
+                setForm(f=>({...f, polizaId:e.target.value, ramo:ramoDetectado, tipo:""}));
               }}
                 style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,background:"#fff"}}>
                 <option value="">Sin póliza vinculada</option>

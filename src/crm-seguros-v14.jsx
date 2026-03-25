@@ -654,6 +654,8 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar, onRegist
   const [polizaPago, setPolizaPago] = useState(null);
   const [nuevaNota, setNuevaNota] = useState("");
   const [agregandoNota, setAgregandoNota] = useState(false);
+  const [subiendoArchivo, setSubiendoArchivo] = useState(false);
+  const fileInputRef = React.useRef(null);
 
   const agregarNota = () => {
     if (!nuevaNota.trim()) return;
@@ -673,6 +675,45 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar, onRegist
   const eliminarNota = (id) => {
     const notasActualizadas = (cliente.notasHistorial||[]).filter(n=>n.id!==id);
     onGuardar({...cliente, notasHistorial: notasActualizadas});
+  };
+
+  const TIPOS_DOCUMENTO = [
+    {key:"ine_frente",    label:"INE Frente"},
+    {key:"ine_reverso",   label:"INE Reverso"},
+    {key:"ine_rep_legal", label:"INE Rep. Legal"},
+    {key:"acta_const",    label:"Acta Constitutiva"},
+    {key:"poder_notarial",label:"Poder Notarial"},
+    {key:"comprobante",   label:"Comprobante Domicilio"},
+    {key:"otro",          label:"Otro documento"},
+  ];
+
+  const subirArchivo = (e, tipoKey) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { alert("El archivo no debe superar 5 MB"); return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const nuevoDoc = {
+        id: Date.now(),
+        tipo: tipoKey,
+        label: TIPOS_DOCUMENTO.find(t=>t.key===tipoKey)?.label || tipoKey,
+        nombre: file.name,
+        mimeType: file.type,
+        base64: ev.target.result,
+        fecha: new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"2-digit",year:"numeric"}),
+        autor: sesion?.nombre || "Usuario",
+      };
+      const docsActualizados = [...(cliente.documentos||[]), nuevoDoc];
+      onGuardar({...cliente, documentos: docsActualizados});
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const eliminarDoc = (id) => {
+    if (!window.confirm("¿Eliminar este documento?")) return;
+    const docsActualizados = (cliente.documentos||[]).filter(d=>d.id!==id);
+    onGuardar({...cliente, documentos: docsActualizados});
   };
 
   const upd = (k,v) => setForm(p=>({...p,[k]:v}));
@@ -822,6 +863,74 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar, onRegist
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+
+            {/* SECCIÓN DOCUMENTOS */}
+            <div style={{background:"#f8fafc",borderRadius:12,padding:"16px 18px"}}>
+              <div style={{fontSize:11,fontWeight:800,color:"#6b7280",letterSpacing:"0.08em",marginBottom:12}}>
+                📎 DOCUMENTOS ({(cliente.documentos||[]).length})
+              </div>
+
+              {/* Botones para subir por tipo */}
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(140px,1fr))",gap:8,marginBottom:12}}>
+                {TIPOS_DOCUMENTO.map(tipo=>{
+                  const yaSubido = (cliente.documentos||[]).find(d=>d.tipo===tipo.key);
+                  return(
+                    <label key={tipo.key} style={{
+                      display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
+                      gap:4,padding:"10px 8px",borderRadius:9,cursor:"pointer",textAlign:"center",
+                      border: yaSubido ? "1.5px solid #059669" : "1.5px dashed #cbd5e1",
+                      background: yaSubido ? "#f0fdf4" : "#fff",
+                      transition:"all 0.15s"
+                    }}>
+                      <span style={{fontSize:20}}>{yaSubido ? "✅" : "📄"}</span>
+                      <span style={{fontSize:10,fontWeight:700,color: yaSubido ? "#059669" : "#6b7280"}}>{tipo.label}</span>
+                      {yaSubido && <span style={{fontSize:9,color:"#9ca3af"}}>Subido</span>}
+                      <input type="file" accept="image/*,application/pdf" style={{display:"none"}}
+                        onChange={e=>subirArchivo(e, tipo.key)}/>
+                    </label>
+                  );
+                })}
+              </div>
+
+              {/* Lista de documentos subidos */}
+              {(cliente.documentos||[]).length === 0 ? (
+                <div style={{textAlign:"center",color:"#9ca3af",fontSize:12,padding:"8px 0"}}>
+                  No hay documentos adjuntos
+                </div>
+              ) : (
+                <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                  {(cliente.documentos||[]).map(doc=>{
+                    const esPDF = doc.mimeType==="application/pdf" || doc.nombre?.toLowerCase().endsWith(".pdf");
+                    return(
+                      <div key={doc.id} style={{background:"#fff",borderRadius:9,padding:"10px 12px",border:"1px solid #e5e7eb",display:"flex",alignItems:"center",gap:12}}>
+                        <span style={{fontSize:24,flexShrink:0}}>{esPDF ? "📄" : "🖼️"}</span>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontSize:11,fontWeight:700,color:"#374151"}}>{doc.label}</div>
+                          <div style={{fontSize:10,color:"#9ca3af",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{doc.nombre}</div>
+                          <div style={{fontSize:9,color:"#9ca3af"}}>{doc.fecha} · {doc.autor}</div>
+                        </div>
+                        <div style={{display:"flex",gap:6,flexShrink:0}}>
+                          <a href={doc.base64} download={doc.nombre}
+                            style={{background:"#eff6ff",border:"1px solid #bfdbfe",borderRadius:6,padding:"4px 10px",fontSize:10,fontWeight:700,color:"#1d4ed8",textDecoration:"none"}}>
+                            ⬇ Descargar
+                          </a>
+                          {!esPDF && (
+                            <a href={doc.base64} target="_blank" rel="noreferrer"
+                              style={{background:"#f0fdf4",border:"1px solid #bbf7d0",borderRadius:6,padding:"4px 10px",fontSize:10,fontWeight:700,color:"#059669",textDecoration:"none"}}>
+                              👁 Ver
+                            </a>
+                          )}
+                          <button onClick={()=>eliminarDoc(doc.id)}
+                            style={{background:"#fef2f2",border:"1px solid #fecaca",borderRadius:6,padding:"4px 8px",fontSize:10,fontWeight:700,color:"#dc2626",cursor:"pointer",fontFamily:"inherit"}}>
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

@@ -86,7 +86,7 @@ async function agregarEventoCalendar(titulo, descripcion, fecha) {
 function descargarICS(titulo, descripcion, fecha) {
   const fechaISO = (fecha.includes("/") ? fecha.split("/").reverse().join("-") : fecha).replace(/-/g,"");
   const ics = [
-    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//SeguCore//ES",
+    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//CRM Seguros//ES",
     "BEGIN:VEVENT",
     `DTSTART;VALUE=DATE:${fechaISO}`,
     `DTEND;VALUE=DATE:${fechaISO}`,
@@ -254,6 +254,16 @@ const ramoColor = (r) => RAMO_COLORS[r] || RAMO_COLORS.default;
 const PALABRAS_VACIAS = ["DE","DEL","LA","LAS","LOS","Y","EL","EN","CON","POR","AL","MI"];
 const CONSONANTES = /[BCDFGHJKLMNÑPQRSTVWXYZ]/i;
 const VOCALES = /[AEIOU]/i;
+
+// Convierte texto a Title Case respetando preposiciones españolas
+function toTitleCase(str) {
+  if (!str) return "";
+  const minusculas = ["de","del","la","las","los","el","en","y","a","al","con","por","para","sin","sobre","entre","bajo"];
+  return str.toLowerCase().replace(/\S+/g, (word, offset) => {
+    if (offset !== 0 && minusculas.includes(word)) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  });
+}
 
 function generarRFC(nombre, apellidoP, apellidoM, fechaNacimiento) {
   // fechaNacimiento esperado: DD/MM/AAAA
@@ -1178,7 +1188,7 @@ function Clientes({ clientes, setClientes, polizas=[], setPolizas }) {
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
                 <div>
                   <Inp label="Nombre(s) *" value={form.nombre} onChange={e=>{
-                    const v=e.target.value;
+                    const v=toTitleCase(e.target.value);
                     const rfc=generarRFC(v,form.apellidoPaterno,form.apellidoMaterno,form.fechaNacimiento);
                     setForm(p=>({...p,nombre:v,rfc}));
                   }} placeholder="María"/>
@@ -1186,14 +1196,14 @@ function Clientes({ clientes, setClientes, polizas=[], setPolizas }) {
                 </div>
                 <div>
                   <Inp label="Apellido Paterno *" value={form.apellidoPaterno} onChange={e=>{
-                    const v=e.target.value;
+                    const v=toTitleCase(e.target.value);
                     const rfc=generarRFC(form.nombre,v,form.apellidoMaterno,form.fechaNacimiento);
                     setForm(p=>({...p,apellidoPaterno:v,rfc}));
                   }} placeholder="González"/>
                   <ErrMsg k="apellidoPaterno"/>
                 </div>
                 <Inp label="Apellido Materno" value={form.apellidoMaterno} onChange={e=>{
-                  const v=e.target.value;
+                  const v=toTitleCase(e.target.value);
                   const rfc=generarRFC(form.nombre,form.apellidoPaterno,v,form.fechaNacimiento);
                   setForm(p=>({...p,apellidoMaterno:v,rfc}));
                 }} placeholder="Ruiz"/>
@@ -1237,13 +1247,13 @@ function Clientes({ clientes, setClientes, polizas=[], setPolizas }) {
             <div style={{background:"#f8fafc",borderRadius:12,padding:"16px 18px"}}>
               <div style={{fontSize:11,fontWeight:800,color:"#6b7280",letterSpacing:"0.08em",marginBottom:12}}>DIRECCIÓN</div>
               <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:12,marginBottom:12}}>
-                <Inp label="Calle" value={form.calle} onChange={e=>f("calle")(e.target.value)} placeholder="Insurgentes Sur"/>
+                <Inp label="Calle" value={form.calle} onChange={e=>f("calle")(toTitleCase(e.target.value))} placeholder="Insurgentes Sur"/>
                 <Inp label="Número" value={form.numero} onChange={e=>f("numero")(e.target.value)} placeholder="1234"/>
               </div>
               <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 2fr",gap:12}}>
-                <Inp label="Colonia" value={form.colonia} onChange={e=>f("colonia")(e.target.value)} placeholder="Del Valle"/>
+                <Inp label="Colonia" value={form.colonia} onChange={e=>f("colonia")(toTitleCase(e.target.value))} placeholder="Del Valle"/>
                 <Inp label="C.P." value={form.cp} onChange={e=>f("cp")(e.target.value)} placeholder="03100"/>
-                <Inp label="Ciudad / Municipio" value={form.ciudad} onChange={e=>f("ciudad")(e.target.value)} placeholder="Benito Juárez"/>
+                <Inp label="Ciudad / Municipio" value={form.ciudad} onChange={e=>f("ciudad")(toTitleCase(e.target.value))} placeholder="Benito Juárez"/>
                 <Sel label="Estado" value={form.estado} onChange={e=>f("estado")(e.target.value)}>
                   <option value="">Seleccionar estado</option>
                   {ESTADOS_MX.map(es=><option key={es}>{es}</option>)}
@@ -2483,17 +2493,17 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
         }
         const nuevoCliente = {
           id: Date.now(),
-          nombre: pNombre,
-          apellidoPaterno: pApellidoP,
-          apellidoMaterno: pApellidoM,
+          nombre: toTitleCase(pNombre),
+          apellidoPaterno: toTitleCase(pApellidoP),
+          apellidoMaterno: toTitleCase(pApellidoM),
           rfc: data.rfcCliente || "",
           fechaNacimiento: data.fechaNacimiento || "",
-          calle:   data.clienteCalle   || "",
+          calle:   toTitleCase(data.clienteCalle   || ""),
           numero:  data.clienteNumero  || "",
-          colonia: data.clienteColonia || "",
+          colonia: toTitleCase(data.clienteColonia || ""),
           cp:      data.clienteCp      || "",
-          ciudad:  data.clienteCiudad  || "",
-          estado:  data.clienteEstado  || "",
+          ciudad:  toTitleCase(data.clienteCiudad  || ""),
+          estado:  toTitleCase(data.clienteEstado  || ""),
           email:    data.emailCliente    || "",
           telefono: data.telefonoCliente || "",
           whatsapp: data.whatsappCliente || data.telefonoCliente || "",
@@ -3715,7 +3725,7 @@ function ComunicacionConfig({ plantillas, setPlantillas, plantillasDefault, clie
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify({
           to: testEmail,
-          subject: "Prueba de correo — "+( config.nombre||"SeguCore"),
+          subject: "Prueba de correo — "+( config.nombre||"CRM Seguros"),
           html: `<p>Este es un correo de prueba enviado desde tu CRM.</p><p>Si lo recibes, la configuracion SMTP esta correcta.</p>`,
         })
       });
@@ -5932,7 +5942,7 @@ function Exportar({ clientes, polizas, siniestros, pagosComision, tablaComisione
 
   const showToast = (msg, color="#059669") => { setToast({msg,color}); setTimeout(()=>setToast(null),3500); };
   const fechaStr  = () => new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"2-digit",year:"numeric"});
-  const agencia   = config?.nombre || "SeguCore";
+  const agencia   = config?.nombre || "CRM Seguros";
   const tel       = config?.telefono || "";
   const correo    = config?.email || "";
   const rfc       = config?.rfc || "";
@@ -8685,10 +8695,10 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
         <Modal title={editando?"Editar Subagente":"Nuevo Subagente"} onClose={()=>{setShowModal(false);setEditando(null);setForm(FORM_INIT);}}>
           <div style={{display:"flex",flexDirection:"column",gap:13}}>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
-              <Inp label="Nombre(s) *" value={form.nombre} onChange={e=>upd("nombre",e.target.value)}/>
-              <Inp label="Apellido Paterno *" value={form.apellidoPaterno} onChange={e=>upd("apellidoPaterno",e.target.value)}/>
+              <Inp label="Nombre(s) *" value={form.nombre} onChange={e=>upd("nombre",toTitleCase(e.target.value))}/>
+              <Inp label="Apellido Paterno *" value={form.apellidoPaterno} onChange={e=>upd("apellidoPaterno",toTitleCase(e.target.value))}/>
             </div>
-            <Inp label="Apellido Materno" value={form.apellidoMaterno} onChange={e=>upd("apellidoMaterno",e.target.value)}/>
+            <Inp label="Apellido Materno" value={form.apellidoMaterno} onChange={e=>upd("apellidoMaterno",toTitleCase(e.target.value))}/>
             <Inp label="Email" type="email" value={form.email} onChange={e=>upd("email",e.target.value)} placeholder="correo@ejemplo.com"/>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
               <Inp label="Teléfono" value={form.telefono} onChange={e=>upd("telefono",e.target.value)} placeholder="8110000000"/>
@@ -9116,7 +9126,7 @@ function LoginScreen({ usuarios, config, onLogin }) {
   };
 
   const logoEmpresa = config?.logo;
-  const nombreEmpresa = config?.nombre || "SeguCore";
+  const nombreEmpresa = config?.nombre || "CRM Seguros";
 
   // Pantalla de primer acceso — crear contraseña
   if (primerAcceso && userPrimerAcceso) return (
@@ -9309,7 +9319,7 @@ export default function CRMSeguros() {
   const [usuarios,   setUsuarios]   = useLocalStorage("crm_usuarios",   USUARIOS_INIT);
   const [paiMetas,   setPaiMetas]   = useLocalStorage("crm_paiMetas",   PAI_METAS_INIT);
   const [subagentes, setSubagentes] = useLocalStorage("crm_subagentes", SUBAGENTES_INIT);
-  const [config,     setConfig]     = useLocalStorage("crm_config",     {nombre:"SeguCore",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""});
+  const [config,     setConfig]     = useLocalStorage("crm_config",     {nombre:"SeguroCRM",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""});
   const [historialNotif, setHistorialNotif] = useLocalStorage("crm_historial_notif", []);
   const [tablaComisiones, setTablaComisiones] = useLocalStorage("crm_tabla_comisiones", []);
   const [pagosComision, setPagosComision] = useLocalStorage("crm_pagos_comision", []);
@@ -9475,7 +9485,7 @@ export default function CRMSeguros() {
         <div style={{padding:"0 16px 20px"}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
             <div style={{width:36,height:36,background:"linear-gradient(135deg,#2563eb,#7c3aed)",borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}><Icon name="shield" size={19}/></div>
-            <div><div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>SeguCore</div><div style={{color:"#475569",fontSize:10}}>Agente Profesional</div></div>
+            <div><div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>SeguroCRM</div><div style={{color:"#475569",fontSize:10}}>Agente Profesional</div></div>
           </div>
         </div>
         <nav style={{flex:1,overflowY:"auto"}}>
@@ -9532,7 +9542,7 @@ export default function CRMSeguros() {
             <div style={{width:28,height:28,background:"linear-gradient(135deg,#2563eb,#7c3aed)",borderRadius:7,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}>
               <Icon name="shield" size={14}/>
             </div>
-            <span style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>SeguCore</span>
+            <span style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>SeguroCRM</span>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
             {totalNotif>0&&(

@@ -2666,13 +2666,12 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
           email:    c.email    || data.emailCliente    || "",
           telefono: c.telefono || data.telefonoCliente || "",
           whatsapp: c.whatsapp || data.whatsappCliente || data.telefonoCliente || "",
-          // Dirección: solo si no tiene
-          calle:    c.calle    || data.clienteCalle    || "",
+          calle:    c.calle    || toTitleCase(data.clienteCalle    || ""),
           numero:   c.numero   || data.clienteNumero   || "",
-          colonia:  c.colonia  || data.clienteColonia  || "",
+          colonia:  c.colonia  || toTitleCase(data.clienteColonia || ""),
           cp:       c.cp       || data.clienteCp       || "",
-          ciudad:   c.ciudad   || data.clienteCiudad   || "",
-          estado:   c.estado   || data.clienteEstado   || "",
+          ciudad:   c.ciudad   || toTitleCase(data.clienteCiudad  || ""),
+          estado:   c.estado   || toTitleCase(data.clienteEstado  || ""),
         } : c));
       } else {
         // Dividir nombre: para apellido compuesto tomar últimas 2 palabras como apellidos
@@ -2726,7 +2725,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
       ...data,
       id,
       clienteId,
-      cliente: clienteNombre,
+      cliente: toTitleCase(clienteNombre),
       rfc: data.rfcCliente || "",
       inicio: normalizarFecha(data.inicio),
       vencimiento: normalizarFecha(data.vencimiento),

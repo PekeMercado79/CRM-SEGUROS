@@ -98,7 +98,6 @@ function ModalCrearAgente({ onClose, onCreated }) {
   setLoading(true)
   setMsg(null)
   try {
-    // ✅ Usa signUp normal con contraseña temporal
     const passwordTemporal = 'SeguCore2026!'
     const { data, error } = await supabase.auth.signUp({
       email: form.email,
@@ -106,25 +105,20 @@ function ModalCrearAgente({ onClose, onCreated }) {
       options: { data: { nombre: form.nombre } }
     })
     if (error) throw error
-
-    // Actualiza perfil con datos adicionales
     await supabase.from('agentes').update({
       nombre: form.nombre,
       telefono: form.telefono,
       plan: form.plan,
       notas_admin: form.notas_admin,
       activo: true
-    }).eq('id', data.user.id)  // ✅ usa .id en vez de .email — más confiable
-
+    }).eq('id', data.user.id)
+    setMsg({ ok: true, text: `✓ Agente creado. Comparte con ${form.email} la contraseña temporal: ${passwordTemporal}` })
+    setTimeout(() => { onCreated(); onClose() }, 3000)
+  } catch (e) {
+    setMsg({ ok: false, text: e.message })
+  }
   setLoading(false)
 }
-      setMsg({ ok: true, text: `✓ Invitación enviada a ${form.email}. El agente recibirá un correo para activar su cuenta.` })
-      setTimeout(() => { onCreated(); onClose() }, 2500)
-    } catch (e) {
-      setMsg({ ok: false, text: e.message })
-    }
-    setLoading(false)
-  }
 
   return (
     <div style={css.modal}>

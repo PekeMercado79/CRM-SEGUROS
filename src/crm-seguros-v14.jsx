@@ -4648,16 +4648,6 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
       </div>
 
       {/* Tabs */}
-      <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:12,padding:4,width:"fit-content"}}>
-        {[["resumen","📊 Resumen"],["tabla","⚙️ Tabla %"],["importar","📥 Importar Excel"],["subagentes","👥 Subagentes"],["historial","📜 Historial"]].map(([t,l])=>(
-          <button key={t} onClick={()=>setTab(t)}
-            style={{background:tab===t?"#fff":"none",border:"none",borderRadius:9,padding:"8px 18px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:tab===t?"#111827":"#6b7280",boxShadow:tab===t?"0 1px 4px rgba(0,0,0,0.1)":"none"}}>
-            {l}
-          </button>
-        ))}
-      </div>
-
-      {/* Tabs */}
       <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:12,padding:4,width:"fit-content",flexWrap:"wrap"}}>
         {[["resumen","📊 Resumen"],["anual","📅 Anual"],["tabla","⚙️ Tabla %"],["importar","📥 Importar Excel"],["subagentes","👥 Subagentes"],["historial","📜 Historial"]].map(([t,l])=>(
           <button key={t} onClick={()=>setTab(t)}

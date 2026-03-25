@@ -1,5 +1,14 @@
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "https://crm-seguros.vercel.app";
 
+// Aumentar límite del body para soportar PDFs en base64 (hasta 20MB)
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "20mb",
+    },
+  },
+};
+
 export default async function handler(req, res) {
   // CORS restringido al dominio propio — nunca wildcard (*)
   const origin = req.headers.origin || "";

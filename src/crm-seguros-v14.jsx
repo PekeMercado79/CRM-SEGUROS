@@ -86,7 +86,7 @@ async function agregarEventoCalendar(titulo, descripcion, fecha) {
 function descargarICS(titulo, descripcion, fecha) {
   const fechaISO = (fecha.includes("/") ? fecha.split("/").reverse().join("-") : fecha).replace(/-/g,"");
   const ics = [
-    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//CRM Seguros//ES",
+    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//SeguCore//ES",
     "BEGIN:VEVENT",
     `DTSTART;VALUE=DATE:${fechaISO}`,
     `DTEND;VALUE=DATE:${fechaISO}`,
@@ -3715,7 +3715,7 @@ function ComunicacionConfig({ plantillas, setPlantillas, plantillasDefault, clie
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify({
           to: testEmail,
-          subject: "Prueba de correo — "+( config.nombre||"CRM Seguros"),
+          subject: "Prueba de correo — "+( config.nombre||"SeguCore"),
           html: `<p>Este es un correo de prueba enviado desde tu CRM.</p><p>Si lo recibes, la configuracion SMTP esta correcta.</p>`,
         })
       });
@@ -5932,7 +5932,7 @@ function Exportar({ clientes, polizas, siniestros, pagosComision, tablaComisione
 
   const showToast = (msg, color="#059669") => { setToast({msg,color}); setTimeout(()=>setToast(null),3500); };
   const fechaStr  = () => new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"2-digit",year:"numeric"});
-  const agencia   = config?.nombre || "CRM Seguros";
+  const agencia   = config?.nombre || "SeguCore";
   const tel       = config?.telefono || "";
   const correo    = config?.email || "";
   const rfc       = config?.rfc || "";
@@ -9116,7 +9116,7 @@ function LoginScreen({ usuarios, config, onLogin }) {
   };
 
   const logoEmpresa = config?.logo;
-  const nombreEmpresa = config?.nombre || "CRM Seguros";
+  const nombreEmpresa = config?.nombre || "SeguCore";
 
   // Pantalla de primer acceso — crear contraseña
   if (primerAcceso && userPrimerAcceso) return (

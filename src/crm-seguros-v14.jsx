@@ -4796,17 +4796,17 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
 
         <div style={{display:"flex",flexDirection:"column",gap:16}}>
           <div style={{background:"#eff6ff",borderRadius:12,padding:"14px 18px",border:"1px solid #bfdbfe",fontSize:13,color:"#1e40af"}}>
-            <div style={{fontWeight:800,marginBottom:4}}>📥 Lector de Reporte de Actividades — Mapfre</div>
-            <div style={{fontSize:12}}>Sube el archivo <b>Reporte_de_Actividades.xlsx</b> de Mapfre. El sistema lee automáticamente las hojas <b>NewTron</b> y <b>TronWeb</b>, identifica las pólizas con clave CT, extrae prima base, importe de comisión y fecha de pago.</div>
+            <div style={{fontWeight:800,marginBottom:4}}>📥 Lector Universal de Comisiones</div>
+            <div style={{fontSize:12}}>Sube el reporte de comisiones de <b>cualquier aseguradora</b> (Mapfre, GNP, AXA, HDI, SURA, Qualitas, etc.). El sistema detecta automáticamente el formato, identifica los números de póliza, primas y comisiones.</div>
           </div>
 
           {/* Subir archivo */}
           {!excelData&&(
             <div style={{background:"#fff",borderRadius:14,padding:"32px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,0.07)",border:"2px dashed #e2e8f0"}}>
               <div style={{fontSize:40,marginBottom:12}}>📊</div>
-              <div style={{fontSize:14,fontWeight:700,color:"#374151",marginBottom:6}}>Sube tu Reporte de Actividades Mapfre</div>
+              <div style={{fontSize:14,fontWeight:700,color:"#374151",marginBottom:6}}>Sube tu reporte de comisiones</div>
               <div style={{fontSize:12,color:"#9ca3af",marginBottom:4}}>Formatos soportados: .xlsx, .xls</div>
-              <div style={{fontSize:11,color:"#6b7280",marginBottom:16}}>Hojas detectadas: <b>NewTron</b> (10 col) · <b>TronWeb</b> (11 col con fecha)</div>
+              <div style={{fontSize:11,color:"#6b7280",marginBottom:16}}>Compatible con cualquier aseguradora · El sistema detecta el formato automáticamente</div>
               <input ref={excelRef} type="file" accept=".xlsx,.xls" style={{display:"none"}}
                 onChange={async (e)=>{
                   const file = e.target.files[0];
@@ -4820,103 +4820,163 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
                     const buffer = await file.arrayBuffer();
                     const wb = XLSX.read(buffer);
 
-                    // Función para parsear fecha DDMMYYYY → YYYY-MM-DD
-                    const parseFecha = (raw, dia, mes, anio) => {
-                      const s = String(raw||"").trim().replace(/\D/g,"");
-                      if (s.length===8) {
-                        // formato DDMMYYYY
-                        const dd=s.slice(0,2), mm=s.slice(2,4), yyyy=s.slice(4,8);
-                        return `${yyyy}-${mm}-${dd}`;
+                    // ── Utilidades ──────────────────────────────────────────
+                    const toNum = s => parseFloat(String(s||"").replace(/[,$\s]/g,""))||0;
+                    const esNumPoliza = s => {
+                      const n=String(s||"").trim().replace(/[\s\-\.]/g,"");
+                      return n.length>=6 && /\d{4,}/.test(n) && !/^[a-zA-Z]+$/.test(n);
+                    };
+                    const parseFecha = (raw) => {
+                      const s=String(raw||"").trim().replace(/\D/g,"");
+                      if(s.length===8){
+                        // DDMMYYYY o YYYYMMDD
+                        const a=parseInt(s.slice(0,4));
+                        if(a>1900&&a<2100) return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`; // YYYYMMDD
+                        return `${s.slice(4,8)}-${s.slice(2,4)}-${s.slice(0,2)}`; // DDMMYYYY
                       }
-                      // Fallback: usar día del registro + mes/año del archivo
-                      if (dia && mes && anio) {
-                        const d=String(dia).padStart(2,"0");
-                        return `${anio}-${String(mes).padStart(2,"0")}-${d}`;
-                      }
-                      return new Date().toISOString().slice(0,10);
+                      return "";
+                    };
+                    // Normalizar nombres de ramo de cualquier aseguradora al formato CRM
+                    const normRamo = (r) => {
+                      const u=String(r||"").toUpperCase();
+                      if(/AUTO|AUTOS|410|411|412|VEHIC|CAR/.test(u)) return "Autos";
+                      if(/GASTO|MEDIC|HOSPIT|SALUD|HEALTH|GMM|PROTEC/.test(u)) return "Gastos Médicos";
+                      if(/VIDA|LIFE|TEMPORAL|SEGURO.*VID/.test(u)) return "Vida";
+                      if(/DAÑO|HOGAR|INCEND|NEGOC|COMERCI|PROPIEDAD/.test(u)) return "Daños";
+                      if(/ACCIDENT|AP\b/.test(u)) return "Accidentes Personales";
+                      return r||"Otro";
                     };
 
-                    // Detectar mes/año del archivo desde nombre de hoja DC
-                    let mesArchivo = new Date().getMonth()+1;
-                    let anioArchivo = new Date().getFullYear();
+                    // ── Detección automática de columnas por encabezado ─────
+                    const detectarColumnas = (headerRow) => {
+                      const cols={poliza:-1,cliente:-1,prima:-1,comision:-1,fecha:-1,ramo:-1,recibo:-1};
+                      headerRow.forEach((h,i)=>{
+                        const u=String(h||"").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+                        if(cols.poliza<0   && /POLIZA|POLIZA|NUMERO|POLICY|NO\.?\s*POL/.test(u))  cols.poliza=i;
+                        if(cols.cliente<0  && /CLIENTE|CONTRAT|ASEGURADO|NOMBRE|NAME/.test(u))    cols.cliente=i;
+                        if(cols.prima<0    && /PRIMA|PREMIO|IMPORTE.*PRIMA|PRIMA.*BASE|MONTO/.test(u)) cols.prima=i;
+                        if(cols.comision<0 && /COMIS|IMPORT.*COM|COM.*AGENT|HONORAR/.test(u))     cols.comision=i;
+                        if(cols.fecha<0    && /FECHA|DATE|PAGO|VENCIM/.test(u))                   cols.fecha=i;
+                        if(cols.ramo<0     && /RAMO|PRODUCTO|TIPO|PRODUCTO|LINE/.test(u))         cols.ramo=i;
+                        if(cols.recibo<0   && /RECIBO|RECEIPT|FACTURA|FOLIO/.test(u))             cols.recibo=i;
+                      });
+                      return cols;
+                    };
 
-                    let filas = [];
+                    // ── Modo Mapfre (CT sin encabezado de póliza explícito) ─
+                    const esFormatoMapfre = (rows) => {
+                      // Detectar por encabezado: Día | Póliza | Endoso | Ramo | Recibo | Serie | Clave | Concepto | Prima base | Importe
+                      const h=rows[0]||[];
+                      return String(h[6]||"").toUpperCase().includes("CLAVE") || String(h[1]||"").toUpperCase().includes("POLIZA");
+                    };
+
+                    let filas=[];
 
                     wb.SheetNames.forEach(sheetName=>{
-                      const ws = wb.Sheets[sheetName];
-                      const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:""});
-                      const esTronWeb = sheetName.toLowerCase().includes("tronweb") || (rows[0]&&rows[0].length>=11);
+                      const ws=wb.Sheets[sheetName];
+                      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:""});
+                      if(rows.length<2) return;
 
-                      rows.forEach((row,idx)=>{
-                        if (idx===0) return; // skip header
-                        const polizaNum = String(row[1]||"").trim();
-                        const clave = String(row[6]||"").trim().toUpperCase();
-
-                        // Solo filas CT con número de póliza válido
-                        if (!polizaNum || polizaNum.length < 8) return;
-                        if (clave !== "CT") return;
-
-                        const dia = String(row[0]||"").trim();
-                        let fechaPago = "";
-
-                        if (esTronWeb) {
-                          // TronWeb: col 10 (índice 10) tiene la fecha DDMMYYYY
-                          fechaPago = parseFecha(row[10], dia, mesArchivo, anioArchivo);
-                        } else {
-                          // NewTron: la fecha viene en fila DC del mismo día, buscar hacia abajo
-                          // Buscar la siguiente fila DC del mismo día para extraer fecha
-                          for (let j=idx+1; j<rows.length&&j<idx+15; j++) {
-                            if (String(rows[j][0]||"").trim()!==dia) break;
-                            if (String(rows[j][6]||"").trim().toUpperCase()==="DC") {
-                              // concepto: "DEPOSITO EN CUENTA DDMMYYYY"
-                              const concepto = String(rows[j][7]||"");
-                              const match = concepto.match(/(\d{8})/);
-                              if (match) { fechaPago = parseFecha(match[1]); break; }
+                      if(esFormatoMapfre(rows)){
+                        // ── Formato Mapfre (NewTron / TronWeb) ──────────────
+                        const tieneColFecha=rows[0].length>=11;
+                        rows.forEach((row,idx)=>{
+                          if(idx===0) return;
+                          const polizaNum=String(row[1]||"").trim();
+                          const clave=String(row[6]||"").trim().toUpperCase();
+                          if(!esNumPoliza(polizaNum)||clave!=="CT") return;
+                          const primaBase=toNum(row[8]);
+                          const importe=toNum(row[9]);
+                          if(primaBase<=0&&importe<=0) return;
+                          let fechaPago="";
+                          if(tieneColFecha) fechaPago=parseFecha(row[10]);
+                          if(!fechaPago){
+                            // buscar fila DC del mismo día
+                            const dia=String(row[0]||"").trim();
+                            for(let j=idx+1;j<rows.length&&j<idx+20;j++){
+                              if(String(rows[j][0]||"").trim()!==dia) break;
+                              if(String(rows[j][6]||"").trim().toUpperCase()==="DC"){
+                                const m=String(rows[j][7]||"").match(/(\d{8})/);
+                                if(m) {fechaPago=parseFecha(m[1]);break;}
+                              }
                             }
                           }
-                          if (!fechaPago) fechaPago = parseFecha(null, dia, mesArchivo, anioArchivo);
-                        }
-
-                        const ramoRaw = String(row[3]||"").trim();
-                        // Normalizar ramo Mapfre → ramos del CRM
-                        const ramoMap = {
-                          "410":"Autos","411":"Autos","412":"Autos",
-                          "GASTOS MED":"Gastos Médicos","GASTOS MED.Y HOSPIT":"Gastos Médicos",
-                          "GASTOS MED.Y HOSPIT. PLUS":"Gastos Médicos",
-                          "PROTECCION MEDICA":"Gastos Médicos","PROTECCION MEDICA A TU MEDIDA":"Gastos Médicos",
-                          "TEMPORALES":"Vida","VIDA":"Vida",
-                          "DAÑOS":"Daños","HOGAR":"Daños","INCENDIO":"Daños",
-                        };
-                        const ramoNorm = ramoMap[ramoRaw.toUpperCase()] || ramoMap[ramoRaw.slice(0,12).toUpperCase()] || ramoRaw || "Autos";
-
-                        const primaBase = parseFloat(String(row[8]||"0").replace(/[,$\s]/g,""))||0;
-                        const importe  = parseFloat(String(row[9]||"0").replace(/[,$\s]/g,""))||0;
-
-                        // Solo filas con prima positiva
-                        if (primaBase <= 0 && importe <= 0) return;
-
-                        filas.push({
-                          polizaNum,
-                          endoso:   String(row[2]||"").trim(),
-                          ramo:     ramoNorm,
-                          ramoOrig: ramoRaw,
-                          recibo:   String(row[4]||"").trim(),
-                          serie:    String(row[5]||"").trim(),
-                          cliente:  String(row[7]||"").trim(),
-                          primaBase,
-                          importe,
-                          fechaPago,
-                          hoja: sheetName,
+                          filas.push({
+                            polizaNum,
+                            cliente:  String(row[7]||"").trim(),
+                            ramo:     normRamo(row[3]),
+                            recibo:   String(row[4]||"").trim(),
+                            primaBase, importe, fechaPago, hoja:sheetName,
+                          });
                         });
-                      });
+                      } else {
+                        // ── Formato genérico: detectar columnas por encabezado ─
+                        // Buscar la fila de encabezado (puede no ser la primera)
+                        let headerIdx=0;
+                        for(let i=0;i<Math.min(10,rows.length);i++){
+                          const hasPoliza=rows[i].some(c=>/POLIZA|POLIZA|NUMERO|POLICY/i.test(String(c||"")));
+                          if(hasPoliza){headerIdx=i;break;}
+                        }
+                        const cols=detectarColumnas(rows[headerIdx]);
+                        // Si no detectó columna de póliza, intentar búsqueda por contenido
+                        rows.forEach((row,idx)=>{
+                          if(idx<=headerIdx) return;
+                          // Buscar el número de póliza: usar col detectada o buscar en toda la fila
+                          let polizaNum="";
+                          if(cols.poliza>=0){
+                            polizaNum=String(row[cols.poliza]||"").trim();
+                          } else {
+                            // Buscar la primera celda con formato de número de póliza
+                            for(let c=0;c<row.length;c++){
+                              if(esNumPoliza(row[c])){polizaNum=String(row[c]).trim();break;}
+                            }
+                          }
+                          if(!esNumPoliza(polizaNum)) return;
+                          // Extraer montos: buscar columnas numéricas positivas
+                          let primaBase=cols.prima>=0?toNum(row[cols.prima]):0;
+                          let importe=cols.comision>=0?toNum(row[cols.comision]):0;
+                          // Si no detectó columnas, buscar los dos valores numéricos más grandes
+                          if(primaBase<=0&&importe<=0){
+                            const nums=row.map(toNum).filter(n=>n>0).sort((a,b)=>b-a);
+                            primaBase=nums[0]||0;
+                            importe=nums[1]||0;
+                          }
+                          if(primaBase<=0&&importe<=0) return;
+                          const fechaRaw=cols.fecha>=0?String(row[cols.fecha]||""):"";
+                          let fechaPago=parseFecha(fechaRaw);
+                          if(!fechaPago){
+                            // buscar cualquier celda con fecha en la fila
+                            for(let c=0;c<row.length;c++){
+                              const f=parseFecha(row[c]);
+                              if(f){fechaPago=f;break;}
+                            }
+                          }
+                          filas.push({
+                            polizaNum,
+                            cliente:  cols.cliente>=0?String(row[cols.cliente]||"").trim():"",
+                            ramo:     normRamo(cols.ramo>=0?row[cols.ramo]:""),
+                            recibo:   cols.recibo>=0?String(row[cols.recibo]||"").trim():"",
+                            primaBase, importe, fechaPago, hoja:sheetName,
+                          });
+                        });
+                      }
                     });
 
-                    // Buscar cada póliza en el sistema
+                    // Buscar cada póliza en el sistema — matching flexible
+                    const norm = s => String(s||"").replace(/[\s\-\.\/]/g,"").toUpperCase().replace(/^0+/,"");
                     const encontradas = filas.map(f=>{
+                      const bExcel = norm(f.polizaNum);
                       const poliza = polizas.find(p=>{
-                        const n = String(p.numero||"").replace(/[\s\-]/g,"");
-                        const b = String(f.polizaNum||"").replace(/[\s\-]/g,"");
-                        return n===b || n.endsWith(b) || b.endsWith(n);
+                        const nCRM = norm(p.numero);
+                        // 1. Exacto (sin espacios/guiones)
+                        if(nCRM===bExcel) return true;
+                        // 2. Uno termina en el otro (prefijo diferente)
+                        if(nCRM.endsWith(bExcel)||bExcel.endsWith(nCRM)) return true;
+                        // 3. Últimos 8 dígitos coinciden
+                        if(nCRM.length>=8&&bExcel.length>=8&&nCRM.slice(-8)===bExcel.slice(-8)) return true;
+                        // 4. Últimos 6 dígitos (matching amplio)
+                        if(nCRM.length>=6&&bExcel.length>=6&&nCRM.slice(-6)===bExcel.slice(-6)) return true;
+                        return false;
                       });
                       const subagente = poliza?.subagenteId ? subagentes.find(s=>s.id===poliza.subagenteId) : null;
                       const pctSA  = parseFloat(subagente?.comision||0);
@@ -4925,6 +4985,11 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
                       const comSABruta = f.primaBase * pctSA / 100;
                       const comSAIsr   = comSABruta * isrSA / 100;
                       const comSANeta  = comSABruta - comSAIsr;
+                      // Candidatos similares para diagnóstico
+                      const candidatos = !poliza ? polizas.filter(p=>{
+                        const nCRM=norm(p.numero);
+                        return nCRM.slice(-4)===bExcel.slice(-4);
+                      }).slice(0,3).map(p=>p.numero) : [];
                       return {
                         ...f,
                         id: Date.now()+Math.random(),
@@ -4932,6 +4997,7 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
                         comisionAgente: comBruta,
                         comSABruta, comSAIsr, comSANeta, pctSA, isrSA,
                         encontrada: !!poliza,
+                        candidatos,
                       };
                     });
                     setResultados(encontradas);
@@ -5004,7 +5070,14 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
                         <td style={{padding:"8px 12px",fontWeight:700,color:"#059669"}}>{r.comSANeta>0?`$${r.comSANeta.toLocaleString("es-MX",{maximumFractionDigits:2})}`:"—"}</td>
                         <td style={{padding:"8px 12px"}}>
                           {!r.encontrada?(
-                            <span style={{background:"#fee2e2",color:"#dc2626",padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:9}}>No encontrada</span>
+                            <div>
+                              <span style={{background:"#fee2e2",color:"#dc2626",padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:9}}>No encontrada</span>
+                              {r.candidatos&&r.candidatos.length>0&&(
+                                <div style={{fontSize:9,color:"#9ca3af",marginTop:3}}>
+                                  ¿Similar? {r.candidatos.join(", ")}
+                                </div>
+                              )}
+                            </div>
                           ):aplicados[r.id]?(
                             <span style={{background:"#d1fae5",color:"#059669",padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:9}}>✓ Aplicado</span>
                           ):(

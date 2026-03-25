@@ -393,7 +393,7 @@ const Modal = ({ title, onClose, children, wide, maxW }) => (
   <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:20}} onClick={onClose}>
     <div style={{background:"#fff",borderRadius:20,width:"100%",maxWidth:maxW||(wide?760:500),maxHeight:"92vh",display:"flex",flexDirection:"column",overflow:"hidden"}} onClick={e=>e.stopPropagation()}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"20px 28px 16px",borderBottom:"1px solid #f3f4f6",flexShrink:0,background:"#fff",borderRadius:"20px 20px 0 0"}}>
-        <h3 style={{margin:0,fontSize:17,fontWeight:700,fontFamily:"'Playfair Display',serif"}}>{title}</h3>
+        <h3 style={{margin:0,fontSize:17,fontWeight:700,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{title}</h3>
         <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:"#6b7280",display:"flex",flexShrink:0}}><Icon name="x" size={22}/></button>
       </div>
       <div style={{overflowY:"auto",padding:"20px 28px 28px",flex:1}}>
@@ -434,7 +434,7 @@ const ProgressBar = ({ value, max, color, height=8 }) => {
 
 const SectionTitle = ({ title, sub }) => (
   <div style={{marginBottom:4}}>
-    <h2 style={{margin:0,fontSize:24,fontWeight:800,fontFamily:"'Playfair Display',serif",color:"#111827"}}>{title}</h2>
+    <h2 style={{margin:0,fontSize:24,fontWeight:800,fontFamily:"'Inter','Segoe UI',sans-serif",color:"#111827"}}>{title}</h2>
     {sub&&<p style={{margin:"3px 0 0",color:"#6b7280",fontSize:13}}>{sub}</p>}
   </div>
 );
@@ -505,7 +505,7 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
   return (
     <div style={{display:"flex",flexDirection:"column",gap:24}}>
       <div>
-        <h2 style={{margin:0,fontSize:24,fontWeight:800,fontFamily:"'Playfair Display',serif",color:"#111827"}}>Panel Principal</h2>
+        <h2 style={{margin:0,fontSize:24,fontWeight:800,fontFamily:"'Inter','Segoe UI',sans-serif",color:"#111827"}}>Panel Principal</h2>
         <p style={{margin:"3px 0 0",color:"#6b7280",fontSize:13}}>Resumen operativo — 2025</p>
       </div>
 
@@ -576,7 +576,7 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
           </div>
           <div style={{background:"linear-gradient(135deg,#0f172a,#1e3a5f)",borderRadius:12,padding:"8px 16px",color:"#fff",textAlign:"center"}}>
             <div style={{fontSize:10,color:"#94a3b8",letterSpacing:"0.05em"}}>GLOBAL</div>
-            <div style={{fontSize:22,fontWeight:900,fontFamily:"'Playfair Display',serif",color:pctPAI>=80?"#4ade80":pctPAI>=50?"#fbbf24":"#f87171"}}>{pctPAI}%</div>
+            <div style={{fontSize:22,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif",color:pctPAI>=80?"#4ade80":pctPAI>=50?"#fbbf24":"#f87171"}}>{pctPAI}%</div>
           </div>
         </div>
         <ResponsiveContainer width="100%" height={200}>
@@ -598,12 +598,12 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
             <div style={{background:`linear-gradient(135deg,${ramoColor(alertaDetalle.ramo)},${ramoColor(alertaDetalle.ramo)}bb)`,borderRadius:12,padding:"14px 18px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
                 <div style={{fontSize:10,opacity:.8,fontWeight:700}}>{alertaDetalle.ramo?.toUpperCase()}{alertaDetalle.subramo?" · "+alertaDetalle.subramo.toUpperCase():""} · {alertaDetalle.aseguradora}</div>
-                <div style={{fontSize:18,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>{alertaDetalle.numero}</div>
+                <div style={{fontSize:18,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{alertaDetalle.numero}</div>
                 <div style={{fontSize:12,opacity:.9,marginTop:2}}>{alertaDetalle.cliente}</div>
               </div>
               <div style={{textAlign:"right"}}>
                 <div style={{fontSize:9,opacity:.7}}>PRIMA TOTAL</div>
-                <div style={{fontSize:22,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>${(parseFloat(alertaDetalle.primaTotal)||parseFloat(alertaDetalle.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
+                <div style={{fontSize:22,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>${(parseFloat(alertaDetalle.primaTotal)||parseFloat(alertaDetalle.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
               </div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
@@ -1174,12 +1174,12 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar, onRegist
             <div style={{background:`linear-gradient(135deg,${ramoColor(polizaVer.ramo)},${ramoColor(polizaVer.ramo)}bb)`,borderRadius:12,padding:"14px 18px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
                 <div style={{fontSize:10,opacity:.8,fontWeight:700}}>{polizaVer.ramo?.toUpperCase()}{polizaVer.subramo?" · "+polizaVer.subramo.toUpperCase():""} · {polizaVer.aseguradora}</div>
-                <div style={{fontSize:18,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>{polizaVer.numero}</div>
+                <div style={{fontSize:18,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{polizaVer.numero}</div>
                 <div style={{fontSize:12,opacity:.9,marginTop:2}}>{polizaVer.cliente}</div>
               </div>
               <div style={{textAlign:"right"}}>
                 <div style={{fontSize:9,opacity:.7}}>PRIMA TOTAL</div>
-                <div style={{fontSize:22,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>${(parseFloat(polizaVer.primaTotal)||parseFloat(polizaVer.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
+                <div style={{fontSize:22,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>${(parseFloat(polizaVer.primaTotal)||parseFloat(polizaVer.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
                 <div style={{fontSize:11,opacity:.8,marginTop:2}}>{polizaVer.formaPago||polizaVer.frecuencia}</div>
               </div>
             </div>
@@ -2045,7 +2045,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
                 <div style={{color:"#94a3b8",fontSize:12,fontWeight:600}}>PRIMA TOTAL A PAGAR</div>
                 <div style={{color:"#60a5fa",fontSize:11,marginTop:2}}>{form.formaPago||"Anual"} · {calcRecibos(form).length} recibo{calcRecibos(form).length>1?"s":""}</div>
               </div>
-              <div style={{color:"#fff",fontSize:26,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>
+              <div style={{color:"#fff",fontSize:26,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>
                 ${parseFloat(calcPrimaTotal(form)).toLocaleString("es-MX",{minimumFractionDigits:2})}
               </div>
             </div>
@@ -2187,7 +2187,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
                   <div style={{fontWeight:700}}>{form.incisos.length} Vehículos · Prima total flotilla</div>
                   <div style={{fontSize:10,marginTop:2}}>Suma de todas las primas con IVA</div>
                 </div>
-                <div style={{color:"#fff",fontSize:24,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>
+                <div style={{color:"#fff",fontSize:24,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>
                   ${(form.incisos.reduce((s,i)=>s+(parseFloat(i.primaConIva)||0),0)).toLocaleString("es-MX",{minimumFractionDigits:2})}
                 </div>
               </div>
@@ -3072,7 +3072,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
                   {STATUS_CFG[polizaDetalle._status].label}
                 </span>
                 <div style={{fontSize:9,opacity:.7}}>PRIMA TOTAL</div>
-                <div style={{fontSize:24,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>${Number(polizaDetalle.primaTotal||polizaDetalle.prima||0).toLocaleString()}</div>
+                <div style={{fontSize:24,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>${Number(polizaDetalle.primaTotal||polizaDetalle.prima||0).toLocaleString()}</div>
                 <div style={{fontSize:11,opacity:.8}}>{polizaDetalle.formaPago||polizaDetalle.frecuencia}</div>
               </div>
             </div>
@@ -3681,7 +3681,7 @@ function ScanPoliza({ onClose, onExtracted, subagentes }) {
       {step==="analyzing"&&(
         <div style={{textAlign:"center",padding:"50px 20px"}}>
           <div style={{fontSize:40,marginBottom:14}}>🔍</div>
-          <div style={{fontWeight:700,fontSize:16,fontFamily:"'Playfair Display',serif"}}>Analizando póliza...</div>
+          <div style={{fontWeight:700,fontSize:16,fontFamily:"'Inter','Segoe UI',sans-serif"}}>Analizando póliza...</div>
           <style>{`@keyframes bounce{0%,80%,100%{transform:scale(.8);opacity:.5}40%{transform:scale(1.2);opacity:1}}`}</style>
           <div style={{display:"flex",justifyContent:"center",gap:6,marginTop:20}}>
             {[0,1,2].map(i=><div key={i} style={{width:10,height:10,borderRadius:"50%",background:"#2563eb",animation:`bounce 1.2s ${i*.2}s infinite`}}/>)}
@@ -3976,7 +3976,7 @@ function ComunicacionConfig({ plantillas, setPlantillas, plantillasDefault, clie
           {/* Pendientes del día */}
           <div style={{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
             <div style={{background:"#0f172a",padding:"14px 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>
+              <div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Inter','Segoe UI',sans-serif"}}>
                 📋 Notificaciones pendientes hoy
               </div>
               {pendientes.length>0&&<span style={{background:"#dc2626",color:"#fff",borderRadius:20,padding:"2px 10px",fontSize:12,fontWeight:800}}>{pendientes.length}</span>}
@@ -4025,7 +4025,7 @@ function ComunicacionConfig({ plantillas, setPlantillas, plantillasDefault, clie
 
           {/* Reglas de notificación */}
           <div style={{background:"#fff",borderRadius:14,padding:"18px 20px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-            <div style={{fontSize:13,fontWeight:800,color:"#111827",marginBottom:14,fontFamily:"'Playfair Display',serif"}}>
+            <div style={{fontSize:13,fontWeight:800,color:"#111827",marginBottom:14,fontFamily:"'Inter','Segoe UI',sans-serif"}}>
               ⚙️ Reglas de envío automático
             </div>
             <div style={{display:"flex",flexDirection:"column",gap:10}}>
@@ -4062,7 +4062,7 @@ function ComunicacionConfig({ plantillas, setPlantillas, plantillasDefault, clie
           {/* Historial */}
           <div style={{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
             <div style={{padding:"14px 20px",borderBottom:"1px solid #f3f4f6",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <div style={{fontSize:13,fontWeight:800,color:"#111827",fontFamily:"'Playfair Display',serif"}}>📜 Historial de envíos</div>
+              <div style={{fontSize:13,fontWeight:800,color:"#111827",fontFamily:"'Inter','Segoe UI',sans-serif"}}>📜 Historial de envíos</div>
               {(historialNotif||[]).length>0&&(
                 <button onClick={()=>{if(window.confirm("¿Limpiar historial?"))setHistorialNotif([]);}}
                   style={{background:"#fef2f2",color:"#dc2626",border:"1px solid #fecaca",borderRadius:7,
@@ -4831,7 +4831,7 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
       {tab==="resumen"&&(
         <div style={{display:"flex",flexDirection:"column",gap:16}}>
           <div style={{background:"#fff",borderRadius:16,padding:"20px 24px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-            <div style={{fontSize:13,fontWeight:800,color:"#111827",fontFamily:"'Playfair Display',serif",marginBottom:16}}>📈 Comparativo últimos 6 meses</div>
+            <div style={{fontSize:13,fontWeight:800,color:"#111827",fontFamily:"'Inter','Segoe UI',sans-serif",marginBottom:16}}>📈 Comparativo últimos 6 meses</div>
             <div style={{display:"flex",gap:8,alignItems:"flex-end",height:120}}>
               {comparativo.map((c,i)=>(
                 <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
@@ -4844,7 +4844,7 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
           </div>
           <div style={{background:"#fff",borderRadius:16,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
             <div style={{padding:"14px 20px",borderBottom:"1px solid #f3f4f6",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <div style={{fontSize:13,fontWeight:800,color:"#111827",fontFamily:"'Playfair Display',serif"}}>Comisiones — {MESES[mesSelec]} {anioSelec}</div>
+              <div style={{fontSize:13,fontWeight:800,color:"#111827",fontFamily:"'Inter','Segoe UI',sans-serif"}}>Comisiones — {MESES[mesSelec]} {anioSelec}</div>
               {comisionesMes.filter(c=>c.estado==="pendiente").length>0&&(
                 <button onClick={()=>comisionesMes.filter(c=>c.estado==="pendiente").forEach(c=>marcarEstado(c.poliza.id,"cobrada"))}
                   style={{background:"#059669",color:"#fff",border:"none",borderRadius:8,padding:"6px 14px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
@@ -4959,7 +4959,7 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
                 <div style={{background:"linear-gradient(135deg,#0f172a,#1e3a5f)",padding:"14px 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                   <div>
                     <div style={{color:"#94a3b8",fontSize:10,fontWeight:700,letterSpacing:"0.06em"}}>SUBAGENTE</div>
-                    <div style={{color:"#fff",fontSize:15,fontWeight:800,fontFamily:"'Playfair Display',serif"}}>{sa.nombre}</div>
+                    <div style={{color:"#fff",fontSize:15,fontWeight:800,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{sa.nombre}</div>
                     <div style={{color:"#64748b",fontSize:11,marginTop:2}}>{sa.comision}% comisión · {sa.impuestos||15}% ISR</div>
                   </div>
                   <div style={{textAlign:"right"}}>
@@ -5007,7 +5007,7 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
       {tab==="historial"&&(
         <div style={{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
           <div style={{padding:"14px 20px",borderBottom:"1px solid #f3f4f6"}}>
-            <div style={{fontSize:13,fontWeight:800,color:"#111827",fontFamily:"'Playfair Display',serif"}}>📜 Historial de comisiones cobradas / pagadas</div>
+            <div style={{fontSize:13,fontWeight:800,color:"#111827",fontFamily:"'Inter','Segoe UI',sans-serif"}}>📜 Historial de comisiones cobradas / pagadas</div>
           </div>
           {pagosComision.filter(pc=>pc.estado==="cobrada"||pc.estado==="pagada").length===0?(
             <div style={{padding:"32px",textAlign:"center",color:"#9ca3af",fontSize:13}}>Sin historial registrado aún</div>
@@ -5143,7 +5143,7 @@ function PAI({ paiMetas, setPaiMetas }) {
       {paiMetas.length===0&&(
         <div style={{background:"#fff",borderRadius:16,padding:"48px 24px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
           <div style={{fontSize:44,marginBottom:12}}>🎯</div>
-          <div style={{fontWeight:800,fontSize:16,fontFamily:"'Playfair Display',serif",marginBottom:6}}>Sin metas registradas</div>
+          <div style={{fontWeight:800,fontSize:16,fontFamily:"'Inter','Segoe UI',sans-serif",marginBottom:6}}>Sin metas registradas</div>
           <div style={{fontSize:13,color:"#6b7280",marginBottom:20}}>Agrega tu primera meta de bono por ramo para comenzar el seguimiento</div>
           <Btn onClick={()=>setShowModal(true)} color="#059669" icon="plus">Crear primera meta</Btn>
         </div>
@@ -5154,7 +5154,7 @@ function PAI({ paiMetas, setPaiMetas }) {
         <div style={{background:"linear-gradient(135deg,#0f172a,#1e3a5f)",borderRadius:18,padding:"24px 28px",display:"flex",alignItems:"center",gap:28}}>
           <div style={{flex:1}}>
             <div style={{fontSize:10,color:"#60a5fa",fontWeight:700,letterSpacing:"0.1em",marginBottom:4}}>PROGRESO GLOBAL DE BONO</div>
-            <div style={{fontSize:40,fontWeight:900,fontFamily:"'Playfair Display',serif",color:pctGlobal>=80?"#4ade80":pctGlobal>=50?"#fbbf24":"#f87171",lineHeight:1}}>{pctGlobal}%</div>
+            <div style={{fontSize:40,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif",color:pctGlobal>=80?"#4ade80":pctGlobal>=50?"#fbbf24":"#f87171",lineHeight:1}}>{pctGlobal}%</div>
             <div style={{color:"#94a3b8",fontSize:13,marginTop:4}}>${totalCobrado.toLocaleString()} cobrado de ${totalMeta.toLocaleString()}</div>
             <div style={{marginTop:12}}><ProgressBar value={totalCobrado} max={totalMeta} color={pctGlobal>=80?"#4ade80":pctGlobal>=50?"#fbbf24":"#f87171"} height={10}/></div>
           </div>
@@ -5183,10 +5183,10 @@ function PAI({ paiMetas, setPaiMetas }) {
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                     <div>
                       <div style={{fontSize:10,opacity:.8,fontWeight:700,letterSpacing:"0.08em"}}>{m.periodicidad?.toUpperCase()||"TRIMESTRAL"} · {m.periodo||"Sin período"}</div>
-                      <div style={{fontSize:20,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>{m.ramo}</div>
+                      <div style={{fontSize:20,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{m.ramo}</div>
                     </div>
                     <div style={{textAlign:"right"}}>
-                      <div style={{fontSize:30,fontWeight:900,fontFamily:"'Playfair Display',serif",opacity:.9}}>{pct}%</div>
+                      <div style={{fontSize:30,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif",opacity:.9}}>{pct}%</div>
                     </div>
                   </div>
                   <div style={{marginTop:10}}><div style={{background:"rgba(255,255,255,.3)",borderRadius:99,height:7}}><div style={{height:"100%",width:`${Math.min(pct,100)}%`,background:"#fff",borderRadius:99,transition:"width .6s"}}/></div></div>
@@ -5236,7 +5236,7 @@ function PAI({ paiMetas, setPaiMetas }) {
               <div key={periodo} style={{background:"#fff",borderRadius:16,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
                 {/* Header del trimestre */}
                 <div style={{background:"#0f172a",padding:"14px 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                  <div style={{color:"#f1f5f9",fontWeight:800,fontSize:15,fontFamily:"'Playfair Display',serif"}}>📅 {periodo}</div>
+                  <div style={{color:"#f1f5f9",fontWeight:800,fontSize:15,fontFamily:"'Inter','Segoe UI',sans-serif"}}>📅 {periodo}</div>
                   <div style={{display:"flex",alignItems:"center",gap:14}}>
                     <div style={{color:"#94a3b8",fontSize:12}}>Meta: <strong style={{color:"#e2e8f0"}}>${metaTotal.toLocaleString()}</strong></div>
                     <div style={{color:"#94a3b8",fontSize:12}}>Cobrado: <strong style={{color:"#4ade80"}}>${cobradoTotal.toLocaleString()}</strong></div>
@@ -5252,7 +5252,7 @@ function PAI({ paiMetas, setPaiMetas }) {
                     return(
                       <div key={m.id} style={{padding:"16px 18px",borderRight:i<metas.length-1?"1px solid #f3f4f6":"none",textAlign:"center"}}>
                         <div style={{fontSize:11,fontWeight:800,color:c1,marginBottom:4}}>{m.ramo}</div>
-                        <div style={{fontSize:24,fontWeight:900,fontFamily:"'Playfair Display',serif",color:alcanzado?"#059669":c1}}>{pct}%</div>
+                        <div style={{fontSize:24,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif",color:alcanzado?"#059669":c1}}>{pct}%</div>
                         <div style={{fontSize:11,color:"#6b7280",marginTop:2}}>${m.cobrado.toLocaleString()} / ${m.metaBono.toLocaleString()}</div>
                         <div style={{marginTop:8}}><div style={{height:5,background:"#f3f4f6",borderRadius:99}}><div style={{height:"100%",width:`${Math.min(pct,100)}%`,background:alcanzado?"#059669":c1,borderRadius:99}}/></div></div>
                         <div style={{marginTop:6,fontSize:11,fontWeight:700,color:alcanzado?"#059669":"#9ca3af"}}>{alcanzado?"🏆 Meta alcanzada":"⬤ "+getEstado(pct).label.split(" ").slice(1).join(" ")}</div>
@@ -5311,7 +5311,7 @@ function PAI({ paiMetas, setPaiMetas }) {
           {loadingAlerta?(
             <div style={{textAlign:"center",padding:"44px 20px"}}>
               <div style={{fontSize:38,marginBottom:12}}>🤖</div>
-              <div style={{fontWeight:700,fontSize:15,fontFamily:"'Playfair Display',serif"}}>Generando reporte...</div>
+              <div style={{fontWeight:700,fontSize:15,fontFamily:"'Inter','Segoe UI',sans-serif"}}>Generando reporte...</div>
               <style>{`@keyframes b2{0%,80%,100%{transform:scale(.8);opacity:.5}40%{transform:scale(1.2);opacity:1}}`}</style>
               <div style={{display:"flex",justifyContent:"center",gap:6,marginTop:18}}>{[0,1,2].map(i=><div key={i} style={{width:9,height:9,borderRadius:"50%",background:"#7c3aed",animation:`b2 1.2s ${i*.2}s infinite`}}/>)}</div>
             </div>
@@ -5596,7 +5596,7 @@ function Pipeline({ pipeline, setPipeline }) {
           <div style={{background:`linear-gradient(135deg,${colors[prospecto.etapa]||"#6b7280"},${colors[prospecto.etapa]||"#6b7280"}bb)`,borderRadius:12,padding:"14px 18px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
             <div>
               <div style={{fontSize:11,opacity:.8,fontWeight:700,letterSpacing:"0.06em"}}>{prospecto.fuente||"MANUAL"} · {prospecto.tipo||"Por definir"}</div>
-              <div style={{fontSize:20,fontWeight:800,fontFamily:"'Playfair Display',serif"}}>{prospecto.cliente}</div>
+              <div style={{fontSize:20,fontWeight:800,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{prospecto.cliente}</div>
               {prospecto.telefono&&<div style={{fontSize:12,opacity:.85,marginTop:2}}>📱 {prospecto.telefono}</div>}
             </div>
             <div style={{textAlign:"right"}}>
@@ -6740,7 +6740,7 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
             </div>
             {importados.length>0&&(
               <div style={{background:"#f0fdf4",borderRadius:12,padding:"16px 24px",display:"inline-block",margin:"8px auto"}}>
-                <div style={{fontSize:42,fontWeight:900,color:"#059669",fontFamily:"'Playfair Display',serif"}}>{importados.length}</div>
+                <div style={{fontSize:42,fontWeight:900,color:"#059669",fontFamily:"'Inter','Segoe UI',sans-serif"}}>{importados.length}</div>
                 <div style={{fontSize:13,color:"#065f46",fontWeight:600}}>
                   {tipo==="clientes"?"clientes importados":"pólizas importadas"} correctamente
                 </div>
@@ -7603,7 +7603,7 @@ function Calendario({ polizas, clientes, tareas, setPolizas }) {
             <div style={{display:"flex",alignItems:"center",gap:10}}>
               <select value={mes} onChange={e=>setMes(Number(e.target.value))}
                 style={{background:"linear-gradient(135deg,#0f172a,#1e3a5f)",border:"none",borderRadius:10,padding:"8px 14px",
-                  fontSize:15,fontWeight:800,color:"#fff",fontFamily:"'Playfair Display',serif",cursor:"pointer",outline:"none",appearance:"none"}}>
+                  fontSize:15,fontWeight:800,color:"#fff",fontFamily:"'Inter','Segoe UI',sans-serif",cursor:"pointer",outline:"none",appearance:"none"}}>
                 {MESES.map((m,i)=><option key={i} value={i} style={{background:"#0f172a"}}>{m}</option>)}
               </select>
               <select value={anio} onChange={e=>setAnio(Number(e.target.value))}
@@ -7704,7 +7704,7 @@ function Calendario({ polizas, clientes, tareas, setPolizas }) {
               {/* Header */}
               <div style={{background:"linear-gradient(135deg,#0f172a,#1e3a5f)",padding:"14px 16px",flexShrink:0}}>
                 <div style={{fontSize:9,color:"#64748b",fontWeight:700,letterSpacing:"0.08em",marginBottom:1}}>DÍA SELECCIONADO</div>
-                <div style={{fontSize:17,fontWeight:900,color:"#fff",fontFamily:"'Playfair Display',serif"}}>{diaSelec} de {MESES[mes]}</div>
+                <div style={{fontSize:17,fontWeight:900,color:"#fff",fontFamily:"'Inter','Segoe UI',sans-serif"}}>{diaSelec} de {MESES[mes]}</div>
                 <div style={{fontSize:10,color:"#94a3b8",marginTop:1}}>{anio} · {evsDiaSelec.length} evento{evsDiaSelec.length>1?"s":""}</div>
               </div>
 
@@ -7810,7 +7810,7 @@ function Calendario({ polizas, clientes, tareas, setPolizas }) {
           ):(
             <div style={{background:"#fff",borderRadius:20,padding:"32px 20px",boxShadow:"0 4px 20px rgba(0,0,0,0.06)",border:"1px solid #e2e8f0",textAlign:"center"}}>
               <div style={{fontSize:40,marginBottom:12}}>📅</div>
-              <div style={{fontSize:14,fontWeight:700,color:"#374151",fontFamily:"'Playfair Display',serif",marginBottom:6}}>Selecciona un día</div>
+              <div style={{fontSize:14,fontWeight:700,color:"#374151",fontFamily:"'Inter','Segoe UI',sans-serif",marginBottom:6}}>Selecciona un día</div>
               <div style={{fontSize:12,color:"#9ca3af"}}>Haz click en cualquier día para ver los eventos disponibles</div>
             </div>
           )}
@@ -7841,12 +7841,12 @@ function Calendario({ polizas, clientes, tareas, setPolizas }) {
             <div style={{background:`linear-gradient(135deg,${ramoColor(polizaCalendario.ramo)},${ramoColor(polizaCalendario.ramo)}bb)`,borderRadius:12,padding:"14px 18px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
                 <div style={{fontSize:10,opacity:.8,fontWeight:700}}>{polizaCalendario.ramo?.toUpperCase()}{polizaCalendario.subramo?" · "+polizaCalendario.subramo.toUpperCase():""} · {polizaCalendario.aseguradora}</div>
-                <div style={{fontSize:18,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>{polizaCalendario.numero}</div>
+                <div style={{fontSize:18,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{polizaCalendario.numero}</div>
                 <div style={{fontSize:12,opacity:.9,marginTop:2}}>{polizaCalendario.cliente}</div>
               </div>
               <div style={{textAlign:"right"}}>
                 <div style={{fontSize:9,opacity:.7}}>PRIMA TOTAL</div>
-                <div style={{fontSize:22,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>${(parseFloat(polizaCalendario.primaTotal)||parseFloat(polizaCalendario.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
+                <div style={{fontSize:22,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>${(parseFloat(polizaCalendario.primaTotal)||parseFloat(polizaCalendario.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
               </div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
@@ -8608,7 +8608,7 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:7,marginBottom:10}}>
             {[["Total","#374151",saldo.total],["Pendiente","#d97706",saldo.pendiente],["Pagado","#059669",saldo.pagado]].map(([l,c,v])=>(
               <div key={l} style={{textAlign:"center",background:c==="#d97706"?"#fffbeb":c==="#059669"?"#f0fdf4":"#f9fafb",borderRadius:9,padding:"8px 4px"}}>
-                <div style={{fontSize:13,fontWeight:900,color:c,fontFamily:"'Playfair Display',serif"}}>{fmtMXN(v)}</div>
+                <div style={{fontSize:13,fontWeight:900,color:c,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{fmtMXN(v)}</div>
                 <div style={{fontSize:9,color:c,fontWeight:700}}>{l}</div>
               </div>
             ))}
@@ -8678,11 +8678,11 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
                   <div style={{fontWeight:800,fontSize:13,color:"#111827",marginBottom:10}}>{sa.nombre} {sa.apellidoPaterno}</div>
                   <div style={{display:"flex",gap:8}}>
                     <div style={{flex:1,textAlign:"center",background:"#fffbeb",borderRadius:8,padding:"6px"}}>
-                      <div style={{fontSize:14,fontWeight:900,color:"#d97706",fontFamily:"'Playfair Display',serif"}}>{fmtMXN(saldo.pendiente)}</div>
+                      <div style={{fontSize:14,fontWeight:900,color:"#d97706",fontFamily:"'Inter','Segoe UI',sans-serif"}}>{fmtMXN(saldo.pendiente)}</div>
                       <div style={{fontSize:9,color:"#d97706",fontWeight:700}}>PENDIENTE</div>
                     </div>
                     <div style={{flex:1,textAlign:"center",background:"#f0fdf4",borderRadius:8,padding:"6px"}}>
-                      <div style={{fontSize:14,fontWeight:900,color:"#059669",fontFamily:"'Playfair Display',serif"}}>{fmtMXN(saldo.pagado)}</div>
+                      <div style={{fontSize:14,fontWeight:900,color:"#059669",fontFamily:"'Inter','Segoe UI',sans-serif"}}>{fmtMXN(saldo.pagado)}</div>
                       <div style={{fontSize:9,color:"#059669",fontWeight:700}}>PAGADO</div>
                     </div>
                   </div>
@@ -8797,7 +8797,7 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
             ].map(([ic,v,l,c])=>(
               <div key={l} style={{background:"#fff",borderRadius:13,padding:"16px",boxShadow:"0 1px 6px rgba(0,0,0,.06)",borderTop:`3px solid ${c}`}}>
                 <div style={{fontSize:22,marginBottom:6}}>{ic}</div>
-                <div style={{fontSize:22,fontWeight:900,color:c,fontFamily:"'Playfair Display',serif",lineHeight:1}}>{v}</div>
+                <div style={{fontSize:22,fontWeight:900,color:c,fontFamily:"'Inter','Segoe UI',sans-serif",lineHeight:1}}>{v}</div>
                 <div style={{fontSize:11,color:"#6b7280",marginTop:4}}>{l}</div>
               </div>
             ))}
@@ -8988,7 +8988,7 @@ function ModalPagoComision({ poliza, subagentes, calcComision, fmtMXN, onPagar, 
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
           {[["Com. Bruta",fmtMXN(bruta),"#374151"],["ISR (10%)","-"+fmtMXN(isr),"#dc2626"],["Com. Neta",fmtMXN(neta),"#059669"]].map(([l,v,c])=>(
             <div key={l} style={{textAlign:"center",background:"#f9fafb",borderRadius:9,padding:"10px"}}>
-              <div style={{fontSize:15,fontWeight:900,color:c,fontFamily:"'Playfair Display',serif"}}>{v}</div>
+              <div style={{fontSize:15,fontWeight:900,color:c,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{v}</div>
               <div style={{fontSize:9,color:"#9ca3af",fontWeight:700}}>{l}</div>
             </div>
           ))}
@@ -9405,13 +9405,13 @@ function LoginScreen({ usuarios, config, onLogin }) {
                 <Icon name="shield" size={30}/>
               </div>
           }
-          <div style={{color:"#f1f5f9",fontSize:22,fontWeight:800,fontFamily:"'Playfair Display',serif"}}>{nombreEmpresa}</div>
+          <div style={{color:"#f1f5f9",fontSize:22,fontWeight:800,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{nombreEmpresa}</div>
           <div style={{color:"#64748b",fontSize:13,marginTop:4}}>Sistema de Gestión de Seguros</div>
         </div>
 
         {/* Card de login */}
         <div style={{background:"rgba(255,255,255,0.05)",backdropFilter:"blur(20px)",borderRadius:20,padding:"32px 36px",border:"1px solid rgba(255,255,255,0.1)",boxShadow:"0 25px 50px rgba(0,0,0,0.4)"}}>
-          <div style={{color:"#e2e8f0",fontSize:18,fontWeight:700,marginBottom:24,fontFamily:"'Playfair Display',serif"}}>
+          <div style={{color:"#e2e8f0",fontSize:18,fontWeight:700,marginBottom:24,fontFamily:"'Inter','Segoe UI',sans-serif"}}>
             Iniciar sesión
           </div>
 
@@ -9680,7 +9680,7 @@ export default function CRMSeguros() {
         <div style={{padding:"0 16px 20px"}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
             <div style={{width:36,height:36,background:"linear-gradient(135deg,#2563eb,#7c3aed)",borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}><Icon name="shield" size={19}/></div>
-            <div><div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>SeguroCRM</div><div style={{color:"#475569",fontSize:10}}>Agente Profesional</div></div>
+            <div><div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Inter','Segoe UI',sans-serif"}}>SeguroCRM</div><div style={{color:"#475569",fontSize:10}}>Agente Profesional</div></div>
           </div>
         </div>
         <nav style={{flex:1,overflowY:"auto"}}>
@@ -9737,7 +9737,7 @@ export default function CRMSeguros() {
             <div style={{width:28,height:28,background:"linear-gradient(135deg,#2563eb,#7c3aed)",borderRadius:7,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}>
               <Icon name="shield" size={14}/>
             </div>
-            <span style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>SeguroCRM</span>
+            <span style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Inter','Segoe UI',sans-serif"}}>SeguroCRM</span>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
             {totalNotif>0&&(
@@ -9772,7 +9772,7 @@ export default function CRMSeguros() {
             <div style={{background:"#0f172a",padding:"14px 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div style={{display:"flex",alignItems:"center",gap:10}}>
                 <Icon name="bell" size={16}/>
-                <div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>
+                <div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Inter','Segoe UI',sans-serif"}}>
                   Alertas de Vencimiento
                 </div>
                 {totalNotif>0&&<span style={{background:"#dc2626",color:"#fff",borderRadius:20,padding:"2px 9px",fontSize:11,fontWeight:800}}>{totalNotif} polizas</span>}
@@ -9898,7 +9898,7 @@ export default function CRMSeguros() {
         {!puede(vista)&&(
           <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"60vh",gap:16}}>
             <div style={{fontSize:48}}>🔒</div>
-            <div style={{fontSize:20,fontWeight:800,fontFamily:"'Playfair Display',serif",color:"#111827"}}>Acceso restringido</div>
+            <div style={{fontSize:20,fontWeight:800,fontFamily:"'Inter','Segoe UI',sans-serif",color:"#111827"}}>Acceso restringido</div>
             <div style={{fontSize:14,color:"#6b7280"}}>No tienes permisos para ver esta sección.</div>
             <div style={{fontSize:12,color:"#9ca3af"}}>Contacta al administrador si necesitas acceso.</div>
           </div>

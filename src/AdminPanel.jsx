@@ -99,7 +99,7 @@ function ModalCrearAgente({ onClose, onCreated }) {
     setMsg(null)
     try {
       // Invita al agente — Supabase le manda correo para crear contraseña
-      const { data, error } = await supabase.auth.admin.inviteUserByEmail(form.email, {
+      const { data, error } = await supabase.auth.admin.signUp(form.email, {
         data: { nombre: form.nombre }
       })
       if (error) throw error

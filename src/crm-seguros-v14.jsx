@@ -7432,18 +7432,14 @@ function Siniestros({ siniestros, setSiniestros, clientes, polizas, sesion }) {
 
   // ── Guardar siniestro ─────────────────────────────────────────────
   const guardar = () => {
-    if ((!form.clienteId && !form.clienteManual.trim())||!form.fechaSiniestro||!form.tipo) {
-      showToast("Completa los campos obligatorios","#dc2626"); return;
+    if (!form.clienteManual.trim()||!form.fechaSiniestro||!form.tipo) {
+      showToast("Completa cliente, fecha y tipo de siniestro","#dc2626"); return;
     }
-    const cliente = clientes.find(c=>String(c.id)===String(form.clienteId));
     const poliza  = polizas.find(p=>String(p.id)===String(form.polizaId));
-    const nombreCliente = cliente
-      ? `${cliente.nombre} ${cliente.apellidoPaterno} ${cliente.apellidoMaterno||""}`.trim()
-      : form.clienteManual.trim();
     const ramoFinal = form.ramo || poliza?.ramo || "";
     const base = {
       ...form,
-      cliente:      nombreCliente,
+      cliente:      form.clienteManual.trim(),
       polizaNumero: poliza?.numero || "",
       aseguradora:  poliza?.aseguradora || "",
       ramo:         ramoFinal,
@@ -7672,86 +7668,43 @@ function Siniestros({ siniestros, setSiniestros, clientes, polizas, sesion }) {
           </div>
 
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-            {/* Cliente — seleccionar de lista O capturar manual */}
+            {/* Cliente — solo texto libre */}
             <div style={{gridColumn:"1 / -1"}}>
               <label style={{fontSize:11,fontWeight:700,color:"#64748b",display:"block",marginBottom:4}}>CLIENTE *</label>
-              <div style={{display:"flex",gap:8,marginBottom:6}}>
-                <button type="button"
-                  onClick={()=>setForm(f=>({...f,clienteId:"",clienteManual:""}))}
-                  style={{padding:"5px 12px",borderRadius:6,fontSize:11,fontWeight:600,cursor:"pointer",border:"none",
-                    background:form.clienteManual===""&&form.clienteId!==""||form.clienteManual===""&&form.clienteId===""?"#2563eb":"#f1f5f9",
-                    color:form.clienteManual===""&&form.clienteId!==""||form.clienteManual===""&&form.clienteId===""?"#fff":"#64748b"}}>
-                  Seleccionar de lista
-                </button>
-                <button type="button"
-                  onClick={()=>setForm(f=>({...f,clienteId:"",clienteManual:f.clienteManual||" "}))}
-                  style={{padding:"5px 12px",borderRadius:6,fontSize:11,fontWeight:600,cursor:"pointer",border:"none",
-                    background:form.clienteManual.trim()?"#2563eb":"#f1f5f9",
-                    color:form.clienteManual.trim()?"#fff":"#64748b"}}>
-                  Capturar manualmente
-                </button>
-              </div>
-              {form.clienteManual.trim() ? (
-                <input value={form.clienteManual} onChange={e=>setForm(f=>({...f,clienteManual:e.target.value,clienteId:""}))}
-                  placeholder="Nombre completo del cliente"
-                  style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #2563eb",fontSize:13,boxSizing:"border-box"}}/>
-              ) : (
-                <select value={form.clienteId} onChange={e=>setForm(f=>({...f,clienteId:e.target.value,polizaId:"",tipo:"",clienteManual:""}))}
-                  style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,background:"#fff"}}>
-                  <option value="">Seleccionar cliente</option>
-                  {clientes.map(c=><option key={c.id} value={c.id}>{c.nombre} {c.apellidoPaterno} {c.apellidoMaterno||""}</option>)}
-                </select>
-              )}
+              <input value={form.clienteManual} onChange={e=>setForm(f=>({...f,clienteManual:e.target.value}))}
+                placeholder="Escribe el nombre completo del cliente"
+                style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,boxSizing:"border-box"}}/>
             </div>
 
-            {/* Ramo — selección directa independiente de póliza */}
-            <div>
-              <label style={{fontSize:11,fontWeight:700,color:"#64748b",display:"block",marginBottom:4}}>RAMO *</label>
-              <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                {Object.keys(SINIESTRO_TIPOS).map(r=>(
-                  <button key={r} type="button"
-                    onClick={()=>setForm(f=>({...f,ramo:r,tipo:"",polizaId:""}))}
-                    style={{padding:"6px 12px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer",border:"none",
-                      background:form.ramo===r?"#2563eb":"#f1f5f9",
-                      color:form.ramo===r?"#fff":"#475569"}}>
-                    {r==="Autos"?"🚗":r==="Gastos Médicos"?"🏥":r==="Vida"?"❤️":"🏠"} {r}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Póliza — opcional, se filtra por cliente si hay uno seleccionado */}
+            {/* Póliza — al seleccionar detecta ramo y carga tipos */}
             <div>
               <label style={{fontSize:11,fontWeight:700,color:"#64748b",display:"block",marginBottom:4}}>PÓLIZA (opcional)</label>
               <select value={form.polizaId} onChange={e=>{
                 const pol = polizas.find(p=>String(p.id)===e.target.value);
-                setForm(f=>({...f,polizaId:e.target.value,ramo:pol?.ramo||f.ramo,tipo:""}));
+                setForm(f=>({...f, polizaId:e.target.value, ramo:pol?.ramo||"", tipo:""}));
               }}
                 style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,background:"#fff"}}>
                 <option value="">Sin póliza vinculada</option>
-                {polizas
-                  .filter(p=>!form.clienteId || String(p.clienteId)===String(form.clienteId))
-                  .map(p=>(
-                    <option key={p.id} value={p.id}>{p.numero} — {p.ramo} ({p.aseguradora})</option>
-                  ))}
+                {polizas.map(p=>(
+                  <option key={p.id} value={p.id}>{p.numero} — {p.ramo} · {p.cliente} ({p.aseguradora})</option>
+                ))}
               </select>
+              {form.ramo&&<div style={{fontSize:11,color:"#2563eb",marginTop:4,fontWeight:600}}>Ramo detectado: {form.ramo}</div>}
             </div>
 
-            {/* Tipo de siniestro — basado en ramo seleccionado */}
+            {/* Tipo de siniestro — aparece automáticamente al detectar ramo */}
             <div>
               <label style={{fontSize:11,fontWeight:700,color:"#64748b",display:"block",marginBottom:4}}>TIPO DE SINIESTRO *</label>
               {getTipos().length > 0 ? (
                 <select value={form.tipo} onChange={e=>setForm(f=>({...f,tipo:e.target.value}))}
-                  style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,background:"#fff"}}>
+                  style={{width:"100%",padding:"9px 12px",borderRadius:8,border:`1.5px solid ${form.ramo?"#2563eb":"#e2e8f0"}`,fontSize:13,background:"#fff"}}>
                   <option value="">Seleccionar tipo</option>
                   {getTipos().map(t=><option key={t} value={t}>{t}</option>)}
                 </select>
               ) : (
                 <input value={form.tipo} onChange={e=>setForm(f=>({...f,tipo:e.target.value}))}
-                  placeholder={form.ramo ? "Describe el tipo de siniestro" : "Selecciona un ramo primero"}
-                  disabled={!form.ramo}
-                  style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,boxSizing:"border-box",
-                    background:form.ramo?"#fff":"#f8fafc",color:form.ramo?"#1e293b":"#94a3b8"}}/>
+                  placeholder="Describe el tipo de siniestro"
+                  style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,boxSizing:"border-box"}}/>
               )}
             </div>
 

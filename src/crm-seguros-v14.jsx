@@ -5925,13 +5925,44 @@ function sugerirMapeo(colName, campos) {
 function Exportar({ clientes, polizas, siniestros, pagosComision, tablaComisiones, config }) {
   const [generando, setGenerando] = useState(null);
   const [toast, setToast]         = useState(null);
+  const hoy = new Date().toISOString().split("T")[0];
+  const inicioAnio = new Date().getFullYear() + "-01-01";
+  const [fechaDesde, setFechaDesde] = useState(inicioAnio);
+  const [fechaHasta, setFechaHasta] = useState(hoy);
 
   const showToast = (msg, color="#059669") => { setToast({msg,color}); setTimeout(()=>setToast(null),3500); };
-  const fechaHoy = () => new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"2-digit",year:"numeric"});
+  const fechaStr  = () => new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"2-digit",year:"numeric"});
   const agencia   = config?.nombre || "CRM Seguros";
   const tel       = config?.telefono || "";
   const correo    = config?.email || "";
   const rfc       = config?.rfc || "";
+
+  // ── Filtro por periodo ────────────────────────────────────────────
+  const enPeriodo = (fecha) => {
+    if (!fecha) return false;
+    const f = fecha.includes("/") ? fecha.split("/").reverse().join("-") : fecha;
+    return f >= fechaDesde && f <= fechaHasta;
+  };
+
+  const polizasFiltradas    = polizas.filter(p => enPeriodo(p.inicio) || enPeriodo(p.vencimiento));
+  const clientesFiltrados   = clientes.filter(c => {
+    return polizas.some(p => p.clienteId === c.id && (enPeriodo(p.inicio) || enPeriodo(p.vencimiento)));
+  });
+  const siniestrosFiltrados = (siniestros||[]).filter(s => enPeriodo(s.fechaSiniestro) || enPeriodo(s.fechaApertura));
+  const comisionesFiltradas = polizasFiltradas;
+
+  const conteos = {
+    polizas:    polizasFiltradas.length,
+    clientes:   clientesFiltrados.length,
+    siniestros: siniestrosFiltrados.length,
+    comisiones: comisionesFiltradas.length,
+  };
+
+  const periodoLabel = () => {
+    const d = new Date(fechaDesde+"T12:00:00").toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"});
+    const h = new Date(fechaHasta+"T12:00:00").toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"});
+    return d + " al " + h;
+  };
 
   // ── EXCEL ────────────────────────────────────────────────────────
   const exportarExcel = async (tipo) => {
@@ -5940,44 +5971,49 @@ function Exportar({ clientes, polizas, siniestros, pagosComision, tablaComisione
       const XLSX = await import("https://cdn.sheetjs.com/xlsx-0.20.1/package/xlsx.mjs");
       const wb = XLSX.utils.book_new();
       let filas = [];
+      const periodo = "Periodo: "+periodoLabel();
 
       if (tipo==="polizas") {
         filas = [
           ["CARTERA DE POLIZAS — "+agencia],
-          ["Generado: "+fechaHoy()],
+          [periodo],
+          ["Generado: "+fechaStr()],
           [],
           ["#","Cliente","Poliza","Aseguradora","Ramo","Prima","Frecuencia","Inicio","Vencimiento","Status"],
-          ...polizas.map((p,i)=>[i+1,p.cliente,p.numero,p.aseguradora,p.ramo,
+          ...polizasFiltradas.map((p,i)=>[i+1,p.cliente,p.numero,p.aseguradora,p.ramo,
             parseFloat(p.primaTotal||p.prima||0),p.frecuencia,p.inicio,p.vencimiento,p.status])
         ];
       } else if (tipo==="clientes") {
         filas = [
           ["DIRECTORIO DE CLIENTES — "+agencia],
-          ["Generado: "+fechaHoy()],
+          [periodo],
+          ["Generado: "+fechaStr()],
           [],
-          ["#","Nombre","RFC","Telefono","Email","Ciudad","Estado","Polizas"],
-          ...clientes.map((c,i)=>[i+1,
+          ["#","Nombre","RFC","Telefono","Email","Ciudad","Estado","Polizas en periodo"],
+          ...clientesFiltrados.map((c,i)=>[i+1,
             (c.nombre+" "+c.apellidoPaterno+" "+(c.apellidoMaterno||"")).trim(),
             c.rfc||"",c.telefono||"",c.email||"",c.ciudad||"",c.estado||"",
-            polizas.filter(p=>p.clienteId===c.id).length])
+            polizasFiltradas.filter(p=>p.clienteId===c.id).length])
         ];
       } else if (tipo==="siniestros") {
         filas = [
           ["REPORTE DE SINIESTROS — "+agencia],
-          ["Generado: "+fechaHoy()],
+          [periodo],
+          ["Generado: "+fechaStr()],
           [],
           ["#","Cliente","Poliza","Ramo","Tipo","Fecha","Status","Reclamado","Aprobado","No. Reporte"],
-          ...(siniestros||[]).map((s,i)=>[i+1,s.cliente,s.polizaNumero||"",s.ramo||"",s.tipo,
+          ...siniestrosFiltrados.map((s,i)=>[i+1,s.cliente,s.polizaNumero||"",s.ramo||"",s.tipo,
             s.fechaSiniestro,s.status,
             parseFloat(s.montoReclamado||0),parseFloat(s.montoAprobado||0),s.numeroReporte||""])
         ];
       } else if (tipo==="comisiones") {
         filas = [
           ["REPORTE DE COMISIONES — "+agencia],
-          ["Generado: "+fechaHoy()],
+          [periodo],
+          ["Generado: "+fechaStr()],
           [],
           ["#","Cliente","Poliza","Aseguradora","Ramo","Prima","% Comision","Comision","Status"],
-          ...polizas.map((p,i)=>{
+          ...comisionesFiltradas.map((p,i)=>{
             const reg = tablaComisiones?.find(t=>t.ramo===p.ramo&&t.aseguradora===p.aseguradora);
             const pct = reg?.porcentaje||0;
             const prima = parseFloat(p.primaTotal||p.prima||0);
@@ -5990,8 +6026,8 @@ function Exportar({ clientes, polizas, siniestros, pagosComision, tablaComisione
       const ws = XLSX.utils.aoa_to_sheet(filas);
       ws["!cols"] = Array(10).fill({wch:20});
       XLSX.utils.book_append_sheet(wb, ws, tipo);
-      XLSX.writeFile(wb, tipo+"_"+agencia.replace(/\s+/g,"_")+"_"+fechaHoy().replace(/\//g,"-")+".xlsx");
-      showToast("Excel generado correctamente");
+      XLSX.writeFile(wb, tipo+"_"+agencia.replace(/\s+/g,"_")+"_"+fechaDesde+"_"+fechaHasta+".xlsx");
+      showToast("Excel generado — "+conteos[tipo]+" registros");
     } catch(e) { showToast("Error: "+e.message,"#dc2626"); }
     setGenerando(null);
   };
@@ -6018,7 +6054,7 @@ function Exportar({ clientes, polizas, siniestros, pagosComision, tablaComisione
 
       const header = (titulo) => {
         doc.setFillColor(15,23,42);
-        doc.rect(0,0,280,22,"F");
+        doc.rect(0,0,280,26,"F");
         doc.setTextColor(255,255,255);
         doc.setFontSize(12);doc.setFont("helvetica","bold");
         doc.text(agencia,12,10);
@@ -6026,10 +6062,12 @@ function Exportar({ clientes, polizas, siniestros, pagosComision, tablaComisione
         if(tel) doc.text("Tel: "+tel,12,16);
         if(correo) doc.text(correo,70,16);
         if(rfc) doc.text("RFC: "+rfc,140,16);
+        doc.setFontSize(8);
+        doc.text("Periodo: "+periodoLabel(),12,22);
         doc.setFontSize(13);doc.setFont("helvetica","bold");
         doc.text(titulo,268,10,{align:"right"});
         doc.setFontSize(8);doc.setFont("helvetica","normal");
-        doc.text("Generado: "+fechaHoy(),268,16,{align:"right"});
+        doc.text("Generado: "+fechaStr(),268,16,{align:"right"});
         doc.setTextColor(0,0,0);
       };
 
@@ -6038,7 +6076,7 @@ function Exportar({ clientes, polizas, siniestros, pagosComision, tablaComisione
         for(let i=1;i<=n;i++){
           doc.setPage(i);
           doc.setFontSize(7);doc.setTextColor(120,120,120);
-          doc.text(agencia+" · "+fechaHoy()+" · Pagina "+i+" de "+n,140,205,{align:"center"});
+          doc.text(agencia+" · "+periodoLabel()+" · Pagina "+i+" de "+n,140,205,{align:"center"});
         }
       };
 
@@ -6048,55 +6086,55 @@ function Exportar({ clientes, polizas, siniestros, pagosComision, tablaComisione
 
       if(tipo==="polizas"){
         header("CARTERA DE POLIZAS");
-        const total=polizas.reduce((a,p)=>a+parseFloat(p.primaTotal||p.prima||0),0);
+        const total=polizasFiltradas.reduce((a,p)=>a+parseFloat(p.primaTotal||p.prima||0),0);
         doc.setFontSize(8);doc.setTextColor(80,80,80);
-        doc.text("Total: "+polizas.length+" polizas  |  Prima total: $"+total.toLocaleString("es-MX",{maximumFractionDigits:0}),12,28);
-        doc.autoTable({startY:32,margin:{left:8,right:8},
-          head:[["#","Cliente","Poliza","Aseguradora","Ramo","Prima","Frecuencia","Vencimiento","Status"]],
-          body:polizas.map((p,i)=>[i+1,p.cliente,p.numero,p.aseguradora,p.ramo,
+        doc.text("Total: "+polizasFiltradas.length+" polizas  |  Prima: $"+total.toLocaleString("es-MX",{maximumFractionDigits:0}),12,32);
+        doc.autoTable({startY:36,margin:{left:8,right:8},
+          head:[["#","Cliente","Poliza","Aseguradora","Ramo","Prima","Frecuencia","Inicio","Vencimiento","Status"]],
+          body:polizasFiltradas.map((p,i)=>[i+1,p.cliente,p.numero,p.aseguradora,p.ramo,
             "$"+parseFloat(p.primaTotal||p.prima||0).toLocaleString("es-MX",{maximumFractionDigits:0}),
-            p.frecuencia||"",p.vencimiento||"",p.status?.toUpperCase()||""]),
+            p.frecuencia||"",p.inicio||"",p.vencimiento||"",p.status?.toUpperCase()||""]),
           headStyles:headStyle,styles:bodyStyle,alternateRowStyles:altRow,
-          columnStyles:{0:{cellWidth:8},1:{cellWidth:42},2:{cellWidth:28},3:{cellWidth:20},4:{cellWidth:18},5:{cellWidth:18},6:{cellWidth:18},7:{cellWidth:20},8:{cellWidth:16}}
+          columnStyles:{0:{cellWidth:8},1:{cellWidth:38},2:{cellWidth:26},3:{cellWidth:18},4:{cellWidth:16},5:{cellWidth:16},6:{cellWidth:16},7:{cellWidth:18},8:{cellWidth:18},9:{cellWidth:14}}
         });
       } else if(tipo==="clientes"){
         header("DIRECTORIO DE CLIENTES");
         doc.setFontSize(8);doc.setTextColor(80,80,80);
-        doc.text("Total: "+clientes.length+" clientes",12,28);
-        doc.autoTable({startY:32,margin:{left:8,right:8},
+        doc.text("Total: "+clientesFiltrados.length+" clientes con polizas en el periodo",12,32);
+        doc.autoTable({startY:36,margin:{left:8,right:8},
           head:[["#","Nombre","RFC","Telefono","Email","Ciudad","Estado","Polizas"]],
-          body:clientes.map((c,i)=>[i+1,
+          body:clientesFiltrados.map((c,i)=>[i+1,
             (c.nombre+" "+c.apellidoPaterno+" "+(c.apellidoMaterno||"")).trim(),
             c.rfc||"",c.telefono||"",c.email||"",c.ciudad||"",c.estado||"",
-            polizas.filter(p=>p.clienteId===c.id).length]),
+            polizasFiltradas.filter(p=>p.clienteId===c.id).length]),
           headStyles:headStyle,styles:bodyStyle,alternateRowStyles:altRow,
           columnStyles:{0:{cellWidth:8},1:{cellWidth:48},2:{cellWidth:22},3:{cellWidth:22},4:{cellWidth:40},5:{cellWidth:22},6:{cellWidth:22},7:{cellWidth:10}}
         });
       } else if(tipo==="siniestros"){
         header("REPORTE DE SINIESTROS");
         doc.setFontSize(8);doc.setTextColor(80,80,80);
-        doc.text("Total: "+(siniestros||[]).length+" siniestros",12,28);
-        doc.autoTable({startY:32,margin:{left:8,right:8},
+        doc.text("Total: "+siniestrosFiltrados.length+" siniestros en el periodo",12,32);
+        doc.autoTable({startY:36,margin:{left:8,right:8},
           head:[["#","Cliente","Poliza","Tipo","Fecha","Status","Reclamado","Aprobado","No. Reporte"]],
-          body:(siniestros||[]).map((s,i)=>[i+1,s.cliente,s.polizaNumero||"",s.tipo,
+          body:siniestrosFiltrados.map((s,i)=>[i+1,s.cliente,s.polizaNumero||"",s.tipo,
             s.fechaSiniestro,s.status?.toUpperCase()||"",
             s.montoReclamado?"$"+parseFloat(s.montoReclamado).toLocaleString("es-MX",{maximumFractionDigits:0}):"—",
             s.montoAprobado?"$"+parseFloat(s.montoAprobado).toLocaleString("es-MX",{maximumFractionDigits:0}):"—",
             s.numeroReporte||"—"]),
           headStyles:headStyle,styles:bodyStyle,alternateRowStyles:altRow,
-          columnStyles:{0:{cellWidth:8},1:{cellWidth:40},2:{cellWidth:24},3:{cellWidth:22},4:{cellWidth:18},5:{cellWidth:20},6:{cellWidth:18},7:{cellWidth:18},8:{cellWidth:22}}
+          columnStyles:{0:{cellWidth:8},1:{cellWidth:38},2:{cellWidth:22},3:{cellWidth:22},4:{cellWidth:18},5:{cellWidth:18},6:{cellWidth:18},7:{cellWidth:18},8:{cellWidth:22}}
         });
       } else if(tipo==="comisiones"){
         header("REPORTE DE COMISIONES");
-        const totalC=polizas.reduce((a,p)=>{
+        const totalC=comisionesFiltradas.reduce((a,p)=>{
           const reg=tablaComisiones?.find(t=>t.ramo===p.ramo&&t.aseguradora===p.aseguradora);
           return a+parseFloat(p.primaTotal||p.prima||0)*((reg?.porcentaje||0)/100);
         },0);
         doc.setFontSize(8);doc.setTextColor(80,80,80);
-        doc.text("Total comisiones estimadas: $"+totalC.toLocaleString("es-MX",{maximumFractionDigits:0}),12,28);
-        doc.autoTable({startY:32,margin:{left:8,right:8},
+        doc.text("Comisiones estimadas: $"+totalC.toLocaleString("es-MX",{maximumFractionDigits:0}),12,32);
+        doc.autoTable({startY:36,margin:{left:8,right:8},
           head:[["#","Cliente","Poliza","Aseguradora","Ramo","Prima","% Com.","Comision","Status"]],
-          body:polizas.map((p,i)=>{
+          body:comisionesFiltradas.map((p,i)=>{
             const reg=tablaComisiones?.find(t=>t.ramo===p.ramo&&t.aseguradora===p.aseguradora);
             const pct=reg?.porcentaje||0;
             const prima=parseFloat(p.primaTotal||p.prima||0);
@@ -6107,72 +6145,113 @@ function Exportar({ clientes, polizas, siniestros, pagosComision, tablaComisione
               pago?.estado||"pendiente"];
           }),
           headStyles:headStyle,styles:bodyStyle,alternateRowStyles:altRow,
-          columnStyles:{0:{cellWidth:8},1:{cellWidth:40},2:{cellWidth:22},3:{cellWidth:18},4:{cellWidth:16},5:{cellWidth:18},6:{cellWidth:12},7:{cellWidth:18},8:{cellWidth:16}}
+          columnStyles:{0:{cellWidth:8},1:{cellWidth:38},2:{cellWidth:22},3:{cellWidth:18},4:{cellWidth:16},5:{cellWidth:18},6:{cellWidth:12},7:{cellWidth:18},8:{cellWidth:16}}
         });
       }
 
       footer();
-      doc.save(tipo+"_"+agencia.replace(/\s+/g,"_")+"_"+fechaHoy().replace(/\//g,"-")+".pdf");
-      showToast("PDF generado correctamente");
+      doc.save(tipo+"_"+agencia.replace(/\s+/g,"_")+"_"+fechaDesde+"_"+fechaHasta+".pdf");
+      showToast("PDF generado — "+conteos[tipo]+" registros");
     } catch(e){ showToast("Error: "+e.message,"#dc2626"); }
     setGenerando(null);
   };
 
   const reportes = [
-    {id:"polizas",   label:"Cartera de Polizas", desc:polizas.length+" polizas",           icon:"📋",color:"#2563eb"},
-    {id:"clientes",  label:"Directorio Clientes",desc:clientes.length+" clientes",          icon:"👥",color:"#7c3aed"},
-    {id:"siniestros",label:"Siniestros",          desc:(siniestros||[]).length+" siniestros",icon:"⚠️",color:"#d97706"},
-    {id:"comisiones",label:"Comisiones",           desc:polizas.length+" polizas",           icon:"💰",color:"#059669"},
+    {id:"polizas",   label:"Cartera de Polizas", icon:"📋",color:"#2563eb"},
+    {id:"clientes",  label:"Directorio Clientes",icon:"👥",color:"#7c3aed"},
+    {id:"siniestros",label:"Siniestros",          icon:"⚠️",color:"#d97706"},
+    {id:"comisiones",label:"Comisiones",           icon:"💰",color:"#059669"},
   ];
 
   return (
     <div style={{padding:"0 0 80px"}}>
       {toast&&<div style={{position:"fixed",top:20,right:24,zIndex:9999,background:toast.color,color:"#fff",borderRadius:10,padding:"12px 20px",fontSize:13,fontWeight:600,boxShadow:"0 4px 20px rgba(0,0,0,.2)"}}>{toast.msg}</div>}
-      <div style={{marginBottom:24}}>
+
+      <div style={{marginBottom:20}}>
         <div style={{fontSize:22,fontWeight:800,color:"#1e293b"}}>Exportar Reportes</div>
         <div style={{fontSize:13,color:"#64748b",marginTop:2}}>PDF y Excel con branding de {agencia}</div>
       </div>
-      <div style={{background:"#f0fdf4",border:"1px solid #bbf7d0",borderRadius:10,padding:"12px 16px",marginBottom:24,display:"flex",alignItems:"center",gap:10}}>
-        <span style={{fontSize:20}}>🏢</span>
+
+      {/* Selector de periodo */}
+      <div style={{background:"#fff",border:"1px solid #e2e8f0",borderRadius:12,padding:"16px 20px",marginBottom:20}}>
+        <div style={{fontSize:12,fontWeight:700,color:"#64748b",marginBottom:10}}>PERIODO DEL REPORTE</div>
+        <div style={{display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <label style={{fontSize:12,color:"#475569",fontWeight:500}}>Desde</label>
+            <input type="date" value={fechaDesde} onChange={e=>setFechaDesde(e.target.value)}
+              style={{padding:"8px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,cursor:"pointer"}}/>
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <label style={{fontSize:12,color:"#475569",fontWeight:500}}>Hasta</label>
+            <input type="date" value={fechaHasta} onChange={e=>setFechaHasta(e.target.value)}
+              style={{padding:"8px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,cursor:"pointer"}}/>
+          </div>
+          <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+            {[
+              {label:"Este mes",  desde:new Date().toISOString().slice(0,7)+"-01", hasta:hoy},
+              {label:"Este año",  desde:new Date().getFullYear()+"-01-01",          hasta:hoy},
+              {label:"Todo",      desde:"2000-01-01",                               hasta:hoy},
+            ].map(a=>(
+              <button key={a.label} onClick={()=>{setFechaDesde(a.desde);setFechaHasta(a.hasta);}}
+                style={{padding:"7px 12px",borderRadius:8,border:"1px solid #e2e8f0",background:"#f8fafc",
+                  fontSize:12,cursor:"pointer",color:"#475569",fontWeight:500}}>
+                {a.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div style={{marginTop:10,fontSize:12,color:"#2563eb",fontWeight:500}}>
+          Periodo seleccionado: {periodoLabel()}
+        </div>
+      </div>
+
+      {/* Branding info */}
+      <div style={{background:"#f0fdf4",border:"1px solid #bbf7d0",borderRadius:10,padding:"10px 16px",marginBottom:20,display:"flex",alignItems:"center",gap:10}}>
+        <span style={{fontSize:18}}>🏢</span>
         <div>
           <div style={{fontSize:13,fontWeight:600,color:"#166534"}}>{agencia}</div>
           <div style={{fontSize:12,color:"#15803d"}}>{[tel&&"Tel: "+tel,correo,rfc&&"RFC: "+rfc].filter(Boolean).join("  ·  ")||"Configura los datos en Configuracion"}</div>
         </div>
       </div>
+
+      {/* Tarjetas de reportes */}
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))",gap:16}}>
         {reportes.map(r=>(
-          <div key={r.id} style={{background:"#fff",border:"1px solid #e2e8f0",borderRadius:14,padding:"20px",borderTop:"4px solid "+r.color}}>
-            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
-              <span style={{fontSize:26}}>{r.icon}</span>
+          <div key={r.id} style={{background:"#fff",border:"1px solid #e2e8f0",borderRadius:14,padding:"18px",borderTop:"4px solid "+r.color}}>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
+              <span style={{fontSize:24}}>{r.icon}</span>
               <div>
-                <div style={{fontSize:15,fontWeight:700,color:"#1e293b"}}>{r.label}</div>
-                <div style={{fontSize:12,color:"#64748b"}}>{r.desc}</div>
+                <div style={{fontSize:14,fontWeight:700,color:"#1e293b"}}>{r.label}</div>
+                <div style={{fontSize:12,color:r.color,fontWeight:600}}>{conteos[r.id]} registros en el periodo</div>
               </div>
             </div>
-            <div style={{display:"flex",gap:8}}>
-              <button onClick={()=>exportarPDF(r.id)} disabled={!!generando}
+            <div style={{display:"flex",gap:8,marginTop:12}}>
+              <button onClick={()=>exportarPDF(r.id)} disabled={!!generando||conteos[r.id]===0}
                 style={{flex:1,padding:"10px",borderRadius:8,border:"none",
-                  background:generando===r.id+"_pdf"?"#e2e8f0":r.color,
-                  color:generando===r.id+"_pdf"?"#64748b":"#fff",
-                  fontSize:12,fontWeight:700,cursor:generando?"not-allowed":"pointer"}}>
+                  background:generando===r.id+"_pdf"?"#e2e8f0":conteos[r.id]===0?"#f1f5f9":r.color,
+                  color:generando===r.id+"_pdf"||conteos[r.id]===0?"#94a3b8":"#fff",
+                  fontSize:12,fontWeight:700,cursor:generando||conteos[r.id]===0?"not-allowed":"pointer"}}>
                 {generando===r.id+"_pdf"?"Generando...":"⬇ PDF"}
               </button>
-              <button onClick={()=>exportarExcel(r.id)} disabled={!!generando}
-                style={{flex:1,padding:"10px",borderRadius:8,border:"1.5px solid "+r.color,background:"#fff",
-                  color:generando===r.id+"_excel"?"#64748b":r.color,
-                  fontSize:12,fontWeight:700,cursor:generando?"not-allowed":"pointer"}}>
+              <button onClick={()=>exportarExcel(r.id)} disabled={!!generando||conteos[r.id]===0}
+                style={{flex:1,padding:"10px",borderRadius:8,border:"1.5px solid "+(conteos[r.id]===0?"#e2e8f0":r.color),
+                  background:"#fff",
+                  color:generando===r.id+"_excel"||conteos[r.id]===0?"#94a3b8":r.color,
+                  fontSize:12,fontWeight:700,cursor:generando||conteos[r.id]===0?"not-allowed":"pointer"}}>
                 {generando===r.id+"_excel"?"Generando...":"⬇ Excel"}
               </button>
             </div>
           </div>
         ))}
       </div>
-      <div style={{marginTop:24,padding:"14px 16px",background:"#f8fafc",borderRadius:10,fontSize:12,color:"#64748b"}}>
-        Los reportes se descargan directamente en tu computadora. Para actualizar el nombre y datos en el encabezado ve a Configuracion.
+
+      <div style={{marginTop:20,padding:"12px 16px",background:"#f8fafc",borderRadius:10,fontSize:12,color:"#64748b"}}>
+        Los botones se desactivan si no hay registros en el periodo. Para actualizar el encabezado ve a Configuracion.
       </div>
     </div>
   );
 }
+
 function Importador({clientes,setClientes,polizas,setPolizas}) {
   const [tipo,setTipo]=useState("clientes");
   const [step,setStep]=useState(1);

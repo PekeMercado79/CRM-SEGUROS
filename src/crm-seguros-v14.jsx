@@ -4416,6 +4416,12 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
   const [resultados, setResultados] = useState([]); // pólizas encontradas
   const [aplicados, setAplicados] = useState({}); // id => aplicado
   const excelRef = useRef();
+  // Filtros historial
+  const [filtroHistMes, setFiltroHistMes] = useState(-1); // -1 = todos
+  const [filtroHistAnio, setFiltroHistAnio] = useState(-1);
+  const [filtroHistTipo, setFiltroHistTipo] = useState("todos"); // todos | agente | subagente
+  // Resumen anual
+  const [anioAnual, setAnioAnual] = useState(new Date().getFullYear());
 
   const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
   const RAMOS_COM = ["Autos","Vida","Gastos Médicos","Daños"];
@@ -4640,8 +4646,8 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
       </div>
 
       {/* Tabs */}
-      <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:12,padding:4,width:"fit-content"}}>
-        {[["resumen","📊 Resumen"],["tabla","⚙️ Tabla %"],["importar","📥 Importar Excel"],["subagentes","👥 Subagentes"],["historial","📜 Historial"]].map(([t,l])=>(
+      <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:12,padding:4,width:"fit-content",flexWrap:"wrap"}}>
+        {[["resumen","📊 Resumen"],["anual","📅 Anual"],["tabla","⚙️ Tabla %"],["importar","📥 Importar Excel"],["subagentes","👥 Subagentes"],["historial","📜 Historial"]].map(([t,l])=>(
           <button key={t} onClick={()=>setTab(t)}
             style={{background:tab===t?"#fff":"none",border:"none",borderRadius:9,padding:"8px 18px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:tab===t?"#111827":"#6b7280",boxShadow:tab===t?"0 1px 4px rgba(0,0,0,0.1)":"none"}}>
             {l}
@@ -4649,20 +4655,158 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
         ))}
       </div>
 
-      {/* IMPORTAR EXCEL */}
-      {tab==="importar"&&(
+      {/* RESUMEN ANUAL */}
+      {tab==="anual"&&(()=>{
+        const anioOpts=Array.from({length:5},(_,i)=>new Date().getFullYear()-2+i);
+        const resumenAnual=MESES.map((mes,m)=>{
+          const polizasMesA=polizas.filter(p=>{
+            if(p.status==="cancelada")return false;
+            return(p.pagos||[]).some(pg=>{const f=new Date(pg.fechaPago||"");return f.getMonth()===m&&f.getFullYear()===anioAnual;});
+          });
+          const comisionesMesA=polizasMesA.map(p=>{
+            const pagosMesA=(p.pagos||[]).filter(pg=>{const f=new Date(pg.fechaPago||"");return f.getMonth()===m&&f.getFullYear()===anioAnual;});
+            const montoPagado=pagosMesA.reduce((a,pg)=>a+(parseFloat(pg.monto)||0),0);
+            const pct=getPct(p);
+            const comisionDirecta=pagosMesA.reduce((a,pg)=>a+(parseFloat(pg.comisionAgente)||0),0);
+            const comisionBruta=comisionDirecta>0?comisionDirecta:montoPagado*pct/100;
+            const reg=pagosComision.find(pc=>pc.polizaId===p.id&&pc.mes===m&&pc.anio===anioAnual&&!pc.subagentId);
+            const comisionFinal=reg?.comisionImporte||comisionBruta;
+            return{comisionFinal,estado:reg?.estado||"pendiente"};
+          }).filter(c=>c.comisionFinal>0);
+          const totalM=comisionesMesA.reduce((a,c)=>a+c.comisionFinal,0);
+          const cobradoM=comisionesMesA.filter(c=>c.estado==="cobrada").reduce((a,c)=>a+c.comisionFinal,0);
+          const pendienteM=comisionesMesA.filter(c=>c.estado==="pendiente").reduce((a,c)=>a+c.comisionFinal,0);
+          return{mes,m,total:totalM,cobrado:cobradoM,pendiente:pendienteM,polizas:comisionesMesA.length};
+        });
+        const totalAnio=resumenAnual.reduce((a,r)=>a+r.total,0);
+        const cobradoAnio=resumenAnual.reduce((a,r)=>a+r.cobrado,0);
+        const pendienteAnio=resumenAnual.reduce((a,r)=>a+r.pendiente,0);
+        const maxAnual=Math.max(...resumenAnual.map(r=>r.total),1);
+        return(
+          <div style={{display:"flex",flexDirection:"column",gap:16}}>
+            {/* Selector año */}
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+              <div style={{fontSize:14,fontWeight:800,color:"#111827"}}>Resumen Anual de Comisiones</div>
+              <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                <select value={anioAnual} onChange={e=>setAnioAnual(Number(e.target.value))}
+                  style={{background:"#0f172a",border:"none",borderRadius:9,padding:"8px 16px",fontSize:13,fontWeight:700,color:"#fff",cursor:"pointer",outline:"none",fontFamily:"inherit"}}>
+                  {anioOpts.map(y=><option key={y} value={y} style={{background:"#0f172a"}}>{y}</option>)}
+                </select>
+                <button onClick={()=>{
+                  const rows=[["Mes","Comisión Total","Cobrado","Pendiente","Pólizas"]];
+                  resumenAnual.forEach(r=>rows.push([r.mes,r.total.toFixed(2),r.cobrado.toFixed(2),r.pendiente.toFixed(2),r.polizas]));
+                  rows.push(["TOTAL ANUAL",totalAnio.toFixed(2),cobradoAnio.toFixed(2),pendienteAnio.toFixed(2),"—"]);
+                  const csv=rows.map(r=>r.map(v=>`"${v}"`).join(",")).join("\n");
+                  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+                  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+                  a.download=`ComisionesAnual_${anioAnual}.csv`;a.click();
+                }}
+                  style={{background:"#2563eb",color:"#fff",border:"none",borderRadius:9,padding:"8px 16px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                  📥 Exportar CSV
+                </button>
+              </div>
+            </div>
+            {/* KPIs anuales */}
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14}}>
+              {[
+                {label:"Total comisionado",value:`$${totalAnio.toLocaleString("es-MX",{maximumFractionDigits:0})}`,accent:"#2563eb"},
+                {label:"Total cobrado",value:`$${cobradoAnio.toLocaleString("es-MX",{maximumFractionDigits:0})}`,accent:"#059669"},
+                {label:"Total pendiente",value:`$${pendienteAnio.toLocaleString("es-MX",{maximumFractionDigits:0})}`,accent:"#d97706"},
+              ].map(({label,value,accent})=>(
+                <div key={label} style={{background:"#fff",borderRadius:16,padding:"18px 20px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)",borderTop:`3px solid ${accent}`}}>
+                  <div style={{fontSize:10,color:"#94a3b8",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>{label}</div>
+                  <div style={{fontSize:26,fontWeight:800,color:"#0f172a",fontFamily:"'Inter',sans-serif"}}>{value}</div>
+                </div>
+              ))}
+            </div>
+            {/* Barras por mes */}
+            <div style={{background:"#fff",borderRadius:16,padding:"20px 24px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+              <div style={{fontSize:13,fontWeight:800,color:"#111827",marginBottom:16}}>📈 Comisiones por mes — {anioAnual}</div>
+              <div style={{display:"flex",gap:6,alignItems:"flex-end",height:140}}>
+                {resumenAnual.map((r,i)=>(
+                  <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
+                    <div style={{fontSize:9,fontWeight:700,color:"#374151",textAlign:"center"}}>{r.total>0?"$"+(r.total/1000).toFixed(1)+"k":""}</div>
+                    <div style={{width:"100%",borderRadius:"4px 4px 0 0",position:"relative",height:`${Math.max((r.total/maxAnual)*100,r.total>0?4:0)}%`,minHeight:r.total>0?4:0}}>
+                      <div style={{position:"absolute",bottom:0,left:0,right:0,background:"#2563eb",borderRadius:"4px 4px 0 0",height:`${r.cobrado>0?(r.cobrado/r.total*100):0}%`,minHeight:0}}/>
+                      <div style={{position:"absolute",bottom:`${r.cobrado>0?(r.cobrado/r.total*100):0}%`,left:0,right:0,background:"#fbbf24",borderRadius:"4px 4px 0 0",height:`${r.pendiente>0?(r.pendiente/r.total*100):0}%`,minHeight:0}}/>
+                    </div>
+                    <div style={{fontSize:8,color:"#94a3b8",fontWeight:600,textAlign:"center"}}>{r.mes.slice(0,3)}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{display:"flex",gap:16,marginTop:12,fontSize:11,color:"#6b7280"}}>
+                <span><span style={{display:"inline-block",width:10,height:10,background:"#2563eb",borderRadius:2,marginRight:4}}/>Cobrado</span>
+                <span><span style={{display:"inline-block",width:10,height:10,background:"#fbbf24",borderRadius:2,marginRight:4}}/>Pendiente</span>
+              </div>
+            </div>
+            {/* Tabla mensual */}
+            <div style={{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+              <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+                <thead>
+                  <tr style={{background:"#0f172a"}}>
+                    {["Mes","Pólizas","Comisión total","Cobrado","Pendiente","Avance"].map(h=>(
+                      <th key={h} style={{padding:"10px 14px",textAlign:"left",color:"#fff",fontWeight:700,fontSize:10}}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {resumenAnual.map((r,i)=>{
+                    const pct=r.total>0?(r.cobrado/r.total*100):0;
+                    const esMesActual=r.m===new Date().getMonth()&&anioAnual===new Date().getFullYear();
+                    return(
+                      <tr key={i} style={{borderTop:"1px solid #f1f5f9",background:esMesActual?"#eff6ff":i%2===0?"#fff":"#fafafa",cursor:"pointer"}}
+                        onClick={()=>{setMesSelec(r.m);setAnioSelec(anioAnual);setTab("resumen");}}>
+                        <td style={{padding:"9px 14px",fontWeight:esMesActual?800:600,color:esMesActual?"#1d4ed8":"#111827"}}>
+                          {r.mes} {esMesActual&&<span style={{fontSize:9,background:"#dbeafe",color:"#1d4ed8",padding:"1px 5px",borderRadius:4,marginLeft:4}}>Actual</span>}
+                        </td>
+                        <td style={{padding:"9px 14px",color:"#6b7280"}}>{r.polizas||"—"}</td>
+                        <td style={{padding:"9px 14px",fontWeight:700,color:"#111827"}}>{r.total>0?`$${r.total.toLocaleString("es-MX",{maximumFractionDigits:0})}`:"—"}</td>
+                        <td style={{padding:"9px 14px",fontWeight:700,color:"#059669"}}>{r.cobrado>0?`$${r.cobrado.toLocaleString("es-MX",{maximumFractionDigits:0})}`:"—"}</td>
+                        <td style={{padding:"9px 14px",color:"#d97706",fontWeight:600}}>{r.pendiente>0?`$${r.pendiente.toLocaleString("es-MX",{maximumFractionDigits:0})}`:"—"}</td>
+                        <td style={{padding:"9px 14px"}}>
+                          {r.total>0?(
+                            <div style={{display:"flex",alignItems:"center",gap:6}}>
+                              <div style={{flex:1,height:6,background:"#f1f5f9",borderRadius:3,overflow:"hidden"}}>
+                                <div style={{width:`${pct}%`,height:"100%",background:"#059669",borderRadius:3}}/>
+                              </div>
+                              <span style={{fontSize:10,fontWeight:700,color:"#374151",minWidth:32}}>{pct.toFixed(0)}%</span>
+                            </div>
+                          ):"—"}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+                <tfoot>
+                  <tr style={{background:"#0f172a"}}>
+                    <td style={{padding:"10px 14px",color:"#94a3b8",fontWeight:700,fontSize:11}}>TOTAL {anioAnual}</td>
+                    <td style={{padding:"10px 14px",color:"#94a3b8",fontSize:11}}>—</td>
+                    <td style={{padding:"10px 14px",color:"#fff",fontWeight:900,fontFamily:"'Inter',sans-serif",fontSize:13}}>${totalAnio.toLocaleString("es-MX",{maximumFractionDigits:0})}</td>
+                    <td style={{padding:"10px 14px",color:"#34d399",fontWeight:900,fontFamily:"'Inter',sans-serif",fontSize:13}}>${cobradoAnio.toLocaleString("es-MX",{maximumFractionDigits:0})}</td>
+                    <td style={{padding:"10px 14px",color:"#fbbf24",fontWeight:700,fontFamily:"'Inter',sans-serif"}}>${pendienteAnio.toLocaleString("es-MX",{maximumFractionDigits:0})}</td>
+                    <td style={{padding:"10px 14px",color:"#94a3b8",fontSize:11}}>{totalAnio>0?`${(cobradoAnio/totalAnio*100).toFixed(0)}% cobrado`:"—"}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        );
+      })()}
+
+
         <div style={{display:"flex",flexDirection:"column",gap:16}}>
           <div style={{background:"#eff6ff",borderRadius:12,padding:"14px 18px",border:"1px solid #bfdbfe",fontSize:13,color:"#1e40af"}}>
-            <div style={{fontWeight:800,marginBottom:4}}>📥 Lector IA de Excel de comisiones</div>
-            <div style={{fontSize:12}}>Sube el reporte de actividades de tu aseguradora. La IA identificará automáticamente las pólizas, primas pagadas, comisiones e importes. Compatible con GNP NewTron, TronWeb y otros formatos.</div>
+            <div style={{fontWeight:800,marginBottom:4}}>📥 Lector de Reporte de Actividades — Mapfre</div>
+            <div style={{fontSize:12}}>Sube el archivo <b>Reporte_de_Actividades.xlsx</b> de Mapfre. El sistema lee automáticamente las hojas <b>NewTron</b> y <b>TronWeb</b>, identifica las pólizas con clave CT, extrae prima base, importe de comisión y fecha de pago.</div>
           </div>
 
           {/* Subir archivo */}
           {!excelData&&(
             <div style={{background:"#fff",borderRadius:14,padding:"32px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,0.07)",border:"2px dashed #e2e8f0"}}>
               <div style={{fontSize:40,marginBottom:12}}>📊</div>
-              <div style={{fontSize:14,fontWeight:700,color:"#374151",marginBottom:6}}>Sube tu Excel de comisiones</div>
-              <div style={{fontSize:12,color:"#9ca3af",marginBottom:16}}>Formatos soportados: .xlsx, .xls</div>
+              <div style={{fontSize:14,fontWeight:700,color:"#374151",marginBottom:6}}>Sube tu Reporte de Actividades Mapfre</div>
+              <div style={{fontSize:12,color:"#9ca3af",marginBottom:4}}>Formatos soportados: .xlsx, .xls</div>
+              <div style={{fontSize:11,color:"#6b7280",marginBottom:16}}>Hojas detectadas: <b>NewTron</b> (10 col) · <b>TronWeb</b> (11 col con fecha)</div>
               <input ref={excelRef} type="file" accept=".xlsx,.xls" style={{display:"none"}}
                 onChange={async (e)=>{
                   const file = e.target.files[0];
@@ -4671,43 +4815,102 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
                   setProcesando(true);
                   setResultados([]);
                   setAplicados({});
-                  // Leer Excel con SheetJS
                   try {
                     const XLSX = await import("https://cdn.sheetjs.com/xlsx-0.20.1/package/xlsx.mjs");
                     const buffer = await file.arrayBuffer();
                     const wb = XLSX.read(buffer);
-                    // Extraer todas las hojas
+
+                    // Función para parsear fecha DDMMYYYY → YYYY-MM-DD
+                    const parseFecha = (raw, dia, mes, anio) => {
+                      const s = String(raw||"").trim().replace(/\D/g,"");
+                      if (s.length===8) {
+                        // formato DDMMYYYY
+                        const dd=s.slice(0,2), mm=s.slice(2,4), yyyy=s.slice(4,8);
+                        return `${yyyy}-${mm}-${dd}`;
+                      }
+                      // Fallback: usar día del registro + mes/año del archivo
+                      if (dia && mes && anio) {
+                        const d=String(dia).padStart(2,"0");
+                        return `${anio}-${String(mes).padStart(2,"0")}-${d}`;
+                      }
+                      return new Date().toISOString().slice(0,10);
+                    };
+
+                    // Detectar mes/año del archivo desde nombre de hoja DC
+                    let mesArchivo = new Date().getMonth()+1;
+                    let anioArchivo = new Date().getFullYear();
+
                     let filas = [];
+
                     wb.SheetNames.forEach(sheetName=>{
                       const ws = wb.Sheets[sheetName];
                       const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:""});
-                      rows.forEach(row=>{
-                        // Filtrar filas con número de póliza (columna 1, index 1)
+                      const esTronWeb = sheetName.toLowerCase().includes("tronweb") || (rows[0]&&rows[0].length>=11);
+
+                      rows.forEach((row,idx)=>{
+                        if (idx===0) return; // skip header
                         const polizaNum = String(row[1]||"").trim();
-                        if (polizaNum && polizaNum.length >= 8 && !isNaN(polizaNum.replace(/\D/g,""))) {
-                          const clave = String(row[6]||"").trim();
-                          if (clave==="CT"||clave==="ct"||clave==="Ct"||clave==="") {
-                            // Parsear fecha de la última columna (DDMMYYYY)
-                            const fechaRaw = String(row[row.length-1]||"").trim();
-                            let fechaPago = "";
-                            if (/^\d{8}$/.test(fechaRaw)) {
-                              fechaPago = `${fechaRaw.slice(6,8)}/${fechaRaw.slice(4,6)}/${fechaRaw.slice(0,4)}`.replace(/^(\d{2})\/(\d{2})\/(\d{4})$/,"$3-$2-$1");
+                        const clave = String(row[6]||"").trim().toUpperCase();
+
+                        // Solo filas CT con número de póliza válido
+                        if (!polizaNum || polizaNum.length < 8) return;
+                        if (clave !== "CT") return;
+
+                        const dia = String(row[0]||"").trim();
+                        let fechaPago = "";
+
+                        if (esTronWeb) {
+                          // TronWeb: col 10 (índice 10) tiene la fecha DDMMYYYY
+                          fechaPago = parseFecha(row[10], dia, mesArchivo, anioArchivo);
+                        } else {
+                          // NewTron: la fecha viene en fila DC del mismo día, buscar hacia abajo
+                          // Buscar la siguiente fila DC del mismo día para extraer fecha
+                          for (let j=idx+1; j<rows.length&&j<idx+15; j++) {
+                            if (String(rows[j][0]||"").trim()!==dia) break;
+                            if (String(rows[j][6]||"").trim().toUpperCase()==="DC") {
+                              // concepto: "DEPOSITO EN CUENTA DDMMYYYY"
+                              const concepto = String(rows[j][7]||"");
+                              const match = concepto.match(/(\d{8})/);
+                              if (match) { fechaPago = parseFecha(match[1]); break; }
                             }
-                            filas.push({
-                              polizaNum,
-                              endoso: String(row[2]||"").trim(),
-                              ramo: String(row[3]||"").trim(),
-                              recibo: String(row[4]||"").trim(),
-                              cliente: String(row[7]||"").trim(),
-                              primaBase: parseFloat(String(row[8]||"0").replace(/[,$]/g,""))||0,
-                              importe: parseFloat(String(row[9]||"0").replace(/[,$]/g,""))||0,
-                              fechaPago,
-                              hoja: sheetName,
-                            });
                           }
+                          if (!fechaPago) fechaPago = parseFecha(null, dia, mesArchivo, anioArchivo);
                         }
+
+                        const ramoRaw = String(row[3]||"").trim();
+                        // Normalizar ramo Mapfre → ramos del CRM
+                        const ramoMap = {
+                          "410":"Autos","411":"Autos","412":"Autos",
+                          "GASTOS MED":"Gastos Médicos","GASTOS MED.Y HOSPIT":"Gastos Médicos",
+                          "GASTOS MED.Y HOSPIT. PLUS":"Gastos Médicos",
+                          "PROTECCION MEDICA":"Gastos Médicos","PROTECCION MEDICA A TU MEDIDA":"Gastos Médicos",
+                          "TEMPORALES":"Vida","VIDA":"Vida",
+                          "DAÑOS":"Daños","HOGAR":"Daños","INCENDIO":"Daños",
+                        };
+                        const ramoNorm = ramoMap[ramoRaw.toUpperCase()] || ramoMap[ramoRaw.slice(0,12).toUpperCase()] || ramoRaw || "Autos";
+
+                        const primaBase = parseFloat(String(row[8]||"0").replace(/[,$\s]/g,""))||0;
+                        const importe  = parseFloat(String(row[9]||"0").replace(/[,$\s]/g,""))||0;
+
+                        // Solo filas con prima positiva
+                        if (primaBase <= 0 && importe <= 0) return;
+
+                        filas.push({
+                          polizaNum,
+                          endoso:   String(row[2]||"").trim(),
+                          ramo:     ramoNorm,
+                          ramoOrig: ramoRaw,
+                          recibo:   String(row[4]||"").trim(),
+                          serie:    String(row[5]||"").trim(),
+                          cliente:  String(row[7]||"").trim(),
+                          primaBase,
+                          importe,
+                          fechaPago,
+                          hoja: sheetName,
+                        });
                       });
                     });
+
                     // Buscar cada póliza en el sistema
                     const encontradas = filas.map(f=>{
                       const poliza = polizas.find(p=>{
@@ -4716,17 +4919,16 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
                         return n===b || n.endsWith(b) || b.endsWith(n);
                       });
                       const subagente = poliza?.subagenteId ? subagentes.find(s=>s.id===poliza.subagenteId) : null;
-                      const pctSA = parseFloat(subagente?.comision||0);
-                      const isrSA = parseFloat(subagente?.impuestos||15);
-                      const comBruta = f.importe > 0 ? f.importe : (f.primaBase * (getPct(poliza||{})/100));
+                      const pctSA  = parseFloat(subagente?.comision||0);
+                      const isrSA  = parseFloat(subagente?.impuestos||15);
+                      const comBruta   = f.importe > 0 ? f.importe : (f.primaBase * (getPct(poliza||{})/100));
                       const comSABruta = f.primaBase * pctSA / 100;
-                      const comSAIsr = comSABruta * isrSA / 100;
-                      const comSANeta = comSABruta - comSAIsr;
+                      const comSAIsr   = comSABruta * isrSA / 100;
+                      const comSANeta  = comSABruta - comSAIsr;
                       return {
                         ...f,
                         id: Date.now()+Math.random(),
-                        poliza,
-                        subagente,
+                        poliza, subagente,
                         comisionAgente: comBruta,
                         comSABruta, comSAIsr, comSANeta, pctSA, isrSA,
                         encontrada: !!poliza,
@@ -4742,7 +4944,7 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
                 }}/>
               <button onClick={()=>excelRef.current.click()}
                 style={{background:"linear-gradient(135deg,#2563eb,#7c3aed)",color:"#fff",border:"none",borderRadius:10,padding:"12px 28px",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                📂 Seleccionar archivo Excel
+                📂 Seleccionar Reporte de Actividades
               </button>
             </div>
           )}
@@ -4843,14 +5045,35 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
             </div>
           </div>
           <div style={{background:"#fff",borderRadius:16,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-            <div style={{padding:"14px 20px",borderBottom:"1px solid #f3f4f6",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div style={{padding:"14px 20px",borderBottom:"1px solid #f3f4f6",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
               <div style={{fontSize:13,fontWeight:800,color:"#111827",fontFamily:"'Inter','Segoe UI',sans-serif"}}>Comisiones — {MESES[mesSelec]} {anioSelec}</div>
-              {comisionesMes.filter(c=>c.estado==="pendiente").length>0&&(
-                <button onClick={()=>comisionesMes.filter(c=>c.estado==="pendiente").forEach(c=>marcarEstado(c.poliza.id,"cobrada"))}
-                  style={{background:"#059669",color:"#fff",border:"none",borderRadius:8,padding:"6px 14px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                  ✅ Marcar todas cobradas
-                </button>
-              )}
+              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                {comisionesMes.filter(c=>c.estado==="pendiente").length>0&&(
+                  <button onClick={()=>comisionesMes.filter(c=>c.estado==="pendiente").forEach(c=>marcarEstado(c.poliza.id,"cobrada"))}
+                    style={{background:"#059669",color:"#fff",border:"none",borderRadius:8,padding:"6px 14px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                    ✅ Marcar todas cobradas
+                  </button>
+                )}
+                {comisionesMes.length>0&&(
+                  <button onClick={()=>{
+                    const XLSX=window.XLSX_LIB;
+                    if(!XLSX){
+                      // Fallback: exportar CSV
+                      const rows=[["Póliza","Cliente","Ramo","Aseguradora","Prima Cobrada","% Comisión","Comisión","Estado"]];
+                      comisionesMes.forEach(c=>rows.push([c.poliza.numero,c.poliza.cliente,c.poliza.ramo,c.poliza.aseguradora,c.montoPagado,c.pct,c.comisionBruta,c.estado]));
+                      rows.push(["","","","","","TOTAL",totalMes,""]);
+                      const csv=rows.map(r=>r.map(v=>`"${v}"`).join(",")).join("\n");
+                      const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+                      const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+                      a.download=`Comisiones_${MESES[mesSelec]}_${anioSelec}.csv`;a.click();
+                      return;
+                    }
+                  }}
+                    style={{background:"#2563eb",color:"#fff",border:"none",borderRadius:8,padding:"6px 14px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                    📥 Exportar CSV
+                  </button>
+                )}
+              </div>
             </div>
             {comisionesMes.length===0?(
               <div style={{padding:"32px",textAlign:"center",color:"#9ca3af",fontSize:13}}>
@@ -5004,41 +5227,111 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
       )}
 
       {/* HISTORIAL */}
-      {tab==="historial"&&(
-        <div style={{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-          <div style={{padding:"14px 20px",borderBottom:"1px solid #f3f4f6"}}>
-            <div style={{fontSize:13,fontWeight:800,color:"#111827",fontFamily:"'Inter','Segoe UI',sans-serif"}}>📜 Historial de comisiones cobradas / pagadas</div>
-          </div>
-          {pagosComision.filter(pc=>pc.estado==="cobrada"||pc.estado==="pagada").length===0?(
-            <div style={{padding:"32px",textAlign:"center",color:"#9ca3af",fontSize:13}}>Sin historial registrado aún</div>
-          ):(
-            <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-              <thead>
-                <tr style={{background:"#f8fafc"}}>
-                  {["Fecha","Póliza","Tipo","Mes","Estado"].map(h=>(
-                    <th key={h} style={{padding:"10px 12px",textAlign:"left",fontWeight:700,color:"#374151",fontSize:10}}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {[...pagosComision].reverse().filter(pc=>pc.estado==="cobrada"||pc.estado==="pagada").map((pc,i)=>{
-                  const poliza=polizas.find(p=>p.id===pc.polizaId);
-                  const sa=pc.subagentId?subagentes.find(s=>s.id===pc.subagentId):null;
-                  return(
-                    <tr key={i} style={{borderTop:"1px solid #f1f5f9",background:i%2===0?"#fff":"#fafafa"}}>
-                      <td style={{padding:"9px 12px",color:"#6b7280"}}>{pc.fecha}</td>
-                      <td style={{padding:"9px 12px",fontFamily:"monospace",fontWeight:700,color:"#1d4ed8",fontSize:11}}>{poliza?.numero||"—"}</td>
-                      <td style={{padding:"9px 12px"}}><span style={{background:sa?"#ede9fe":"#dbeafe",color:sa?"#7c3aed":"#1d4ed8",padding:"2px 8px",borderRadius:6,fontWeight:700,fontSize:10}}>{sa?`SA: ${sa.nombre}`:"Comisión agente"}</span></td>
-                      <td style={{padding:"9px 12px",color:"#6b7280"}}>{MESES[pc.mes]} {pc.anio}</td>
-                      <td style={{padding:"9px 12px"}}><span style={{background:"#d1fae5",color:"#059669",padding:"2px 8px",borderRadius:6,fontWeight:700,fontSize:10}}>✓ {pc.estado==="cobrada"?"Cobrada":"Pagada"}</span></td>
+      {tab==="historial"&&(()=>{
+        const aniosHist=[...new Set(pagosComision.map(pc=>pc.anio).filter(Boolean))].sort((a,b)=>b-a);
+        const histFiltrado=[...pagosComision].reverse().filter(pc=>{
+          if(pc.estado!=="cobrada"&&pc.estado!=="pagada")return false;
+          if(filtroHistMes!==-1&&pc.mes!==filtroHistMes)return false;
+          if(filtroHistAnio!==-1&&pc.anio!==filtroHistAnio)return false;
+          if(filtroHistTipo==="agente"&&pc.subagentId)return false;
+          if(filtroHistTipo==="subagente"&&!pc.subagentId)return false;
+          return true;
+        });
+        const totalHist=histFiltrado.reduce((a,pc)=>a+(parseFloat(pc.comisionImporte)||0),0);
+        return(
+          <div style={{display:"flex",flexDirection:"column",gap:12}}>
+            {/* Filtros */}
+            <div style={{background:"#fff",borderRadius:12,padding:"14px 18px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)",display:"flex",gap:10,flexWrap:"wrap",alignItems:"center",justifyContent:"space-between"}}>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
+                <span style={{fontSize:12,fontWeight:700,color:"#374151"}}>Filtrar:</span>
+                <select value={filtroHistMes} onChange={e=>setFiltroHistMes(Number(e.target.value))}
+                  style={{border:"1.5px solid #e2e8f0",borderRadius:8,padding:"6px 10px",fontSize:12,fontWeight:600,color:"#374151",background:"#f8fafc",fontFamily:"inherit",cursor:"pointer"}}>
+                  <option value={-1}>Todos los meses</option>
+                  {MESES.map((m,i)=><option key={i} value={i}>{m}</option>)}
+                </select>
+                <select value={filtroHistAnio} onChange={e=>setFiltroHistAnio(Number(e.target.value))}
+                  style={{border:"1.5px solid #e2e8f0",borderRadius:8,padding:"6px 10px",fontSize:12,fontWeight:600,color:"#374151",background:"#f8fafc",fontFamily:"inherit",cursor:"pointer"}}>
+                  <option value={-1}>Todos los años</option>
+                  {aniosHist.map(y=><option key={y} value={y}>{y}</option>)}
+                </select>
+                <select value={filtroHistTipo} onChange={e=>setFiltroHistTipo(e.target.value)}
+                  style={{border:"1.5px solid #e2e8f0",borderRadius:8,padding:"6px 10px",fontSize:12,fontWeight:600,color:"#374151",background:"#f8fafc",fontFamily:"inherit",cursor:"pointer"}}>
+                  <option value="todos">Agente + Subagentes</option>
+                  <option value="agente">Solo agente</option>
+                  <option value="subagente">Solo subagentes</option>
+                </select>
+              </div>
+              <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                <div style={{background:"#eff6ff",borderRadius:8,padding:"6px 14px",fontSize:12,fontWeight:700,color:"#1d4ed8"}}>
+                  Total: ${totalHist.toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2})}
+                </div>
+                {histFiltrado.length>0&&(
+                  <button onClick={()=>{
+                    const rows=[["Fecha","Póliza","Cliente","Tipo","Mes","Año","Importe","Estado"]];
+                    histFiltrado.forEach(pc=>{
+                      const poliza=polizas.find(p=>p.id===pc.polizaId);
+                      const sa=pc.subagentId?subagentes.find(s=>s.id===pc.subagentId):null;
+                      rows.push([pc.fecha,poliza?.numero||"—",poliza?.cliente||"—",sa?`SA: ${sa.nombre}`:"Comisión agente",MESES[pc.mes]||"—",pc.anio||"—",(parseFloat(pc.comisionImporte)||0).toFixed(2),pc.estado]);
+                    });
+                    rows.push(["","","","","","TOTAL",totalHist.toFixed(2),""]);
+                    const csv=rows.map(r=>r.map(v=>`"${v}"`).join(",")).join("\n");
+                    const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+                    const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+                    a.download=`Historial_Comisiones.csv`;a.click();
+                  }}
+                    style={{background:"#2563eb",color:"#fff",border:"none",borderRadius:8,padding:"6px 14px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                    📥 Exportar CSV
+                  </button>
+                )}
+              </div>
+            </div>
+            {/* Tabla */}
+            <div style={{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+              {histFiltrado.length===0?(
+                <div style={{padding:"40px",textAlign:"center",color:"#9ca3af",fontSize:13}}>
+                  <div style={{fontSize:32,marginBottom:8}}>📜</div>
+                  Sin registros con los filtros seleccionados
+                </div>
+              ):(
+                <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+                  <thead>
+                    <tr style={{background:"#0f172a"}}>
+                      {["Fecha","Póliza","Cliente","Tipo","Mes / Año","Importe","Estado"].map(h=>(
+                        <th key={h} style={{padding:"10px 12px",textAlign:"left",fontWeight:700,color:"#fff",fontSize:10,whiteSpace:"nowrap"}}>{h}</th>
+                      ))}
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
-        </div>
-      )}
+                  </thead>
+                  <tbody>
+                    {histFiltrado.map((pc,i)=>{
+                      const poliza=polizas.find(p=>p.id===pc.polizaId);
+                      const sa=pc.subagentId?subagentes.find(s=>s.id===pc.subagentId):null;
+                      const importe=parseFloat(pc.comisionImporte)||0;
+                      return(
+                        <tr key={i} style={{borderTop:"1px solid #f1f5f9",background:i%2===0?"#fff":"#fafafa"}}>
+                          <td style={{padding:"9px 12px",color:"#6b7280",whiteSpace:"nowrap"}}>{pc.fecha||"—"}</td>
+                          <td style={{padding:"9px 12px",fontFamily:"monospace",fontWeight:700,color:"#1d4ed8",fontSize:11}}>{poliza?.numero||"—"}</td>
+                          <td style={{padding:"9px 12px",color:"#374151",maxWidth:140,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{poliza?.cliente||"—"}</td>
+                          <td style={{padding:"9px 12px"}}><span style={{background:sa?"#ede9fe":"#dbeafe",color:sa?"#7c3aed":"#1d4ed8",padding:"2px 8px",borderRadius:6,fontWeight:700,fontSize:10}}>{sa?`SA: ${sa.nombre}`:"Agente"}</span></td>
+                          <td style={{padding:"9px 12px",color:"#6b7280",whiteSpace:"nowrap"}}>{MESES[pc.mes]||"—"} {pc.anio||""}</td>
+                          <td style={{padding:"9px 12px",fontWeight:800,color:importe>0?"#059669":"#9ca3af",fontFamily:"'Inter',sans-serif"}}>{importe>0?`$${importe.toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2})}`:"—"}</td>
+                          <td style={{padding:"9px 12px"}}><span style={{background:"#d1fae5",color:"#059669",padding:"2px 8px",borderRadius:6,fontWeight:700,fontSize:10}}>✓ {pc.estado==="cobrada"?"Cobrada":"Pagada"}</span></td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                  <tfoot>
+                    <tr style={{background:"#0f172a"}}>
+                      <td colSpan={5} style={{padding:"10px 12px",color:"#94a3b8",fontWeight:700,fontSize:11}}>TOTAL ({histFiltrado.length} registros)</td>
+                      <td style={{padding:"10px 12px",fontWeight:900,color:"#fff",fontFamily:"'Inter',sans-serif",fontSize:13}}>${totalHist.toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                      <td/>
+                    </tr>
+                  </tfoot>
+                </table>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Modal agregar/editar % */}
       {showModalTabla&&(

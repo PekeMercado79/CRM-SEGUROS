@@ -7351,6 +7351,537 @@ function Calendario({ polizas, clientes, tareas, setPolizas }) {
   );
 }
 // ═══════════════════════════════════════════════════════════════════
+// MÓDULO SINIESTROS
+// ═══════════════════════════════════════════════════════════════════
+const SINIESTRO_STATUS = ["abierto","en proceso","pendiente aseguradora","pendiente cliente","resuelto","rechazado"];
+const SINIESTRO_STATUS_COLOR = {
+  "abierto":                "#2563eb",
+  "en proceso":             "#d97706",
+  "pendiente aseguradora":  "#7c3aed",
+  "pendiente cliente":      "#db2777",
+  "resuelto":               "#059669",
+  "rechazado":              "#dc2626",
+};
+const SINIESTRO_TIPOS = {
+  Autos:            ["Choque","Robo total","Robo parcial","Daño a terceros","Responsabilidad civil","Cristales","Asistencia vial","Pérdida total"],
+  "Gastos Médicos": ["Hospitalización","Cirugía","Urgencia","Maternidad","Accidente","Enfermedad grave","Reembolso"],
+  Vida:             ["Fallecimiento","Invalidez total","Invalidez parcial","Enfermedad grave","Desmembración"],
+  Daños:            ["Incendio","Robo con violencia","Daño por agua","Daño estructural","Responsabilidad civil","Fenómeno natural"],
+};
+const SINIESTRO_FORM_INIT = {
+  clienteId:"", polizaId:"", fechaSiniestro:"", tipo:"", descripcion:"",
+  montoReclamado:"", montoAprobado:"", numeroReporte:"", ajustador:"",
+  notas:"", diasSeguimiento:3,
+};
+
+function Siniestros({ siniestros, setSiniestros, clientes, polizas, sesion }) {
+  const [tab, setTab]           = useState("lista");
+  const [showModal, setShowModal] = useState(false);
+  const [editando, setEditando]   = useState(null);
+  const [form, setForm]           = useState(SINIESTRO_FORM_INIT);
+  const [busqueda, setBusqueda]   = useState("");
+  const [filtroStatus, setFiltroStatus] = useState("todos");
+  const [showDetalle, setShowDetalle]   = useState(null);
+  const [scanIA, setScanIA]             = useState(false);
+  const [scanResultIA, setScanResultIA] = useState(null);
+  const [toast, setToast]               = useState(null);
+  const [showSeguimiento, setShowSeguimiento] = useState(null);
+  const [notaSeguimiento, setNotaSeguimiento] = useState("");
+
+  const showToast = (msg, color="#059669") => {
+    setToast({msg,color});
+    setTimeout(()=>setToast(null), 3000);
+  };
+
+  // ── Alertas automáticas de seguimiento ────────────────────────────
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const siniestrosConAlerta = siniestros.filter(s => {
+    if (s.status==="resuelto"||s.status==="rechazado") return false;
+    if (!s.ultimoSeguimiento && !s.fechaApertura) return false;
+    const base = new Date(s.ultimoSeguimiento || s.fechaApertura);
+    base.setHours(0,0,0,0);
+    const dias = Math.round((hoy - base) / 86400000);
+    return dias >= (s.diasSeguimiento || 3);
+  });
+
+  // ── KPIs ──────────────────────────────────────────────────────────
+  const abiertos    = siniestros.filter(s=>s.status==="abierto").length;
+  const enProceso   = siniestros.filter(s=>s.status==="en proceso"||s.status==="pendiente aseguradora"||s.status==="pendiente cliente").length;
+  const resueltos   = siniestros.filter(s=>s.status==="resuelto").length;
+  const montoTotal  = siniestros.filter(s=>s.montoAprobado).reduce((a,s)=>a+parseFloat(s.montoAprobado||0),0);
+
+  // ── Filtro ────────────────────────────────────────────────────────
+  const lista = siniestros.filter(s => {
+    const q = busqueda.toLowerCase();
+    const matchQ = !q || s.cliente?.toLowerCase().includes(q) || s.numeroReporte?.toLowerCase().includes(q) || s.tipo?.toLowerCase().includes(q) || s.polizaNumero?.toLowerCase().includes(q);
+    const matchS = filtroStatus==="todos" || s.status===filtroStatus;
+    return matchQ && matchS;
+  });
+
+  // ── Obtener tipo de siniestros según ramo de póliza ──────────────
+  const getTipos = () => {
+    if (!form.polizaId) return [];
+    const pol = polizas.find(p=>String(p.id)===String(form.polizaId));
+    if (!pol) return [];
+    return SINIESTRO_TIPOS[pol.ramo] || [];
+  };
+
+  // ── Guardar siniestro ─────────────────────────────────────────────
+  const guardar = () => {
+    if (!form.clienteId||!form.polizaId||!form.fechaSiniestro||!form.tipo) {
+      showToast("Completa los campos obligatorios","#dc2626"); return;
+    }
+    const cliente = clientes.find(c=>String(c.id)===String(form.clienteId));
+    const poliza  = polizas.find(p=>String(p.id)===String(form.polizaId));
+    const base = {
+      ...form,
+      cliente: cliente ? `${cliente.nombre} ${cliente.apellidoPaterno} ${cliente.apellidoMaterno||""}`.trim() : "",
+      polizaNumero: poliza?.numero || "",
+      aseguradora:  poliza?.aseguradora || "",
+      ramo:         poliza?.ramo || "",
+      status:       "abierto",
+      fechaApertura: new Date().toISOString().split("T")[0],
+      ultimoSeguimiento: new Date().toISOString().split("T")[0],
+      creadoPor: sesion?.nombre || "Sistema",
+      seguimientos: [],
+    };
+    if (editando) {
+      setSiniestros(prev=>prev.map(s=>s.id===editando?{...s,...base,id:editando}:s));
+      showToast("Siniestro actualizado");
+    } else {
+      setSiniestros(prev=>[{...base, id:Date.now()}, ...prev]);
+      showToast("Siniestro registrado");
+    }
+    setShowModal(false); setEditando(null); setForm(SINIESTRO_FORM_INIT);
+  };
+
+  // ── Cambiar status (automático según acción del agente) ───────────
+  const cambiarStatus = (id, nuevoStatus, nota="") => {
+    setSiniestros(prev=>prev.map(s=>{
+      if(s.id!==id) return s;
+      const seg = {
+        fecha: new Date().toISOString().split("T")[0],
+        hora: new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+        statusAnterior: s.status,
+        statusNuevo: nuevoStatus,
+        nota: nota || `Status cambiado a "${nuevoStatus}"`,
+        usuario: sesion?.nombre||"Sistema",
+      };
+      return {
+        ...s,
+        status: nuevoStatus,
+        ultimoSeguimiento: new Date().toISOString().split("T")[0],
+        seguimientos: [...(s.seguimientos||[]), seg],
+        ...(nuevoStatus==="resuelto" ? {fechaResolucion: new Date().toISOString().split("T")[0]} : {}),
+      };
+    }));
+    showToast(`Status actualizado: ${nuevoStatus}`);
+  };
+
+  // ── Agregar nota de seguimiento ───────────────────────────────────
+  const agregarSeguimiento = (id) => {
+    if (!notaSeguimiento.trim()) return;
+    setSiniestros(prev=>prev.map(s=>{
+      if(s.id!==id) return s;
+      const seg = {
+        fecha: new Date().toISOString().split("T")[0],
+        hora: new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+        nota: notaSeguimiento,
+        usuario: sesion?.nombre||"Sistema",
+        tipo: "seguimiento",
+      };
+      return {
+        ...s,
+        ultimoSeguimiento: new Date().toISOString().split("T")[0],
+        seguimientos: [...(s.seguimientos||[]), seg],
+      };
+    }));
+    setNotaSeguimiento("");
+    showToast("Seguimiento registrado");
+  };
+
+  // ── Lector IA de documentos de siniestro ─────────────────────────
+  const leerDocumentoIA = async (file) => {
+    setScanIA(true); setScanResultIA(null);
+    try {
+      const toBase64 = f => new Promise((res,rej)=>{
+        const r=new FileReader(); r.onload=()=>res(r.result.split(",")[1]); r.onerror=rej; r.readAsDataURL(f);
+      });
+      const b64 = await toBase64(file);
+      const esImagen = file.type.startsWith("image/");
+      const esPDF    = file.type==="application/pdf";
+      let content;
+      if (esImagen) {
+        content = [
+          {type:"image",source:{type:"base64",media_type:file.type,data:b64}},
+          {type:"text",text:`Eres asistente de un agente de seguros. Analiza este documento de siniestro y extrae: tipo de siniestro, fecha del siniestro, número de reporte (si existe), descripción del evento, monto reclamado (si aparece), nombre del ajustador (si aparece). Responde SOLO con JSON: {"tipo":"","fechaSiniestro":"YYYY-MM-DD","numeroReporte":"","descripcion":"","montoReclamado":"","ajustador":""}`}
+        ];
+      } else if (esPDF) {
+        content = [{type:"text",text:`Analiza este documento de siniestro de seguros y extrae los datos principales. Responde SOLO con JSON: {"tipo":"","fechaSiniestro":"YYYY-MM-DD","numeroReporte":"","descripcion":"","montoReclamado":"","ajustador":""}`}];
+      } else {
+        showToast("Solo se aceptan imágenes o PDF","#dc2626"); setScanIA(false); return;
+      }
+      const res = await fetch("/api/anthropic",{
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,messages:[{role:"user",content}]})
+      });
+      const data = await res.json();
+      const texto = data.content?.[0]?.text||"";
+      const json = JSON.parse(texto.replace(/```json|```/g,"").trim());
+      setScanResultIA(json);
+      setForm(f=>({...f,...json}));
+      showToast("✅ Datos extraídos por IA");
+    } catch(e) {
+      showToast("No se pudo leer el documento","#dc2626");
+    }
+    setScanIA(false);
+  };
+
+  // ── Días transcurridos ────────────────────────────────────────────
+  const diasTranscurridos = (fecha) => {
+    if (!fecha) return 0;
+    const f = new Date(fecha); f.setHours(0,0,0,0);
+    return Math.round((hoy - f) / 86400000);
+  };
+
+  return (
+    <div style={{padding:"0 0 80px"}}>
+      {toast&&<div style={{position:"fixed",top:20,right:24,zIndex:9999,background:toast.color,color:"#fff",borderRadius:10,padding:"12px 20px",fontSize:13,fontWeight:600,boxShadow:"0 4px 20px rgba(0,0,0,.2)"}}>{toast.msg}</div>}
+
+      {/* Header */}
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,flexWrap:"wrap",gap:12}}>
+        <div>
+          <div style={{fontSize:22,fontWeight:800,color:"#1e293b"}}>Siniestros</div>
+          <div style={{fontSize:13,color:"#64748b"}}>Captura, seguimiento y resolución de reclamaciones</div>
+        </div>
+        <button onClick={()=>{setForm(SINIESTRO_FORM_INIT);setEditando(null);setShowModal(true);}}
+          style={{background:"#2563eb",color:"#fff",border:"none",borderRadius:9,padding:"10px 20px",fontSize:13,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",gap:6}}>
+          + Nuevo siniestro
+        </button>
+      </div>
+
+      {/* Alertas de seguimiento automáticas */}
+      {siniestrosConAlerta.length>0&&(
+        <div style={{background:"#fef3c7",border:"1px solid #f59e0b",borderRadius:10,padding:"12px 16px",marginBottom:16,display:"flex",alignItems:"flex-start",gap:10}}>
+          <span style={{fontSize:18}}>⚠️</span>
+          <div>
+            <div style={{fontSize:13,fontWeight:700,color:"#92400e"}}>
+              {siniestrosConAlerta.length} siniestro{siniestrosConAlerta.length>1?"s":""} requiere{siniestrosConAlerta.length===1?"":"n"} seguimiento
+            </div>
+            <div style={{fontSize:12,color:"#b45309",marginTop:2}}>
+              {siniestrosConAlerta.map(s=>`${s.cliente} (${s.tipo})`).join(" · ")}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* KPIs */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:12,marginBottom:20}}>
+        {[
+          {label:"Abiertos",   value:abiertos,  color:"#2563eb"},
+          {label:"En proceso", value:enProceso,  color:"#d97706"},
+          {label:"Resueltos",  value:resueltos,  color:"#059669"},
+          {label:"Monto aprobado", value:`$${montoTotal.toLocaleString("es-MX",{maximumFractionDigits:0})}`, color:"#7c3aed"},
+        ].map((k,i)=>(
+          <div key={i} style={{background:"#fff",border:"1px solid #e2e8f0",borderRadius:10,padding:"14px 16px",borderTop:`3px solid ${k.color}`}}>
+            <div style={{fontSize:11,color:"#64748b",fontWeight:600,marginBottom:4}}>{k.label}</div>
+            <div style={{fontSize:22,fontWeight:800,color:k.color}}>{k.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Filtros */}
+      <div style={{display:"flex",gap:10,marginBottom:16,flexWrap:"wrap",alignItems:"center"}}>
+        <input value={busqueda} onChange={e=>setBusqueda(e.target.value)}
+          placeholder="Buscar cliente, reporte, tipo..."
+          style={{flex:1,minWidth:200,padding:"9px 14px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,outline:"none"}}/>
+        <select value={filtroStatus} onChange={e=>setFiltroStatus(e.target.value)}
+          style={{padding:"9px 14px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,background:"#fff",cursor:"pointer"}}>
+          <option value="todos">Todos los status</option>
+          {SINIESTRO_STATUS.map(s=><option key={s} value={s}>{s.charAt(0).toUpperCase()+s.slice(1)}</option>)}
+        </select>
+      </div>
+
+      {/* Lista de siniestros */}
+      {lista.length===0?(
+        <div style={{textAlign:"center",padding:"60px 20px",color:"#94a3b8"}}>
+          <div style={{fontSize:40,marginBottom:12}}>📋</div>
+          <div style={{fontSize:15,fontWeight:600}}>Sin siniestros registrados</div>
+          <div style={{fontSize:13,marginTop:4}}>Registra el primer siniestro con el botón de arriba</div>
+        </div>
+      ):(
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {lista.map(s=>{
+            const diasSinMovimiento = diasTranscurridos(s.ultimoSeguimiento||s.fechaApertura);
+            const requiereAtencion = diasSinMovimiento>=(s.diasSeguimiento||3) && s.status!=="resuelto" && s.status!=="rechazado";
+            return (
+              <div key={s.id} style={{background:"#fff",border:`1.5px solid ${requiereAtencion?"#f59e0b":"#e2e8f0"}`,borderRadius:12,padding:"16px 18px",cursor:"pointer",transition:"box-shadow .15s"}}
+                onClick={()=>setShowDetalle(s)}>
+                <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}>
+                  <div style={{flex:1}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap",marginBottom:4}}>
+                      <span style={{fontSize:14,fontWeight:700,color:"#1e293b"}}>{s.cliente}</span>
+                      <span style={{fontSize:11,padding:"2px 8px",borderRadius:20,fontWeight:600,
+                        background:SINIESTRO_STATUS_COLOR[s.status]+"22",
+                        color:SINIESTRO_STATUS_COLOR[s.status]}}>
+                        {s.status}
+                      </span>
+                      {requiereAtencion&&<span style={{fontSize:11,padding:"2px 8px",borderRadius:20,background:"#fef3c7",color:"#92400e",fontWeight:600}}>⚠ {diasSinMovimiento}d sin movimiento</span>}
+                    </div>
+                    <div style={{fontSize:12,color:"#475569",display:"flex",gap:16,flexWrap:"wrap"}}>
+                      <span>🔖 {s.tipo}</span>
+                      <span>📋 {s.polizaNumero}</span>
+                      <span>🏢 {s.aseguradora}</span>
+                      <span>📅 {s.fechaSiniestro}</span>
+                      {s.numeroReporte&&<span>📄 Rep: {s.numeroReporte}</span>}
+                    </div>
+                    {s.descripcion&&<div style={{fontSize:12,color:"#64748b",marginTop:4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:500}}>{s.descripcion}</div>}
+                  </div>
+                  <div style={{textAlign:"right",flexShrink:0}}>
+                    {s.montoReclamado&&<div style={{fontSize:12,color:"#64748b"}}>Reclamado: <strong>${parseFloat(s.montoReclamado).toLocaleString("es-MX")}</strong></div>}
+                    {s.montoAprobado&&<div style={{fontSize:12,color:"#059669"}}>Aprobado: <strong>${parseFloat(s.montoAprobado).toLocaleString("es-MX")}</strong></div>}
+                    <div style={{fontSize:11,color:"#94a3b8",marginTop:4}}>{s.seguimientos?.length||0} seguimiento(s)</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Modal Nuevo/Editar Siniestro */}
+      {showModal&&(
+        <Modal title={editando?"Editar Siniestro":"Nuevo Siniestro"} onClose={()=>{setShowModal(false);setEditando(null);setForm(SINIESTRO_FORM_INIT);}} wide>
+          {/* Lector IA */}
+          <div style={{background:"#eff6ff",border:"1px solid #bfdbfe",borderRadius:9,padding:"12px 14px",marginBottom:16}}>
+            <div style={{fontSize:12,fontWeight:700,color:"#1e40af",marginBottom:6}}>🤖 Leer documento con IA</div>
+            <div style={{fontSize:11,color:"#3b82f6",marginBottom:8}}>Sube una foto o PDF del reporte de siniestro y la IA extrae los datos automáticamente</div>
+            <input type="file" accept="image/*,application/pdf"
+              onChange={e=>e.target.files[0]&&leerDocumentoIA(e.target.files[0])}
+              style={{fontSize:12,cursor:"pointer"}}/>
+            {scanIA&&<div style={{fontSize:12,color:"#2563eb",marginTop:6}}>⏳ Analizando documento...</div>}
+            {scanResultIA&&<div style={{fontSize:12,color:"#059669",marginTop:6}}>✅ Datos extraídos — revisa y ajusta si es necesario</div>}
+          </div>
+
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+            {/* Cliente */}
+            <div>
+              <label style={{fontSize:11,fontWeight:700,color:"#64748b",display:"block",marginBottom:4}}>CLIENTE *</label>
+              <select value={form.clienteId} onChange={e=>{setForm(f=>({...f,clienteId:e.target.value,polizaId:"",tipo:""}));}}
+                style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,background:"#fff"}}>
+                <option value="">Seleccionar cliente</option>
+                {clientes.map(c=><option key={c.id} value={c.id}>{c.nombre} {c.apellidoPaterno}</option>)}
+              </select>
+            </div>
+
+            {/* Póliza */}
+            <div>
+              <label style={{fontSize:11,fontWeight:700,color:"#64748b",display:"block",marginBottom:4}}>PÓLIZA *</label>
+              <select value={form.polizaId} onChange={e=>setForm(f=>({...f,polizaId:e.target.value,tipo:""}))}
+                style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,background:"#fff"}}>
+                <option value="">Seleccionar póliza</option>
+                {polizas.filter(p=>String(p.clienteId)===String(form.clienteId)).map(p=>(
+                  <option key={p.id} value={p.id}>{p.numero} — {p.ramo} ({p.aseguradora})</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Tipo de siniestro */}
+            <div>
+              <label style={{fontSize:11,fontWeight:700,color:"#64748b",display:"block",marginBottom:4}}>TIPO DE SINIESTRO *</label>
+              <select value={form.tipo} onChange={e=>setForm(f=>({...f,tipo:e.target.value}))}
+                style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,background:"#fff"}}>
+                <option value="">Seleccionar tipo</option>
+                {getTipos().map(t=><option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+
+            {/* Fecha */}
+            <div>
+              <label style={{fontSize:11,fontWeight:700,color:"#64748b",display:"block",marginBottom:4}}>FECHA DEL SINIESTRO *</label>
+              <input type="date" value={form.fechaSiniestro} onChange={e=>setForm(f=>({...f,fechaSiniestro:e.target.value}))}
+                style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,boxSizing:"border-box"}}/>
+            </div>
+
+            {/* Número de reporte */}
+            <div>
+              <label style={{fontSize:11,fontWeight:700,color:"#64748b",display:"block",marginBottom:4}}>NO. REPORTE ASEGURADORA</label>
+              <input value={form.numeroReporte} onChange={e=>setForm(f=>({...f,numeroReporte:e.target.value}))}
+                placeholder="Ej. SIN-2025-001234"
+                style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,boxSizing:"border-box"}}/>
+            </div>
+
+            {/* Ajustador */}
+            <div>
+              <label style={{fontSize:11,fontWeight:700,color:"#64748b",display:"block",marginBottom:4}}>AJUSTADOR ASIGNADO</label>
+              <input value={form.ajustador} onChange={e=>setForm(f=>({...f,ajustador:e.target.value}))}
+                placeholder="Nombre del ajustador"
+                style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,boxSizing:"border-box"}}/>
+            </div>
+
+            {/* Monto reclamado */}
+            <div>
+              <label style={{fontSize:11,fontWeight:700,color:"#64748b",display:"block",marginBottom:4}}>MONTO RECLAMADO ($)</label>
+              <input type="number" value={form.montoReclamado} onChange={e=>setForm(f=>({...f,montoReclamado:e.target.value}))}
+                placeholder="0.00"
+                style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,boxSizing:"border-box"}}/>
+            </div>
+
+            {/* Días seguimiento */}
+            <div>
+              <label style={{fontSize:11,fontWeight:700,color:"#64748b",display:"block",marginBottom:4}}>ALERTA SEGUIMIENTO (DÍAS)</label>
+              <select value={form.diasSeguimiento} onChange={e=>setForm(f=>({...f,diasSeguimiento:parseInt(e.target.value)}))}
+                style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,background:"#fff"}}>
+                {[1,2,3,5,7,10,15].map(d=><option key={d} value={d}>Cada {d} día{d>1?"s":""}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Descripción */}
+          <div style={{marginTop:12}}>
+            <label style={{fontSize:11,fontWeight:700,color:"#64748b",display:"block",marginBottom:4}}>DESCRIPCIÓN DEL SINIESTRO</label>
+            <textarea value={form.descripcion} onChange={e=>setForm(f=>({...f,descripcion:e.target.value}))}
+              placeholder="Describe el evento: qué pasó, cómo, dónde..."
+              rows={3}
+              style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",fontSize:13,resize:"vertical",fontFamily:"inherit",boxSizing:"border-box"}}/>
+          </div>
+
+          <div style={{display:"flex",justifyContent:"flex-end",gap:10,marginTop:16}}>
+            <button onClick={()=>{setShowModal(false);setEditando(null);setForm(SINIESTRO_FORM_INIT);}}
+              style={{padding:"9px 20px",borderRadius:8,border:"1.5px solid #e2e8f0",background:"#fff",fontSize:13,cursor:"pointer"}}>
+              Cancelar
+            </button>
+            <button onClick={guardar}
+              style={{padding:"9px 20px",borderRadius:8,background:"#2563eb",color:"#fff",border:"none",fontSize:13,fontWeight:700,cursor:"pointer"}}>
+              {editando?"Guardar cambios":"Registrar siniestro"}
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* Modal Detalle + Seguimiento */}
+      {showDetalle&&(
+        <Modal title={`Siniestro — ${showDetalle.cliente}`} onClose={()=>setShowDetalle(null)} wide>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:16}}>
+            <div style={{background:"#f8fafc",borderRadius:8,padding:"12px 14px"}}>
+              <div style={{fontSize:11,fontWeight:700,color:"#64748b",marginBottom:8}}>INFORMACIÓN DEL SINIESTRO</div>
+              {[
+                ["Póliza",      showDetalle.polizaNumero],
+                ["Aseguradora", showDetalle.aseguradora],
+                ["Ramo",        showDetalle.ramo],
+                ["Tipo",        showDetalle.tipo],
+                ["Fecha",       showDetalle.fechaSiniestro],
+                ["Reporte",     showDetalle.numeroReporte||"—"],
+                ["Ajustador",   showDetalle.ajustador||"—"],
+                ["Abierto el",  showDetalle.fechaApertura],
+                ["Por",         showDetalle.creadoPor],
+              ].map(([k,v])=>(
+                <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"4px 0",borderBottom:"1px solid #e2e8f0",fontSize:12}}>
+                  <span style={{color:"#64748b"}}>{k}</span>
+                  <span style={{fontWeight:500,color:"#1e293b"}}>{v}</span>
+                </div>
+              ))}
+            </div>
+            <div>
+              {/* Montos */}
+              <div style={{background:"#f0fdf4",border:"1px solid #bbf7d0",borderRadius:8,padding:"12px 14px",marginBottom:12}}>
+                <div style={{fontSize:11,fontWeight:700,color:"#166534",marginBottom:8}}>MONTOS</div>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:4}}>
+                  <span style={{color:"#64748b"}}>Reclamado</span>
+                  <span style={{fontWeight:600}}>${parseFloat(showDetalle.montoReclamado||0).toLocaleString("es-MX")}</span>
+                </div>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:13}}>
+                  <span style={{color:"#64748b"}}>Aprobado</span>
+                  <span style={{fontWeight:700,color:"#059669"}}>${parseFloat(showDetalle.montoAprobado||0).toLocaleString("es-MX")}</span>
+                </div>
+                {showDetalle.status!=="resuelto"&&showDetalle.status!=="rechazado"&&(
+                  <div style={{marginTop:8}}>
+                    <input type="number" placeholder="Monto aprobado por aseguradora"
+                      onBlur={e=>{
+                        if(e.target.value) setSiniestros(prev=>prev.map(s=>s.id===showDetalle.id?{...s,montoAprobado:e.target.value}:s));
+                      }}
+                      style={{width:"100%",padding:"7px 10px",borderRadius:6,border:"1px solid #bbf7d0",fontSize:12,boxSizing:"border-box"}}/>
+                  </div>
+                )}
+              </div>
+              {/* Cambiar status */}
+              <div style={{background:"#f8fafc",borderRadius:8,padding:"12px 14px"}}>
+                <div style={{fontSize:11,fontWeight:700,color:"#64748b",marginBottom:8}}>CAMBIAR STATUS</div>
+                <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                  {SINIESTRO_STATUS.filter(st=>st!==showDetalle.status).map(st=>(
+                    <button key={st} onClick={()=>{cambiarStatus(showDetalle.id,st);setShowDetalle(s=>({...s,status:st}));}}
+                      style={{padding:"5px 10px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",border:"none",
+                        background:SINIESTRO_STATUS_COLOR[st]+"22",color:SINIESTRO_STATUS_COLOR[st]}}>
+                      {st}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Descripción */}
+          {showDetalle.descripcion&&(
+            <div style={{background:"#f8fafc",borderRadius:8,padding:"12px 14px",marginBottom:12,fontSize:13,color:"#475569"}}>
+              <strong>Descripción:</strong> {showDetalle.descripcion}
+            </div>
+          )}
+
+          {/* Agregar seguimiento */}
+          <div style={{background:"#eff6ff",border:"1px solid #bfdbfe",borderRadius:8,padding:"12px 14px",marginBottom:12}}>
+            <div style={{fontSize:11,fontWeight:700,color:"#1e40af",marginBottom:8}}>REGISTRAR SEGUIMIENTO</div>
+            <div style={{display:"flex",gap:8}}>
+              <input value={notaSeguimiento} onChange={e=>setNotaSeguimiento(e.target.value)}
+                placeholder="Describe el avance, llamada, documento recibido..."
+                style={{flex:1,padding:"8px 12px",borderRadius:8,border:"1px solid #bfdbfe",fontSize:12,fontFamily:"inherit"}}
+                onKeyDown={e=>e.key==="Enter"&&agregarSeguimiento(showDetalle.id)}/>
+              <button onClick={()=>agregarSeguimiento(showDetalle.id)}
+                style={{padding:"8px 14px",borderRadius:8,background:"#2563eb",color:"#fff",border:"none",fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>
+                + Agregar
+              </button>
+            </div>
+          </div>
+
+          {/* Línea de tiempo de seguimientos */}
+          <div style={{fontSize:11,fontWeight:700,color:"#64748b",marginBottom:8}}>HISTORIAL DE SEGUIMIENTOS</div>
+          {(!showDetalle.seguimientos||showDetalle.seguimientos.length===0)?(
+            <div style={{fontSize:12,color:"#94a3b8",textAlign:"center",padding:"16px"}}>Sin seguimientos registrados</div>
+          ):(
+            <div style={{maxHeight:260,overflowY:"auto",display:"flex",flexDirection:"column",gap:8}}>
+              {[...showDetalle.seguimientos].reverse().map((seg,i)=>(
+                <div key={i} style={{display:"flex",gap:10,padding:"10px 12px",background:"#f8fafc",borderRadius:8,borderLeft:`3px solid ${seg.statusNuevo?SINIESTRO_STATUS_COLOR[seg.statusNuevo]:"#94a3b8"}`}}>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:12,color:"#1e293b"}}>{seg.nota}</div>
+                    {seg.statusAnterior&&<div style={{fontSize:11,color:"#7c3aed",marginTop:2}}>
+                      {seg.statusAnterior} → {seg.statusNuevo}
+                    </div>}
+                  </div>
+                  <div style={{textAlign:"right",flexShrink:0}}>
+                    <div style={{fontSize:11,color:"#64748b"}}>{seg.fecha}</div>
+                    <div style={{fontSize:11,color:"#94a3b8"}}>{seg.hora}</div>
+                    <div style={{fontSize:10,color:"#cbd5e1"}}>{seg.usuario}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div style={{display:"flex",justifyContent:"flex-end",gap:10,marginTop:16}}>
+            <button onClick={()=>{setEditando(showDetalle.id);setForm({...showDetalle});setShowDetalle(null);setShowModal(true);}}
+              style={{padding:"9px 18px",borderRadius:8,border:"1.5px solid #e2e8f0",background:"#fff",fontSize:13,cursor:"pointer"}}>
+              Editar
+            </button>
+            <button onClick={()=>setShowDetalle(null)}
+              style={{padding:"9px 18px",borderRadius:8,background:"#2563eb",color:"#fff",border:"none",fontSize:13,fontWeight:700,cursor:"pointer"}}>
+              Cerrar
+            </button>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+// ═══════════════════════════════════════════════════════════════════
 function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
   const [tab, setTab] = useState("directorio"); // directorio | comisiones | reporte
   const [showModal, setShowModal] = useState(false);
@@ -8029,10 +8560,10 @@ function useLocalStorage(key, initialValue) {
 // PERMISOS POR ROL
 // ═══════════════════════════════════════════════════════════════════
 const PERMISOS = {
-  admin:      ["dashboard","clientes","polizas","calendario","pipeline","importar","pai","configuracion","subagentes","usuarios","cancelar_poliza","registrar_pago","comisiones"],
-  agente:     ["dashboard","clientes","polizas","calendario","pipeline","importar","pai","configuracion","subagentes","usuarios","cancelar_poliza","registrar_pago","comisiones"],
-  asistente:  ["dashboard","clientes","polizas","calendario","pipeline","pai","subagentes","registrar_pago","comisiones"],
-  capturista: ["dashboard","clientes","polizas","calendario","registrar_pago"],
+  admin:      ["dashboard","clientes","polizas","calendario","pipeline","importar","pai","configuracion","subagentes","usuarios","cancelar_poliza","registrar_pago","comisiones","siniestros"],
+  agente:     ["dashboard","clientes","polizas","calendario","pipeline","importar","pai","configuracion","subagentes","usuarios","cancelar_poliza","registrar_pago","comisiones","siniestros"],
+  asistente:  ["dashboard","clientes","polizas","calendario","pipeline","pai","subagentes","registrar_pago","comisiones","siniestros"],
+  capturista: ["dashboard","clientes","polizas","calendario","registrar_pago","siniestros"],
   subagente:  ["clientes","polizas","calendario"],
 };
 
@@ -8374,6 +8905,7 @@ export default function CRMSeguros() {
   const [historialNotif, setHistorialNotif] = useLocalStorage("crm_historial_notif", []);
   const [tablaComisiones, setTablaComisiones] = useLocalStorage("crm_tabla_comisiones", []);
   const [pagosComision, setPagosComision] = useLocalStorage("crm_pagos_comision", []);
+  const [siniestros, setSiniestros]       = useLocalStorage("crm_siniestros", []);
 
   // Sesión activa
   const [sesion, setSesion] = useState(() => {
@@ -8491,6 +9023,7 @@ export default function CRMSeguros() {
     {id:"polizas",       label:"Pólizas",      icon:"policies", badge:"IA"},
     {id:"pipeline",      label:"Prospectos",   icon:"pipeline"},
     {id:"importar",      label:"Importar BD",  icon:"scan"},
+    {id:"siniestros",    label:"Siniestros",   icon:"shield", badge:"NEW"},
     {id:"pai",           label:"Metas",        icon:"trophy"},
     {id:"comisiones",    label:"Comisiones",   icon:"trophy"},
     {id:"configuracion", label:"Configuración",icon:"users", badge:"NEW"},
@@ -8739,6 +9272,7 @@ export default function CRMSeguros() {
             };
           }}
         />}}
+        {vista==="siniestros"&&puede("siniestros")&&<Siniestros siniestros={siniestros} setSiniestros={setSiniestros} clientes={clientes} polizas={polizas} sesion={sesion}/>}
         {vista==="pipeline"&&puede("pipeline")&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}
         {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas}/>}
         {vista==="calendario"&&puede("calendario")&&<Calendario polizas={polizas} clientes={clientes} tareas={tareas} setPolizas={setPolizas}/>}

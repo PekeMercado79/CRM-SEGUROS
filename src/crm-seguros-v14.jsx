@@ -683,6 +683,7 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar, onRegist
     {key:"ine_rep_legal", label:"INE Rep. Legal"},
     {key:"acta_const",    label:"Acta Constitutiva"},
     {key:"poder_notarial",label:"Poder Notarial"},
+    {key:"endoso",        label:"Endoso"},
     {key:"comprobante",   label:"Comprobante Domicilio"},
     {key:"otro",          label:"Otro documento"},
   ];

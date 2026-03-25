@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, RadialBarChart, RadialBar } from "recharts";
 
 // ═══════════════════════════════════════════════════════════════════
@@ -7363,10 +7363,12 @@ const SINIESTRO_STATUS_COLOR = {
   "rechazado":              "#dc2626",
 };
 const SINIESTRO_TIPOS = {
-  "Autos":           ["Choque","Robo total","Robo parcial","Daño a terceros","Responsabilidad civil","Cristales","Asistencia vial","Pérdida total"],
-  "Gastos Médicos": ["Hospitalización","Cirugía","Urgencia","Maternidad","Accidente","Enfermedad grave","Reembolso"],
-  "Vida":            ["Fallecimiento","Invalidez total","Invalidez parcial","Enfermedad grave","Desmembración"],
-  "Daños":          ["Incendio","Robo con violencia","Daño por agua","Daño estructural","Responsabilidad civil","Fenómeno natural"],
+  "Autos":           ["Choque","Robo total","Robo parcial","Responsabilidad civil","Cristales","Asistencia vial","Perdida total","Dano a terceros"],
+  "Gastos Medicos":  ["Hospitalizacion","Cirugia","Urgencia","Maternidad","Accidente","Enfermedad grave","Reembolso"],
+  "Gastos Médicos":  ["Hospitalizacion","Cirugia","Urgencia","Maternidad","Accidente","Enfermedad grave","Reembolso"],
+  "Vida":            ["Fallecimiento","Invalidez total","Invalidez parcial","Enfermedad grave","Desmembracion"],
+  "Danos":           ["Incendio","Robo con violencia","Dano por agua","Dano estructural","Responsabilidad civil","Fenomeno natural"],
+  "Daños":           ["Incendio","Robo con violencia","Dano por agua","Dano estructural","Responsabilidad civil","Fenomeno natural"],
 };
 const SINIESTRO_FORM_INIT = {
   clienteId:"", clienteManual:"", ramo:"", polizaId:"", fechaSiniestro:"", tipo:"", descripcion:"",
@@ -7425,8 +7427,8 @@ function Siniestros({ siniestros, setSiniestros, clientes, polizas, sesion }) {
     const r = ramo.trim();
     if (["Autos","Flotilla","Individual"].includes(r)) return "Autos";
     if (["Vida","Vida Individual","Vida Grupo","Vida Universal"].includes(r)) return "Vida";
-    if (["Gastos Médicos","Accidentes Personales","Tradicional","PMM (Plan Médico Mayor)","Segurviaje","Escolar"].includes(r)) return "Gastos Médicos";
-    if (["Daños","Hogar","Empresarial","Responsabilidad Civil","Transporte","Incendio"].includes(r)) return "Daños";
+    if (["Gastos Medicos","Gastos Médicos","Accidentes Personales","Tradicional","PMM (Plan Medico Mayor)","PMM (Plan Médico Mayor)","Segurviaje","Escolar"].includes(r)) return r.includes("é") ? "Gastos Médicos" : "Gastos Medicos";
+    if (["Danos","Daños","Hogar","Empresarial","Responsabilidad Civil","Transporte","Incendio"].includes(r)) return r.includes("ñ") ? "Daños" : "Danos";
     return r;
   };
 
@@ -9406,4 +9408,3 @@ export default function CRMSeguros() {
     </div>
   );
 }
-

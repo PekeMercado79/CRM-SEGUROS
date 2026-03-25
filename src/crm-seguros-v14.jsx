@@ -9601,7 +9601,8 @@ export default function CRMSeguros() {
               }:p));
             };
           }}
-        />}}
+        />}
+        {vista==="pai"&&puede("pai")&&<PAI paiMetas={paiMetas} setPaiMetas={setPaiMetas}/>}
         {vista==="siniestros"&&puede("siniestros")&&<Siniestros siniestros={siniestros} setSiniestros={setSiniestros} clientes={clientes} polizas={polizas} sesion={sesion}/>}
         {vista==="exportar"&&puede("exportar")&&<Exportar clientes={clientes} polizas={polizas} siniestros={siniestros} pagosComision={pagosComision} tablaComisiones={tablaComisiones} config={config}/>}
         {vista==="pipeline"&&puede("pipeline")&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}

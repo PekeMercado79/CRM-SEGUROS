@@ -94,23 +94,35 @@ function ModalCrearAgente({ onClose, onCreated }) {
   const [msg, setMsg] = useState(null)
 
   const handleCrear = async () => {
-    if (!form.nombre || !form.email) return setMsg({ ok: false, text: 'Nombre y email son obligatorios' })
-    setLoading(true)
-    setMsg(null)
-    try {
-      // Invita al agente — Supabase le manda correo para crear contraseña
-      const { data, error } = await supabase.auth.admin.signUp(form.email, {
-        data: { nombre: form.nombre }
-      })
-      if (error) throw error
-      // Actualiza su perfil con datos adicionales
-      await supabase.from('agentes').update({
-        nombre: form.nombre,
-        telefono: form.telefono,
-        plan: form.plan,
-        notas_admin: form.notas_admin,
-        activo: true
-      }).eq('email', form.email)
+  if (!form.nombre || !form.email) return setMsg({ ok: false, text: 'Nombre y email son obligatorios' })
+  setLoading(true)
+  setMsg(null)
+  try {
+    // ✅ Usa signUp normal con contraseña temporal
+    const passwordTemporal = 'SeguCore2026!'
+    const { data, error } = await supabase.auth.signUp({
+      email: form.email,
+      password: passwordTemporal,
+      options: { data: { nombre: form.nombre } }
+    })
+    if (error) throw error
+
+    // Actualiza perfil con datos adicionales
+    await supabase.from('agentes').update({
+      nombre: form.nombre,
+      telefono: form.telefono,
+      plan: form.plan,
+      notas_admin: form.notas_admin,
+      activo: true
+    }).eq('id', data.user.id)  // ✅ usa .id en vez de .email — más confiable
+
+    setMsg({ ok: true, text: `✓ Agente creado. Comparte con ${form.email} la contraseña temporal: ${passwordTemporal}` })
+    setTimeout(() => { onCreated(); onClose() }, 3000)
+  } catch (e) {
+    setMsg({ ok: false, text: e.message })
+  }
+  setLoading(false)
+}
       setMsg({ ok: true, text: `✓ Invitación enviada a ${form.email}. El agente recibirá un correo para activar su cuenta.` })
       setTimeout(() => { onCreated(); onClose() }, 2500)
     } catch (e) {

@@ -229,7 +229,7 @@ function PanelAdmin({ user, onLogout }) {
 
   const eliminarAgente = async (agente) => {
     if (!window.confirm(`¿Seguro que quieres eliminar a ${agente.nombre}? Esta acción no se puede deshacer.`)) return
-    await supabase.from('agentes').delete().eq('id', agente.id)
+    await supabase.rpc('eliminar_agente', { agente_id: agente.id })
     cargarDatos()
   }
 

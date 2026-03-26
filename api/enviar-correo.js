@@ -10,7 +10,7 @@ export default async function handler(req, res) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      from: 'SeguCore <onboarding@resend.dev>',
+      from: 'SeguCore <no-reply@segucore.com.mx>',
       to: email,
       subject: 'Bienvenido a SeguCore — Tus accesos',
       html: `

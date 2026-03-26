@@ -113,27 +113,10 @@ function ModalCrearAgente({ onClose, onCreated }) {
         activo: true
       }).eq('id', data.user.id)
       // Enviar correo de bienvenida con Resend
-await fetch('https://api.resend.com/emails', {
+await fetch('/api/enviar-correo', {
   method: 'POST',
-  headers: {
-    'Authorization': `Bearer ${process.env.REACT_APP_RESEND_KEY}`,
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    from: 'SeguCore <onboarding@resend.dev>',
-    to: form.email,
-    subject: 'Bienvenido a SeguCore — Tus accesos',
-    html: `
-      <h2>¡Bienvenido a SeguCore, ${form.nombre}!</h2>
-      <p>Tu cuenta ha sido creada. Aquí están tus accesos:</p>
-      <p><strong>URL:</strong> https://crm-seguros.vercel.app</p>
-      <p><strong>Email:</strong> ${form.email}</p>
-      <p><strong>Contraseña temporal:</strong> ${form.password}</p>
-      <p>Te recomendamos cambiar tu contraseña al entrar por primera vez.</p>
-      <br/>
-      <p>— Memo | SeguCore</p>
-    `
-  })
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ email: form.email, nombre: form.nombre, password: form.password })
 })
 setMsg({ ok: true, text: `✓ Agente creado y correo enviado a ${form.email}` })
       setTimeout(() => { onCreated(); onClose() }, 3000)

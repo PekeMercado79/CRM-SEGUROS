@@ -21,7 +21,7 @@ export default async function handler(req, res) {
         <p><strong>Contraseña temporal:</strong> ${password}</p>
         <p>Te recomendamos cambiar tu contraseña al entrar por primera vez.</p>
         <br/>
-        <p>— Memo | SeguCore</p>
+        <p>— Administración SeguCore</p>
       `
     })
   })

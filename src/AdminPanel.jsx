@@ -223,9 +223,17 @@ function PanelAdmin({ user, onLogout }) {
   useEffect(() => { cargarDatos() }, [])
 
  const toggleActivo = async (agente) => {
-    await supabase.from('agentes').update({ activo: !agente.activo }).eq('id', agente.id)
-    cargarDatos()
+  const nuevoEstado = agente.activo === true ? false : true
+  const { error } = await supabase
+    .from('agentes')
+    .update({ activo: nuevoEstado })
+    .eq('id', agente.id)
+  if (error) {
+    alert('Error al actualizar: ' + error.message)
+    return
   }
+  cargarDatos()
+}
 
   const eliminarAgente = async (agente) => {
     if (!window.confirm(`¿Seguro que quieres eliminar a ${agente.nombre}? Esta acción no se puede deshacer.`)) return

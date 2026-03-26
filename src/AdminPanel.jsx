@@ -99,12 +99,22 @@ function ModalCrearAgente({ onClose, onCreated }) {
     setLoading(true)
     setMsg(null)
     try {
+      // Guardar sesion del admin antes de crear agente
+      const { data: { session: adminSession } } = await supabase.auth.getSession()
+
       const { data, error } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
         options: { data: { nombre: form.nombre } }
       })
       if (error) throw error
+
+      // Restaurar sesion del admin inmediatamente
+      await supabase.auth.setSession({
+        access_token: adminSession.access_token,
+        refresh_token: adminSession.refresh_token
+      })
+
       await supabase.from('agentes').update({
         nombre: form.nombre,
         telefono: form.telefono,
@@ -112,13 +122,13 @@ function ModalCrearAgente({ onClose, onCreated }) {
         notas_admin: form.notas_admin,
         activo: true
       }).eq('id', data.user.id)
-      // Enviar correo de bienvenida con Resend
-await fetch('/api/enviar-correo', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email: form.email, nombre: form.nombre, password: form.password })
-})
-setMsg({ ok: true, text: `✓ Agente creado y correo enviado a ${form.email}` })
+
+      await fetch('/api/enviar-correo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.email, nombre: form.nombre, password: form.password })
+      })
+      setMsg({ ok: true, text: `✓ Agente creado y correo enviado a ${form.email}` })
       setTimeout(() => { onCreated(); onClose() }, 3000)
     } catch (e) {
       setMsg({ ok: false, text: e.message })

@@ -119,8 +119,7 @@ function ModalCrearAgente({ onClose, onCreated }) {
     }
     setLoading(false)
   }
-
-  return (
+return (
     <div style={css.modal}>
       <div style={css.modalBox}>
         <div style={css.modalTitle}>Nuevo agente</div>
@@ -129,6 +128,8 @@ function ModalCrearAgente({ onClose, onCreated }) {
         <input style={css.input} value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej. Juan Pérez" />
         <label style={css.label}>Email *</label>
         <input style={css.input} type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="agente@email.com" />
+        <label style={css.label}>Contraseña temporal *</label>
+        <input style={css.input} type="text" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="Ej. Juan2026!" />
         <label style={css.label}>Teléfono</label>
         <input style={css.input} value={form.telefono} onChange={e => setForm({ ...form, telefono: e.target.value })} placeholder="871 000 0000" />
         <label style={css.label}>Plan</label>
@@ -141,13 +142,12 @@ function ModalCrearAgente({ onClose, onCreated }) {
         <input style={css.input} value={form.notas_admin} onChange={e => setForm({ ...form, notas_admin: e.target.value })} placeholder="Ej. Pagó en efectivo, vence el 25 de abril" />
         <div style={css.btnRow}>
           <button style={css.btnCancel} onClick={onClose}>Cancelar</button>
-          <button style={css.btnSave} onClick={handleCrear} disabled={loading}>{loading ? 'Creando...' : 'Crear y enviar invitación'}</button>
+          <button style={css.btnSave} onClick={handleCrear} disabled={loading}>{loading ? 'Creando...' : 'Crear agente'}</button>
         </div>
       </div>
     </div>
   )
 }
-
 // ── MODAL REGISTRAR PAGO ──────────────────────────────────────
 function ModalPago({ agente, onClose, onSaved }) {
   const [form, setForm] = useState({ monto: '', metodo_pago: 'transferencia', fecha_pago: new Date().toISOString().split('T')[0], fecha_vencimiento: '', notas: '' })

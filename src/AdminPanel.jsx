@@ -89,7 +89,11 @@ function LoginAdmin({ onLogin }) {
 
 // ── MODAL CREAR AGENTE ────────────────────────────────────────
 function ModalCrearAgente({ onClose, onCreated }) {
-const handleCrear = async () => {
+  const [form, setForm] = useState({ nombre: '', email: '', telefono: '', plan: 'basico', notas_admin: '' })
+  const [loading, setLoading] = useState(false)
+  const [msg, setMsg] = useState(null)
+
+  const handleCrear = async () => {
     if (!form.nombre || !form.email) return setMsg({ ok: false, text: 'Nombre y email son obligatorios' })
     setLoading(true)
     setMsg(null)
@@ -115,14 +119,6 @@ const handleCrear = async () => {
     }
     setLoading(false)
   }
-    }).eq('id', data.user.id)
-    setMsg({ ok: true, text: `✓ Agente creado. Comparte con ${form.email} la contraseña temporal: ${passwordTemporal}` })
-    setTimeout(() => { onCreated(); onClose() }, 3000)
-  } catch (e) {
-    setMsg({ ok: false, text: e.message })
-  }
-  setLoading(false)
-}
 
   return (
     <div style={css.modal}>

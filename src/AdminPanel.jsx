@@ -89,19 +89,19 @@ function LoginAdmin({ onLogin }) {
 
 // ── MODAL CREAR AGENTE ────────────────────────────────────────
 function ModalCrearAgente({ onClose, onCreated }) {
-  const [form, setForm] = useState({ nombre: '', email: '', telefono: '', plan: 'basico', notas_admin: '' })
+  const [form, setForm] = useState({ nombre: '', email: '', telefono: '', plan: 'basico', notas_admin: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState(null)
 
   const handleCrear = async () => {
     if (!form.nombre || !form.email) return setMsg({ ok: false, text: 'Nombre y email son obligatorios' })
+    if (!form.password) return setMsg({ ok: false, text: 'La contraseña es obligatoria' })
     setLoading(true)
     setMsg(null)
     try {
-      const passwordTemporal = 'SeguCore2026!'
       const { data, error } = await supabase.auth.signUp({
         email: form.email,
-        password: passwordTemporal,
+        password: form.password,
         options: { data: { nombre: form.nombre } }
       })
       if (error) throw error
@@ -112,7 +112,7 @@ function ModalCrearAgente({ onClose, onCreated }) {
         notas_admin: form.notas_admin,
         activo: true
       }).eq('id', data.user.id)
-      setMsg({ ok: true, text: `✓ Agente creado. Comparte con ${form.email} la contraseña temporal: ${passwordTemporal}` })
+      setMsg({ ok: true, text: `✓ Agente creado. Email: ${form.email} — Contraseña: ${form.password}` })
       setTimeout(() => { onCreated(); onClose() }, 3000)
     } catch (e) {
       setMsg({ ok: false, text: e.message })

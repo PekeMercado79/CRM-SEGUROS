@@ -355,13 +355,16 @@ function PanelAdmin({ user, onLogout }) {
                       </div>
                     </td>
                     <td style={css.td}>
-                      <div style={{ display: 'flex', gap: 6 }}>
-                        <button style={css.btnPago} onClick={() => setModalPago(ag)}>+ Pago</button>
-                        <button style={css.btnPausa(ag.activo)} onClick={() => toggleActivo(ag)}>
-                          {ag.activo ? 'Pausar' : 'Activar'}
-                        </button>
-                      </div>
-                    </td>
+  <div style={{ display: 'flex', gap: 6 }}>
+    <button style={css.btnPago} onClick={() => setModalPago(ag)}>+ Pago</button>
+    <button style={css.btnPausa(ag.activo)} onClick={() => toggleActivo(ag)}>
+      {ag.activo ? 'Pausar' : 'Activar'}
+    </button>
+    <button style={{ background: 'transparent', border: '1px solid #7f1d1d', color: '#f87171', padding: '5px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12 }} onClick={() => eliminarAgente(ag)}>
+      Eliminar
+    </button>
+  </div>
+</td>
                   </tr>
                 )
               })}

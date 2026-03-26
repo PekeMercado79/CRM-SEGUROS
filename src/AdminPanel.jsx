@@ -89,28 +89,32 @@ function LoginAdmin({ onLogin }) {
 
 // ── MODAL CREAR AGENTE ────────────────────────────────────────
 function ModalCrearAgente({ onClose, onCreated }) {
-  const [form, setForm] = useState({ nombre: '', email: '', telefono: '', plan: 'basico', notas_admin: '' })
-  const [loading, setLoading] = useState(false)
-  const [msg, setMsg] = useState(null)
-
-  const handleCrear = async () => {
-  if (!form.nombre || !form.email) return setMsg({ ok: false, text: 'Nombre y email son obligatorios' })
-  setLoading(true)
-  setMsg(null)
-  try {
-    const passwordTemporal = 'SeguCore2026!'
-    const { data, error } = await supabase.auth.signUp({
-      email: form.email,
-      password: passwordTemporal,
-      options: { data: { nombre: form.nombre } }
-    })
-    if (error) throw error
-    await supabase.from('agentes').update({
-      nombre: form.nombre,
-      telefono: form.telefono,
-      plan: form.plan,
-      notas_admin: form.notas_admin,
-      activo: true
+const handleCrear = async () => {
+    if (!form.nombre || !form.email) return setMsg({ ok: false, text: 'Nombre y email son obligatorios' })
+    setLoading(true)
+    setMsg(null)
+    try {
+      const passwordTemporal = 'SeguCore2026!'
+      const { data, error } = await supabase.auth.signUp({
+        email: form.email,
+        password: passwordTemporal,
+        options: { data: { nombre: form.nombre } }
+      })
+      if (error) throw error
+      await supabase.from('agentes').update({
+        nombre: form.nombre,
+        telefono: form.telefono,
+        plan: form.plan,
+        notas_admin: form.notas_admin,
+        activo: true
+      }).eq('id', data.user.id)
+      setMsg({ ok: true, text: `✓ Agente creado. Comparte con ${form.email} la contraseña temporal: ${passwordTemporal}` })
+      setTimeout(() => { onCreated(); onClose() }, 3000)
+    } catch (e) {
+      setMsg({ ok: false, text: e.message })
+    }
+    setLoading(false)
+  }
     }).eq('id', data.user.id)
     setMsg({ ok: true, text: `✓ Agente creado. Comparte con ${form.email} la contraseña temporal: ${passwordTemporal}` })
     setTimeout(() => { onCreated(); onClose() }, 3000)

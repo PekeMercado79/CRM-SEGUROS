@@ -9316,24 +9316,74 @@ export default function CRMSeguros() {
   const [pagosComision, setPagosComision] = useLocalStorage("crm_pagos_comision", []);
   const [siniestros, setSiniestros]       = useLocalStorage("crm_siniestros", []);
 
-  // Sesión activa
-  const [sesion, setSesion] = useState(() => {
-    try {
-      const s = localStorage.getItem("crm_sesion");
-      return s ? JSON.parse(s) : null;
-    } catch { return null; }
-  });
+ // Sesión activa
+  const [sesion, setSesion] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        supabase
+          .from("agentes")
+          .select("id, nombre, username, rol, clave, status")
+          .eq("id", session.user.id)
+          .single()
+          .then(({ data: agente }) => {
+            if (agente && agente.status === "activo") {
+              setSesion({
+                id: agente.id,
+                nombre: agente.nombre,
+                username: agente.username,
+                rol: agente.rol,
+                clave: agente.clave,
+                loginAt: session.user.last_sign_in_at,
+              });
+            } else {
+              supabase.auth.signOut();
+            }
+          });
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === "SIGNED_OUT" || !session) {
+          setSesion(null);
+          return;
+        }
+        if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+          const { data: agente } = await supabase
+            .from("agentes")
+            .select("id, nombre, username, rol, clave, status")
+            .eq("id", session.user.id)
+            .single();
+          if (agente && agente.status === "activo") {
+            setSesion({
+              id: agente.id,
+              nombre: agente.nombre,
+              username: agente.username,
+              rol: agente.rol,
+              clave: agente.clave,
+              loginAt: session.user.last_sign_in_at,
+            });
+          } else {
+            await supabase.auth.signOut();
+            setSesion(null);
+          }
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleLogin = (sesionData) => {
-    localStorage.setItem("crm_sesion", JSON.stringify(sesionData));
     setSesion(sesionData);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("crm_sesion");
-    window.location.reload();
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setSesion(null);
   };
-
   // ── Notificaciones internas ────────────────────────────────────────
   const [notifPanel, setNotifPanel] = useState(false);
   const [gcalToast, setGcalToast]   = useState(null);

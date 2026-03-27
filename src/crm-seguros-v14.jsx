@@ -9412,16 +9412,11 @@ function LoginScreen({ usuarios, config, onLogin }) {
     if (fetchError || !agente) { setError("Usuario no encontrado"); setLoading(false); return; }
     if (agente.status !== "activo") { setError("Tu cuenta está suspendida. Contacta al administrador."); setLoading(false); return; }
 
-    // Detectar primer acceso: password vacío o flag primerAcceso
-    if (!user.password || user.primerAcceso) {
-      // Cualquier contraseña que escriba se usa para crear la nueva
-      setPrimerAcceso(true);
-      setUserPrimerAcceso(user);
-      setLoading(false);
-      return;
-    }
-
-    const passOk = await verificarPassword(password, user.password);
+   const { error: authError } = await supabase.auth.signInWithPassword({
+      email: agente.email,
+      password: password,
+    });
+    if (authError) { setError("Contraseña incorrecta"); setLoading(false); return; }
 
     if (!passOk) { setError("Contraseña incorrecta"); setLoading(false); return; }
 

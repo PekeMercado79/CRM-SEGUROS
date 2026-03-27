@@ -9418,20 +9418,15 @@ function LoginScreen({ usuarios, config, onLogin }) {
     });
     if (authError) { setError("Contraseña incorrecta"); setLoading(false); return; }
 
-    if (!passOk) { setError("Contraseña incorrecta"); setLoading(false); return; }
-
-    const sesion = {
-      id: user.id,
-      nombre: user.nombre,
-      username: user.username,
-      rol: user.rol,
-      clave: user.clave,
+   onLogin({
+      id: agente.id,
+      nombre: agente.nombre,
+      username: agente.username,
+      rol: "agente",
+      clave: agente.email,
       loginAt: new Date().toISOString(),
-    };
-    localStorage.setItem("crm_sesion", JSON.stringify(sesion));
-    onLogin(sesion);
+    });
     setLoading(false);
-    window.location.reload();
   };
 
   // Handler para crear contraseña en primer acceso

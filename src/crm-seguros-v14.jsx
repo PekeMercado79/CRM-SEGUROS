@@ -9404,13 +9404,13 @@ function LoginScreen({ usuarios, config, onLogin }) {
     if (!username || !password) { setError("Ingresa usuario y contraseña"); return; }
     setLoading(true);
     setError("");
-
-    const user = usuarios.find(u =>
-      u.username?.toLowerCase() === username.toLowerCase() &&
-      u.status === "activo"
-    );
-
-    if (!user) { setError("Usuario no encontrado o inactivo"); setLoading(false); return; }
+    const { data: agente, error: fetchError } = await supabase
+      .from("agentes")
+      .select("id, nombre, username, email, status")
+      .eq("email", username.toLowerCase().trim())
+      .single();
+    if (fetchError || !agente) { setError("Usuario no encontrado"); setLoading(false); return; }
+    if (agente.status !== "activo") { setError("Tu cuenta está suspendida. Contacta al administrador."); setLoading(false); return; }
 
     // Detectar primer acceso: password vacío o flag primerAcceso
     if (!user.password || user.primerAcceso) {

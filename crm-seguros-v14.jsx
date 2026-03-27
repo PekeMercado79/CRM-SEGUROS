@@ -9197,12 +9197,12 @@ function LoginScreen({ usuarios, config, onLogin }) {
             {/* Usuario */}
             <div>
               <label style={{fontSize:11,fontWeight:700,color:"#94a3b8",letterSpacing:"0.06em",display:"block",marginBottom:6}}>
-                USUARIO
+                EMAIL
               </label>
               <input
                 value={username}
                 onChange={e=>{setUsername(e.target.value);setError("");}}
-                placeholder="Ingresa tu usuario"
+                placeholder="Ingresa tu email"
                 autoComplete="username"
                 style={{width:"100%",background:"rgba(255,255,255,0.08)",border:"1.5px solid rgba(255,255,255,0.12)",
                   borderRadius:10,padding:"11px 14px",fontSize:14,color:"#f1f5f9",outline:"none",

@@ -9719,31 +9719,6 @@ const isMobile = useIsMobile();
     {id:"configuracion", label:"Configuración",icon:"users", badge:"NEW"},
   ].filter(item => puede(item.id));
 
-    if (!document.getElementById("crm-fonts")) {
-      const link = document.createElement("link");
-      link.id = "crm-fonts";
-      link.rel = "stylesheet";
-      link.href = "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap";
-      document.head.appendChild(link);
-    }
-    if (!document.getElementById("crm-global-style")) {
-      const style = document.createElement("style");
-      style.id = "crm-global-style";
-      style.textContent = `
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
-        * { box-sizing: border-box; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes bounce { 0%,80%,100%{transform:scale(.8);opacity:.5} 40%{transform:scale(1.2);opacity:1} }
-        @keyframes slideUp { from { transform:translateY(100%); opacity:0; } to { transform:translateY(0); opacity:1; } }
-        .crm-main-content { padding: 28px 32px; }
-        @media (max-width: 768px) {
-          .crm-main-content { padding: 16px 14px 80px 14px !important; }
-        }
-      `;
-      document.head.appendChild(style);
-    }
-  },[]);
-
   return(
     <div style={{display:"flex",height:"100vh",fontFamily:"'Inter','DM Sans','Segoe UI',sans-serif",background:"#f1f5f9",flexDirection:isMobile?"column":"row"}}>
 

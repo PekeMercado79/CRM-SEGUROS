@@ -9670,14 +9670,13 @@ export default function CRMSeguros() {
   };
   const [plantillas, setPlantillas] = useLocalStorage("crm_plantillas", PLANTILLAS_DEFAULT);
 
+const isMobile = useIsMobile();
   // Mostrar login si no hay sesión
   if (!sesion) {
     return <LoginScreen usuarios={usuarios} config={config} onLogin={handleLogin}/>;
   }
-
   const rol = sesion.rol || "capturista";
   const puede = (accion) => puedeVer(rol, accion);
-  const isMobile = useIsMobile();
 
   const nav=[
     {id:"dashboard",     label:"Dashboard",    icon:"dashboard"},

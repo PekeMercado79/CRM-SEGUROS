@@ -9039,38 +9039,38 @@ function LoginScreen({ usuarios, config, onLogin }) {
   const [newPass, setNewPass]             = useState("");
   const [newPass2, setNewPass2]           = useState("");
 
-  const handleLogin = async (e) => {
+ const handleLogin = async (e) => {
     e.preventDefault();
     if (!username || !password) { setError("Ingresa usuario y contraseña"); return; }
     setLoading(true);
     setError("");
 
-   // Buscar agente por username en tabla agentes
+    // Primero autenticar con Supabase Auth
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: username.toLowerCase().trim(),
+      password: password,
+    });
+    if (authError) {
+      setError("Usuario o contraseña incorrectos");
+      setLoading(false);
+      return;
+    }
+
+    // Ya autenticado, ahora consultar tabla agentes
     const { data: agente, error: fetchError } = await supabase
       .from("agentes")
       .select("id, nombre, username, email, status")
       .eq("email", username.toLowerCase().trim())
       .single();
-
     if (fetchError || !agente) {
+      await supabase.auth.signOut();
       setError("Usuario no encontrado");
       setLoading(false);
       return;
     }
-
     if (agente.status !== "activo") {
+      await supabase.auth.signOut();
       setError("Tu cuenta está suspendida. Contacta al administrador.");
-      setLoading(false);
-      return;
-    }
-
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email: agente.email,
-      password: password,
-    });
-
-    if (authError) {
-      setError("Contraseña incorrecta");
       setLoading(false);
       return;
     }

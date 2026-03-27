@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect } from "react"; // rebuild
-import { supabase } from "./supabase";
+import { useState, useRef, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, RadialBarChart, RadialBar } from "recharts";
 
 // ═══════════════════════════════════════════════════════════════════
@@ -9778,7 +9777,30 @@ export default function CRMSeguros() {
   };
   const [plantillas, setPlantillas] = useLocalStorage("crm_plantillas", PLANTILLAS_DEFAULT);
 
-const isMobile = useIsMobile();
+  // Mostrar login si no hay sesión
+  if (!sesion) {
+    return <LoginScreen usuarios={usuarios} config={config} onLogin={handleLogin}/>;
+  }
+
+  const rol = sesion.rol || "capturista";
+  const puede = (accion) => puedeVer(rol, accion);
+  const isMobile = useIsMobile();
+
+  const nav=[
+    {id:"dashboard",     label:"Dashboard",    icon:"dashboard"},
+    {id:"calendario",    label:"Calendario",   icon:"tasks"},
+    {id:"clientes",      label:"Clientes",     icon:"clients"},
+    {id:"polizas",       label:"Pólizas",      icon:"policies", badge:"IA"},
+    {id:"pipeline",      label:"Prospectos",   icon:"pipeline"},
+    {id:"exportar",      label:"Exportar",     icon:"scan", badge:"NEW"},
+    {id:"importar",      label:"Importar BD",  icon:"scan"},
+    {id:"siniestros",    label:"Siniestros",   icon:"shield", badge:"NEW"},
+    {id:"pai",           label:"Metas",        icon:"trophy"},
+    {id:"comisiones",    label:"Comisiones",   icon:"trophy"},
+    {id:"configuracion", label:"Configuración",icon:"users", badge:"NEW"},
+  ].filter(item => puede(item.id));
+
+  const badgeColors={IA:"#2563eb",NEW:"#25d366"};
 
   useEffect(()=>{
     if (!document.getElementById("crm-fonts")) {
@@ -9805,28 +9827,6 @@ const isMobile = useIsMobile();
       document.head.appendChild(style);
     }
   },[]);
-
-  // Mostrar login si no hay sesión
-  if (!sesion) {
-    return <LoginScreen usuarios={usuarios} config={config} onLogin={handleLogin}/>;
-  }
-  const rol = sesion.rol || "capturista";
-  const puede = (accion) => puedeVer(rol, accion);
-
-  const nav=[
-    {id:"dashboard",     label:"Dashboard",    icon:"dashboard"},
-    {id:"calendario",    label:"Calendario",   icon:"tasks"},
-    {id:"clientes",      label:"Clientes",     icon:"clients"},
-    {id:"polizas",       label:"Pólizas",      icon:"policies", badge:"IA"},
-    {id:"pipeline",      label:"Prospectos",   icon:"pipeline"},
-    {id:"exportar",      label:"Exportar",     icon:"scan", badge:"NEW"},
-    {id:"importar",      label:"Importar BD",  icon:"scan"},
-    {id:"siniestros",    label:"Siniestros",   icon:"shield", badge:"NEW"},
-    {id:"pai",           label:"Metas",        icon:"trophy"},
-    {id:"comisiones",    label:"Comisiones",   icon:"trophy"},
-    {id:"configuracion", label:"Configuración",icon:"users", badge:"NEW"},
-  ].filter(item => puede(item.id));
-  const badgeColors={IA:"#2563eb",NEW:"#25d366"};
 
   return(
     <div style={{display:"flex",height:"100vh",fontFamily:"'Inter','DM Sans','Segoe UI',sans-serif",background:"#f1f5f9",flexDirection:isMobile?"column":"row"}}>

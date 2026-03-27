@@ -9083,7 +9083,8 @@ function LoginScreen({ usuarios, config, onLogin }) {
       clave: agente.email,
       loginAt: new Date().toISOString(),
     });
-    } catch(e) { console.warn("localStorage update error", e); }
+    setLoading(false);
+  };
     const sesion = {
       id: userPrimerAcceso.id,
       nombre: userPrimerAcceso.nombre,

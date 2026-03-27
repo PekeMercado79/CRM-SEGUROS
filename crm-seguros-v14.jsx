@@ -9045,62 +9045,44 @@ function LoginScreen({ usuarios, config, onLogin }) {
     setLoading(true);
     setError("");
 
-    const user = usuarios.find(u =>
-      u.username?.toLowerCase() === username.toLowerCase() &&
-      u.status === "activo"
-    );
+   // Buscar agente por username en tabla agentes
+    const { data: agente, error: fetchError } = await supabase
+      .from("agentes")
+      .select("id, nombre, username, email, rol, clave, status")
+      .eq("username", username.toLowerCase().trim())
+      .single();
 
-    if (!user) { setError("Usuario no encontrado o inactivo"); setLoading(false); return; }
-
-    // Detectar primer acceso: password vacío o flag primerAcceso
-    if (!user.password || user.primerAcceso) {
-      // Cualquier contraseña que escriba se usa para crear la nueva
-      setPrimerAcceso(true);
-      setUserPrimerAcceso(user);
+    if (fetchError || !agente) {
+      setError("Usuario no encontrado");
       setLoading(false);
       return;
     }
 
-    const passOk = await verificarPassword(password, user.password);
+    if (agente.status !== "activo") {
+      setError("Tu cuenta está suspendida. Contacta al administrador.");
+      setLoading(false);
+      return;
+    }
 
-    if (!passOk) { setError("Contraseña incorrecta"); setLoading(false); return; }
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: agente.email,
+      password: password,
+    });
 
-    const sesion = {
-      id: user.id,
-      nombre: user.nombre,
-      username: user.username,
-      rol: user.rol,
-      clave: user.clave,
+    if (authError) {
+      setError("Contraseña incorrecta");
+      setLoading(false);
+      return;
+    }
+
+    onLogin({
+      id: agente.id,
+      nombre: agente.nombre,
+      username: agente.username,
+      rol: agente.rol,
+      clave: agente.clave,
       loginAt: new Date().toISOString(),
-    };
-    localStorage.setItem("crm_sesion", JSON.stringify(sesion));
-    onLogin(sesion);
-    setLoading(false);
-    window.location.reload();
-  };
-
-  // Handler para crear contraseña en primer acceso
-  const handleCrearPassword = async (e) => {
-    e.preventDefault();
-    if (!newPass || newPass.length < 8) { setError("La contraseña debe tener al menos 8 caracteres"); return; }
-    if (newPass !== newPass2) { setError("Las contraseñas no coinciden"); return; }
-    setLoading(true);
-    setError("");
-    const passHash = await hashPasswordBcrypt(newPass);
-    // Actualizar usuario en lista — se persiste via useLocalStorage en el componente raíz
-    // Buscamos la referencia en el array y la mutamos vía el callback que recibimos
-    const updated = usuarios.map(u => u.id === userPrimerAcceso.id
-      ? { ...u, password: passHash, primerAcceso: false }
-      : u
-    );
-    // Forzar actualización en localStorage directamente
-    try {
-      const stored = JSON.parse(localStorage.getItem("crm_usuarios") || "[]");
-      const merged = stored.map(u => u.id === userPrimerAcceso.id
-        ? { ...u, password: passHash, primerAcceso: false }
-        : u
-      );
-      localStorage.setItem("crm_usuarios", JSON.stringify(merged));
+    });
     } catch(e) { console.warn("localStorage update error", e); }
     const sesion = {
       id: userPrimerAcceso.id,

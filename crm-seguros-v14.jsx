@@ -9049,7 +9049,7 @@ function LoginScreen({ usuarios, config, onLogin }) {
     const { data: agente, error: fetchError } = await supabase
       .from("agentes")
       .select("id, nombre, username, email, rol, clave, status")
-      .eq("username", username.toLowerCase().trim())
+      .eq("email", username.toLowerCase().trim())
       .single();
 
     if (fetchError || !agente) {

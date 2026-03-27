@@ -9048,7 +9048,7 @@ function LoginScreen({ usuarios, config, onLogin }) {
    // Buscar agente por username en tabla agentes
     const { data: agente, error: fetchError } = await supabase
       .from("agentes")
-      .select("id, nombre, username, email, rol, clave, status")
+      .select("id, nombre, username, email, status")
       .eq("email", username.toLowerCase().trim())
       .single();
 
@@ -9079,8 +9079,8 @@ function LoginScreen({ usuarios, config, onLogin }) {
       id: agente.id,
       nombre: agente.nombre,
       username: agente.username,
-      rol: agente.rol,
-      clave: agente.clave,
+      rol: "agente",
+      clave: agente.email,
       loginAt: new Date().toISOString(),
     });
     } catch(e) { console.warn("localStorage update error", e); }

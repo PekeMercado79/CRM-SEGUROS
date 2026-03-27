@@ -9718,6 +9718,7 @@ const isMobile = useIsMobile();
     {id:"comisiones",    label:"Comisiones",   icon:"trophy"},
     {id:"configuracion", label:"Configuración",icon:"users", badge:"NEW"},
   ].filter(item => puede(item.id));
+  const badgeColors={IA:"#2563eb",NEW:"#25d366"};
 
   return(
     <div style={{display:"flex",height:"100vh",fontFamily:"'Inter','DM Sans','Segoe UI',sans-serif",background:"#f1f5f9",flexDirection:isMobile?"column":"row"}}>

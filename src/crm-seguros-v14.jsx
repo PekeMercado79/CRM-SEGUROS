@@ -9405,33 +9405,141 @@ function LoginScreen({ usuarios, config, onLogin }) {
     if (!username || !password) { setError("Ingresa usuario y contraseña"); return; }
     setLoading(true);
     setError("");
-    const { data: agente, error: fetchError } = await supabase
-      .from("agentes")
-      .select("id, nombre, username, email, status")
-      .eq("email", username.toLowerCase().trim())
-      .single();
-    if (fetchError || !agente) { setError("Usuario no encontrado"); setLoading(false); return; }
-    if (agente.status !== "activo") { setError("Tu cuenta está suspendida. Contacta al administrador."); setLoading(false); return; }
 
-   const { error: authError } = await supabase.auth.signInWithPassword({
-      email: agente.email,
-      password: password,
-    });
-    if (authError) { setError("Contraseña incorrecta"); setLoading(false); return; }
+    const user = usuarios.find(u =>
+      u.username?.toLowerCase() === username.toLowerCase() &&
+      u.status === "activo"
+    );
 
-   onLogin({
-      id: agente.id,
-      nombre: agente.nombre,
-      username: agente.username,
-      rol: "agente",
-      clave: agente.email,
+    if (!user) { setError("Usuario no encontrado o inactivo"); setLoading(false); return; }
+
+    // Detectar primer acceso: password vacío o flag primerAcceso
+    if (!user.password || user.primerAcceso) {
+      // Cualquier contraseña que escriba se usa para crear la nueva
+      setPrimerAcceso(true);
+      setUserPrimerAcceso(user);
+      setLoading(false);
+      return;
+    }
+
+    const passOk = await verificarPassword(password, user.password);
+
+    if (!passOk) { setError("Contraseña incorrecta"); setLoading(false); return; }
+
+    const sesion = {
+      id: user.id,
+      nombre: user.nombre,
+      username: user.username,
+      rol: user.rol,
+      clave: user.clave,
       loginAt: new Date().toISOString(),
-    });
+    };
+    localStorage.setItem("crm_sesion", JSON.stringify(sesion));
+    onLogin(sesion);
     setLoading(false);
+    window.location.reload();
+  };
+
+  // Handler para crear contraseña en primer acceso
+  const handleCrearPassword = async (e) => {
+    e.preventDefault();
+    if (!newPass || newPass.length < 8) { setError("La contraseña debe tener al menos 8 caracteres"); return; }
+    if (newPass !== newPass2) { setError("Las contraseñas no coinciden"); return; }
+    setLoading(true);
+    setError("");
+    const passHash = await hashPasswordBcrypt(newPass);
+    // Actualizar usuario en lista — se persiste via useLocalStorage en el componente raíz
+    // Buscamos la referencia en el array y la mutamos vía el callback que recibimos
+    const updated = usuarios.map(u => u.id === userPrimerAcceso.id
+      ? { ...u, password: passHash, primerAcceso: false }
+      : u
+    );
+    // Forzar actualización en localStorage directamente
+    try {
+      const stored = JSON.parse(localStorage.getItem("crm_usuarios") || "[]");
+      const merged = stored.map(u => u.id === userPrimerAcceso.id
+        ? { ...u, password: passHash, primerAcceso: false }
+        : u
+      );
+      localStorage.setItem("crm_usuarios", JSON.stringify(merged));
+    } catch(e) { console.warn("localStorage update error", e); }
+    const sesion = {
+      id: userPrimerAcceso.id,
+      nombre: userPrimerAcceso.nombre,
+      username: userPrimerAcceso.username,
+      rol: userPrimerAcceso.rol,
+      clave: userPrimerAcceso.clave,
+      loginAt: new Date().toISOString(),
+    };
+    localStorage.setItem("crm_sesion", JSON.stringify(sesion));
+    onLogin(sesion);
+    setLoading(false);
+    window.location.reload();
   };
 
   const logoEmpresa = config?.logo;
   const nombreEmpresa = config?.nombre || "CRM Seguros";
+
+  // Pantalla de primer acceso — crear contraseña
+  if (primerAcceso && userPrimerAcceso) return (
+    <div style={{
+      minHeight:"100vh", background:"linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#0f172a 100%)",
+      display:"flex", alignItems:"center", justifyContent:"center", padding:20,
+      fontFamily:"'Inter','DM Sans','Segoe UI',sans-serif"
+    }}>
+      <div style={{width:"100%",maxWidth:420}}>
+        <div style={{textAlign:"center",marginBottom:28}}>
+          <div style={{width:56,height:56,borderRadius:16,background:"linear-gradient(135deg,#2563eb,#7c3aed)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 12px"}}>
+            <Icon name="shield" size={26}/>
+          </div>
+          <div style={{color:"#f1f5f9",fontSize:20,fontWeight:800}}>Crea tu contraseña</div>
+          <div style={{color:"#64748b",fontSize:13,marginTop:4}}>Primer acceso — Hola, {userPrimerAcceso.nombre}</div>
+        </div>
+        <div style={{background:"rgba(255,255,255,0.05)",backdropFilter:"blur(20px)",borderRadius:20,padding:"32px 36px",border:"1px solid rgba(255,255,255,0.1)"}}>
+          <div style={{background:"rgba(37,99,235,0.15)",border:"1px solid rgba(37,99,235,0.3)",borderRadius:9,padding:"10px 14px",fontSize:12,color:"#93c5fd",marginBottom:20}}>
+            Por seguridad, debes crear una contraseña personal antes de continuar. Mínimo 8 caracteres.
+          </div>
+          <form onSubmit={handleCrearPassword} style={{display:"flex",flexDirection:"column",gap:14}}>
+            <div>
+              <label style={{fontSize:11,fontWeight:700,color:"#94a3b8",letterSpacing:"0.06em",display:"block",marginBottom:6}}>NUEVA CONTRASEÑA</label>
+              <input type="password" value={newPass} onChange={e=>{setNewPass(e.target.value);setError("");}}
+                placeholder="Mínimo 8 caracteres" autoComplete="new-password"
+                style={{width:"100%",background:"rgba(255,255,255,0.08)",border:"1.5px solid rgba(255,255,255,0.12)",
+                  borderRadius:10,padding:"11px 14px",fontSize:14,color:"#f1f5f9",outline:"none",
+                  fontFamily:"inherit",boxSizing:"border-box"}}
+                onFocus={e=>e.target.style.borderColor="#3b82f6"}
+                onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.12)"}
+              />
+            </div>
+            <div>
+              <label style={{fontSize:11,fontWeight:700,color:"#94a3b8",letterSpacing:"0.06em",display:"block",marginBottom:6}}>CONFIRMAR CONTRASEÑA</label>
+              <input type="password" value={newPass2} onChange={e=>{setNewPass2(e.target.value);setError("");}}
+                placeholder="Repite la contraseña" autoComplete="new-password"
+                style={{width:"100%",background:"rgba(255,255,255,0.08)",border:"1.5px solid rgba(255,255,255,0.12)",
+                  borderRadius:10,padding:"11px 14px",fontSize:14,color:"#f1f5f9",outline:"none",
+                  fontFamily:"inherit",boxSizing:"border-box"}}
+                onFocus={e=>e.target.style.borderColor="#3b82f6"}
+                onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.12)"}
+              />
+            </div>
+            {error&&(
+              <div style={{background:"rgba(220,38,38,0.15)",border:"1px solid rgba(220,38,38,0.3)",
+                borderRadius:9,padding:"10px 14px",fontSize:13,color:"#fca5a5"}}>
+                ⚠️ {error}
+              </div>
+            )}
+            <button type="submit" disabled={loading}
+              style={{background:loading?"#1e3a5f":"linear-gradient(135deg,#2563eb,#7c3aed)",
+                color:"#fff",border:"none",borderRadius:10,padding:"13px",fontSize:14,
+                fontWeight:700,cursor:loading?"not-allowed":"pointer",fontFamily:"inherit",marginTop:4}}>
+              {loading?"Guardando...":"Crear contraseña y entrar"}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div style={{
       minHeight:"100vh", background:"linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#0f172a 100%)",

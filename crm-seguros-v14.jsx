@@ -9085,19 +9085,6 @@ function LoginScreen({ usuarios, config, onLogin }) {
     });
     setLoading(false);
   };
-    const sesion = {
-      id: userPrimerAcceso.id,
-      nombre: userPrimerAcceso.nombre,
-      username: userPrimerAcceso.username,
-      rol: userPrimerAcceso.rol,
-      clave: userPrimerAcceso.clave,
-      loginAt: new Date().toISOString(),
-    };
-    localStorage.setItem("crm_sesion", JSON.stringify(sesion));
-    onLogin(sesion);
-    setLoading(false);
-    window.location.reload();
-  };
 
   const logoEmpresa = config?.logo;
   const nombreEmpresa = config?.nombre || "SeguCore";

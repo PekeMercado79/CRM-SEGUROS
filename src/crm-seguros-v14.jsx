@@ -6032,11 +6032,32 @@ function Pipeline({ pipeline, setPipeline, pipelineOps }) {
 // ═══════════════════════════════════════════════════════════════════
 // TAREAS
 // ═══════════════════════════════════════════════════════════════════
-function Tareas({ tareas, setTareas }) {
+function Tareas({ tareas, setTareas, tareasOps }) {
   const [showModal,setShowModal]=useState(false);
   const [form,setForm]=useState({titulo:"",fecha:"",tipo:"llamada",prioridad:"media"});
-  const toggle=(id)=>setTareas(prev=>prev.map(t=>t.id===id?{...t,done:!t.done}:t));
-  const guardar=()=>{if(!form.titulo)return;setTareas(prev=>[...prev,{...form,id:Date.now(),done:false}]);setShowModal(false);setForm({titulo:"",fecha:"",tipo:"llamada",prioridad:"media"});};
+
+  const toggle=async(id)=>{
+    const tarea=tareas.find(t=>t.id===id);
+    if(!tarea)return;
+    const nuevoDone=!tarea.done;
+    if(tareasOps){
+      await tareasOps.actualizar(id,{done:nuevoDone});
+    } else {
+      setTareas(prev=>prev.map(t=>t.id===id?{...t,done:nuevoDone}:t));
+    }
+  };
+
+  const guardar=async()=>{
+    if(!form.titulo)return;
+    const nueva={...form,done:false};
+    if(tareasOps){
+      await tareasOps.insertar(nueva);
+    } else {
+      setTareas(prev=>[...prev,{...nueva,id:Date.now()}]);
+    }
+    setShowModal(false);
+    setForm({titulo:"",fecha:"",tipo:"llamada",prioridad:"media"});
+  };
   const pendientes=tareas.filter(t=>!t.done);const completadas=tareas.filter(t=>t.done);
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
@@ -10178,7 +10199,7 @@ export default function CRMSeguros() {
         {vista==="siniestros"&&puede("siniestros")&&<Siniestros siniestros={siniestros} setSiniestros={setSiniestros} clientes={clientes} polizas={polizas} sesion={sesion}/>}
         {vista==="exportar"&&puede("exportar")&&<Exportar clientes={clientes} polizas={polizas} siniestros={siniestros} pagosComision={pagosComision} tablaComisiones={tablaComisiones} config={config}/>}
         {vista==="pipeline"&&puede("pipeline")&&<Pipeline pipeline={pipeline} setPipeline={setPipeline} pipelineOps={pipelineOps}/>}
-        {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas}/>}
+        {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas} tareasOps={tareasOps}/>}
         {vista==="calendario"&&puede("calendario")&&<Calendario polizas={polizas} clientes={clientes} tareas={tareas} setPolizas={setPolizas}/>}
         {vista==="importar"&&puede("importar")&&<Importador clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas}/>}
         {vista==="configuracion"&&puede("configuracion")&&<Configuracion config={config} setConfig={setConfig} subagentes={subagentes} setSubagentes={setSubagentes} usuarios={usuarios} setUsuarios={setUsuarios} polizas={polizas} setPolizas={setPolizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes} historialNotif={historialNotif} setHistorialNotif={setHistorialNotif}/>}

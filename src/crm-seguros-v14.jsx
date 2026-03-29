@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, RadialBarChart, RadialBar } from "recharts";
+import { supabase } from "./supabase";
 
 // ═══════════════════════════════════════════════════════════════════
 // GOOGLE CALENDAR — Google Identity Services (GIS)
@@ -86,7 +87,7 @@ async function agregarEventoCalendar(titulo, descripcion, fecha) {
 function descargarICS(titulo, descripcion, fecha) {
   const fechaISO = (fecha.includes("/") ? fecha.split("/").reverse().join("-") : fecha).replace(/-/g,"");
   const ics = [
-    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//CRM Seguros//ES",
+    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//SeguCore//ES",
     "BEGIN:VEVENT",
     `DTSTART;VALUE=DATE:${fechaISO}`,
     `DTEND;VALUE=DATE:${fechaISO}`,
@@ -1228,7 +1229,7 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar, onRegist
   );
 }
 
-function Clientes({ clientes, setClientes, polizas=[], setPolizas, sesion }) {
+function Clientes({ clientes, setClientes, clientesOps, polizas=[], setPolizas, sesion }) {
   const [busqueda, setBusqueda] = useState("");
   const [viewModeC, setViewModeC] = useState("cards");
   const [showModal, setShowModal] = useState(false);
@@ -1261,7 +1262,7 @@ function Clientes({ clientes, setClientes, polizas=[], setPolizas, sesion }) {
     return Object.keys(e).length === 0;
   };
 
-  const guardar = () => {
+  const guardar = async () => {
     if (!validar()) return;
     const nombreNuevo = `${form.nombre} ${form.apellidoPaterno} ${form.apellidoMaterno||""}`.trim().toLowerCase();
     const rfcNuevo = (form.rfc||"").trim().toUpperCase();
@@ -1274,7 +1275,11 @@ function Clientes({ clientes, setClientes, polizas=[], setPolizas, sesion }) {
       alert(`⚠️ Ya existe un cliente con ${msg}. No se puede guardar duplicado.`);
       return;
     }
-    setClientes(prev=>[...prev,{...form,id:Date.now(),polizas:0}]);
+    if (clientesOps) {
+      await clientesOps.insertar({ ...form, polizas: 0 });
+    } else {
+      setClientes(prev=>[...prev,{...form,id:Date.now(),polizas:0}]);
+    }
     setShowModal(false);
     setForm(FORM_CLIENTE_INIT);
     setErrores({});
@@ -1465,8 +1470,12 @@ function Clientes({ clientes, setClientes, polizas=[], setPolizas, sesion }) {
         cliente={showDetalle}
         polizas={polizas}
         onClose={()=>setShowDetalle(null)}
-        onGuardar={(clienteEditado)=>{
-          setClientes(prev=>prev.map(c=>c.id===clienteEditado.id?clienteEditado:c));
+        onGuardar={async (clienteEditado)=>{
+          if (clientesOps) {
+            await clientesOps.actualizar(clienteEditado.id, clienteEditado);
+          } else {
+            setClientes(prev=>prev.map(c=>c.id===clienteEditado.id?clienteEditado:c));
+          }
           setShowDetalle(clienteEditado);
         }}
         onRegistrarPago={registrarPagoDesdeCliente}
@@ -1583,6 +1592,15 @@ const INCISO_INIT = {
   primaNeta:"", gastosExpedicion:"600", primaConIva:"",
   coberturasAutos:{},
 };
+
+function SecBox({title, color="#6b7280", children}) {
+  return (
+    <div style={{background:"#f8fafc",borderRadius:12,padding:"14px 16px",border:`1px solid ${color}22`}}>
+      <div style={{fontSize:10,fontWeight:800,color,letterSpacing:"0.08em",marginBottom:12}}>{title}</div>
+      {children}
+    </div>
+  );
+}
 
 function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
   const [paso, setPaso] = useState(1);
@@ -1747,12 +1765,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
     setForm(p=>({...p, incisos:(p.incisos||[]).filter((_,i)=>i!==idx).map((inc,i)=>({...inc, numero:i+1}))}));
   };
 
-  const SecBox = ({title, color="#6b7280", children}) => (
-    <div style={{background:"#f8fafc",borderRadius:12,padding:"14px 16px",border:`1px solid ${color}22`}}>
-      <div style={{fontSize:10,fontWeight:800,color,letterSpacing:"0.08em",marginBottom:12}}>{title}</div>
-      {children}
-    </div>
-  );
+
 
   return (
     <Modal title="Nueva Póliza" onClose={onClose} wide maxW={760}>
@@ -2544,7 +2557,7 @@ function DocAdjunto({ poliza, onSubir }) {
   );
 }
 
-function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSubagentes, plantillas }) {
+function Polizas({ polizas, setPolizas, polizasOps, clientes, setClientes, subagentes, setSubagentes, plantillas }) {
   const [filtro, setFiltro] = useState("todas");
   const [filtroRamo, setFiltroRamo] = useState("todos");
   const [showModal, setShowModal] = useState(false);
@@ -2606,26 +2619,25 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
   const [polizaRecienGuardada, setPolizaRecienGuardada] = useState(null);
   const [showBienvenida, setShowBienvenida] = useState(null); // {poliza, tieneWA, tieneEmail}
 
-  const onGuardar = (data) => {
+  const onGuardar = async (data) => {
     const normNum = (s) => (s||"").trim().toLowerCase().replace(/[\s\-_]/g,"");
     const num = normNum(data.numero);
     if (num && polizas.some(p => normNum(p.numero) === num && p.status !== "cancelada")) {
       alert(`⚠️ Ya existe una póliza con el número "${data.numero}". No se puede guardar duplicada.`);
       return;
     }
-    // Si hay clienteId, vincular con cliente existente (evitar duplicados)
     if (data.clienteId) {
       setClientes(prev => prev.map(c => c.id===data.clienteId ? {...c, polizas:(c.polizas||0)+1} : c));
     }
     const id = Date.now() + Math.floor(Math.random()*9999);
     const nuevaPoliza = {...data, id};
     setPolizas(prev => [...prev, nuevaPoliza]);
+    if (polizasOps) await polizasOps.insertar(nuevaPoliza);
     setBusqueda("");
     setFiltro("todas");
     setFiltroRamo("todos");
     setPolizaRecienGuardada(id);
     setTimeout(()=>setPolizaRecienGuardada(null), 4000);
-    // Disparar bienvenida si hay WhatsApp o email
     const tieneWA = !!(data.telefonoCliente||data.whatsappCliente||"").replace(/\D/g,"");
     const tieneEmail = !!(data.emailCliente||"").trim();
     if (tieneWA || tieneEmail) {
@@ -2645,7 +2657,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
     return f; // ya es YYYY-MM-DD u otro
   };
 
-  const onExtracted = (data, docData) => {
+  const onExtracted = async (data, docData) => {
     // 1. Crear cliente si no existe
     let clienteId = "";
     let clienteNombre = data.cliente || "";
@@ -2753,6 +2765,19 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
     };
 
     setPolizas(prev => [...prev, mapped]);
+    if (polizasOps) {
+      const CAMPOS_CLIENTE = new Set([
+        "fechaNacimiento","sexo","calle","colonia","cp","ciudad","estadoCliente",
+        "apellidoPaterno","apellidoMaterno","whatsapp","telefono","email",
+        "rfcCliente","emailCliente","telefonoCliente","whatsappCliente",
+        "clienteCalle","clienteNumero","clienteColonia","clienteCp",
+        "clienteCiudad","clienteEstado","_autoCreado","numero"
+      ]);
+      const mappedLimpio = Object.fromEntries(
+        Object.entries(mapped).filter(([k]) => !CAMPOS_CLIENTE.has(k))
+      );
+      await polizasOps.insertar(mappedLimpio);
+    }
     setBusqueda("");
     setFiltro("todas");
     setFiltroRamo("todos");
@@ -2761,35 +2786,45 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
     setShowScan(false);
   };
 
-  const cancelarPoliza = (id) => {
+  const cancelarPoliza = async (id) => {
     if (!window.confirm("¿Cancelar esta póliza? Esta acción no se puede deshacer.")) return;
     setPolizas(prev => prev.map(p => p.id === id ? {...p, status:"cancelada"} : p));
+    if (polizasOps) await polizasOps.actualizar(id, { status: "cancelada" });
     setShowDetalle(null);
   };
 
-  const recuperarPoliza = (id) => {
+  const recuperarPoliza = async (id) => {
     setPolizas(prev => prev.map(p => p.id === id ? {...p, status:"activa"} : p));
+    if (polizasOps) await polizasOps.actualizar(id, { status: "activa" });
   };
 
-  const registrarPago = (pago) => {
+  const registrarPago = async (pago) => {
+    const polizaActual = polizas.find(p => p.id === showPago.id);
+    const nuevosPagos = [...(polizaActual?.pagos||[]), pago];
     setPolizas(prev => prev.map(p => p.id === showPago.id
-      ? {...p, pagos:[...(p.pagos||[]), pago], ultimoPago:pago}
+      ? {...p, pagos:nuevosPagos, ultimoPago:pago}
       : p
     ));
-    setShowDetalle(prev => prev ? {...prev, pagos:[...(prev.pagos||[]), pago], ultimoPago:pago} : prev);
+    setShowDetalle(prev => prev ? {...prev, pagos:nuevosPagos, ultimoPago:pago} : prev);
+    if (polizasOps) await polizasOps.actualizar(showPago.id, { pagos: nuevosPagos, ultimoPago: pago });
   };
 
-  const eliminarPago = (polizaId, pagoId) => {
+  const eliminarPago = async (polizaId, pagoId) => {
+    const polizaActual = polizas.find(p => p.id === polizaId);
+    const nuevosPagos = (polizaActual?.pagos||[]).filter(pg=>pg.id!==pagoId);
     setPolizas(prev => prev.map(p => p.id === polizaId
-      ? {...p, pagos:(p.pagos||[]).filter(pg=>pg.id!==pagoId)}
+      ? {...p, pagos:nuevosPagos}
       : p
     ));
-    setShowDetalle(prev => prev ? {...prev, pagos:(prev.pagos||[]).filter(pg=>pg.id!==pagoId)} : prev);
-    setShowPago(prev => prev && prev.id===polizaId ? {...prev, pagos:(prev.pagos||[]).filter(pg=>pg.id!==pagoId)} : prev);
+    setShowDetalle(prev => prev ? {...prev, pagos:nuevosPagos} : prev);
+    setShowPago(prev => prev && prev.id===polizaId ? {...prev, pagos:nuevosPagos} : prev);
+    if (polizasOps) await polizasOps.actualizar(polizaId, { pagos: nuevosPagos });
   };
 
-  const renovarPoliza = (nueva) => {
+  const renovarPoliza = async (nueva) => {
     setPolizas(prev => [...prev.map(p => p.id === showRenovar.id ? {...p, status:"vencida"} : p), nueva]);
+    if (polizasOps) await polizasOps.actualizar(showRenovar.id, { status: "vencida" });
+    if (polizasOps) await polizasOps.insertar(nueva);
     setShowDetalle(null);
   };
 
@@ -3366,7 +3401,7 @@ function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSu
         </Modal>
       )}
 
-      {showModal&&<ModalPoliza clientes={clientes} subagentes={subagentes||[]} onGuardar={onGuardar} onClose={()=>setShowModal(false)}/>}
+      {showModal&&<ModalPoliza key="modal-poliza-stable" clientes={clientes} subagentes={subagentes||[]} onGuardar={onGuardar} onClose={()=>setShowModal(false)}/>}
       {showScan&&<ScanPoliza onClose={()=>setShowScan(false)} onExtracted={onExtracted} subagentes={subagentes||[]}/>}
     </div>
   );
@@ -3921,7 +3956,7 @@ function ComunicacionConfig({ plantillas, setPlantillas, plantillasDefault, clie
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify({
           to: testEmail,
-          subject: "Prueba de correo — "+( config.nombre||"CRM Seguros"),
+          subject: "Prueba de correo — "+( config.nombre||"SeguCore"),
           html: `<p>Este es un correo de prueba enviado desde tu CRM.</p><p>Si lo recibes, la configuracion SMTP esta correcta.</p>`,
         })
       });
@@ -5497,7 +5532,7 @@ function PAI({ paiMetas, setPaiMetas }) {
 // ═══════════════════════════════════════════════════════════════════
 // CAPTURA PROSPECTOS — formulario para redes/correo/WA
 // ═══════════════════════════════════════════════════════════════════
-function CapturaProspectos({ setPipeline }) {
+function CapturaProspectos({ setPipeline, pipelineOps }) {
   const [toast, setToast] = useState(null);
   const showT = (m) => { setToast(m); setTimeout(()=>setToast(null),3000); };
   const CANALES = [
@@ -5534,14 +5569,22 @@ function CapturaProspectos({ setPipeline }) {
     setPaso(2);
   };
 
-  const guardar = () => {
+  const guardar = async () => {
     if(!form.nombre.trim()) { showT("Agrega el nombre del prospecto"); return; }
-    setPipeline(prev=>[{
+    const nuevoProspecto={
       id:Date.now(), cliente:form.nombre, tipo:form.tipo, etapa:"Contacto", probabilidad:20,
       seguimiento:"", telefono:form.telefono, email:form.email, ciudad:form.ciudad,
       edad:parseInt(form.edad)||null, fuente:fuenteMap[canal]||"Otro",
       notas:form.notas, fechaAlta:new Date().toLocaleDateString("es-MX"),
-    },...prev]);
+      historial:[{
+        id:Date.now(),tipo:"etapa",
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+        texto:"Prospecto registrado",etapa:"Contacto",
+      }]
+    };
+    setPipeline(prev=>[nuevoProspecto,...prev]);
+    if(pipelineOps) await pipelineOps.insertar(nuevoProspecto);
     showT("Prospecto guardado correctamente");
     setTexto(""); setForm({nombre:"",telefono:"",email:"",tipo:"",notas:"",ciudad:"",edad:""}); setPaso(1);
   };
@@ -5633,119 +5676,26 @@ function CapturaProspectos({ setPipeline }) {
   );
 }
 
-function Pipeline({ pipeline, setPipeline }) {
-  const etapas=["Contacto","Cotización","Propuesta","Negociación","Cierre"];
-  const colors={Contacto:"#6b7280",Cotización:"#2563eb",Propuesta:"#7c3aed",Negociación:"#d97706",Cierre:"#059669"};
-  const [showModal,setShowModal]=useState(false);
-  const [tab,setTab]=useState("kanban");
-  const [tabPipeline,setTabPipeline]=useState("prospectos");
-  const [prospectoHistorial,setProspectoHistorial]=useState(null); // prospecto seleccionado para historial
-  const [form,setForm]=useState({cliente:"",tipo:"",etapa:"Contacto",probabilidad:20,seguimiento:"",telefono:"",email:"",ciudad:"",edad:"",fuente:"Manual",landingUrl:"",redSocial:"",notas:""});
-  const fuenteOpts=["Manual","Landing Page","Facebook","Instagram","LinkedIn","Referido","WhatsApp","Otro"];
-  const fuenteColor={Manual:"#6b7280","Landing Page":"#2563eb",Facebook:"#1877f2",Instagram:"#e1306c",LinkedIn:"#0a66c2",Referido:"#059669",WhatsApp:"#25d366",Otro:"#6b7280"};
+function ModalHistorial({ prospecto, onClose, etapas, colors, TIPOS_HISTORIAL, cambiarEtapa, agregarHistorial }) {
+  const [tipoEntrada, setTipoEntrada] = useState("nota");
+  const [textoEntrada, setTextoEntrada] = useState("");
+  const [nuevaEtapa, setNuevaEtapa] = useState(prospecto.etapa);
+  const historial = [...(prospecto.historial||[])].reverse();
 
-  // Guardar nuevo prospecto
-  const guardar=()=>{
-    if(!form.cliente)return;
-    setPipeline(prev=>[...prev,{
-      ...form,id:Date.now(),
-      probabilidad:Number(form.probabilidad),
-      edad:Number(form.edad)||null,
-      fechaAlta:new Date().toLocaleDateString("es-MX"),
-      historial:[{
-        id:Date.now(),
-        tipo:"etapa",
-        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
-        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
-        texto:"Prospecto registrado",
-        etapa:"Contacto",
-      }]
-    }]);
-    setShowModal(false);
-    setForm({cliente:"",tipo:"",etapa:"Contacto",probabilidad:20,seguimiento:"",telefono:"",email:"",ciudad:"",edad:"",fuente:"Manual",landingUrl:"",redSocial:"",notas:""});
-  };
-
-  // Agregar entrada al historial
-  const agregarHistorial = (prospectoId, entrada) => {
-    setPipeline(prev=>prev.map(p=>p.id===prospectoId?{
-      ...p,
-      historial:[...(p.historial||[]), {
-        ...entrada,
-        id:Date.now(),
-        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
-        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
-      }]
-    }:p));
-    // Actualizar el prospecto en el modal
-    setProspectoHistorial(prev=>prev?{
-      ...prev,
-      historial:[...(prev.historial||[]),{
-        ...entrada,
-        id:Date.now()+1,
-        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
-        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
-      }]
-    }:null);
-  };
-
-  // Cambiar etapa con registro en historial
-  const cambiarEtapa = (prospectoId, nuevaEtapa) => {
-    const p = pipeline.find(x=>x.id===prospectoId);
-    if (!p||p.etapa===nuevaEtapa) return;
-    setPipeline(prev=>prev.map(x=>x.id===prospectoId?{
-      ...x,
-      etapa:nuevaEtapa,
-      historial:[...(x.historial||[]),{
-        id:Date.now(),
-        tipo:"etapa",
-        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
-        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
-        texto:`Etapa cambiada a ${nuevaEtapa}`,
-        etapaAnterior:x.etapa,
-        etapa:nuevaEtapa,
-      }]
-    }:x));
-    setProspectoHistorial(prev=>prev&&prev.id===prospectoId?{
-      ...prev,etapa:nuevaEtapa,
-      historial:[...(prev.historial||[]),{
-        id:Date.now()+1,tipo:"etapa",
-        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
-        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
-        texto:`Etapa cambiada a ${nuevaEtapa}`,etapaAnterior:prev.etapa,etapa:nuevaEtapa,
-      }]
-    }:prev);
-  };
-
-  // Config de tipos de entrada en historial
-  const TIPOS_HISTORIAL = [
-    {key:"nota",     label:"Nota",           icon:"📝", color:"#6b7280"},
-    {key:"llamada",  label:"Llamada",         icon:"📞", color:"#2563eb"},
-    {key:"cita",     label:"Cita",            icon:"📅", color:"#7c3aed"},
-    {key:"cotizacion",label:"Cotización",     icon:"📄", color:"#d97706"},
-    {key:"etapa",    label:"Cambio de etapa", icon:"🔄", color:"#059669"},
-  ];
-
-  // Modal historial
-  const ModalHistorial = ({ prospecto, onClose }) => {
-    const [tipoEntrada, setTipoEntrada] = useState("nota");
-    const [textoEntrada, setTextoEntrada] = useState("");
-    const [nuevaEtapa, setNuevaEtapa] = useState(prospecto.etapa);
-    const historial = [...(prospecto.historial||[])].reverse();
-
-    const guardarEntrada = () => {
-      if (!textoEntrada.trim() && tipoEntrada!=="etapa") return;
-      if (tipoEntrada==="etapa") {
-        cambiarEtapa(prospecto.id, nuevaEtapa);
-        setTextoEntrada("");
-        return;
-      }
-      const cfg = TIPOS_HISTORIAL.find(t=>t.key===tipoEntrada);
-      agregarHistorial(prospecto.id, {tipo:tipoEntrada, texto:textoEntrada, icon:cfg?.icon});
+  const guardarEntrada = () => {
+    if (!textoEntrada.trim() && tipoEntrada!=="etapa") return;
+    if (tipoEntrada==="etapa") {
+      cambiarEtapa(prospecto.id, nuevaEtapa);
       setTextoEntrada("");
-    };
+      return;
+    }
+    const cfg = TIPOS_HISTORIAL.find(t=>t.key===tipoEntrada);
+    agregarHistorial(prospecto.id, {tipo:tipoEntrada, texto:textoEntrada, icon:cfg?.icon});
+    setTextoEntrada("");
+  };
 
-    return (
-      <Modal title={`📋 ${prospecto.cliente}`} onClose={onClose} wide maxW={680}>
+  return (
+    <Modal title={`📋 ${prospecto.cliente}`} onClose={onClose} wide maxW={680}>
         <div style={{display:"flex",flexDirection:"column",gap:16}}>
 
           {/* Header prospecto */}
@@ -5848,7 +5798,113 @@ function Pipeline({ pipeline, setPipeline }) {
         </div>
       </Modal>
     );
+}
+
+function Pipeline({ pipeline, setPipeline, pipelineOps }) {
+  const etapas=["Contacto","Cotización","Propuesta","Negociación","Cierre"];
+  const colors={Contacto:"#6b7280",Cotización:"#2563eb",Propuesta:"#7c3aed",Negociación:"#d97706",Cierre:"#059669"};
+  const [showModal,setShowModal]=useState(false);
+  const [tab,setTab]=useState("kanban");
+  const [tabPipeline,setTabPipeline]=useState("prospectos");
+  const [prospectoHistorial,setProspectoHistorial]=useState(null); // prospecto seleccionado para historial
+  const [form,setForm]=useState({cliente:"",tipo:"",etapa:"Contacto",probabilidad:20,seguimiento:"",telefono:"",email:"",ciudad:"",edad:"",fuente:"Manual",landingUrl:"",redSocial:"",notas:""});
+  const fuenteOpts=["Manual","Landing Page","Facebook","Instagram","LinkedIn","Referido","WhatsApp","Otro"];
+  const fuenteColor={Manual:"#6b7280","Landing Page":"#2563eb",Facebook:"#1877f2",Instagram:"#e1306c",LinkedIn:"#0a66c2",Referido:"#059669",WhatsApp:"#25d366",Otro:"#6b7280"};
+
+  // Guardar nuevo prospecto
+  const guardar=async ()=>{
+    if(!form.cliente)return;
+    const nuevoProspecto={
+      ...form,id:Date.now(),
+      probabilidad:Number(form.probabilidad),
+      edad:Number(form.edad)||null,
+      fechaAlta:new Date().toLocaleDateString("es-MX"),
+      historial:[{
+        id:Date.now(),
+        tipo:"etapa",
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+        texto:"Prospecto registrado",
+        etapa:"Contacto",
+      }]
+    };
+    setPipeline(prev=>[...prev, nuevoProspecto]);
+    if(pipelineOps) await pipelineOps.insertar(nuevoProspecto);
+    setShowModal(false);
+    setForm({cliente:"",tipo:"",etapa:"Contacto",probabilidad:20,seguimiento:"",telefono:"",email:"",ciudad:"",edad:"",fuente:"Manual",landingUrl:"",redSocial:"",notas:""});
   };
+
+  // Agregar entrada al historial
+  const agregarHistorial = async (prospectoId, entrada) => {
+    const nuevaEntrada = {
+      ...entrada,
+      id:Date.now(),
+      fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+      hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+    };
+    let historialActualizado;
+    setPipeline(prev=>prev.map(p=>{
+      if(p.id===prospectoId){
+        historialActualizado=[...(p.historial||[]), nuevaEntrada];
+        return {...p, historial:historialActualizado};
+      }
+      return p;
+    }));
+    // Actualizar el prospecto en el modal
+    setProspectoHistorial(prev=>prev?{
+      ...prev,
+      historial:[...(prev.historial||[]),{
+        ...entrada,
+        id:Date.now()+1,
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+      }]
+    }:null);
+    if(pipelineOps && historialActualizado!==undefined){
+      const prosp = pipeline.find(p=>p.id===prospectoId);
+      if(prosp) await pipelineOps.actualizar(prospectoId, { historial:[...(prosp.historial||[]), nuevaEntrada] });
+    }
+  };
+
+  // Cambiar etapa con registro en historial
+  const cambiarEtapa = async (prospectoId, nuevaEtapa) => {
+    const p = pipeline.find(x=>x.id===prospectoId);
+    if (!p||p.etapa===nuevaEtapa) return;
+    const entradaHistorial = {
+      id:Date.now(),
+      tipo:"etapa",
+      fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+      hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+      texto:`Etapa cambiada a ${nuevaEtapa}`,
+      etapaAnterior:p.etapa,
+      etapa:nuevaEtapa,
+    };
+    const nuevoHistorial = [...(p.historial||[]), entradaHistorial];
+    setPipeline(prev=>prev.map(x=>x.id===prospectoId?{
+      ...x,
+      etapa:nuevaEtapa,
+      historial:nuevoHistorial,
+    }:x));
+    setProspectoHistorial(prev=>prev&&prev.id===prospectoId?{
+      ...prev,etapa:nuevaEtapa,
+      historial:[...(prev.historial||[]),{
+        id:Date.now()+1,tipo:"etapa",
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+        texto:`Etapa cambiada a ${nuevaEtapa}`,etapaAnterior:prev.etapa,etapa:nuevaEtapa,
+      }]
+    }:prev);
+    if(pipelineOps) await pipelineOps.actualizar(prospectoId, { etapa:nuevaEtapa, historial:nuevoHistorial });
+  };
+
+  // Config de tipos de entrada en historial
+  const TIPOS_HISTORIAL = [
+    {key:"nota",     label:"Nota",           icon:"📝", color:"#6b7280"},
+    {key:"llamada",  label:"Llamada",         icon:"📞", color:"#2563eb"},
+    {key:"cita",     label:"Cita",            icon:"📅", color:"#7c3aed"},
+    {key:"cotizacion",label:"Cotización",     icon:"📄", color:"#d97706"},
+    {key:"etapa",    label:"Cambio de etapa", icon:"🔄", color:"#059669"},
+  ];
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
@@ -5865,7 +5921,7 @@ function Pipeline({ pipeline, setPipeline }) {
           {tabPipeline==="prospectos"&&<Btn onClick={()=>setShowModal(true)} color="#7c3aed" icon="plus">Nuevo Prospecto</Btn>}
         </div>
       </div>
-      {tabPipeline==="captura"&&<CapturaProspectos setPipeline={setPipeline}/>}
+      {tabPipeline==="captura"&&<CapturaProspectos setPipeline={setPipeline} pipelineOps={pipelineOps}/>}
       {tabPipeline==="prospectos"&&<>
       <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:11,padding:4,width:"fit-content"}}>
         {[["kanban","🗂 Kanban"],["lista","📋 Lista"]].map(([t,l])=>(
@@ -6293,7 +6349,7 @@ function Exportar({ clientes, polizas, siniestros, pagosComision, tablaComisione
 
   const showToast = (msg, color="#059669") => { setToast({msg,color}); setTimeout(()=>setToast(null),3500); };
   const fechaStr  = () => new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"2-digit",year:"numeric"});
-  const agencia   = config?.nombre || "CRM Seguros";
+  const agencia   = config?.nombre || "SeguCore";
   const tel       = config?.telefono || "";
   const correo    = config?.email || "";
   const rfc       = config?.rfc || "";
@@ -9326,6 +9382,93 @@ function useLocalStorage(key, initialValue) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// HOOK useSupabaseTable — lee y escribe en Supabase por agente_id
+// Convierte automáticamente camelCase <-> snake_case
+// ═══════════════════════════════════════════════════════════════════
+const toSnake = str => str.replace(/[A-Z]/g, l => `_${l.toLowerCase()}`);
+const toCamel = str => str.replace(/_([a-z])/g, (_, l) => l.toUpperCase());
+
+function convertKeys(obj, fn) {
+  if (!obj || typeof obj !== "object" || Array.isArray(obj)) return obj;
+  return Object.fromEntries(Object.entries(obj).map(([k, v]) => [fn(k), v]));
+}
+
+const CAMPOS_EXCLUIR = new Set(["id", "agente_id", "created_at", "updated_at", "polizas"]);
+
+function useSupabaseTable(tabla, agenteId, initialValue = []) {
+  const [data, setData] = useState(initialValue);
+  const [loading, setLoading] = useState(true);
+
+  // Helper: obtener cliente Supabase con sesión activa
+  const getClient = async () => {
+    await supabase.auth.getSession();
+    return supabase;
+  };
+
+  useEffect(() => {
+    if (!agenteId) { setLoading(false); return; }
+    setLoading(true);
+    getClient().then(sb => sb
+      .from(tabla)
+      .select("*")
+      .eq("agente_id", agenteId)
+      .order("created_at", { ascending: true })
+      .then(({ data: rows, error }) => {
+        if (!error && rows) {
+          setData(rows.map(r => convertKeys(r, toCamel)));
+        }
+        setLoading(false);
+      })
+    );
+  }, [tabla, agenteId]);
+
+  const guardar = async (nuevoArray) => {
+    setData(nuevoArray);
+  };
+
+  const insertar = async (item) => {
+    const sb = await getClient();
+    const limpio = Object.fromEntries(
+      Object.entries(item).filter(([k]) => !CAMPOS_EXCLUIR.has(k))
+    );
+    const nuevo = { ...convertKeys(limpio, toSnake), agente_id: agenteId };
+    const { data: inserted, error } = await sb.from(tabla).insert(nuevo).select().single();
+    if (error) { console.error(`Supabase insert error [${tabla}]:`, error); return null; }
+    if (inserted) {
+      const reg = convertKeys(inserted, toCamel);
+      setData(prev => [...prev, reg]);
+      return reg;
+    }
+    return null;
+  };
+
+  const actualizar = async (id, cambios) => {
+    const sb = await getClient();
+    const limpio = Object.fromEntries(
+      Object.entries(cambios).filter(([k]) => !CAMPOS_EXCLUIR.has(k) && k !== "agente_id")
+    );
+    const campos = convertKeys(limpio, toSnake);
+    const { data: updated, error } = await sb.from(tabla).update(campos).eq("id", id).eq("agente_id", agenteId).select().single();
+    if (error) { console.error(`Supabase update error [${tabla}]:`, error); return null; }
+    if (updated) {
+      const reg = convertKeys(updated, toCamel);
+      setData(prev => prev.map(r => r.id === id ? reg : r));
+      return reg;
+    }
+    return null;
+  };
+
+  const eliminar = async (id) => {
+    const sb = await getClient();
+    const { error } = await sb.from(tabla).delete().eq("id", id).eq("agente_id", agenteId);
+    if (!error) setData(prev => prev.filter(r => r.id !== id));
+    return !error;
+  };
+
+  return [data, guardar, loading, { insertar, actualizar, eliminar }];
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // PERMISOS POR ROL
 // ═══════════════════════════════════════════════════════════════════
 const PERMISOS = {
@@ -9404,39 +9547,19 @@ function LoginScreen({ usuarios, config, onLogin }) {
     if (!username || !password) { setError("Ingresa usuario y contraseña"); return; }
     setLoading(true);
     setError("");
-
-    const user = usuarios.find(u =>
-      u.username?.toLowerCase() === username.toLowerCase() &&
-      u.status === "activo"
-    );
-
-    if (!user) { setError("Usuario no encontrado o inactivo"); setLoading(false); return; }
-
-    // Detectar primer acceso: password vacío o flag primerAcceso
-    if (!user.password || user.primerAcceso) {
-      // Cualquier contraseña que escriba se usa para crear la nueva
-      setPrimerAcceso(true);
-      setUserPrimerAcceso(user);
+    try {
+      const { error: authError } = await supabase.auth.signInWithPassword({ email: username, password: password });
+      if (authError) { setError("Usuario o contraseña incorrectos"); setLoading(false); return; }
+      const { data: { user: authUser }, error: userError } = await supabase.auth.getUser();
+      if (userError || !authUser) { setError("Error al verificar sesión"); setLoading(false); return; }
+      const { data: agente, error: queryError } = await supabase.from("agentes").select("id, nombre, email, plan, status").eq("email", authUser.email).single();
+      if (queryError || !agente) { await supabase.auth.signOut(); setError("Usuario no encontrado en el sistema"); setLoading(false); return; }
+      if (agente.status !== "activo") { await supabase.auth.signOut(); setError("Tu cuenta está suspendida. Contacta al administrador."); setLoading(false); return; }
+      const sesion = { id: agente.id, nombre: agente.nombre, username: agente.email, rol: agente.plan || "agente", clave: "", loginAt: new Date().toISOString() };
+      localStorage.setItem("crm_sesion", JSON.stringify(sesion));
+      onLogin(sesion);
       setLoading(false);
-      return;
-    }
-
-    const passOk = await verificarPassword(password, user.password);
-
-    if (!passOk) { setError("Contraseña incorrecta"); setLoading(false); return; }
-
-    const sesion = {
-      id: user.id,
-      nombre: user.nombre,
-      username: user.username,
-      rol: user.rol,
-      clave: user.clave,
-      loginAt: new Date().toISOString(),
-    };
-    localStorage.setItem("crm_sesion", JSON.stringify(sesion));
-    onLogin(sesion);
-    setLoading(false);
-    window.location.reload();
+    } catch (err) { console.error("Login error:", err); setError("Error de conexión. Intenta de nuevo."); setLoading(false); }
   };
 
   // Handler para crear contraseña en primer acceso
@@ -9477,7 +9600,7 @@ function LoginScreen({ usuarios, config, onLogin }) {
   };
 
   const logoEmpresa = config?.logo;
-  const nombreEmpresa = config?.nombre || "CRM Seguros";
+  const nombreEmpresa = config?.nombre || "SeguCore";
 
   // Pantalla de primer acceso — crear contraseña
   if (primerAcceso && userPrimerAcceso) return (
@@ -9663,20 +9786,8 @@ function useIsMobile() {
 // ═══════════════════════════════════════════════════════════════════
 export default function CRMSeguros() {
   const [vista, setVista] = useState("dashboard");
-  const [clientes,   setClientes]   = useLocalStorage("crm_clientes",   CLIENTES_INIT);
-  const [polizas,    setPolizas]    = useLocalStorage("crm_polizas",    POLIZAS_INIT);
-  const [pipeline,   setPipeline]   = useLocalStorage("crm_pipeline",   PIPELINE_INIT);
-  const [tareas,     setTareas]     = useLocalStorage("crm_tareas",     TAREAS_INIT);
-  const [usuarios,   setUsuarios]   = useLocalStorage("crm_usuarios",   USUARIOS_INIT);
-  const [paiMetas,   setPaiMetas]   = useLocalStorage("crm_paiMetas",   PAI_METAS_INIT);
-  const [subagentes, setSubagentes] = useLocalStorage("crm_subagentes", SUBAGENTES_INIT);
-  const [config,     setConfig]     = useLocalStorage("crm_config",     {nombre:"SeguroCRM",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""});
-  const [historialNotif, setHistorialNotif] = useLocalStorage("crm_historial_notif", []);
-  const [tablaComisiones, setTablaComisiones] = useLocalStorage("crm_tabla_comisiones", []);
-  const [pagosComision, setPagosComision] = useLocalStorage("crm_pagos_comision", []);
-  const [siniestros, setSiniestros]       = useLocalStorage("crm_siniestros", []);
 
-  // Sesión activa
+  // Sesión activa — debe ir primero para tener agenteId disponible
   const [sesion, setSesion] = useState(() => {
     try {
       const s = localStorage.getItem("crm_sesion");
@@ -9684,12 +9795,31 @@ export default function CRMSeguros() {
     } catch { return null; }
   });
 
+  const agenteId = sesion?.id || null;
+
+  // ── Datos en Supabase ──────────────────────────────────────────
+  const [clientes,   setClientes,   loadingClientes,   clientesOps]   = useSupabaseTable("clientes",   agenteId, []);
+  const [polizas,    setPolizas,    loadingPolizas,    polizasOps]    = useSupabaseTable("polizas",    agenteId, []);
+  const [pipeline,   setPipeline,   loadingPipeline,   pipelineOps]   = useSupabaseTable("pipeline",   agenteId, []);
+  const [tareas,     setTareas,     loadingTareas,     tareasOps]     = useSupabaseTable("tareas",     agenteId, []);
+  const [siniestros, setSiniestros, loadingSiniestros, siniestrosOps] = useSupabaseTable("siniestros", agenteId, []);
+  const [subagentes, setSubagentes, loadingSubagentes, subagentesOps] = useSupabaseTable("subagentes", agenteId, []);
+  const [paiMetas,   setPaiMetas,   loadingMetas,      metasOps]      = useSupabaseTable("metas",      agenteId, []);
+
+  // ── Datos que siguen en localStorage (fase 2) ─────────────────
+  const [usuarios,        setUsuarios]        = useLocalStorage("crm_usuarios",        USUARIOS_INIT);
+  const [config,          setConfig]          = useLocalStorage("crm_config",          {nombre:"SeguCore",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""});
+  const [historialNotif,  setHistorialNotif]  = useLocalStorage("crm_historial_notif", []);
+  const [tablaComisiones, setTablaComisiones] = useLocalStorage("crm_tabla_comisiones",[]);
+  const [pagosComision,   setPagosComision]   = useLocalStorage("crm_pagos_comision",  []);
+
   const handleLogin = (sesionData) => {
     localStorage.setItem("crm_sesion", JSON.stringify(sesionData));
     setSesion(sesionData);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     localStorage.removeItem("crm_sesion");
     window.location.reload();
   };
@@ -9777,30 +9907,7 @@ export default function CRMSeguros() {
   };
   const [plantillas, setPlantillas] = useLocalStorage("crm_plantillas", PLANTILLAS_DEFAULT);
 
-  // Mostrar login si no hay sesión
-  if (!sesion) {
-    return <LoginScreen usuarios={usuarios} config={config} onLogin={handleLogin}/>;
-  }
-
-  const rol = sesion.rol || "capturista";
-  const puede = (accion) => puedeVer(rol, accion);
   const isMobile = useIsMobile();
-
-  const nav=[
-    {id:"dashboard",     label:"Dashboard",    icon:"dashboard"},
-    {id:"calendario",    label:"Calendario",   icon:"tasks"},
-    {id:"clientes",      label:"Clientes",     icon:"clients"},
-    {id:"polizas",       label:"Pólizas",      icon:"policies", badge:"IA"},
-    {id:"pipeline",      label:"Prospectos",   icon:"pipeline"},
-    {id:"exportar",      label:"Exportar",     icon:"scan", badge:"NEW"},
-    {id:"importar",      label:"Importar BD",  icon:"scan"},
-    {id:"siniestros",    label:"Siniestros",   icon:"shield", badge:"NEW"},
-    {id:"pai",           label:"Metas",        icon:"trophy"},
-    {id:"comisiones",    label:"Comisiones",   icon:"trophy"},
-    {id:"configuracion", label:"Configuración",icon:"users", badge:"NEW"},
-  ].filter(item => puede(item.id));
-
-  const badgeColors={IA:"#2563eb",NEW:"#25d366"};
 
   useEffect(()=>{
     if (!document.getElementById("crm-fonts")) {
@@ -9828,6 +9935,30 @@ export default function CRMSeguros() {
     }
   },[]);
 
+  // Mostrar login si no hay sesión
+  if (!sesion) {
+    return <LoginScreen usuarios={usuarios} config={config} onLogin={handleLogin}/>;
+  }
+
+  const rol = sesion.rol || "capturista";
+  const puede = (accion) => puedeVer(rol, accion);
+
+  const nav=[
+    {id:"dashboard",     label:"Dashboard",    icon:"dashboard"},
+    {id:"calendario",    label:"Calendario",   icon:"tasks"},
+    {id:"clientes",      label:"Clientes",     icon:"clients"},
+    {id:"polizas",       label:"Pólizas",      icon:"policies", badge:"IA"},
+    {id:"pipeline",      label:"Prospectos",   icon:"pipeline"},
+    {id:"exportar",      label:"Exportar",     icon:"scan", badge:"NEW"},
+    {id:"importar",      label:"Importar BD",  icon:"scan"},
+    {id:"siniestros",    label:"Siniestros",   icon:"shield", badge:"NEW"},
+    {id:"pai",           label:"Metas",        icon:"trophy"},
+    {id:"comisiones",    label:"Comisiones",   icon:"trophy"},
+    {id:"configuracion", label:"Configuración",icon:"users", badge:"NEW"},
+  ].filter(item => puede(item.id));
+
+  const badgeColors={IA:"#2563eb",NEW:"#25d366"};
+
   return(
     <div style={{display:"flex",height:"100vh",fontFamily:"'Inter','DM Sans','Segoe UI',sans-serif",background:"#f1f5f9",flexDirection:isMobile?"column":"row"}}>
 
@@ -9837,7 +9968,7 @@ export default function CRMSeguros() {
         <div style={{padding:"0 16px 20px"}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
             <div style={{width:36,height:36,background:"linear-gradient(135deg,#2563eb,#7c3aed)",borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}><Icon name="shield" size={19}/></div>
-            <div><div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Inter','Segoe UI',sans-serif"}}>SeguroCRM</div><div style={{color:"#475569",fontSize:10}}>Agente Profesional</div></div>
+            <div><div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Inter','Segoe UI',sans-serif"}}>SeguCore</div><div style={{color:"#475569",fontSize:10}}>Gestiona, Protege y Crece</div></div>
           </div>
         </div>
         <nav style={{flex:1,overflowY:"auto"}}>
@@ -10022,8 +10153,8 @@ export default function CRMSeguros() {
         )}
 
         {vista==="dashboard"&&puede("dashboard")&&<Dashboard clientes={clientes} polizas={polizas} pipeline={pipeline} tareas={tareas} paiMetas={paiMetas}/>}
-        {vista==="clientes"&&puede("clientes")&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas} sesion={sesion}/>}
-        {vista==="polizas"&&puede("polizas")&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes} plantillas={plantillas} puede={puede} sesion={sesion}/>}
+        {vista==="clientes"&&puede("clientes")&&<Clientes clientes={clientes} setClientes={setClientes} clientesOps={clientesOps} polizas={polizas} setPolizas={setPolizas} sesion={sesion}/>}
+        {vista==="polizas"&&puede("polizas")&&<Polizas polizas={polizas} setPolizas={setPolizas} polizasOps={polizasOps} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes} plantillas={plantillas} puede={puede} sesion={sesion}/>}
         {vista==="comisiones"&&puede("comisiones")&&<Comisiones
           polizas={polizas}
           subagentes={subagentes}
@@ -10046,7 +10177,7 @@ export default function CRMSeguros() {
         {vista==="pai"&&puede("pai")&&<PAI paiMetas={paiMetas} setPaiMetas={setPaiMetas}/>}
         {vista==="siniestros"&&puede("siniestros")&&<Siniestros siniestros={siniestros} setSiniestros={setSiniestros} clientes={clientes} polizas={polizas} sesion={sesion}/>}
         {vista==="exportar"&&puede("exportar")&&<Exportar clientes={clientes} polizas={polizas} siniestros={siniestros} pagosComision={pagosComision} tablaComisiones={tablaComisiones} config={config}/>}
-        {vista==="pipeline"&&puede("pipeline")&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}
+        {vista==="pipeline"&&puede("pipeline")&&<Pipeline pipeline={pipeline} setPipeline={setPipeline} pipelineOps={pipelineOps}/>}
         {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas}/>}
         {vista==="calendario"&&puede("calendario")&&<Calendario polizas={polizas} clientes={clientes} tareas={tareas} setPolizas={setPolizas}/>}
         {vista==="importar"&&puede("importar")&&<Importador clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas}/>}

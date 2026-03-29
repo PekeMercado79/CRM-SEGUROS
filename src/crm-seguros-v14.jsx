@@ -9493,11 +9493,11 @@ function useSupabaseTable(tabla, agenteId, initialValue = []) {
 // PERMISOS POR ROL
 // ═══════════════════════════════════════════════════════════════════
 const PERMISOS = {
-  admin:      ["dashboard","clientes","polizas","calendario","pipeline","exportar","importar","pai","configuracion","subagentes","usuarios","cancelar_poliza","registrar_pago","comisiones","siniestros"],
-  agente:     ["dashboard","clientes","polizas","calendario","pipeline","exportar","importar","pai","configuracion","subagentes","usuarios","cancelar_poliza","registrar_pago","comisiones","siniestros"],
-  asistente:  ["dashboard","clientes","polizas","calendario","pipeline","exportar","pai","subagentes","registrar_pago","comisiones","siniestros"],
-  capturista: ["dashboard","clientes","polizas","calendario","registrar_pago","siniestros"],
-  subagente:  ["clientes","polizas","calendario"],
+  admin:      ["dashboard","clientes","polizas","calendario","pipeline","exportar","importar","pai","configuracion","subagentes","usuarios","cancelar_poliza","registrar_pago","comisiones","siniestros","tareas"],
+  agente:     ["dashboard","clientes","polizas","calendario","pipeline","exportar","importar","pai","configuracion","subagentes","usuarios","cancelar_poliza","registrar_pago","comisiones","siniestros","tareas"],
+  asistente:  ["dashboard","clientes","polizas","calendario","pipeline","exportar","pai","subagentes","registrar_pago","comisiones","siniestros","tareas"],
+  capturista: ["dashboard","clientes","polizas","calendario","registrar_pago","siniestros","tareas"],
+  subagente:  ["clientes","polizas","calendario","tareas"],
 };
 
 function puedeVer(rol, permiso) {

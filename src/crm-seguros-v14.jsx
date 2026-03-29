@@ -9970,6 +9970,7 @@ export default function CRMSeguros() {
     {id:"clientes",      label:"Clientes",     icon:"clients"},
     {id:"polizas",       label:"Pólizas",      icon:"policies", badge:"IA"},
     {id:"pipeline",      label:"Prospectos",   icon:"pipeline"},
+    {id:"tareas",        label:"Agenda",       icon:"tasks"},
     {id:"exportar",      label:"Exportar",     icon:"scan", badge:"NEW"},
     {id:"importar",      label:"Importar BD",  icon:"scan"},
     {id:"siniestros",    label:"Siniestros",   icon:"shield", badge:"NEW"},
@@ -10230,6 +10231,7 @@ export default function CRMSeguros() {
                   {[
                     {id:"dashboard",  label:"Dashboard",    icon:"dashboard"},
                     {id:"calendario", label:"Calendario",   icon:"tasks"},
+                    {id:"tareas",     label:"Agenda",       icon:"tasks"},
                     {id:"siniestros", label:"Siniestros",   icon:"shield"},
                     {id:"exportar",   label:"Exportar",     icon:"scan"},
                     {id:"importar",   label:"Importar BD",  icon:"scan"},

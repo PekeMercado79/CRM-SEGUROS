@@ -5583,8 +5583,8 @@ function CapturaProspectos({ setPipeline, pipelineOps }) {
         texto:"Prospecto registrado",etapa:"Contacto",
       }]
     };
-    setPipeline(prev=>[nuevoProspecto,...prev]);
     if(pipelineOps) await pipelineOps.insertar(nuevoProspecto);
+    else setPipeline(prev=>[nuevoProspecto,...prev]);
     showT("Prospecto guardado correctamente");
     setTexto(""); setForm({nombre:"",telefono:"",email:"",tipo:"",notas:"",ciudad:"",edad:""}); setPaso(1);
   };
@@ -5828,8 +5828,8 @@ function Pipeline({ pipeline, setPipeline, pipelineOps }) {
         etapa:"Contacto",
       }]
     };
-    setPipeline(prev=>[...prev, nuevoProspecto]);
     if(pipelineOps) await pipelineOps.insertar(nuevoProspecto);
+    else setPipeline(prev=>[...prev, nuevoProspecto]);
     setShowModal(false);
     setForm({cliente:"",tipo:"",etapa:"Contacto",probabilidad:20,seguimiento:"",telefono:"",email:"",ciudad:"",edad:"",fuente:"Manual",landingUrl:"",redSocial:"",notas:""});
   };

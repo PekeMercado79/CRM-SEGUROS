@@ -6041,6 +6041,9 @@ function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
   const [sugerencias,setSugerencias]=useState([]);
   const [guardando,setGuardando]=useState(false);
   const [gcalMsg,setGcalMsg]=useState(null);
+  // Estados separados para evitar bug de foco al capturar tel/email
+  const [capturaTel,setCapturaTel]=useState("");
+  const [capturaEmail,setCapturaEmail]=useState("");
 
   // Autocomplete — busca en clientes y pipeline
   const buscarContacto=(texto)=>{
@@ -6090,11 +6093,13 @@ function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
   const guardar=async()=>{
     if(!form.titulo)return;
     setGuardando(true);
+    const telFinal = form.contactoTel || capturaTel;
+    const emailFinal = form.contactoEmail || capturaEmail;
     const nueva={
       titulo:form.titulo, fecha:form.fecha, tipo:form.tipo, prioridad:form.prioridad, done:false,
       contacto_nombre:form.contactoNombre||null,
-      contacto_tel:form.contactoTel||null,
-      contacto_email:form.contactoEmail||null,
+      contacto_tel:telFinal||null,
+      contacto_email:emailFinal||null,
       contacto_id:form.contactoId||null,
       contacto_tipo:form.contactoTipo||null,
     };
@@ -6105,8 +6110,8 @@ function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
     if(form.fecha && (form.tipo==="cita"||form.tipo==="llamada"||form.tipo==="email")){
       const iconos={cita:"📅",llamada:"📞",email:"✉️"};
       const titulo=`${iconos[form.tipo]||""} ${form.titulo}${form.contactoNombre?" · "+form.contactoNombre:""}`;
-      const desc=form.tipo==="llamada"&&form.contactoTel?`Tel: ${form.contactoTel}`
-        :form.tipo==="email"&&form.contactoEmail?`Email: ${form.contactoEmail}`
+      const desc=form.tipo==="llamada"&&telFinal?`Tel: ${telFinal}`
+        :form.tipo==="email"&&emailFinal?`Email: ${emailFinal}`
         :form.contactoNombre||"";
       try {
         const res=await agregarEventoCalendar(titulo,desc,form.fecha);
@@ -6119,6 +6124,8 @@ function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
     setGuardando(false);
     setShowModal(false);
     setBusqueda("");
+    setCapturaTel("");
+    setCapturaEmail("");
     setForm(FORM_INIT);
   };
 
@@ -6185,7 +6192,7 @@ function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
 
       {/* Modal Nueva Tarea */}
       {showModal&&(
-        <Modal title="Nueva Tarea" onClose={()=>{setShowModal(false);setBusqueda("");setForm(FORM_INIT);}}>
+        <Modal title="Nueva Tarea" onClose={()=>{setShowModal(false);setBusqueda("");setCapturaTel("");setCapturaEmail("");setForm(FORM_INIT);}}>
           <div style={{display:"flex",flexDirection:"column",gap:13}}>
 
             {/* 1. Descripción */}
@@ -6228,7 +6235,7 @@ function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
                       ? <div style={{fontSize:14,fontWeight:700,color:"#2563eb"}}>{form.contactoTel}</div>
                       : <div>
                           <div style={{fontSize:11,color:"#d97706",marginBottom:6}}>⚠️ Sin teléfono registrado — captura o guarda sin él</div>
-                          <Inp placeholder="Capturar teléfono (opcional)" value={form.contactoTel} onChange={e=>setForm(p=>({...p,contactoTel:e.target.value}))}/>
+                          <Inp placeholder="Capturar teléfono (opcional)" value={capturaTel} onChange={e=>setCapturaTel(e.target.value)}/>
                         </div>
                     }
                   </div>
@@ -6240,7 +6247,7 @@ function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
                       ? <div style={{fontSize:14,fontWeight:700,color:"#2563eb"}}>{form.contactoEmail}</div>
                       : <div>
                           <div style={{fontSize:11,color:"#d97706",marginBottom:6}}>⚠️ Sin correo registrado — captura o guarda sin él</div>
-                          <Inp placeholder="Capturar correo (opcional)" type="email" value={form.contactoEmail} onChange={e=>setForm(p=>({...p,contactoEmail:e.target.value}))}/>
+                          <Inp placeholder="Capturar correo (opcional)" type="email" value={capturaEmail} onChange={e=>setCapturaEmail(e.target.value)}/>
                         </div>
                     }
                   </div>
@@ -6255,8 +6262,8 @@ function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
               <div style={{background:"#fefce8",borderRadius:10,padding:"12px 14px",border:"1px solid #fde68a"}}>
                 <div style={{fontSize:12,color:"#92400e",marginBottom:8}}>⚠️ No encontrado — captura el dato o guarda sin contacto</div>
                 <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  {form.tipo==="llamada"&&<Inp placeholder="Teléfono (opcional)" value={form.contactoTel} onChange={e=>setForm(p=>({...p,contactoTel:e.target.value}))}/>}
-                  {form.tipo==="email"&&<Inp placeholder="Correo (opcional)" type="email" value={form.contactoEmail} onChange={e=>setForm(p=>({...p,contactoEmail:e.target.value}))}/>}
+                  {form.tipo==="llamada"&&<Inp placeholder="Teléfono (opcional)" value={capturaTel} onChange={e=>setCapturaTel(e.target.value)}/>}
+                  {form.tipo==="email"&&<Inp placeholder="Correo (opcional)" type="email" value={capturaEmail} onChange={e=>setCapturaEmail(e.target.value)}/>}
                   <div style={{fontSize:11,color:"#6b7280"}}>La tarea se guardará sin crear registro en el sistema.</div>
                 </div>
               </div>

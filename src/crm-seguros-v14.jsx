@@ -6032,46 +6032,275 @@ function Pipeline({ pipeline, setPipeline, pipelineOps }) {
 // ═══════════════════════════════════════════════════════════════════
 // TAREAS
 // ═══════════════════════════════════════════════════════════════════
-function Tareas({ tareas, setTareas, tareasOps }) {
+function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
+  const FORM_INIT = {titulo:"",fecha:"",tipo:"llamada",prioridad:"media",
+    contactoNombre:"",contactoTel:"",contactoEmail:"",contactoId:null,contactoTipo:null};
   const [showModal,setShowModal]=useState(false);
-  const [form,setForm]=useState({titulo:"",fecha:"",tipo:"llamada",prioridad:"media"});
+  const [form,setForm]=useState(FORM_INIT);
+  const [busqueda,setBusqueda]=useState("");
+  const [sugerencias,setSugerencias]=useState([]);
+  const [guardando,setGuardando]=useState(false);
+  const [gcalMsg,setGcalMsg]=useState(null);
+
+  // Autocomplete — busca en clientes y pipeline
+  const buscarContacto=(texto)=>{
+    setBusqueda(texto);
+    setForm(p=>({...p,contactoNombre:texto,contactoId:null,contactoTipo:null,contactoTel:"",contactoEmail:""}));
+    if(!texto||texto.length<2){setSugerencias([]);return;}
+    const q=texto.toLowerCase();
+    const resClientes=(clientes||[]).filter(c=>{
+      const n=`${c.nombre} ${c.apellidoPaterno} ${c.apellidoMaterno||""}`.toLowerCase();
+      return n.includes(q);
+    }).slice(0,4).map(c=>({
+      id:c.id, tipo:"cliente",
+      nombre:`${c.nombre} ${c.apellidoPaterno} ${c.apellidoMaterno||""}`.trim(),
+      tel:c.telefono||c.whatsapp||"", email:c.email||"",
+      badge:"Cliente", badgeColor:"#2563eb"
+    }));
+    const resProspectos=(pipeline||[]).filter(p=>{
+      return (p.cliente||"").toLowerCase().includes(q);
+    }).slice(0,4).map(p=>({
+      id:p.id, tipo:"prospecto",
+      nombre:p.cliente||"", tel:p.telefono||"", email:p.email||"",
+      badge:"Prospecto", badgeColor:"#d97706"
+    }));
+    setSugerencias([...resClientes,...resProspectos].slice(0,6));
+  };
+
+  const seleccionarContacto=(sug)=>{
+    setBusqueda(sug.nombre);
+    setSugerencias([]);
+    setForm(p=>({...p,
+      contactoNombre:sug.nombre,
+      contactoId:sug.id,
+      contactoTipo:sug.tipo,
+      contactoTel:sug.tel,
+      contactoEmail:sug.email,
+    }));
+  };
 
   const toggle=async(id)=>{
     const tarea=tareas.find(t=>t.id===id);
     if(!tarea)return;
     const nuevoDone=!tarea.done;
-    if(tareasOps){
-      await tareasOps.actualizar(id,{done:nuevoDone});
-    } else {
-      setTareas(prev=>prev.map(t=>t.id===id?{...t,done:nuevoDone}:t));
-    }
+    if(tareasOps) await tareasOps.actualizar(id,{done:nuevoDone});
+    else setTareas(prev=>prev.map(t=>t.id===id?{...t,done:nuevoDone}:t));
   };
 
   const guardar=async()=>{
     if(!form.titulo)return;
-    const nueva={...form,done:false};
-    if(tareasOps){
-      await tareasOps.insertar(nueva);
-    } else {
-      setTareas(prev=>[...prev,{...nueva,id:Date.now()}]);
+    setGuardando(true);
+    const nueva={
+      titulo:form.titulo, fecha:form.fecha, tipo:form.tipo, prioridad:form.prioridad, done:false,
+      contacto_nombre:form.contactoNombre||null,
+      contacto_tel:form.contactoTel||null,
+      contacto_email:form.contactoEmail||null,
+      contacto_id:form.contactoId||null,
+      contacto_tipo:form.contactoTipo||null,
+    };
+    if(tareasOps) await tareasOps.insertar(nueva);
+    else setTareas(prev=>[...prev,{...nueva,id:Date.now()}]);
+
+    // Google Calendar — automático para citas y tareas con fecha
+    if(form.fecha && (form.tipo==="cita"||form.tipo==="llamada"||form.tipo==="email")){
+      const iconos={cita:"📅",llamada:"📞",email:"✉️"};
+      const titulo=`${iconos[form.tipo]||""} ${form.titulo}${form.contactoNombre?" · "+form.contactoNombre:""}`;
+      const desc=form.tipo==="llamada"&&form.contactoTel?`Tel: ${form.contactoTel}`
+        :form.tipo==="email"&&form.contactoEmail?`Email: ${form.contactoEmail}`
+        :form.contactoNombre||"";
+      try {
+        const res=await agregarEventoCalendar(titulo,desc,form.fecha);
+        if(res.ok) setGcalMsg("✅ Agregado a Google Calendar");
+        else setGcalMsg("⚠️ No se pudo sincronizar con Google Calendar");
+      } catch { setGcalMsg("⚠️ No se pudo sincronizar con Google Calendar"); }
+      setTimeout(()=>setGcalMsg(null),4000);
     }
+
+    setGuardando(false);
     setShowModal(false);
-    setForm({titulo:"",fecha:"",tipo:"llamada",prioridad:"media"});
+    setBusqueda("");
+    setForm(FORM_INIT);
   };
-  const pendientes=tareas.filter(t=>!t.done);const completadas=tareas.filter(t=>t.done);
+
+  const prioColor={alta:"#dc2626",media:"#d97706",baja:"#059669"};
+  const prioTextColor={alta:"#991b1b",media:"#92400e",baja:"#065f46"};
+  const tipoIcon={llamada:"📞",email:"✉️",cita:"📅",doc:"📄"};
+
+  const pendientes=tareas.filter(t=>!t.done);
+  const completadas=tareas.filter(t=>t.done);
+
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><SectionTitle title="Agenda" sub={`${pendientes.length} pendientes`}/><Btn onClick={()=>setShowModal(true)} color="#d97706" icon="plus">Nueva Tarea</Btn></div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
-        <div style={{background:"#fff",borderRadius:15,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}><h3 style={{margin:"0 0 13px",fontSize:14,fontWeight:700}}>⏳ Pendientes</h3>
-          {pendientes.map(t=>(<div key={t.id} style={{display:"flex",alignItems:"flex-start",gap:9,padding:"9px 11px",background:"#fafafa",borderRadius:9,marginBottom:7,borderLeft:`3px solid ${t.prioridad==="alta"?"#dc2626":t.prioridad==="media"?"#d97706":"#059669"}`}}><button onClick={()=>toggle(t.id)} style={{width:19,height:19,borderRadius:"50%",border:"2px solid #d1d5db",background:"none",cursor:"pointer",flexShrink:0,marginTop:2}}/><div style={{flex:1}}><div style={{fontSize:13,fontWeight:600}}>{t.titulo}</div><div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>📅 {t.fecha}</div></div><span style={{fontSize:11,fontWeight:600,color:t.prioridad==="alta"?"#991b1b":t.prioridad==="media"?"#92400e":"#065f46"}}>{t.prioridad}</span></div>))}
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <SectionTitle title="Agenda" sub={`${pendientes.length} pendientes`}/>
+        <Btn onClick={()=>setShowModal(true)} color="#d97706" icon="plus">Nueva Tarea</Btn>
+      </div>
+
+      {gcalMsg&&(
+        <div style={{background:gcalMsg.startsWith("✅")?"#d1fae5":"#fef3c7",border:`1px solid ${gcalMsg.startsWith("✅")?"#6ee7b7":"#fde68a"}`,borderRadius:10,padding:"10px 16px",fontSize:13,fontWeight:600,color:gcalMsg.startsWith("✅")?"#065f46":"#92400e"}}>
+          {gcalMsg}
         </div>
-        <div style={{background:"#fff",borderRadius:15,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}><h3 style={{margin:"0 0 13px",fontSize:14,fontWeight:700}}>✅ Completadas</h3>
-          {completadas.map(t=>(<div key={t.id} style={{display:"flex",alignItems:"flex-start",gap:9,padding:"9px 11px",background:"#f0fdf4",borderRadius:9,marginBottom:7,opacity:.75}}><button onClick={()=>toggle(t.id)} style={{width:19,height:19,borderRadius:"50%",border:"none",background:"#059669",cursor:"pointer",flexShrink:0,marginTop:2,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}><Icon name="check" size={10}/></button><div style={{flex:1}}><div style={{fontSize:13,color:"#6b7280",textDecoration:"line-through"}}>{t.titulo}</div><div style={{fontSize:11,color:"#9ca3af"}}>📅 {t.fecha}</div></div></div>))}
+      )}
+
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+        {/* Pendientes */}
+        <div style={{background:"#fff",borderRadius:15,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}>
+          <h3 style={{margin:"0 0 13px",fontSize:14,fontWeight:700}}>⏳ Pendientes</h3>
+          {pendientes.length===0&&<p style={{color:"#d1d5db",fontSize:13}}>Sin pendientes</p>}
+          {pendientes.map(t=>(
+            <div key={t.id} style={{display:"flex",alignItems:"flex-start",gap:9,padding:"10px 11px",background:"#fafafa",borderRadius:9,marginBottom:7,borderLeft:`3px solid ${prioColor[t.prioridad]||"#6b7280"}`}}>
+              <button onClick={()=>toggle(t.id)} style={{width:19,height:19,borderRadius:"50%",border:"2px solid #d1d5db",background:"none",cursor:"pointer",flexShrink:0,marginTop:2}}/>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:13,fontWeight:600}}>{tipoIcon[t.tipo]||"📌"} {t.titulo}</div>
+                {t.contacto_nombre&&(
+                  <div style={{fontSize:11,color:"#6b7280",marginTop:2}}>
+                    👤 {t.contacto_nombre}
+                    {t.tipo==="llamada"&&t.contacto_tel&&<span style={{marginLeft:6,color:"#2563eb"}}>📞 {t.contacto_tel}</span>}
+                    {t.tipo==="email"&&t.contacto_email&&<span style={{marginLeft:6,color:"#2563eb"}}>✉️ {t.contacto_email}</span>}
+                  </div>
+                )}
+                <div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>📅 {t.fecha||"Sin fecha"}</div>
+              </div>
+              <span style={{fontSize:11,fontWeight:600,color:prioTextColor[t.prioridad]||"#374151",flexShrink:0}}>{t.prioridad}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Completadas */}
+        <div style={{background:"#fff",borderRadius:15,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}>
+          <h3 style={{margin:"0 0 13px",fontSize:14,fontWeight:700}}>✅ Completadas</h3>
           {completadas.length===0&&<p style={{color:"#d1d5db",fontSize:13}}>Sin completadas</p>}
+          {completadas.map(t=>(
+            <div key={t.id} style={{display:"flex",alignItems:"flex-start",gap:9,padding:"10px 11px",background:"#f0fdf4",borderRadius:9,marginBottom:7,opacity:.75}}>
+              <button onClick={()=>toggle(t.id)} style={{width:19,height:19,borderRadius:"50%",border:"none",background:"#059669",cursor:"pointer",flexShrink:0,marginTop:2,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}><Icon name="check" size={10}/></button>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:13,color:"#6b7280",textDecoration:"line-through"}}>{tipoIcon[t.tipo]||"📌"} {t.titulo}</div>
+                {t.contacto_nombre&&<div style={{fontSize:11,color:"#9ca3af"}}>👤 {t.contacto_nombre}</div>}
+                <div style={{fontSize:11,color:"#9ca3af"}}>📅 {t.fecha||"Sin fecha"}</div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-      {showModal&&(<Modal title="Nueva Tarea" onClose={()=>setShowModal(false)}><div style={{display:"flex",flexDirection:"column",gap:12}}><Inp label="Descripción *" value={form.titulo} onChange={e=>setForm(p=>({...p,titulo:e.target.value}))}/><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}><Sel label="Tipo" value={form.tipo} onChange={e=>setForm(p=>({...p,tipo:e.target.value}))}><option value="llamada">📞 Llamada</option><option value="email">✉️ Email</option><option value="cita">📅 Cita</option><option value="doc">📄 Doc</option></Sel><Sel label="Prioridad" value={form.prioridad} onChange={e=>setForm(p=>({...p,prioridad:e.target.value}))}><option value="alta">🔴 Alta</option><option value="media">🟡 Media</option><option value="baja">🟢 Baja</option></Sel></div><Inp label="Fecha" type="date" value={form.fecha} onChange={e=>setForm(p=>({...p,fecha:e.target.value}))}/><Btn onClick={guardar} color="#d97706" style={{width:"100%",justifyContent:"center"}}>Guardar</Btn></div></Modal>)}
+
+      {/* Modal Nueva Tarea */}
+      {showModal&&(
+        <Modal title="Nueva Tarea" onClose={()=>{setShowModal(false);setBusqueda("");setForm(FORM_INIT);}}>
+          <div style={{display:"flex",flexDirection:"column",gap:13}}>
+
+            <Inp label="Descripción *" value={form.titulo} onChange={e=>setForm(p=>({...p,titulo:e.target.value}))} placeholder="Ej: Llamar para cotización GMM"/>
+
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
+              <Sel label="Tipo" value={form.tipo} onChange={e=>setForm(p=>({...p,tipo:e.target.value}))}>
+                <option value="llamada">📞 Llamada</option>
+                <option value="email">✉️ Email</option>
+                <option value="cita">📅 Cita</option>
+                <option value="doc">📄 Doc</option>
+              </Sel>
+              <Sel label="Prioridad" value={form.prioridad} onChange={e=>setForm(p=>({...p,prioridad:e.target.value}))}>
+                <option value="alta">🔴 Alta</option>
+                <option value="media">🟡 Media</option>
+                <option value="baja">🟢 Baja</option>
+              </Sel>
+            </div>
+
+            <Inp label="Fecha" type="date" value={form.fecha} onChange={e=>setForm(p=>({...p,fecha:e.target.value}))}/>
+
+            {/* Búsqueda de contacto */}
+            <div style={{position:"relative"}}>
+              <Inp label="Contacto" value={busqueda} onChange={e=>buscarContacto(e.target.value)} placeholder="Escribe nombre de cliente o prospecto..."/>
+              {sugerencias.length>0&&(
+                <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#fff",border:"1.5px solid #e5e7eb",borderRadius:10,boxShadow:"0 4px 16px rgba(0,0,0,0.12)",zIndex:50,overflow:"hidden"}}>
+                  {sugerencias.map((s,i)=>(
+                    <button key={i} onClick={()=>seleccionarContacto(s)}
+                      style={{width:"100%",display:"flex",alignItems:"center",gap:10,padding:"10px 14px",background:"none",border:"none",cursor:"pointer",borderBottom:"1px solid #f3f4f6",fontFamily:"inherit",textAlign:"left"}}
+                      onMouseEnter={e=>e.currentTarget.style.background="#f9fafb"}
+                      onMouseLeave={e=>e.currentTarget.style.background="none"}>
+                      <div style={{flex:1}}>
+                        <div style={{fontSize:13,fontWeight:600,color:"#111827"}}>{s.nombre}</div>
+                        <div style={{fontSize:11,color:"#9ca3af"}}>
+                          {s.tel&&`📞 ${s.tel}`}{s.tel&&s.email&&" · "}{s.email&&`✉️ ${s.email}`}
+                        </div>
+                      </div>
+                      <span style={{fontSize:10,fontWeight:700,background:s.badgeColor+"18",color:s.badgeColor,padding:"2px 8px",borderRadius:20,flexShrink:0}}>{s.badge}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Info contextual según tipo */}
+            {form.contactoNombre&&(
+              <div style={{background:"#f8fafc",borderRadius:10,padding:"12px 14px",border:"1px solid #e2e8f0"}}>
+                <div style={{fontSize:12,fontWeight:700,color:"#374151",marginBottom:8}}>
+                  👤 {form.contactoNombre}
+                  {form.contactoTipo&&<span style={{marginLeft:8,fontSize:10,fontWeight:700,background:form.contactoTipo==="cliente"?"#dbeafe":"#fef3c7",color:form.contactoTipo==="cliente"?"#1e40af":"#92400e",padding:"2px 8px",borderRadius:20}}>{form.contactoTipo==="cliente"?"Cliente":"Prospecto"}</span>}
+                </div>
+
+                {form.tipo==="llamada"&&(
+                  <div>
+                    <div style={{fontSize:11,color:"#6b7280",marginBottom:4}}>📞 Teléfono para llamar</div>
+                    {form.contactoTel
+                      ? <div style={{fontSize:14,fontWeight:700,color:"#2563eb"}}>{form.contactoTel}</div>
+                      : <div>
+                          <div style={{fontSize:11,color:"#d97706",marginBottom:6}}>⚠️ Sin teléfono registrado</div>
+                          <Inp placeholder="Capturar teléfono" value={form.contactoTel} onChange={e=>setForm(p=>({...p,contactoTel:e.target.value}))}/>
+                        </div>
+                    }
+                  </div>
+                )}
+
+                {form.tipo==="email"&&(
+                  <div>
+                    <div style={{fontSize:11,color:"#6b7280",marginBottom:4}}>✉️ Correo para enviar</div>
+                    {form.contactoEmail
+                      ? <div style={{fontSize:14,fontWeight:700,color:"#2563eb"}}>{form.contactoEmail}</div>
+                      : <div>
+                          <div style={{fontSize:11,color:"#d97706",marginBottom:6}}>⚠️ Sin correo registrado</div>
+                          <Inp placeholder="Capturar correo" type="email" value={form.contactoEmail} onChange={e=>setForm(p=>({...p,contactoEmail:e.target.value}))}/>
+                        </div>
+                    }
+                  </div>
+                )}
+
+                {form.tipo==="cita"&&(
+                  <div style={{fontSize:12,color:"#059669",fontWeight:600}}>📅 Se agregará automáticamente a Google Calendar</div>
+                )}
+
+                {form.tipo==="doc"&&(
+                  <div style={{fontSize:12,color:"#6b7280"}}>📄 Recordatorio de documento</div>
+                )}
+              </div>
+            )}
+
+            {/* Si no hay contacto seleccionado y escribió algo — opción de capturar sin registrar */}
+            {busqueda.length>1&&!form.contactoId&&sugerencias.length===0&&(
+              <div style={{background:"#fefce8",borderRadius:10,padding:"12px 14px",border:"1px solid #fde68a"}}>
+                <div style={{fontSize:12,color:"#92400e",marginBottom:8}}>⚠️ No encontrado en clientes ni prospectos</div>
+                <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                  {(form.tipo==="llamada")&&(
+                    <Inp placeholder="Teléfono de contacto" value={form.contactoTel} onChange={e=>setForm(p=>({...p,contactoTel:e.target.value}))}/>
+                  )}
+                  {(form.tipo==="email")&&(
+                    <Inp placeholder="Correo de contacto" type="email" value={form.contactoEmail} onChange={e=>setForm(p=>({...p,contactoEmail:e.target.value}))}/>
+                  )}
+                  <div style={{fontSize:11,color:"#6b7280"}}>Se guardará la tarea con los datos capturados sin crear registro en el sistema.</div>
+                </div>
+              </div>
+            )}
+
+            {form.fecha&&form.tipo!=="doc"&&(
+              <div style={{background:"#eff6ff",borderRadius:9,padding:"9px 13px",fontSize:12,color:"#1e40af",display:"flex",alignItems:"center",gap:7}}>
+                <Icon name="calendar" size={14}/> Se sincronizará con Google Calendar al guardar
+              </div>
+            )}
+
+            <Btn onClick={guardar} color="#d97706" style={{width:"100%",justifyContent:"center"}} disabled={!form.titulo||guardando}>
+              {guardando?"Guardando...":"Guardar Tarea"}
+            </Btn>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
@@ -10200,7 +10429,7 @@ export default function CRMSeguros() {
         {vista==="siniestros"&&puede("siniestros")&&<Siniestros siniestros={siniestros} setSiniestros={setSiniestros} clientes={clientes} polizas={polizas} sesion={sesion}/>}
         {vista==="exportar"&&puede("exportar")&&<Exportar clientes={clientes} polizas={polizas} siniestros={siniestros} pagosComision={pagosComision} tablaComisiones={tablaComisiones} config={config}/>}
         {vista==="pipeline"&&puede("pipeline")&&<Pipeline pipeline={pipeline} setPipeline={setPipeline} pipelineOps={pipelineOps}/>}
-        {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas} tareasOps={tareasOps}/>}
+        {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas} tareasOps={tareasOps} clientes={clientes} pipeline={pipeline}/>}
         {vista==="calendario"&&puede("calendario")&&<Calendario polizas={polizas} clientes={clientes} tareas={tareas} setPolizas={setPolizas}/>}
         {vista==="importar"&&puede("importar")&&<Importador clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas}/>}
         {vista==="configuracion"&&puede("configuracion")&&<Configuracion config={config} setConfig={setConfig} subagentes={subagentes} setSubagentes={setSubagentes} usuarios={usuarios} setUsuarios={setUsuarios} polizas={polizas} setPolizas={setPolizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes} historialNotif={historialNotif} setHistorialNotif={setHistorialNotif}/>}

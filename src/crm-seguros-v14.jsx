@@ -5702,7 +5702,7 @@ function ModalHistorial({ prospecto, onClose, etapas, colors, TIPOS_HISTORIAL, c
           <div style={{background:`linear-gradient(135deg,${colors[prospecto.etapa]||"#6b7280"},${colors[prospecto.etapa]||"#6b7280"}bb)`,borderRadius:12,padding:"14px 18px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
             <div>
               <div style={{fontSize:11,opacity:.8,fontWeight:700,letterSpacing:"0.06em"}}>{prospecto.fuente||"MANUAL"} · {prospecto.tipo||"Por definir"}</div>
-              <div style={{fontSize:20,fontWeight:800,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{prospecto.cliente}</div>
+              <div style={{fontSize:20,fontWeight:800,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{toTitleCase(prospecto.cliente)}</div>
               {prospecto.telefono&&<div style={{fontSize:12,opacity:.85,marginTop:2}}>📱 {prospecto.telefono}</div>}
             </div>
             <div style={{textAlign:"right"}}>
@@ -5935,7 +5935,7 @@ function Pipeline({ pipeline, setPipeline, pipelineOps }) {
               <div style={{marginBottom:9}}><div style={{fontSize:9,fontWeight:800,color:colors[etapa],letterSpacing:"0.08em"}}>{etapa.toUpperCase()}</div><div style={{fontSize:11,color:"#9ca3af"}}>{items.length}</div></div>
               {items.map(item=>(
                 <div key={item.id} style={{background:"#fff",borderRadius:9,padding:"9px 11px",boxShadow:"0 1px 3px rgba(0,0,0,.05)",borderLeft:`3px solid ${colors[etapa]}`,marginBottom:7}}>
-                  <div style={{fontSize:12,fontWeight:700}}>{item.cliente}</div>
+                  <div style={{fontSize:12,fontWeight:700}}>{toTitleCase(item.cliente)}</div>
                   <div style={{fontSize:11,color:"#6b7280"}}>{item.tipo}</div>
                   {item.ciudad&&<div style={{fontSize:10,color:"#9ca3af"}}>📍 {item.ciudad}{item.edad?` · ${item.edad} años`:""}</div>}
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:4}}>
@@ -5961,7 +5961,7 @@ function Pipeline({ pipeline, setPipeline, pipelineOps }) {
             <thead><tr style={{background:"#f9fafb"}}>{["Nombre","Tipo","Ciudad","Edad","Fuente","Etapa","Seguimiento",""].map(h=><th key={h} style={{padding:"10px 14px",textAlign:"left",fontSize:11,fontWeight:700,color:"#6b7280"}}>{h}</th>)}</tr></thead>
             <tbody>{pipeline.map(p=>(
               <tr key={p.id} style={{borderTop:"1px solid #f3f4f6"}}>
-                <td style={{padding:"11px 14px",fontWeight:700,fontSize:13}}>{p.cliente}</td>
+                <td style={{padding:"11px 14px",fontWeight:700,fontSize:13}}>{toTitleCase(p.cliente)}</td>
                 <td style={{padding:"11px 14px",fontSize:12,color:"#6b7280"}}>{p.tipo||"—"}</td>
                 <td style={{padding:"11px 14px",fontSize:12}}>{p.ciudad||"—"}</td>
                 <td style={{padding:"11px 14px",fontSize:12}}>{p.edad?`${p.edad} años`:"—"}</td>

@@ -6188,25 +6188,10 @@ function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
         <Modal title="Nueva Tarea" onClose={()=>{setShowModal(false);setBusqueda("");setForm(FORM_INIT);}}>
           <div style={{display:"flex",flexDirection:"column",gap:13}}>
 
+            {/* 1. Descripción */}
             <Inp label="Descripción *" value={form.titulo} onChange={e=>setForm(p=>({...p,titulo:e.target.value}))} placeholder="Ej: Llamar para cotización GMM"/>
 
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
-              <Sel label="Tipo" value={form.tipo} onChange={e=>setForm(p=>({...p,tipo:e.target.value}))}>
-                <option value="llamada">📞 Llamada</option>
-                <option value="email">✉️ Email</option>
-                <option value="cita">📅 Cita</option>
-                <option value="doc">📄 Doc</option>
-              </Sel>
-              <Sel label="Prioridad" value={form.prioridad} onChange={e=>setForm(p=>({...p,prioridad:e.target.value}))}>
-                <option value="alta">🔴 Alta</option>
-                <option value="media">🟡 Media</option>
-                <option value="baja">🟢 Baja</option>
-              </Sel>
-            </div>
-
-            <Inp label="Fecha" type="date" value={form.fecha} onChange={e=>setForm(p=>({...p,fecha:e.target.value}))}/>
-
-            {/* Búsqueda de contacto */}
+            {/* 2. Contacto */}
             <div style={{position:"relative"}}>
               <Inp label="Contacto" value={busqueda} onChange={e=>buscarContacto(e.target.value)} placeholder="Escribe nombre de cliente o prospecto..."/>
               {sugerencias.length>0&&(
@@ -6229,65 +6214,71 @@ function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
               )}
             </div>
 
-            {/* Info contextual según tipo */}
+            {/* Info contextual del contacto seleccionado */}
             {form.contactoNombre&&(
               <div style={{background:"#f8fafc",borderRadius:10,padding:"12px 14px",border:"1px solid #e2e8f0"}}>
                 <div style={{fontSize:12,fontWeight:700,color:"#374151",marginBottom:8}}>
                   👤 {form.contactoNombre}
                   {form.contactoTipo&&<span style={{marginLeft:8,fontSize:10,fontWeight:700,background:form.contactoTipo==="cliente"?"#dbeafe":"#fef3c7",color:form.contactoTipo==="cliente"?"#1e40af":"#92400e",padding:"2px 8px",borderRadius:20}}>{form.contactoTipo==="cliente"?"Cliente":"Prospecto"}</span>}
                 </div>
-
                 {form.tipo==="llamada"&&(
                   <div>
                     <div style={{fontSize:11,color:"#6b7280",marginBottom:4}}>📞 Teléfono para llamar</div>
                     {form.contactoTel
                       ? <div style={{fontSize:14,fontWeight:700,color:"#2563eb"}}>{form.contactoTel}</div>
                       : <div>
-                          <div style={{fontSize:11,color:"#d97706",marginBottom:6}}>⚠️ Sin teléfono registrado</div>
-                          <Inp placeholder="Capturar teléfono" value={form.contactoTel} onChange={e=>setForm(p=>({...p,contactoTel:e.target.value}))}/>
+                          <div style={{fontSize:11,color:"#d97706",marginBottom:6}}>⚠️ Sin teléfono registrado — captura o guarda sin él</div>
+                          <Inp placeholder="Capturar teléfono (opcional)" value={form.contactoTel} onChange={e=>setForm(p=>({...p,contactoTel:e.target.value}))}/>
                         </div>
                     }
                   </div>
                 )}
-
                 {form.tipo==="email"&&(
                   <div>
                     <div style={{fontSize:11,color:"#6b7280",marginBottom:4}}>✉️ Correo para enviar</div>
                     {form.contactoEmail
                       ? <div style={{fontSize:14,fontWeight:700,color:"#2563eb"}}>{form.contactoEmail}</div>
                       : <div>
-                          <div style={{fontSize:11,color:"#d97706",marginBottom:6}}>⚠️ Sin correo registrado</div>
-                          <Inp placeholder="Capturar correo" type="email" value={form.contactoEmail} onChange={e=>setForm(p=>({...p,contactoEmail:e.target.value}))}/>
+                          <div style={{fontSize:11,color:"#d97706",marginBottom:6}}>⚠️ Sin correo registrado — captura o guarda sin él</div>
+                          <Inp placeholder="Capturar correo (opcional)" type="email" value={form.contactoEmail} onChange={e=>setForm(p=>({...p,contactoEmail:e.target.value}))}/>
                         </div>
                     }
                   </div>
                 )}
-
-                {form.tipo==="cita"&&(
-                  <div style={{fontSize:12,color:"#059669",fontWeight:600}}>📅 Se agregará automáticamente a Google Calendar</div>
-                )}
-
-                {form.tipo==="doc"&&(
-                  <div style={{fontSize:12,color:"#6b7280"}}>📄 Recordatorio de documento</div>
-                )}
+                {form.tipo==="cita"&&<div style={{fontSize:12,color:"#059669",fontWeight:600}}>📅 Se agregará automáticamente a Google Calendar</div>}
+                {form.tipo==="doc"&&<div style={{fontSize:12,color:"#6b7280"}}>📄 Recordatorio de documento</div>}
               </div>
             )}
 
-            {/* Si no hay contacto seleccionado y escribió algo — opción de capturar sin registrar */}
+            {/* Contacto no encontrado — captura manual */}
             {busqueda.length>1&&!form.contactoId&&sugerencias.length===0&&(
               <div style={{background:"#fefce8",borderRadius:10,padding:"12px 14px",border:"1px solid #fde68a"}}>
-                <div style={{fontSize:12,color:"#92400e",marginBottom:8}}>⚠️ No encontrado en clientes ni prospectos</div>
+                <div style={{fontSize:12,color:"#92400e",marginBottom:8}}>⚠️ No encontrado — captura el dato o guarda sin contacto</div>
                 <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  {(form.tipo==="llamada")&&(
-                    <Inp placeholder="Teléfono de contacto" value={form.contactoTel} onChange={e=>setForm(p=>({...p,contactoTel:e.target.value}))}/>
-                  )}
-                  {(form.tipo==="email")&&(
-                    <Inp placeholder="Correo de contacto" type="email" value={form.contactoEmail} onChange={e=>setForm(p=>({...p,contactoEmail:e.target.value}))}/>
-                  )}
-                  <div style={{fontSize:11,color:"#6b7280"}}>Se guardará la tarea con los datos capturados sin crear registro en el sistema.</div>
+                  {form.tipo==="llamada"&&<Inp placeholder="Teléfono (opcional)" value={form.contactoTel} onChange={e=>setForm(p=>({...p,contactoTel:e.target.value}))}/>}
+                  {form.tipo==="email"&&<Inp placeholder="Correo (opcional)" type="email" value={form.contactoEmail} onChange={e=>setForm(p=>({...p,contactoEmail:e.target.value}))}/>}
+                  <div style={{fontSize:11,color:"#6b7280"}}>La tarea se guardará sin crear registro en el sistema.</div>
                 </div>
               </div>
             )}
+
+            {/* 3. Tipo y Prioridad */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
+              <Sel label="Tipo" value={form.tipo} onChange={e=>setForm(p=>({...p,tipo:e.target.value}))}>
+                <option value="llamada">📞 Llamada</option>
+                <option value="email">✉️ Email</option>
+                <option value="cita">📅 Cita</option>
+                <option value="doc">📄 Doc</option>
+              </Sel>
+              <Sel label="Prioridad" value={form.prioridad} onChange={e=>setForm(p=>({...p,prioridad:e.target.value}))}>
+                <option value="alta">🔴 Alta</option>
+                <option value="media">🟡 Media</option>
+                <option value="baja">🟢 Baja</option>
+              </Sel>
+            </div>
+
+            {/* 4. Fecha */}
+            <Inp label="Fecha" type="date" value={form.fecha} onChange={e=>setForm(p=>({...p,fecha:e.target.value}))}/>
 
             {form.fecha&&form.tipo!=="doc"&&(
               <div style={{background:"#eff6ff",borderRadius:9,padding:"9px 13px",fontSize:12,color:"#1e40af",display:"flex",alignItems:"center",gap:7}}>

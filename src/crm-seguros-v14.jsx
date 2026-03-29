@@ -7752,8 +7752,8 @@ function Calendario({ polizas, clientes, tareas, setPolizas }) {
   if (filtro==="todos"||filtro==="polizas") {
     polizas.forEach(p=>{
       const st=getStatus(p);
-      add(p.vencimiento,{tipo:"vencimiento",label:p.numero.slice(-8),sub:p.cliente,color:ST_COLOR[st],icon:"📋",obj:p,st});
-      add(p.inicio,{tipo:"inicio",label:p.numero.slice(-8),sub:p.cliente,color:"#2563eb",icon:"🟢",obj:p,st:"activa"});
+      add(p.vencimiento,{tipo:"vencimiento",label:(p.numero||"").slice(-8),sub:p.cliente,color:ST_COLOR[st],icon:"📋",obj:p,st});
+      add(p.inicio,{tipo:"inicio",label:(p.numero||"").slice(-8),sub:p.cliente,color:"#2563eb",icon:"🟢",obj:p,st:"activa"});
     });
   }
   if (filtro==="todos"||filtro==="cumpleanos") {

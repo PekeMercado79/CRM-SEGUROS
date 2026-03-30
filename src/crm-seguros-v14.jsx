@@ -1,6 +1,5 @@
-import { useState, useRef, useEffect, useCallback } from "react"; // build-2026-03-30
+import { useState, useRef, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, RadialBarChart, RadialBar } from "recharts";
-import { supabase } from "./supabase";
 
 // ═══════════════════════════════════════════════════════════════════
 // GOOGLE CALENDAR — Google Identity Services (GIS)
@@ -87,7 +86,7 @@ async function agregarEventoCalendar(titulo, descripcion, fecha) {
 function descargarICS(titulo, descripcion, fecha) {
   const fechaISO = (fecha.includes("/") ? fecha.split("/").reverse().join("-") : fecha).replace(/-/g,"");
   const ics = [
-    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//SeguCore//ES",
+    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//CRM Seguros//ES",
     "BEGIN:VEVENT",
     `DTSTART;VALUE=DATE:${fechaISO}`,
     `DTEND;VALUE=DATE:${fechaISO}`,
@@ -1229,7 +1228,7 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar, onRegist
   );
 }
 
-function Clientes({ clientes, setClientes, clientesOps, polizas=[], setPolizas, sesion }) {
+function Clientes({ clientes, setClientes, polizas=[], setPolizas, sesion }) {
   const [busqueda, setBusqueda] = useState("");
   const [viewModeC, setViewModeC] = useState("cards");
   const [showModal, setShowModal] = useState(false);
@@ -1262,7 +1261,7 @@ function Clientes({ clientes, setClientes, clientesOps, polizas=[], setPolizas, 
     return Object.keys(e).length === 0;
   };
 
-  const guardar = async () => {
+  const guardar = () => {
     if (!validar()) return;
     const nombreNuevo = `${form.nombre} ${form.apellidoPaterno} ${form.apellidoMaterno||""}`.trim().toLowerCase();
     const rfcNuevo = (form.rfc||"").trim().toUpperCase();
@@ -1275,11 +1274,7 @@ function Clientes({ clientes, setClientes, clientesOps, polizas=[], setPolizas, 
       alert(`⚠️ Ya existe un cliente con ${msg}. No se puede guardar duplicado.`);
       return;
     }
-    if (clientesOps) {
-      await clientesOps.insertar({ ...form, polizas: 0 });
-    } else {
-      setClientes(prev=>[...prev,{...form,id:Date.now(),polizas:0}]);
-    }
+    setClientes(prev=>[...prev,{...form,id:Date.now(),polizas:0}]);
     setShowModal(false);
     setForm(FORM_CLIENTE_INIT);
     setErrores({});
@@ -1470,12 +1465,8 @@ function Clientes({ clientes, setClientes, clientesOps, polizas=[], setPolizas, 
         cliente={showDetalle}
         polizas={polizas}
         onClose={()=>setShowDetalle(null)}
-        onGuardar={async (clienteEditado)=>{
-          if (clientesOps) {
-            await clientesOps.actualizar(clienteEditado.id, clienteEditado);
-          } else {
-            setClientes(prev=>prev.map(c=>c.id===clienteEditado.id?clienteEditado:c));
-          }
+        onGuardar={(clienteEditado)=>{
+          setClientes(prev=>prev.map(c=>c.id===clienteEditado.id?clienteEditado:c));
           setShowDetalle(clienteEditado);
         }}
         onRegistrarPago={registrarPagoDesdeCliente}
@@ -1592,15 +1583,6 @@ const INCISO_INIT = {
   primaNeta:"", gastosExpedicion:"600", primaConIva:"",
   coberturasAutos:{},
 };
-
-function SecBox({title, color="#6b7280", children}) {
-  return (
-    <div style={{background:"#f8fafc",borderRadius:12,padding:"14px 16px",border:`1px solid ${color}22`}}>
-      <div style={{fontSize:10,fontWeight:800,color,letterSpacing:"0.08em",marginBottom:12}}>{title}</div>
-      {children}
-    </div>
-  );
-}
 
 function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
   const [paso, setPaso] = useState(1);
@@ -1765,7 +1747,12 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
     setForm(p=>({...p, incisos:(p.incisos||[]).filter((_,i)=>i!==idx).map((inc,i)=>({...inc, numero:i+1}))}));
   };
 
-
+  const SecBox = ({title, color="#6b7280", children}) => (
+    <div style={{background:"#f8fafc",borderRadius:12,padding:"14px 16px",border:`1px solid ${color}22`}}>
+      <div style={{fontSize:10,fontWeight:800,color,letterSpacing:"0.08em",marginBottom:12}}>{title}</div>
+      {children}
+    </div>
+  );
 
   return (
     <Modal title="Nueva Póliza" onClose={onClose} wide maxW={760}>
@@ -2557,7 +2544,7 @@ function DocAdjunto({ poliza, onSubir }) {
   );
 }
 
-function Polizas({ polizas, setPolizas, polizasOps, clientes, setClientes, subagentes, setSubagentes, plantillas }) {
+function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSubagentes, plantillas }) {
   const [filtro, setFiltro] = useState("todas");
   const [filtroRamo, setFiltroRamo] = useState("todos");
   const [showModal, setShowModal] = useState(false);
@@ -2619,25 +2606,26 @@ function Polizas({ polizas, setPolizas, polizasOps, clientes, setClientes, subag
   const [polizaRecienGuardada, setPolizaRecienGuardada] = useState(null);
   const [showBienvenida, setShowBienvenida] = useState(null); // {poliza, tieneWA, tieneEmail}
 
-  const onGuardar = async (data) => {
+  const onGuardar = (data) => {
     const normNum = (s) => (s||"").trim().toLowerCase().replace(/[\s\-_]/g,"");
     const num = normNum(data.numero);
     if (num && polizas.some(p => normNum(p.numero) === num && p.status !== "cancelada")) {
       alert(`⚠️ Ya existe una póliza con el número "${data.numero}". No se puede guardar duplicada.`);
       return;
     }
+    // Si hay clienteId, vincular con cliente existente (evitar duplicados)
     if (data.clienteId) {
       setClientes(prev => prev.map(c => c.id===data.clienteId ? {...c, polizas:(c.polizas||0)+1} : c));
     }
     const id = Date.now() + Math.floor(Math.random()*9999);
     const nuevaPoliza = {...data, id};
     setPolizas(prev => [...prev, nuevaPoliza]);
-    if (polizasOps) await polizasOps.insertar(nuevaPoliza);
     setBusqueda("");
     setFiltro("todas");
     setFiltroRamo("todos");
     setPolizaRecienGuardada(id);
     setTimeout(()=>setPolizaRecienGuardada(null), 4000);
+    // Disparar bienvenida si hay WhatsApp o email
     const tieneWA = !!(data.telefonoCliente||data.whatsappCliente||"").replace(/\D/g,"");
     const tieneEmail = !!(data.emailCliente||"").trim();
     if (tieneWA || tieneEmail) {
@@ -2657,7 +2645,7 @@ function Polizas({ polizas, setPolizas, polizasOps, clientes, setClientes, subag
     return f; // ya es YYYY-MM-DD u otro
   };
 
-  const onExtracted = async (data, docData) => {
+  const onExtracted = (data, docData) => {
     // 1. Crear cliente si no existe
     let clienteId = "";
     let clienteNombre = data.cliente || "";
@@ -2765,19 +2753,6 @@ function Polizas({ polizas, setPolizas, polizasOps, clientes, setClientes, subag
     };
 
     setPolizas(prev => [...prev, mapped]);
-    if (polizasOps) {
-      const CAMPOS_CLIENTE = new Set([
-        "fechaNacimiento","sexo","calle","colonia","cp","ciudad","estadoCliente",
-        "apellidoPaterno","apellidoMaterno","whatsapp","telefono","email",
-        "rfcCliente","emailCliente","telefonoCliente","whatsappCliente",
-        "clienteCalle","clienteNumero","clienteColonia","clienteCp",
-        "clienteCiudad","clienteEstado","_autoCreado","numero"
-      ]);
-      const mappedLimpio = Object.fromEntries(
-        Object.entries(mapped).filter(([k]) => !CAMPOS_CLIENTE.has(k))
-      );
-      await polizasOps.insertar(mappedLimpio);
-    }
     setBusqueda("");
     setFiltro("todas");
     setFiltroRamo("todos");
@@ -2786,45 +2761,35 @@ function Polizas({ polizas, setPolizas, polizasOps, clientes, setClientes, subag
     setShowScan(false);
   };
 
-  const cancelarPoliza = async (id) => {
+  const cancelarPoliza = (id) => {
     if (!window.confirm("¿Cancelar esta póliza? Esta acción no se puede deshacer.")) return;
     setPolizas(prev => prev.map(p => p.id === id ? {...p, status:"cancelada"} : p));
-    if (polizasOps) await polizasOps.actualizar(id, { status: "cancelada" });
     setShowDetalle(null);
   };
 
-  const recuperarPoliza = async (id) => {
+  const recuperarPoliza = (id) => {
     setPolizas(prev => prev.map(p => p.id === id ? {...p, status:"activa"} : p));
-    if (polizasOps) await polizasOps.actualizar(id, { status: "activa" });
   };
 
-  const registrarPago = async (pago) => {
-    const polizaActual = polizas.find(p => p.id === showPago.id);
-    const nuevosPagos = [...(polizaActual?.pagos||[]), pago];
+  const registrarPago = (pago) => {
     setPolizas(prev => prev.map(p => p.id === showPago.id
-      ? {...p, pagos:nuevosPagos, ultimoPago:pago}
+      ? {...p, pagos:[...(p.pagos||[]), pago], ultimoPago:pago}
       : p
     ));
-    setShowDetalle(prev => prev ? {...prev, pagos:nuevosPagos, ultimoPago:pago} : prev);
-    if (polizasOps) await polizasOps.actualizar(showPago.id, { pagos: nuevosPagos, ultimoPago: pago });
+    setShowDetalle(prev => prev ? {...prev, pagos:[...(prev.pagos||[]), pago], ultimoPago:pago} : prev);
   };
 
-  const eliminarPago = async (polizaId, pagoId) => {
-    const polizaActual = polizas.find(p => p.id === polizaId);
-    const nuevosPagos = (polizaActual?.pagos||[]).filter(pg=>pg.id!==pagoId);
+  const eliminarPago = (polizaId, pagoId) => {
     setPolizas(prev => prev.map(p => p.id === polizaId
-      ? {...p, pagos:nuevosPagos}
+      ? {...p, pagos:(p.pagos||[]).filter(pg=>pg.id!==pagoId)}
       : p
     ));
-    setShowDetalle(prev => prev ? {...prev, pagos:nuevosPagos} : prev);
-    setShowPago(prev => prev && prev.id===polizaId ? {...prev, pagos:nuevosPagos} : prev);
-    if (polizasOps) await polizasOps.actualizar(polizaId, { pagos: nuevosPagos });
+    setShowDetalle(prev => prev ? {...prev, pagos:(prev.pagos||[]).filter(pg=>pg.id!==pagoId)} : prev);
+    setShowPago(prev => prev && prev.id===polizaId ? {...prev, pagos:(prev.pagos||[]).filter(pg=>pg.id!==pagoId)} : prev);
   };
 
-  const renovarPoliza = async (nueva) => {
+  const renovarPoliza = (nueva) => {
     setPolizas(prev => [...prev.map(p => p.id === showRenovar.id ? {...p, status:"vencida"} : p), nueva]);
-    if (polizasOps) await polizasOps.actualizar(showRenovar.id, { status: "vencida" });
-    if (polizasOps) await polizasOps.insertar(nueva);
     setShowDetalle(null);
   };
 
@@ -3401,7 +3366,7 @@ function Polizas({ polizas, setPolizas, polizasOps, clientes, setClientes, subag
         </Modal>
       )}
 
-      {showModal&&<ModalPoliza key="modal-poliza-stable" clientes={clientes} subagentes={subagentes||[]} onGuardar={onGuardar} onClose={()=>setShowModal(false)}/>}
+      {showModal&&<ModalPoliza clientes={clientes} subagentes={subagentes||[]} onGuardar={onGuardar} onClose={()=>setShowModal(false)}/>}
       {showScan&&<ScanPoliza onClose={()=>setShowScan(false)} onExtracted={onExtracted} subagentes={subagentes||[]}/>}
     </div>
   );
@@ -3956,7 +3921,7 @@ function ComunicacionConfig({ plantillas, setPlantillas, plantillasDefault, clie
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify({
           to: testEmail,
-          subject: "Prueba de correo — "+( config.nombre||"SeguCore"),
+          subject: "Prueba de correo — "+( config.nombre||"CRM Seguros"),
           html: `<p>Este es un correo de prueba enviado desde tu CRM.</p><p>Si lo recibes, la configuracion SMTP esta correcta.</p>`,
         })
       });
@@ -5532,7 +5497,7 @@ function PAI({ paiMetas, setPaiMetas }) {
 // ═══════════════════════════════════════════════════════════════════
 // CAPTURA PROSPECTOS — formulario para redes/correo/WA
 // ═══════════════════════════════════════════════════════════════════
-function CapturaProspectos({ setPipeline, pipelineOps }) {
+function CapturaProspectos({ setPipeline }) {
   const [toast, setToast] = useState(null);
   const showT = (m) => { setToast(m); setTimeout(()=>setToast(null),3000); };
   const CANALES = [
@@ -5569,22 +5534,14 @@ function CapturaProspectos({ setPipeline, pipelineOps }) {
     setPaso(2);
   };
 
-  const guardar = async () => {
+  const guardar = () => {
     if(!form.nombre.trim()) { showT("Agrega el nombre del prospecto"); return; }
-    const nuevoProspecto={
+    setPipeline(prev=>[{
       id:Date.now(), cliente:form.nombre, tipo:form.tipo, etapa:"Contacto", probabilidad:20,
       seguimiento:"", telefono:form.telefono, email:form.email, ciudad:form.ciudad,
       edad:parseInt(form.edad)||null, fuente:fuenteMap[canal]||"Otro",
       notas:form.notas, fechaAlta:new Date().toLocaleDateString("es-MX"),
-      historial:[{
-        id:Date.now(),tipo:"etapa",
-        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
-        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
-        texto:"Prospecto registrado",etapa:"Contacto",
-      }]
-    };
-    if(pipelineOps) await pipelineOps.insertar(nuevoProspecto);
-    else setPipeline(prev=>[nuevoProspecto,...prev]);
+    },...prev]);
     showT("Prospecto guardado correctamente");
     setTexto(""); setForm({nombre:"",telefono:"",email:"",tipo:"",notas:"",ciudad:"",edad:""}); setPaso(1);
   };
@@ -5676,33 +5633,126 @@ function CapturaProspectos({ setPipeline, pipelineOps }) {
   );
 }
 
-function ModalHistorial({ prospecto, onClose, etapas, colors, TIPOS_HISTORIAL, cambiarEtapa, agregarHistorial }) {
-  const [tipoEntrada, setTipoEntrada] = useState("nota");
-  const [textoEntrada, setTextoEntrada] = useState("");
-  const [nuevaEtapa, setNuevaEtapa] = useState(prospecto.etapa);
-  const historial = [...(prospecto.historial||[])].reverse();
+function Pipeline({ pipeline, setPipeline }) {
+  const etapas=["Contacto","Cotización","Propuesta","Negociación","Cierre"];
+  const colors={Contacto:"#6b7280",Cotización:"#2563eb",Propuesta:"#7c3aed",Negociación:"#d97706",Cierre:"#059669"};
+  const [showModal,setShowModal]=useState(false);
+  const [tab,setTab]=useState("kanban");
+  const [tabPipeline,setTabPipeline]=useState("prospectos");
+  const [prospectoHistorial,setProspectoHistorial]=useState(null); // prospecto seleccionado para historial
+  const [form,setForm]=useState({cliente:"",tipo:"",etapa:"Contacto",probabilidad:20,seguimiento:"",telefono:"",email:"",ciudad:"",edad:"",fuente:"Manual",landingUrl:"",redSocial:"",notas:""});
+  const fuenteOpts=["Manual","Landing Page","Facebook","Instagram","LinkedIn","Referido","WhatsApp","Otro"];
+  const fuenteColor={Manual:"#6b7280","Landing Page":"#2563eb",Facebook:"#1877f2",Instagram:"#e1306c",LinkedIn:"#0a66c2",Referido:"#059669",WhatsApp:"#25d366",Otro:"#6b7280"};
 
-  const guardarEntrada = () => {
-    if (!textoEntrada.trim() && tipoEntrada!=="etapa") return;
-    if (tipoEntrada==="etapa") {
-      cambiarEtapa(prospecto.id, nuevaEtapa);
-      setTextoEntrada("");
-      return;
-    }
-    const cfg = TIPOS_HISTORIAL.find(t=>t.key===tipoEntrada);
-    agregarHistorial(prospecto.id, {tipo:tipoEntrada, texto:textoEntrada, icon:cfg?.icon});
-    setTextoEntrada("");
+  // Guardar nuevo prospecto
+  const guardar=()=>{
+    if(!form.cliente)return;
+    setPipeline(prev=>[...prev,{
+      ...form,id:Date.now(),
+      probabilidad:Number(form.probabilidad),
+      edad:Number(form.edad)||null,
+      fechaAlta:new Date().toLocaleDateString("es-MX"),
+      historial:[{
+        id:Date.now(),
+        tipo:"etapa",
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+        texto:"Prospecto registrado",
+        etapa:"Contacto",
+      }]
+    }]);
+    setShowModal(false);
+    setForm({cliente:"",tipo:"",etapa:"Contacto",probabilidad:20,seguimiento:"",telefono:"",email:"",ciudad:"",edad:"",fuente:"Manual",landingUrl:"",redSocial:"",notas:""});
   };
 
-  return (
-    <Modal title={`📋 ${prospecto.cliente}`} onClose={onClose} wide maxW={680}>
+  // Agregar entrada al historial
+  const agregarHistorial = (prospectoId, entrada) => {
+    setPipeline(prev=>prev.map(p=>p.id===prospectoId?{
+      ...p,
+      historial:[...(p.historial||[]), {
+        ...entrada,
+        id:Date.now(),
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+      }]
+    }:p));
+    // Actualizar el prospecto en el modal
+    setProspectoHistorial(prev=>prev?{
+      ...prev,
+      historial:[...(prev.historial||[]),{
+        ...entrada,
+        id:Date.now()+1,
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+      }]
+    }:null);
+  };
+
+  // Cambiar etapa con registro en historial
+  const cambiarEtapa = (prospectoId, nuevaEtapa) => {
+    const p = pipeline.find(x=>x.id===prospectoId);
+    if (!p||p.etapa===nuevaEtapa) return;
+    setPipeline(prev=>prev.map(x=>x.id===prospectoId?{
+      ...x,
+      etapa:nuevaEtapa,
+      historial:[...(x.historial||[]),{
+        id:Date.now(),
+        tipo:"etapa",
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+        texto:`Etapa cambiada a ${nuevaEtapa}`,
+        etapaAnterior:x.etapa,
+        etapa:nuevaEtapa,
+      }]
+    }:x));
+    setProspectoHistorial(prev=>prev&&prev.id===prospectoId?{
+      ...prev,etapa:nuevaEtapa,
+      historial:[...(prev.historial||[]),{
+        id:Date.now()+1,tipo:"etapa",
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+        texto:`Etapa cambiada a ${nuevaEtapa}`,etapaAnterior:prev.etapa,etapa:nuevaEtapa,
+      }]
+    }:prev);
+  };
+
+  // Config de tipos de entrada en historial
+  const TIPOS_HISTORIAL = [
+    {key:"nota",     label:"Nota",           icon:"📝", color:"#6b7280"},
+    {key:"llamada",  label:"Llamada",         icon:"📞", color:"#2563eb"},
+    {key:"cita",     label:"Cita",            icon:"📅", color:"#7c3aed"},
+    {key:"cotizacion",label:"Cotización",     icon:"📄", color:"#d97706"},
+    {key:"etapa",    label:"Cambio de etapa", icon:"🔄", color:"#059669"},
+  ];
+
+  // Modal historial
+  const ModalHistorial = ({ prospecto, onClose }) => {
+    const [tipoEntrada, setTipoEntrada] = useState("nota");
+    const [textoEntrada, setTextoEntrada] = useState("");
+    const [nuevaEtapa, setNuevaEtapa] = useState(prospecto.etapa);
+    const historial = [...(prospecto.historial||[])].reverse();
+
+    const guardarEntrada = () => {
+      if (!textoEntrada.trim() && tipoEntrada!=="etapa") return;
+      if (tipoEntrada==="etapa") {
+        cambiarEtapa(prospecto.id, nuevaEtapa);
+        setTextoEntrada("");
+        return;
+      }
+      const cfg = TIPOS_HISTORIAL.find(t=>t.key===tipoEntrada);
+      agregarHistorial(prospecto.id, {tipo:tipoEntrada, texto:textoEntrada, icon:cfg?.icon});
+      setTextoEntrada("");
+    };
+
+    return (
+      <Modal title={`📋 ${prospecto.cliente}`} onClose={onClose} wide maxW={680}>
         <div style={{display:"flex",flexDirection:"column",gap:16}}>
 
           {/* Header prospecto */}
           <div style={{background:`linear-gradient(135deg,${colors[prospecto.etapa]||"#6b7280"},${colors[prospecto.etapa]||"#6b7280"}bb)`,borderRadius:12,padding:"14px 18px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
             <div>
               <div style={{fontSize:11,opacity:.8,fontWeight:700,letterSpacing:"0.06em"}}>{prospecto.fuente||"MANUAL"} · {prospecto.tipo||"Por definir"}</div>
-              <div style={{fontSize:20,fontWeight:800,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{toTitleCase(prospecto.cliente)}</div>
+              <div style={{fontSize:20,fontWeight:800,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{prospecto.cliente}</div>
               {prospecto.telefono&&<div style={{fontSize:12,opacity:.85,marginTop:2}}>📱 {prospecto.telefono}</div>}
             </div>
             <div style={{textAlign:"right"}}>
@@ -5798,113 +5848,7 @@ function ModalHistorial({ prospecto, onClose, etapas, colors, TIPOS_HISTORIAL, c
         </div>
       </Modal>
     );
-}
-
-function Pipeline({ pipeline, setPipeline, pipelineOps }) {
-  const etapas=["Contacto","Cotización","Propuesta","Negociación","Cierre"];
-  const colors={Contacto:"#6b7280",Cotización:"#2563eb",Propuesta:"#7c3aed",Negociación:"#d97706",Cierre:"#059669"};
-  const [showModal,setShowModal]=useState(false);
-  const [tab,setTab]=useState("kanban");
-  const [tabPipeline,setTabPipeline]=useState("prospectos");
-  const [prospectoHistorial,setProspectoHistorial]=useState(null); // prospecto seleccionado para historial
-  const [form,setForm]=useState({cliente:"",tipo:"",etapa:"Contacto",probabilidad:20,seguimiento:"",telefono:"",email:"",ciudad:"",edad:"",fuente:"Manual",landingUrl:"",redSocial:"",notas:""});
-  const fuenteOpts=["Manual","Landing Page","Facebook","Instagram","LinkedIn","Referido","WhatsApp","Otro"];
-  const fuenteColor={Manual:"#6b7280","Landing Page":"#2563eb",Facebook:"#1877f2",Instagram:"#e1306c",LinkedIn:"#0a66c2",Referido:"#059669",WhatsApp:"#25d366",Otro:"#6b7280"};
-
-  // Guardar nuevo prospecto
-  const guardar=async ()=>{
-    if(!form.cliente)return;
-    const nuevoProspecto={
-      ...form,id:Date.now(),
-      probabilidad:Number(form.probabilidad),
-      edad:Number(form.edad)||null,
-      fechaAlta:new Date().toLocaleDateString("es-MX"),
-      historial:[{
-        id:Date.now(),
-        tipo:"etapa",
-        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
-        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
-        texto:"Prospecto registrado",
-        etapa:"Contacto",
-      }]
-    };
-    if(pipelineOps) await pipelineOps.insertar(nuevoProspecto);
-    else setPipeline(prev=>[...prev, nuevoProspecto]);
-    setShowModal(false);
-    setForm({cliente:"",tipo:"",etapa:"Contacto",probabilidad:20,seguimiento:"",telefono:"",email:"",ciudad:"",edad:"",fuente:"Manual",landingUrl:"",redSocial:"",notas:""});
   };
-
-  // Agregar entrada al historial
-  const agregarHistorial = async (prospectoId, entrada) => {
-    const nuevaEntrada = {
-      ...entrada,
-      id:Date.now(),
-      fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
-      hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
-    };
-    let historialActualizado;
-    setPipeline(prev=>prev.map(p=>{
-      if(p.id===prospectoId){
-        historialActualizado=[...(p.historial||[]), nuevaEntrada];
-        return {...p, historial:historialActualizado};
-      }
-      return p;
-    }));
-    // Actualizar el prospecto en el modal
-    setProspectoHistorial(prev=>prev?{
-      ...prev,
-      historial:[...(prev.historial||[]),{
-        ...entrada,
-        id:Date.now()+1,
-        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
-        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
-      }]
-    }:null);
-    if(pipelineOps && historialActualizado!==undefined){
-      const prosp = pipeline.find(p=>p.id===prospectoId);
-      if(prosp) await pipelineOps.actualizar(prospectoId, { historial:[...(prosp.historial||[]), nuevaEntrada] });
-    }
-  };
-
-  // Cambiar etapa con registro en historial
-  const cambiarEtapa = async (prospectoId, nuevaEtapa) => {
-    const p = pipeline.find(x=>x.id===prospectoId);
-    if (!p||p.etapa===nuevaEtapa) return;
-    const entradaHistorial = {
-      id:Date.now(),
-      tipo:"etapa",
-      fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
-      hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
-      texto:`Etapa cambiada a ${nuevaEtapa}`,
-      etapaAnterior:p.etapa,
-      etapa:nuevaEtapa,
-    };
-    const nuevoHistorial = [...(p.historial||[]), entradaHistorial];
-    setPipeline(prev=>prev.map(x=>x.id===prospectoId?{
-      ...x,
-      etapa:nuevaEtapa,
-      historial:nuevoHistorial,
-    }:x));
-    setProspectoHistorial(prev=>prev&&prev.id===prospectoId?{
-      ...prev,etapa:nuevaEtapa,
-      historial:[...(prev.historial||[]),{
-        id:Date.now()+1,tipo:"etapa",
-        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
-        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
-        texto:`Etapa cambiada a ${nuevaEtapa}`,etapaAnterior:prev.etapa,etapa:nuevaEtapa,
-      }]
-    }:prev);
-    if(pipelineOps) await pipelineOps.actualizar(prospectoId, { etapa:nuevaEtapa, historial:nuevoHistorial });
-  };
-
-  // Config de tipos de entrada en historial
-  const TIPOS_HISTORIAL = [
-    {key:"nota",     label:"Nota",           icon:"📝", color:"#6b7280"},
-    {key:"llamada",  label:"Llamada",         icon:"📞", color:"#2563eb"},
-    {key:"cita",     label:"Cita",            icon:"📅", color:"#7c3aed"},
-    {key:"cotizacion",label:"Cotización",     icon:"📄", color:"#d97706"},
-    {key:"etapa",    label:"Cambio de etapa", icon:"🔄", color:"#059669"},
-  ];
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
@@ -5921,7 +5865,7 @@ function Pipeline({ pipeline, setPipeline, pipelineOps }) {
           {tabPipeline==="prospectos"&&<Btn onClick={()=>setShowModal(true)} color="#7c3aed" icon="plus">Nuevo Prospecto</Btn>}
         </div>
       </div>
-      {tabPipeline==="captura"&&<CapturaProspectos setPipeline={setPipeline} pipelineOps={pipelineOps}/>}
+      {tabPipeline==="captura"&&<CapturaProspectos setPipeline={setPipeline}/>}
       {tabPipeline==="prospectos"&&<>
       <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:11,padding:4,width:"fit-content"}}>
         {[["kanban","🗂 Kanban"],["lista","📋 Lista"]].map(([t,l])=>(
@@ -5935,7 +5879,7 @@ function Pipeline({ pipeline, setPipeline, pipelineOps }) {
               <div style={{marginBottom:9}}><div style={{fontSize:9,fontWeight:800,color:colors[etapa],letterSpacing:"0.08em"}}>{etapa.toUpperCase()}</div><div style={{fontSize:11,color:"#9ca3af"}}>{items.length}</div></div>
               {items.map(item=>(
                 <div key={item.id} style={{background:"#fff",borderRadius:9,padding:"9px 11px",boxShadow:"0 1px 3px rgba(0,0,0,.05)",borderLeft:`3px solid ${colors[etapa]}`,marginBottom:7}}>
-                  <div style={{fontSize:12,fontWeight:700}}>{toTitleCase(item.cliente)}</div>
+                  <div style={{fontSize:12,fontWeight:700}}>{item.cliente}</div>
                   <div style={{fontSize:11,color:"#6b7280"}}>{item.tipo}</div>
                   {item.ciudad&&<div style={{fontSize:10,color:"#9ca3af"}}>📍 {item.ciudad}{item.edad?` · ${item.edad} años`:""}</div>}
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:4}}>
@@ -5961,7 +5905,7 @@ function Pipeline({ pipeline, setPipeline, pipelineOps }) {
             <thead><tr style={{background:"#f9fafb"}}>{["Nombre","Tipo","Ciudad","Edad","Fuente","Etapa","Seguimiento",""].map(h=><th key={h} style={{padding:"10px 14px",textAlign:"left",fontSize:11,fontWeight:700,color:"#6b7280"}}>{h}</th>)}</tr></thead>
             <tbody>{pipeline.map(p=>(
               <tr key={p.id} style={{borderTop:"1px solid #f3f4f6"}}>
-                <td style={{padding:"11px 14px",fontWeight:700,fontSize:13}}>{toTitleCase(p.cliente)}</td>
+                <td style={{padding:"11px 14px",fontWeight:700,fontSize:13}}>{p.cliente}</td>
                 <td style={{padding:"11px 14px",fontSize:12,color:"#6b7280"}}>{p.tipo||"—"}</td>
                 <td style={{padding:"11px 14px",fontSize:12}}>{p.ciudad||"—"}</td>
                 <td style={{padding:"11px 14px",fontSize:12}}>{p.edad?`${p.edad} años`:"—"}</td>
@@ -6032,291 +5976,25 @@ function Pipeline({ pipeline, setPipeline, pipelineOps }) {
 // ═══════════════════════════════════════════════════════════════════
 // TAREAS
 // ═══════════════════════════════════════════════════════════════════
-function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
-  const FORM_INIT = {titulo:"",fecha:"",tipo:"llamada",prioridad:"media",notas:"",
-    contactoNombre:"",contactoTel:"",contactoEmail:"",contactoId:null,contactoTipo:null};
+function Tareas({ tareas, setTareas }) {
   const [showModal,setShowModal]=useState(false);
-  const [form,setForm]=useState(FORM_INIT);
-  const [busqueda,setBusqueda]=useState("");
-  const [sugerencias,setSugerencias]=useState([]);
-  const [guardando,setGuardando]=useState(false);
-  const [gcalMsg,setGcalMsg]=useState(null);
-  // Estados separados para evitar bug de foco al capturar tel/email
-  const [capturaTel,setCapturaTel]=useState("");
-  const [capturaEmail,setCapturaEmail]=useState("");
-
-  // Autocomplete — busca en clientes y pipeline
-  const buscarContacto=(texto)=>{
-    setBusqueda(texto);
-    setForm(p=>({...p,contactoNombre:texto,contactoId:null,contactoTipo:null,contactoTel:"",contactoEmail:""}));
-    if(!texto||texto.length<2){setSugerencias([]);return;}
-    const q=texto.toLowerCase();
-    const resClientes=(clientes||[]).filter(c=>{
-      const n=`${c.nombre} ${c.apellidoPaterno} ${c.apellidoMaterno||""}`.toLowerCase();
-      return n.includes(q);
-    }).slice(0,4).map(c=>({
-      id:c.id, tipo:"cliente",
-      nombre:`${c.nombre} ${c.apellidoPaterno} ${c.apellidoMaterno||""}`.trim(),
-      tel:c.telefono||c.whatsapp||"", email:c.email||"",
-      badge:"Cliente", badgeColor:"#2563eb"
-    }));
-    const resProspectos=(pipeline||[]).filter(p=>{
-      return (p.cliente||"").toLowerCase().includes(q);
-    }).slice(0,4).map(p=>({
-      id:p.id, tipo:"prospecto",
-      nombre:p.cliente||"", tel:p.telefono||"", email:p.email||"",
-      badge:"Prospecto", badgeColor:"#d97706"
-    }));
-    setSugerencias([...resClientes,...resProspectos].slice(0,6));
-  };
-
-  const seleccionarContacto=(sug)=>{
-    setBusqueda(sug.nombre);
-    setSugerencias([]);
-    setForm(p=>({...p,
-      contactoNombre:sug.nombre,
-      contactoId:sug.id,
-      contactoTipo:sug.tipo,
-      contactoTel:sug.tel,
-      contactoEmail:sug.email,
-    }));
-  };
-
-  const toggle=async(id)=>{
-    const tarea=tareas.find(t=>t.id===id);
-    if(!tarea)return;
-    const nuevoDone=!tarea.done;
-    if(tareasOps) await tareasOps.actualizar(id,{done:nuevoDone});
-    else setTareas(prev=>prev.map(t=>t.id===id?{...t,done:nuevoDone}:t));
-  };
-
-  const guardar=async()=>{
-    if(!form.titulo)return;
-    setGuardando(true);
-    const telFinal = form.contactoTel || capturaTel;
-    const emailFinal = form.contactoEmail || capturaEmail;
-    const nueva={
-      titulo:form.titulo, fecha:form.fecha, tipo:form.tipo, prioridad:form.prioridad, done:false,
-      notas:form.notas||null,
-      contacto_nombre:form.contactoNombre||null,
-      contacto_tel:telFinal||null,
-      contacto_email:emailFinal||null,
-      contacto_id:form.contactoId||null,
-      contacto_tipo:form.contactoTipo||null,
-    };
-    if(tareasOps) await tareasOps.insertar(nueva);
-    else setTareas(prev=>[...prev,{...nueva,id:Date.now()}]);
-
-    // Google Calendar — llamada, email, cita, recordatorio con fecha
-    if(form.fecha && form.tipo!=="doc"){
-      const iconos={cita:"📅",llamada:"📞",email:"✉️",recordatorio:"🔔"};
-      const titulo=`${iconos[form.tipo]||""} ${form.titulo}${form.contactoNombre?" · "+form.contactoNombre:""}`;
-      const desc=form.tipo==="llamada"&&telFinal?`Tel: ${telFinal}`
-        :form.tipo==="email"&&emailFinal?`Email: ${emailFinal}`
-        :form.tipo==="recordatorio"&&form.notas?form.notas
-        :form.contactoNombre||"";
-      try {
-        const res=await agregarEventoCalendar(titulo,desc,form.fecha);
-        if(res.ok) setGcalMsg("✅ Agregado a Google Calendar");
-        else setGcalMsg("⚠️ No se pudo sincronizar con Google Calendar");
-      } catch { setGcalMsg("⚠️ No se pudo sincronizar con Google Calendar"); }
-      setTimeout(()=>setGcalMsg(null),4000);
-    }
-
-    setGuardando(false);
-    setShowModal(false);
-    setBusqueda("");
-    setCapturaTel("");
-    setCapturaEmail("");
-    setForm(FORM_INIT);
-  };
-
-  const prioColor={alta:"#dc2626",media:"#d97706",baja:"#059669"};
-  const prioTextColor={alta:"#991b1b",media:"#92400e",baja:"#065f46"};
-  const tipoIcon={llamada:"📞",email:"✉️",cita:"📅",recordatorio:"🔔"};
-
-  const pendientes=tareas.filter(t=>!t.done);
-  const completadas=tareas.filter(t=>t.done);
-
+  const [form,setForm]=useState({titulo:"",fecha:"",tipo:"llamada",prioridad:"media"});
+  const toggle=(id)=>setTareas(prev=>prev.map(t=>t.id===id?{...t,done:!t.done}:t));
+  const guardar=()=>{if(!form.titulo)return;setTareas(prev=>[...prev,{...form,id:Date.now(),done:false}]);setShowModal(false);setForm({titulo:"",fecha:"",tipo:"llamada",prioridad:"media"});};
+  const pendientes=tareas.filter(t=>!t.done);const completadas=tareas.filter(t=>t.done);
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-        <SectionTitle title="Agenda" sub={`${pendientes.length} pendientes`}/>
-        <Btn onClick={()=>setShowModal(true)} color="#d97706" icon="plus">Nueva Tarea</Btn>
-      </div>
-
-      {gcalMsg&&(
-        <div style={{background:gcalMsg.startsWith("✅")?"#d1fae5":"#fef3c7",border:`1px solid ${gcalMsg.startsWith("✅")?"#6ee7b7":"#fde68a"}`,borderRadius:10,padding:"10px 16px",fontSize:13,fontWeight:600,color:gcalMsg.startsWith("✅")?"#065f46":"#92400e"}}>
-          {gcalMsg}
-        </div>
-      )}
-
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><SectionTitle title="Agenda" sub={`${pendientes.length} pendientes`}/><Btn onClick={()=>setShowModal(true)} color="#d97706" icon="plus">Nueva Tarea</Btn></div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
-        {/* Pendientes */}
-        <div style={{background:"#fff",borderRadius:15,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}>
-          <h3 style={{margin:"0 0 13px",fontSize:14,fontWeight:700}}>⏳ Pendientes</h3>
-          {pendientes.length===0&&<p style={{color:"#d1d5db",fontSize:13}}>Sin pendientes</p>}
-          {pendientes.map(t=>(
-            <div key={t.id} style={{display:"flex",alignItems:"flex-start",gap:9,padding:"10px 11px",background:"#fafafa",borderRadius:9,marginBottom:7,borderLeft:`3px solid ${prioColor[t.prioridad]||"#6b7280"}`}}>
-              <button onClick={()=>toggle(t.id)} style={{width:19,height:19,borderRadius:"50%",border:"2px solid #d1d5db",background:"none",cursor:"pointer",flexShrink:0,marginTop:2}}/>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:13,fontWeight:600}}>{tipoIcon[t.tipo]||"📌"} {t.titulo}</div>
-                {t.contacto_nombre&&(
-                  <div style={{fontSize:11,color:"#6b7280",marginTop:2}}>
-                    👤 {t.contacto_nombre}
-                    {t.tipo==="llamada"&&t.contacto_tel&&<span style={{marginLeft:6,color:"#2563eb"}}>📞 {t.contacto_tel}</span>}
-                    {t.tipo==="email"&&t.contacto_email&&<span style={{marginLeft:6,color:"#2563eb"}}>✉️ {t.contacto_email}</span>}
-                  </div>
-                )}
-                {t.notas&&<div style={{fontSize:11,color:"#6b7280",marginTop:2,fontStyle:"italic"}}>📝 {t.notas}</div>}
-                <div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>📅 {t.fecha||"Sin fecha"}</div>
-              </div>
-              <span style={{fontSize:11,fontWeight:600,color:prioTextColor[t.prioridad]||"#374151",flexShrink:0}}>{t.prioridad}</span>
-            </div>
-          ))}
+        <div style={{background:"#fff",borderRadius:15,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}><h3 style={{margin:"0 0 13px",fontSize:14,fontWeight:700}}>⏳ Pendientes</h3>
+          {pendientes.map(t=>(<div key={t.id} style={{display:"flex",alignItems:"flex-start",gap:9,padding:"9px 11px",background:"#fafafa",borderRadius:9,marginBottom:7,borderLeft:`3px solid ${t.prioridad==="alta"?"#dc2626":t.prioridad==="media"?"#d97706":"#059669"}`}}><button onClick={()=>toggle(t.id)} style={{width:19,height:19,borderRadius:"50%",border:"2px solid #d1d5db",background:"none",cursor:"pointer",flexShrink:0,marginTop:2}}/><div style={{flex:1}}><div style={{fontSize:13,fontWeight:600}}>{t.titulo}</div><div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>📅 {t.fecha}</div></div><span style={{fontSize:11,fontWeight:600,color:t.prioridad==="alta"?"#991b1b":t.prioridad==="media"?"#92400e":"#065f46"}}>{t.prioridad}</span></div>))}
         </div>
-
-        {/* Completadas */}
-        <div style={{background:"#fff",borderRadius:15,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}>
-          <h3 style={{margin:"0 0 13px",fontSize:14,fontWeight:700}}>✅ Completadas</h3>
+        <div style={{background:"#fff",borderRadius:15,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}><h3 style={{margin:"0 0 13px",fontSize:14,fontWeight:700}}>✅ Completadas</h3>
+          {completadas.map(t=>(<div key={t.id} style={{display:"flex",alignItems:"flex-start",gap:9,padding:"9px 11px",background:"#f0fdf4",borderRadius:9,marginBottom:7,opacity:.75}}><button onClick={()=>toggle(t.id)} style={{width:19,height:19,borderRadius:"50%",border:"none",background:"#059669",cursor:"pointer",flexShrink:0,marginTop:2,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}><Icon name="check" size={10}/></button><div style={{flex:1}}><div style={{fontSize:13,color:"#6b7280",textDecoration:"line-through"}}>{t.titulo}</div><div style={{fontSize:11,color:"#9ca3af"}}>📅 {t.fecha}</div></div></div>))}
           {completadas.length===0&&<p style={{color:"#d1d5db",fontSize:13}}>Sin completadas</p>}
-          {completadas.map(t=>(
-            <div key={t.id} style={{display:"flex",alignItems:"flex-start",gap:9,padding:"10px 11px",background:"#f0fdf4",borderRadius:9,marginBottom:7,opacity:.75}}>
-              <button onClick={()=>toggle(t.id)} style={{width:19,height:19,borderRadius:"50%",border:"none",background:"#059669",cursor:"pointer",flexShrink:0,marginTop:2,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}><Icon name="check" size={10}/></button>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:13,color:"#6b7280",textDecoration:"line-through"}}>{tipoIcon[t.tipo]||"📌"} {t.titulo}</div>
-                {t.contacto_nombre&&<div style={{fontSize:11,color:"#9ca3af"}}>👤 {t.contacto_nombre}</div>}
-                <div style={{fontSize:11,color:"#9ca3af"}}>📅 {t.fecha||"Sin fecha"}</div>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
-
-      {/* Modal Nueva Tarea */}
-      {showModal&&(
-        <Modal title="Nueva Tarea" onClose={()=>{setShowModal(false);setBusqueda("");setCapturaTel("");setCapturaEmail("");setForm(FORM_INIT);}}>
-          <div style={{display:"flex",flexDirection:"column",gap:13}}>
-
-            {/* 1. Descripción */}
-            <Inp label="Descripción *" value={form.titulo} onChange={e=>setForm(p=>({...p,titulo:e.target.value}))} placeholder="Ej: Llamar para cotización GMM"/>
-
-            {/* 2. Contacto */}
-            <div style={{position:"relative"}}>
-              <Inp label="Contacto" value={busqueda} onChange={e=>buscarContacto(e.target.value)} placeholder="Escribe nombre de cliente o prospecto..."/>
-              {sugerencias.length>0&&(
-                <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#fff",border:"1.5px solid #e5e7eb",borderRadius:10,boxShadow:"0 4px 16px rgba(0,0,0,0.12)",zIndex:50,overflow:"hidden"}}>
-                  {sugerencias.map((s,i)=>(
-                    <button key={i} onClick={()=>seleccionarContacto(s)}
-                      style={{width:"100%",display:"flex",alignItems:"center",gap:10,padding:"10px 14px",background:"none",border:"none",cursor:"pointer",borderBottom:"1px solid #f3f4f6",fontFamily:"inherit",textAlign:"left"}}
-                      onMouseEnter={e=>e.currentTarget.style.background="#f9fafb"}
-                      onMouseLeave={e=>e.currentTarget.style.background="none"}>
-                      <div style={{flex:1}}>
-                        <div style={{fontSize:13,fontWeight:600,color:"#111827"}}>{s.nombre}</div>
-                        <div style={{fontSize:11,color:"#9ca3af"}}>
-                          {s.tel&&`📞 ${s.tel}`}{s.tel&&s.email&&" · "}{s.email&&`✉️ ${s.email}`}
-                        </div>
-                      </div>
-                      <span style={{fontSize:10,fontWeight:700,background:s.badgeColor+"18",color:s.badgeColor,padding:"2px 8px",borderRadius:20,flexShrink:0}}>{s.badge}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Info contextual del contacto seleccionado */}
-            {form.contactoNombre&&(
-              <div style={{background:"#f8fafc",borderRadius:10,padding:"12px 14px",border:"1px solid #e2e8f0"}}>
-                <div style={{fontSize:12,fontWeight:700,color:"#374151",marginBottom:8}}>
-                  👤 {form.contactoNombre}
-                  {form.contactoTipo&&<span style={{marginLeft:8,fontSize:10,fontWeight:700,background:form.contactoTipo==="cliente"?"#dbeafe":"#fef3c7",color:form.contactoTipo==="cliente"?"#1e40af":"#92400e",padding:"2px 8px",borderRadius:20}}>{form.contactoTipo==="cliente"?"Cliente":"Prospecto"}</span>}
-                </div>
-                {form.tipo==="llamada"&&(
-                  <div>
-                    <div style={{fontSize:11,color:"#6b7280",marginBottom:4}}>📞 Teléfono para llamar</div>
-                    {form.contactoTel
-                      ? <div style={{fontSize:14,fontWeight:700,color:"#2563eb"}}>{form.contactoTel}</div>
-                      : <div>
-                          <div style={{fontSize:11,color:"#d97706",marginBottom:6}}>⚠️ Sin teléfono registrado — captura o guarda sin él</div>
-                          <Inp placeholder="Capturar teléfono (opcional)" value={capturaTel} onChange={e=>setCapturaTel(e.target.value)}/>
-                        </div>
-                    }
-                  </div>
-                )}
-                {form.tipo==="email"&&(
-                  <div>
-                    <div style={{fontSize:11,color:"#6b7280",marginBottom:4}}>✉️ Correo para enviar</div>
-                    {form.contactoEmail
-                      ? <div style={{fontSize:14,fontWeight:700,color:"#2563eb"}}>{form.contactoEmail}</div>
-                      : <div>
-                          <div style={{fontSize:11,color:"#d97706",marginBottom:6}}>⚠️ Sin correo registrado — captura o guarda sin él</div>
-                          <Inp placeholder="Capturar correo (opcional)" type="email" value={capturaEmail} onChange={e=>setCapturaEmail(e.target.value)}/>
-                        </div>
-                    }
-                  </div>
-                )}
-                {form.tipo==="cita"&&<div style={{fontSize:12,color:"#059669",fontWeight:600}}>📅 Se agregará automáticamente a Google Calendar</div>}
-                {form.tipo==="recordatorio"&&<div style={{fontSize:12,color:"#7c3aed",fontWeight:600}}>🔔 Se guardará en el calendario del sistema y Google Calendar</div>}
-              </div>
-            )}
-
-            {/* Contacto no encontrado — captura manual */}
-            {busqueda.length>1&&!form.contactoId&&sugerencias.length===0&&(
-              <div style={{background:"#fefce8",borderRadius:10,padding:"12px 14px",border:"1px solid #fde68a"}}>
-                <div style={{fontSize:12,color:"#92400e",marginBottom:8}}>⚠️ No encontrado — captura el dato o guarda sin contacto</div>
-                <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  {form.tipo==="llamada"&&<Inp placeholder="Teléfono (opcional)" value={capturaTel} onChange={e=>setCapturaTel(e.target.value)}/>}
-                  {form.tipo==="email"&&<Inp placeholder="Correo (opcional)" type="email" value={capturaEmail} onChange={e=>setCapturaEmail(e.target.value)}/>}
-                  <div style={{fontSize:11,color:"#6b7280"}}>La tarea se guardará sin crear registro en el sistema.</div>
-                </div>
-              </div>
-            )}
-
-            {/* 3. Tipo y Prioridad */}
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
-              <Sel label="Tipo" value={form.tipo} onChange={e=>setForm(p=>({...p,tipo:e.target.value}))}>
-                <option value="llamada">📞 Llamada</option>
-                <option value="email">✉️ Email</option>
-                <option value="cita">📅 Cita</option>
-                <option value="recordatorio">🔔 Recordatorio</option>
-              </Sel>
-              <Sel label="Prioridad" value={form.prioridad} onChange={e=>setForm(p=>({...p,prioridad:e.target.value}))}>
-                <option value="alta">🔴 Alta</option>
-                <option value="media">🟡 Media</option>
-                <option value="baja">🟢 Baja</option>
-              </Sel>
-            </div>
-
-            {/* 4. Fecha */}
-            <Inp label="Fecha" type="date" value={form.fecha} onChange={e=>setForm(p=>({...p,fecha:e.target.value}))}/>
-
-            {/* Notas — visible siempre, destacado en recordatorio */}
-            <div style={{display:"flex",flexDirection:"column",gap:5}}>
-              <label style={{fontSize:12,fontWeight:600,color:"#374151"}}>
-                Notas {form.tipo==="recordatorio"&&<span style={{color:"#7c3aed"}}>(recomendado)</span>}
-              </label>
-              <textarea
-                value={form.notas}
-                onChange={e=>setForm(p=>({...p,notas:e.target.value}))}
-                placeholder={form.tipo==="recordatorio"?"Describe el recordatorio...":"Notas adicionales (opcional)"}
-                rows={3}
-                style={{border:"1.5px solid #e5e7eb",borderRadius:9,padding:"9px 13px",fontSize:13,outline:"none",fontFamily:"inherit",width:"100%",boxSizing:"border-box",resize:"vertical",
-                  borderColor:form.tipo==="recordatorio"?"#c4b5fd":"#e5e7eb"}}
-              />
-            </div>
-
-            {form.fecha&&(
-              <div style={{background:"#eff6ff",borderRadius:9,padding:"9px 13px",fontSize:12,color:"#1e40af",display:"flex",alignItems:"center",gap:7}}>
-                <Icon name="calendar" size={14}/> Se sincronizará con Google Calendar al guardar
-              </div>
-            )}
-
-            <Btn onClick={guardar} color="#d97706" style={{width:"100%",justifyContent:"center"}} disabled={!form.titulo||guardando}>
-              {guardando?"Guardando...":"Guardar Tarea"}
-            </Btn>
-          </div>
-        </Modal>
-      )}
+      {showModal&&(<Modal title="Nueva Tarea" onClose={()=>setShowModal(false)}><div style={{display:"flex",flexDirection:"column",gap:12}}><Inp label="Descripción *" value={form.titulo} onChange={e=>setForm(p=>({...p,titulo:e.target.value}))}/><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}><Sel label="Tipo" value={form.tipo} onChange={e=>setForm(p=>({...p,tipo:e.target.value}))}><option value="llamada">📞 Llamada</option><option value="email">✉️ Email</option><option value="cita">📅 Cita</option><option value="doc">📄 Doc</option></Sel><Sel label="Prioridad" value={form.prioridad} onChange={e=>setForm(p=>({...p,prioridad:e.target.value}))}><option value="alta">🔴 Alta</option><option value="media">🟡 Media</option><option value="baja">🟢 Baja</option></Sel></div><Inp label="Fecha" type="date" value={form.fecha} onChange={e=>setForm(p=>({...p,fecha:e.target.value}))}/><Btn onClick={guardar} color="#d97706" style={{width:"100%",justifyContent:"center"}}>Guardar</Btn></div></Modal>)}
     </div>
   );
 }
@@ -6615,7 +6293,7 @@ function Exportar({ clientes, polizas, siniestros, pagosComision, tablaComisione
 
   const showToast = (msg, color="#059669") => { setToast({msg,color}); setTimeout(()=>setToast(null),3500); };
   const fechaStr  = () => new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"2-digit",year:"numeric"});
-  const agencia   = config?.nombre || "SeguCore";
+  const agencia   = config?.nombre || "CRM Seguros";
   const tel       = config?.telefono || "";
   const correo    = config?.email || "";
   const rfc       = config?.rfc || "";
@@ -7934,18 +7612,34 @@ Si un campo no aparece en el documento, usa null.` }
 // CALENDARIO
 // ═══════════════════════════════════════════════════════════════════
 function Calendario({ polizas, clientes, tareas, setPolizas }) {
-  const [mes, setMes]   = useState(new Date().getMonth());
+  const [mes, setMes] = useState(new Date().getMonth());
   const [anio, setAnio] = useState(new Date().getFullYear());
-  const [filtro, setFiltro]             = useState("todos");
-  const [evModal, setEvModal]           = useState(null);   // evento activo en modal
+  const [filtro, setFiltro] = useState("todos");
+  const [diaSelec, setDiaSelec] = useState(null);
+  const [polizaCalendario, setPolizaCalendario] = useState(null);
   const [pagoCalendario, setPagoCalendario] = useState(null);
+  const [evSelec, setEvSelec] = useState(null); // índice del evento seleccionado en el día
 
-  const MESES      = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-  const DIAS_LABEL = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+  const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  const DIAS_SEMANA = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
 
   const prevMes = () => { if(mes===0){setMes(11);setAnio(a=>a-1);}else setMes(m=>m-1); };
   const nextMes = () => { if(mes===11){setMes(0);setAnio(a=>a+1);}else setMes(m=>m+1); };
-  const irHoy   = () => { setMes(new Date().getMonth()); setAnio(new Date().getFullYear()); };
+
+  // gcalUrl definida localmente para evitar crash
+  const gcalUrl = (ev) => {
+    if (!ev?.obj?.vencimiento && ev?.tipo!=="cumpleanos") return null;
+    try {
+      const title = ev.tipo==="cumpleanos"
+        ? encodeURIComponent("🎂 Cumpleaños: "+ev.label)
+        : encodeURIComponent("Vence póliza: "+ev.obj?.numero+" · "+ev.obj?.cliente);
+      const fecha = ev.tipo==="cumpleanos"
+        ? `${anio}${String(mes+1).padStart(2,"0")}${String(ev.dia||diaSelec||1).padStart(2,"0")}`
+        : (ev.obj?.vencimiento||"").replace(/-/g,"").slice(0,8);
+      if (!fecha || fecha.length<8) return null;
+      return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${fecha}/${fecha}`;
+    } catch { return null; }
+  };
 
   const parseFechaStr = (s) => {
     if (!s) return null;
@@ -7959,345 +7653,327 @@ function Calendario({ polizas, clientes, tareas, setPolizas }) {
     if (!f) return "activa";
     const hoy = new Date(); hoy.setHours(0,0,0,0);
     const diff = Math.round((f-hoy)/86400000);
-    if (diff<0)   return "vencida";
-    if (diff<=30) return "por vencer";
+    if (diff<0) return "vencida";
+    if (diff<=10) return "por vencer";
     return "activa";
   };
 
-  // ── Colores por tipo de evento ──────────────────────────────────────
-  const EV_COLORS = {
-    vencida:    { bg:"#dc2626", text:"#fff" },
-    "por vencer":{ bg:"#d97706", text:"#fff" },
-    activa:     { bg:"#2563eb", text:"#fff" },
-    cumpleanos: { bg:"#7c3aed", text:"#fff" },
-    tarea:      { bg:"#0891b2", text:"#fff" },
-  };
+  const ST_COLOR = { activa:"#059669","por vencer":"#d97706",vencida:"#dc2626",cancelada:"#6b7280" };
 
-  // ── Construir mapa de eventos por día ───────────────────────────────
+  // Construir mapa de eventos por día
   const eventos = {};
-  const addEv = (fechaStr, ev) => {
+  const add = (fechaStr, ev) => {
     if (!fechaStr) return;
     const f = parseFechaStr(fechaStr);
-    if (!f||f.getMonth()!==mes||f.getFullYear()!==anio) return;
+    if (!f) return;
+    if (f.getMonth()!==mes||f.getFullYear()!==anio) return;
     const d = f.getDate();
-    if (!eventos[d]) eventos[d]=[];
+    if (!eventos[d]) eventos[d] = [];
     eventos[d].push(ev);
   };
 
   if (filtro==="todos"||filtro==="polizas") {
-    polizas.forEach(p => {
-      const st = getStatus(p);
-      if (st==="cancelada"||st==="activa") return; // solo vencidas y por vencer
-      const col = EV_COLORS[st];
-      addEv(p.vencimiento, { tipo:"poliza", subtipo:st, label:p.cliente||(p.numero||"").slice(-8), col, obj:p });
+    polizas.forEach(p=>{
+      const st=getStatus(p);
+      add(p.vencimiento,{tipo:"vencimiento",label:p.numero.slice(-8),sub:p.cliente,color:ST_COLOR[st],icon:"📋",obj:p,st});
+      add(p.inicio,{tipo:"inicio",label:p.numero.slice(-8),sub:p.cliente,color:"#2563eb",icon:"🟢",obj:p,st:"activa"});
     });
   }
   if (filtro==="todos"||filtro==="cumpleanos") {
-    clientes.forEach(c => {
+    clientes.forEach(c=>{
       if (!c.fechaNacimiento) return;
       const f = parseFechaStr(c.fechaNacimiento);
-      if (!f||f.getMonth()!==mes) return;
-      addEv(`${anio}-${String(mes+1).padStart(2,"0")}-${String(f.getDate()).padStart(2,"0")}`,
-        { tipo:"cumpleanos", label:`${c.nombre||""} ${c.apellidoPaterno||""}`.trim(), col:EV_COLORS.cumpleanos, obj:c });
+      if (!f) return;
+      if (f.getMonth()!==mes) return;
+      const key = f.getDate();
+      if (!eventos[key]) eventos[key]=[];
+      eventos[key].push({tipo:"cumpleanos",label:`${c.nombre} ${c.apellidoPaterno}`,sub:``,color:"#7c3aed",icon:"🎂",obj:c});
     });
   }
-  if (filtro==="todos"||filtro==="tareas") {
-    (tareas||[]).filter(t=>!t.done&&t.fecha).forEach(t => {
+  // Tareas con fecha en este mes
+  if (filtro==="todos") {
+    (tareas||[]).filter(t=>!t.done&&t.fecha).forEach(t=>{
       const f = parseFechaStr(t.fecha);
       if (!f||f.getMonth()!==mes||f.getFullYear()!==anio) return;
-      addEv(t.fecha, { tipo:"tarea", label:t.titulo, col:EV_COLORS.tarea, obj:t });
+      const key = f.getDate();
+      if (!eventos[key]) eventos[key]=[];
+      const prioColor = t.prioridad==="alta"?"#dc2626":t.prioridad==="media"?"#d97706":"#059669";
+      eventos[key].push({tipo:"tarea",label:t.titulo.slice(0,20)+(t.titulo.length>20?"…":""),sub:t.prioridad,color:prioColor,icon:"📌",obj:t});
     });
   }
 
-  // ── Grilla ─────────────────────────────────────────────────────────
-  const primerDia    = new Date(anio,mes,1).getDay(); // 0=dom
-  const inicioGrilla = primerDia; // Dom=0 (semana inicia domingo)
-  const diasMes      = new Date(anio,mes+1,0).getDate();
-  const totalCeldas  = Math.ceil((inicioGrilla+diasMes)/7)*7;
-  const hoyObj       = new Date();
+  // Grilla calendario
+  const primerDia = new Date(anio,mes,1).getDay();
+  const inicioGrilla = primerDia===0?6:primerDia-1;
+  const diasMes = new Date(anio,mes+1,0).getDate();
+  const totalCeldas = Math.ceil((inicioGrilla+diasMes)/7)*7;
+  const hoyObj = new Date();
   const esHoy = (d) => d===hoyObj.getDate()&&mes===hoyObj.getMonth()&&anio===hoyObj.getFullYear();
 
-  // ── Datos del modal de evento ──────────────────────────────────────
-  const renderModalPoliza = (ev) => {
-    const p = ev.obj;
-    const st = ev.subtipo;
-    const stLabel = st==="vencida"?"Póliza vencida":"Por vencer";
-    const stColor = st==="vencida"?"#dc2626":"#d97706";
-    const stBg    = st==="vencida"?"#fef2f2":"#fffbeb";
+  // Eventos del día seleccionado
+  const evsDiaSelec = diaSelec ? (eventos[diaSelec]||[]) : [];
 
-    // Info específica por ramo
-    const infoExtra = () => {
-      const ramo = (p.ramo||"").toLowerCase();
-      if (ramo==="auto"||ramo==="autos") return p.unidad||p.descripcionUnidad||null;
-      if (ramo==="gmm"||ramo==="gastos medicos") return p.subramo||p.tipoGmm||p.planGmm||null;
-      if (ramo==="vida") return p.subramo||"Vida";
-      if (ramo==="funerarios") return p.subramo||"Funerarios";
-      if (ramo==="daños") return p.subramo||p.descripcionDanos||"Daños";
-      if (ramo==="seguviaje"||ramo==="viaje") return p.subramo||"Seguro de viaje";
-      return p.subramo||null;
-    };
-    const extra = infoExtra();
+  // Todos los eventos del mes ordenados
+  const eventosFlat = Object.entries(eventos)
+    .sort(([a],[b])=>Number(a)-Number(b))
+    .flatMap(([d,evs])=>evs.map(e=>({...e,dia:Number(d)})));
 
-    return (
-      <Modal title="" onClose={()=>setEvModal(null)} wide maxW={480}>
-        <div style={{display:"flex",flexDirection:"column",gap:0,borderRadius:14,overflow:"hidden"}}>
-          {/* Header coloreado */}
-          <div style={{background:stBg,borderBottom:`3px solid ${stColor}`,padding:"14px 20px",display:"flex",alignItems:"center",gap:12}}>
-            <div style={{width:40,height:40,borderRadius:10,background:stColor,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>🛡</div>
-            <div style={{flex:1}}>
-              <div style={{fontSize:11,fontWeight:700,color:stColor,textTransform:"uppercase",letterSpacing:"0.06em"}}>{stLabel}</div>
-              <div style={{fontSize:16,fontWeight:800,color:"#0f172a",fontFamily:"'Inter','Segoe UI',sans-serif"}}>{p.cliente||"—"}</div>
-            </div>
-          </div>
-          {/* Cuerpo */}
-          <div style={{padding:"16px 20px",display:"flex",flexDirection:"column",gap:8}}>
-            {[
-              ["No. póliza", p.numero||"—"],
-              ["Ramo",       p.ramo||"—"],
-              ["Compañía",   p.aseguradora||"—"],
-              extra ? ["Detalle", extra] : null,
-              ["Vencimiento",p.vencimiento||"—"],
-            ].filter(Boolean).map(([l,v])=>(
-              <div key={l} style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",borderBottom:"1px solid #f1f5f9",paddingBottom:6}}>
-                <span style={{fontSize:12,color:"#6b7280",fontWeight:500}}>{l}</span>
-                <span style={{fontSize:13,fontWeight:700,color:"#111827",fontFamily:"'Inter',sans-serif",maxWidth:"60%",textAlign:"right"}}>{v}</span>
-              </div>
-            ))}
-          </div>
-          {/* Acciones */}
-          <div style={{padding:"0 20px 18px",display:"flex",gap:8,flexWrap:"wrap"}}>
-            <button onClick={()=>{setPagoCalendario(p);setEvModal(null);}}
-              style={{flex:1,minWidth:120,background:"#059669",color:"#fff",border:"none",borderRadius:9,padding:"10px 14px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-              💳 Registrar pago
-            </button>
-            {(p.whatsappCliente||p.telefonoCliente)&&(
-              <button onClick={()=>{
-                const num=(p.whatsappCliente||p.telefonoCliente||"").replace(/\D/g,"");
-                const msg=encodeURIComponent("Hola "+p.cliente?.split(" ")[0]+", te recordamos que tu póliza "+p.numero+" de "+p.aseguradora+" vence el "+p.vencimiento+". Contáctanos para renovarla.");
-                window.open("https://wa.me/52"+num+"?text="+msg);
-              }} style={{flex:1,minWidth:120,background:"#25d366",color:"#fff",border:"none",borderRadius:9,padding:"10px 14px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                💬 WhatsApp
-              </button>
-            )}
-            {p.emailCliente&&(
-              <a href={`mailto:${p.emailCliente}?subject=${encodeURIComponent("Tu póliza "+p.numero+" vence pronto")}&body=${encodeURIComponent("Hola "+p.cliente?.split(" ")[0]+",\n\nTe recordamos que tu póliza "+p.numero+" de "+p.aseguradora+" vence el "+p.vencimiento+".\n\nContáctanos para renovarla.\n\nSaludos.")}`}
-                style={{flex:1,minWidth:120,background:"#2563eb",color:"#fff",borderRadius:9,padding:"10px 14px",fontSize:12,fontWeight:700,textDecoration:"none",textAlign:"center",fontFamily:"inherit"}}>
-                ✉️ Correo
-              </a>
-            )}
-          </div>
-        </div>
-      </Modal>
-    );
-  };
-
-  const renderModalCumple = (ev) => {
-    const c = ev.obj;
-    return (
-      <Modal title="" onClose={()=>setEvModal(null)} wide maxW={420}>
-        <div style={{display:"flex",flexDirection:"column",gap:0,borderRadius:14,overflow:"hidden"}}>
-          <div style={{background:"#faf5ff",borderBottom:"3px solid #7c3aed",padding:"14px 20px",display:"flex",alignItems:"center",gap:12}}>
-            <div style={{width:40,height:40,borderRadius:10,background:"#7c3aed",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>🎂</div>
-            <div>
-              <div style={{fontSize:11,fontWeight:700,color:"#7c3aed",textTransform:"uppercase",letterSpacing:"0.06em"}}>Cumpleaños</div>
-              <div style={{fontSize:16,fontWeight:800,color:"#0f172a"}}>{c.nombre||""} {c.apellidoPaterno||""}</div>
-            </div>
-          </div>
-          <div style={{padding:"16px 20px",display:"flex",flexDirection:"column",gap:8}}>
-            {[
-              c.telefono||c.whatsapp ? ["Teléfono", c.telefono||c.whatsapp] : null,
-              c.email               ? ["Correo",   c.email]                 : null,
-              c.fechaNacimiento     ? ["Fecha nac.",c.fechaNacimiento]       : null,
-            ].filter(Boolean).map(([l,v])=>(
-              <div key={l} style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",borderBottom:"1px solid #f1f5f9",paddingBottom:6}}>
-                <span style={{fontSize:12,color:"#6b7280",fontWeight:500}}>{l}</span>
-                <span style={{fontSize:13,fontWeight:700,color:"#111827"}}>{v}</span>
-              </div>
-            ))}
-          </div>
-          <div style={{padding:"0 20px 18px",display:"flex",gap:8,flexWrap:"wrap"}}>
-            {(c.whatsapp||c.telefono)&&(
-              <button onClick={()=>{
-                const tel=(c.whatsapp||c.telefono||"").replace(/\D/g,"");
-                window.open("https://wa.me/52"+tel+"?text="+encodeURIComponent("🎂 ¡Feliz cumpleaños "+(c.nombre||"")+"! Que tengas un excelente día. — Tu agente de seguros"));
-              }} style={{flex:1,background:"#25d366",color:"#fff",border:"none",borderRadius:9,padding:"10px 14px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                💬 WhatsApp
-              </button>
-            )}
-            {c.email&&(
-              <a href={`mailto:${c.email}?subject=${encodeURIComponent("🎂 ¡Feliz cumpleaños "+(c.nombre||"")+"!")}`}
-                style={{flex:1,background:"#7c3aed",color:"#fff",borderRadius:9,padding:"10px 14px",fontSize:12,fontWeight:700,textDecoration:"none",textAlign:"center",fontFamily:"inherit"}}>
-                ✉️ Correo
-              </a>
-            )}
-          </div>
-        </div>
-      </Modal>
-    );
-  };
-
-  const renderModalTarea = (ev) => {
-    const t = ev.obj;
-    const prioColor = t.prioridad==="alta"?"#dc2626":t.prioridad==="media"?"#d97706":"#059669";
-    return (
-      <Modal title="" onClose={()=>setEvModal(null)} wide maxW={420}>
-        <div style={{display:"flex",flexDirection:"column",gap:0,borderRadius:14,overflow:"hidden"}}>
-          <div style={{background:"#ecfeff",borderBottom:"3px solid #0891b2",padding:"14px 20px",display:"flex",alignItems:"center",gap:12}}>
-            <div style={{width:40,height:40,borderRadius:10,background:"#0891b2",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>📌</div>
-            <div>
-              <div style={{fontSize:11,fontWeight:700,color:"#0891b2",textTransform:"uppercase",letterSpacing:"0.06em"}}>Tarea / Agenda</div>
-              <div style={{fontSize:15,fontWeight:800,color:"#0f172a"}}>{t.titulo||"—"}</div>
-            </div>
-          </div>
-          <div style={{padding:"16px 20px",display:"flex",flexDirection:"column",gap:8}}>
-            {[
-              ["Prioridad", t.prioridad||"—"],
-              t.fecha       ? ["Fecha",     t.fecha]                                  : null,
-              t.contacto_nombre ? ["Contacto", t.contacto_nombre]                    : null,
-            ].filter(Boolean).map(([l,v])=>(
-              <div key={l} style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",borderBottom:"1px solid #f1f5f9",paddingBottom:6}}>
-                <span style={{fontSize:12,color:"#6b7280",fontWeight:500}}>{l}</span>
-                <span style={{fontSize:13,fontWeight:700,color:l==="Prioridad"?prioColor:"#111827"}}>{v}</span>
-              </div>
-            ))}
-          </div>
-          <div style={{padding:"0 20px 18px"}}>
-            <button onClick={()=>setEvModal(null)}
-              style={{width:"100%",background:"#0891b2",color:"#fff",border:"none",borderRadius:9,padding:"10px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-              ✓ Cerrar
-            </button>
-          </div>
-        </div>
-      </Modal>
-    );
-  };
+  // Contadores rápidos
+  const vencenMes  = polizas.filter(p=>{const f=parseFechaStr(p.vencimiento);return f&&f.getMonth()===mes&&f.getFullYear()===anio;}).length;
+  const porVencer  = polizas.filter(p=>{const f=parseFechaStr(p.vencimiento);if(!f)return false;const d=Math.round((f-new Date())/86400000);return d>=0&&d<=10;}).length;
+  const cumplesMes = clientes.filter(c=>{const f=parseFechaStr(c.fechaNacimiento);return f&&f.getMonth()===mes;}).length;
 
   return (
-    <div style={{display:"flex",flexDirection:"column",gap:16}}>
-      <SectionTitle title="Calendario" sub="Vencimientos, cumpleaños y tareas"/>
+    <div style={{display:"flex",flexDirection:"column",gap:20}}>
+      <SectionTitle title="Calendario" sub="Vencimientos, renovaciones y cumpleaños de clientes"/>
 
-      {/* ── Header: navegación + filtros ── */}
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
-        {/* Nav mes */}
-        <div style={{display:"flex",alignItems:"center",gap:8}}>
-          <button onClick={prevMes}
-            style={{background:"#f1f5f9",border:"none",borderRadius:8,width:32,height:32,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",color:"#374151"}}
-            onMouseEnter={e=>e.currentTarget.style.background="#e2e8f0"}
-            onMouseLeave={e=>e.currentTarget.style.background="#f1f5f9"}>‹</button>
-          <span style={{fontSize:18,fontWeight:700,color:"#0f172a",fontFamily:"'Inter','Segoe UI',sans-serif",minWidth:200,textAlign:"center"}}>
-            {MESES[mes]} {anio}
-          </span>
-          <button onClick={nextMes}
-            style={{background:"#f1f5f9",border:"none",borderRadius:8,width:32,height:32,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",color:"#374151"}}
-            onMouseEnter={e=>e.currentTarget.style.background="#e2e8f0"}
-            onMouseLeave={e=>e.currentTarget.style.background="#f1f5f9"}>›</button>
-          <button onClick={irHoy}
-            style={{background:"#f1f5f9",border:"none",borderRadius:8,padding:"6px 14px",fontSize:12,fontWeight:600,cursor:"pointer",color:"#374151",fontFamily:"inherit"}}
-            onMouseEnter={e=>e.currentTarget.style.background="#e2e8f0"}
-            onMouseLeave={e=>e.currentTarget.style.background="#f1f5f9"}>Hoy</button>
-        </div>
-
-        {/* Filtros */}
-        <div style={{display:"flex",gap:6}}>
-          {[["todos","Todos"],["polizas","🛡 Pólizas"],["cumpleanos","🎂 Cumpleaños"],["tareas","📌 Tareas"]].map(([v,l])=>(
-            <button key={v} onClick={()=>setFiltro(v)}
-              style={{padding:"6px 14px",background:filtro===v?"#0f172a":"#f8fafc",color:filtro===v?"#fff":"#374151",
-                border:`1px solid ${filtro===v?"#0f172a":"#e5e7eb"}`,borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>
-              {l}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Leyenda ── */}
-      <div style={{display:"flex",gap:14,flexWrap:"wrap"}}>
-        {[["#dc2626","Vencida"],["#d97706","Por vencer"],["#7c3aed","Cumpleaños"],["#0891b2","Tarea/Agenda"]].map(([c,l])=>(
-          <div key={l} style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:"#6b7280"}}>
-            <div style={{width:10,height:10,borderRadius:"50%",background:c}}/>
-            {l}
+      {/* Contadores — mismo diseño KPICard */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14}}>
+        {[
+          {icon:"policies", label:"Vencen este mes",    value:vencenMes,  accent:"#dc2626", sub:`en ${MESES[mes]}`},
+          {icon:"bell",     label:"Por vencer ≤10 días",value:porVencer,  accent:"#d97706", sub:"requieren atención"},
+          {icon:"clients",  label:"Cumpleaños este mes",value:cumplesMes, accent:"#7c3aed", sub:`en ${MESES[mes]}`},
+        ].map(({icon,label,value,accent,sub})=>(
+          <div key={label} style={{background:"#fff",borderRadius:16,padding:"20px 22px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)",borderTop:`3px solid ${accent}`,display:"flex",flexDirection:"column",gap:6,position:"relative",overflow:"hidden"}}>
+            <div style={{position:"absolute",right:14,top:14,background:accent+"15",color:accent,borderRadius:10,padding:7,display:"flex"}}>
+              <Icon name={icon} size={18}/>
+            </div>
+            <span style={{fontSize:10,color:"#94a3b8",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.1em"}}>{label}</span>
+            <div style={{fontSize:30,fontWeight:700,color:"#0f172a",fontFamily:"'Inter',sans-serif",lineHeight:1.1,letterSpacing:"-0.5px"}}>{value}</div>
+            <div style={{fontSize:11,color:accent,fontWeight:600}}>{sub}</div>
           </div>
         ))}
       </div>
 
-      {/* ── Grid calendario ── */}
-      <div style={{background:"#fff",borderRadius:16,border:"1px solid #e2e8f0",overflow:"hidden"}}>
+      {/* Layout principal: calendario + panel derecho */}
+      <div style={{display:"flex",gap:16,alignItems:"flex-start"}}>
 
-        {/* Encabezado días de semana */}
-        <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",borderBottom:"1px solid #e2e8f0"}}>
-          {DIAS_LABEL.map((d,i)=>(
-            <div key={d} style={{textAlign:"center",padding:"8px 0",fontSize:11,fontWeight:700,
-              color:i===0||i===6?"#f87171":"#64748b",letterSpacing:"0.05em",textTransform:"uppercase",
-              borderRight:i<6?"1px solid #f1f5f9":"none"}}>
-              {d}
+        {/* Calendario */}
+        <div style={{flex:1,background:"linear-gradient(145deg,#ffffff,#f8fafc)",borderRadius:20,padding:"24px",boxShadow:"0 4px 20px rgba(0,0,0,0.08)",border:"1px solid #e2e8f0"}}>
+
+          {/* Navegación mes */}
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+            <button onClick={prevMes} style={{background:"#f1f5f9",border:"none",borderRadius:10,width:36,height:36,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",color:"#374151"}}
+              onMouseEnter={e=>e.currentTarget.style.background="#e2e8f0"}
+              onMouseLeave={e=>e.currentTarget.style.background="#f1f5f9"}>‹</button>
+            <div style={{display:"flex",alignItems:"center",gap:10}}>
+              <select value={mes} onChange={e=>setMes(Number(e.target.value))}
+                style={{background:"linear-gradient(135deg,#0f172a,#1e3a5f)",border:"none",borderRadius:10,padding:"8px 14px",
+                  fontSize:15,fontWeight:800,color:"#fff",fontFamily:"'Inter','Segoe UI',sans-serif",cursor:"pointer",outline:"none",appearance:"none"}}>
+                {MESES.map((m,i)=><option key={i} value={i} style={{background:"#0f172a"}}>{m}</option>)}
+              </select>
+              <select value={anio} onChange={e=>setAnio(Number(e.target.value))}
+                style={{background:"#f1f5f9",border:"1.5px solid #e2e8f0",borderRadius:10,padding:"8px 14px",
+                  fontSize:15,fontWeight:700,color:"#374151",fontFamily:"'Inter',sans-serif",cursor:"pointer",outline:"none",appearance:"none"}}>
+                {Array.from({length:10},(_,i)=>new Date().getFullYear()-3+i).map(y=>(
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
             </div>
-          ))}
+            <button onClick={nextMes} style={{background:"#f1f5f9",border:"none",borderRadius:10,width:36,height:36,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",color:"#374151"}}
+              onMouseEnter={e=>e.currentTarget.style.background="#e2e8f0"}
+              onMouseLeave={e=>e.currentTarget.style.background="#f1f5f9"}>›</button>
+          </div>
+
+          {/* Filtros */}
+          <div style={{display:"flex",gap:6,marginBottom:14,justifyContent:"center"}}>
+            {[["todos","Todos"],["polizas","🛡 Pólizas"],["cumpleanos","🎂 Cumpleaños"]].map(([v,l])=>(
+              <button key={v} onClick={()=>setFiltro(v)}
+                style={{padding:"6px 16px",background:filtro===v?"#0f172a":"#f8fafc",color:filtro===v?"#fff":"#374151",
+                  border:`1.5px solid ${filtro===v?"#0f172a":"#e5e7eb"}`,borderRadius:20,fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>
+                {l}
+              </button>
+            ))}
+          </div>
+
+          {/* Encabezado días */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:4,marginBottom:6}}>
+            {DIAS_SEMANA.map((d,i)=>(
+              <div key={d} style={{textAlign:"center",fontSize:12,fontWeight:800,
+                color:i>=5?"#f87171":"#64748b",padding:"6px 0",letterSpacing:"0.04em"}}>
+                {d}
+              </div>
+            ))}
+          </div>
+
+          {/* Celdas */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:4}}>
+            {Array.from({length:totalCeldas},(_,i)=>{
+              const dia=i-inicioGrilla+1;
+              const valido=dia>=1&&dia<=diasMes;
+              const evs=valido?(eventos[dia]||[]):[];
+              const hoyF=valido&&esHoy(dia);
+              const selec=valido&&diaSelec===dia;
+              const hayVenc=evs.some(e=>e.tipo==="vencimiento"&&e.st==="vencida");
+              const hayPorVenc=evs.some(e=>e.tipo==="vencimiento"&&e.st==="por vencer");
+              const hayCumple=evs.some(e=>e.tipo==="cumpleanos");
+              const hayInicio=evs.some(e=>e.tipo==="inicio");
+              const hayTarea=evs.some(e=>e.tipo==="tarea");
+              const esFinde = valido && ((i % 7) === 5 || (i % 7) === 6);
+              return (
+                <div key={i} onClick={()=>{if(valido){setDiaSelec(diaSelec===dia?null:dia);setEvSelec(null);}}}
+                  style={{minHeight:80,borderRadius:10,padding:"6px 7px",cursor:valido?"pointer":"default",
+                    background:!valido?"transparent":hoyF?"linear-gradient(135deg,#0f172a,#1e3a5f)":selec?"linear-gradient(135deg,#eff6ff,#dbeafe)":hayVenc?"#fef2f2":hayPorVenc?"#fffbeb":hayCumple?"#faf5ff":esFinde?"#f8fafc":"#fff",
+                    border:hoyF?"2px solid #3b82f6":selec?"2px solid #6366f1":hayVenc?"1.5px solid #fca5a5":hayPorVenc?"1.5px solid #fbbf24":hayCumple?"1.5px solid #c4b5fd":hayInicio?"1.5px solid #93c5fd":hayTarea?"1.5px solid #fde68a":"1px solid #f1f5f9",
+                    transition:"all .15s",
+                    boxShadow:selec?"0 4px 12px rgba(99,102,241,0.2)":hoyF?"0 4px 12px rgba(15,23,42,0.25)":"none"}}>
+                  {valido&&(
+                    <>
+                      <div style={{fontSize:13,fontWeight:hoyF?900:esFinde?700:500,
+                        color:hoyF?"#fff":selec?"#1d4ed8":esFinde?"#94a3b8":"#1e293b",
+                        marginBottom:4,textAlign:"center",lineHeight:1}}>{dia}</div>
+                      {evs.length===1&&(
+                        <div style={{fontSize:9,fontWeight:700,color:"#fff",background:evs[0].color,borderRadius:4,
+                          padding:"2px 4px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",lineHeight:1.4}}>
+                          {evs[0].icon} {evs[0].label}
+                        </div>
+                      )}
+                      {evs.length>1&&(
+                        <div style={{display:"flex",flexWrap:"wrap",gap:3,justifyContent:"center",marginTop:2}}>
+                          {evs.slice(0,4).map((ev,ei)=>(
+                            <div key={ei} title={ev.label} style={{width:8,height:8,borderRadius:"50%",background:ev.color,boxShadow:`0 1px 2px ${ev.color}88`}}/>
+                          ))}
+                          {evs.length>4&&<div style={{fontSize:7,color:"#6b7280",fontWeight:700}}>+{evs.length-4}</div>}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Leyenda */}
+          <div style={{display:"flex",gap:10,marginTop:14,flexWrap:"wrap",justifyContent:"center",paddingTop:10,borderTop:"1px solid #f1f5f9"}}>
+            {[["#2563eb","Inicio"],["#059669","Vigente"],["#d97706","Por vencer"],["#dc2626","Vencida"],["#7c3aed","Cumpleaños"],["#f59e0b","Tarea"]].map(([c,l])=>(
+              <div key={l} style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:"#64748b",fontWeight:600}}>
+                <div style={{width:9,height:9,borderRadius:2,background:c}}/>{l}
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Celdas */}
-        <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)"}}>
-          {Array.from({length:totalCeldas},(_,i)=>{
-            const dia = i - inicioGrilla + 1;
-            const valido = dia>=1 && dia<=diasMes;
-            const evs = valido ? (eventos[dia]||[]) : [];
-            const hoyF = valido && esHoy(dia);
-            const esFinde = i%7===0 || i%7===6;
-            const isLastRow = i >= totalCeldas-7;
-            const colIdx = i%7;
-            return (
-              <div key={i} style={{
-                height:110,
-                borderRight:colIdx<6?"1px solid #f1f5f9":"none",
-                borderBottom:isLastRow?"none":"1px solid #f1f5f9",
-                padding:"6px 6px 4px",
-                background:!valido?"#fafafa":hoyF?"#eff6ff":esFinde?"#fafafa":"#fff",
-                display:"flex",flexDirection:"column",gap:2,
-                overflow:"hidden",
-              }}>
-                {valido&&(
-                  <>
-                    {/* Número día */}
-                    <div style={{display:"flex",justifyContent:"flex-start",marginBottom:2}}>
-                      <span style={{
-                        fontSize:12,fontWeight:hoyF?800:500,
-                        color:hoyF?"#2563eb":esFinde?"#94a3b8":"#374151",
-                        width:22,height:22,display:"flex",alignItems:"center",justifyContent:"center",
-                        borderRadius:"50%",
-                        background:hoyF?"#dbeafe":"transparent",
-                      }}>{dia}</span>
-                    </div>
-                    {/* Píldoras de eventos — máx 2, luego "+N" */}
-                    {evs.slice(0,2).map((ev,ei)=>(
-                      <div key={ei} onClick={()=>setEvModal(ev)}
-                        style={{
-                          fontSize:10,fontWeight:600,
-                          background:ev.col.bg,color:ev.col.text,
-                          borderRadius:4,padding:"2px 5px",
-                          whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",
-                          cursor:"pointer",lineHeight:1.5,
-                          flexShrink:0,
-                        }}
-                        title={ev.label}>
-                        {ev.label}
-                      </div>
-                    ))}
-                    {evs.length>2&&(
-                      <div style={{fontSize:10,color:"#6b7280",fontWeight:600,padding:"1px 4px"}}>
-                        +{evs.length-2} más
-                      </div>
-                    )}
-                  </>
-                )}
+        {/* Panel derecho */}
+        <div style={{width:290,flexShrink:0}}>
+          {diaSelec&&evsDiaSelec.length>0?(
+            <div style={{background:"#fff",borderRadius:20,overflow:"hidden",boxShadow:"0 4px 20px rgba(0,0,0,0.1)",border:"1px solid #e2e8f0"}}>
+              {/* Header */}
+              <div style={{background:"linear-gradient(135deg,#0f172a,#1e3a5f)",padding:"14px 16px",flexShrink:0}}>
+                <div style={{fontSize:9,color:"#64748b",fontWeight:700,letterSpacing:"0.08em",marginBottom:1}}>DÍA SELECCIONADO</div>
+                <div style={{fontSize:17,fontWeight:900,color:"#fff",fontFamily:"'Inter','Segoe UI',sans-serif"}}>{diaSelec} de {MESES[mes]}</div>
+                <div style={{fontSize:10,color:"#94a3b8",marginTop:1}}>{anio} · {evsDiaSelec.length} evento{evsDiaSelec.length>1?"s":""}</div>
               </div>
-            );
-          })}
+
+              {/* Selector cuando hay más de 1 */}
+              {evsDiaSelec.length>1&&(
+                <div style={{padding:"8px 12px",background:"#f8fafc",borderBottom:"1px solid #e2e8f0",flexShrink:0}}>
+                  <div style={{fontSize:9,fontWeight:700,color:"#6b7280",marginBottom:6,letterSpacing:"0.06em"}}>SELECCIONA UN EVENTO</div>
+                  <div style={{display:"flex",flexDirection:"column",gap:4}}>
+                    {evsDiaSelec.map((ev,i)=>(
+                      <button key={i} onClick={()=>setEvSelec(evSelec===i?null:i)}
+                        style={{display:"flex",alignItems:"center",gap:7,padding:"6px 9px",
+                          background:evSelec===i?ev.color:"#fff",
+                          color:evSelec===i?"#fff":"#374151",
+                          border:`1.5px solid ${evSelec===i?ev.color:"#e5e7eb"}`,
+                          borderRadius:8,cursor:"pointer",fontFamily:"inherit",textAlign:"left",transition:"all .15s"}}>
+                        <div style={{width:7,height:7,borderRadius:"50%",background:evSelec===i?"rgba(255,255,255,0.8)":ev.color,flexShrink:0}}/>
+                        <span style={{fontSize:10,fontWeight:700,flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                          {ev.icon} {ev.label}
+                        </span>
+                        <span style={{fontSize:8,fontWeight:600,opacity:0.7,flexShrink:0}}>
+                          {ev.tipo==="cumpleanos"?"CUMPLE":ev.tipo==="vencimiento"?"VENCE":ev.tipo==="inicio"?"INICIA":"TAREA"}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Detalle scrollable */}
+              <div style={{maxHeight:480,overflowY:"auto",padding:"12px"}}>
+                {(()=>{
+                  const evActivo = evsDiaSelec.length===1 ? evsDiaSelec[0] : (evSelec!==null ? evsDiaSelec[evSelec] : null);
+                  if (!evActivo) return (
+                    <div style={{textAlign:"center",color:"#9ca3af",fontSize:11,paddingTop:16}}>
+                      👆 Selecciona un evento
+                    </div>
+                  );
+                  return (
+                    <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                      {/* Header evento */}
+                      <div style={{background:`linear-gradient(135deg,${evActivo.color},${evActivo.color}cc)`,borderRadius:10,padding:"10px 12px",display:"flex",alignItems:"center",gap:8}}>
+                        <span style={{fontSize:18}}>{evActivo.icon}</span>
+                        <div style={{flex:1}}>
+                          <div style={{fontSize:12,fontWeight:800,color:"#fff"}}>{evActivo.label}</div>
+                          <div style={{fontSize:10,color:"rgba(255,255,255,0.75)"}}>
+                            {evActivo.tipo==="cumpleanos"?"Cumpleaños":evActivo.tipo==="vencimiento"?"Vencimiento":evActivo.tipo==="inicio"?"Inicio vigencia":"Tarea"}
+                          </div>
+                        </div>
+                      </div>
+                      {/* Info póliza */}
+                      {(evActivo.tipo==="vencimiento"||evActivo.tipo==="inicio")&&evActivo.obj&&(
+                        <div style={{background:"#f9fafb",borderRadius:9,padding:"9px 11px",border:"1px solid #f1f5f9"}}>
+                          <div style={{fontSize:9,color:"#9ca3af",fontWeight:600,marginBottom:2}}>PÓLIZA</div>
+                          <div style={{fontSize:12,fontWeight:800,color:"#111827",fontFamily:"monospace"}}>{evActivo.obj.numero}</div>
+                          <div style={{fontSize:11,color:"#6b7280"}}>{evActivo.obj.aseguradora} · {evActivo.obj.ramo}</div>
+                          {evActivo.obj.primaTotal&&<div style={{fontSize:13,fontWeight:700,color:"#059669",marginTop:2,fontFamily:"'Inter',sans-serif"}}>${Number(evActivo.obj.primaTotal).toLocaleString("es-MX")}</div>}
+                        </div>
+                      )}
+                      {/* Tarea */}
+                      {evActivo.tipo==="tarea"&&(
+                        <div style={{background:evActivo.obj?.prioridad==="alta"?"#fef2f2":evActivo.obj?.prioridad==="media"?"#fffbeb":"#f0fdf4",
+                          borderRadius:8,padding:"7px 10px",fontSize:11,fontWeight:700,
+                          color:evActivo.obj?.prioridad==="alta"?"#dc2626":evActivo.obj?.prioridad==="media"?"#d97706":"#059669"}}>
+                          📌 {evActivo.obj?.prioridad==="alta"?"🔴 Alta":evActivo.obj?.prioridad==="media"?"🟡 Media":"🟢 Baja"} prioridad
+                        </div>
+                      )}
+                      {/* Botones */}
+                      <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                        {evActivo.tipo==="cumpleanos"&&(<>
+                          <button onClick={()=>{const tel=(evActivo.obj?.whatsapp||evActivo.obj?.telefono||"").replace(/\D/g,"");window.open("https://wa.me/52"+tel+"?text="+encodeURIComponent("🎂 ¡Feliz cumpleaños "+evActivo.label+"! Que tengas un excelente día."));}}
+                            style={{width:"100%",background:"#25d366",color:"#fff",border:"none",borderRadius:8,padding:"8px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
+                            💬 WhatsApp
+                          </button>
+                          {evActivo.obj?.email&&<a href={`mailto:${evActivo.obj.email}?subject=${encodeURIComponent("🎂 ¡Feliz cumpleaños "+evActivo.label+"!")}`}
+                            style={{width:"100%",background:"#2563eb",color:"#fff",borderRadius:8,padding:"8px",fontSize:11,fontWeight:700,textDecoration:"none",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
+                            ✉️ Correo
+                          </a>}
+                        </>)}
+                        {(evActivo.tipo==="vencimiento"||evActivo.tipo==="inicio")&&(<>
+                          <button onClick={()=>setPolizaCalendario(evActivo.obj)}
+                            style={{width:"100%",background:"#eff6ff",color:"#1d4ed8",border:"1px solid #bfdbfe",borderRadius:8,padding:"8px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
+                            👁 Ver póliza
+                          </button>
+                          <button onClick={()=>setPagoCalendario(evActivo.obj)}
+                            style={{width:"100%",background:"linear-gradient(135deg,#059669,#047857)",color:"#fff",border:"none",borderRadius:8,padding:"8px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
+                            💳 Registrar Pago
+                          </button>
+                          {evActivo.obj?.whatsappCliente&&<button onClick={()=>{const num=(evActivo.obj.whatsappCliente||"").replace(/\D/g,"");window.open("https://wa.me/52"+num+"?text="+encodeURIComponent("Hola, te recordamos que tu póliza "+evActivo.obj?.numero+" vence el "+evActivo.obj?.vencimiento+"."));}}
+                            style={{width:"100%",background:"#25d366",color:"#fff",border:"none",borderRadius:8,padding:"8px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
+                            💬 WhatsApp cliente
+                          </button>}
+                          {gcalUrl(evActivo)&&<a href={gcalUrl(evActivo)} target="_blank" rel="noopener noreferrer"
+                            style={{width:"100%",background:"#fff",border:"1px solid #e5e7eb",borderRadius:8,padding:"8px",fontSize:11,fontWeight:700,color:"#374151",textDecoration:"none",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
+                            📅 Google Calendar
+                          </a>}
+                        </>)}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+          ):(
+            <div style={{background:"#fff",borderRadius:20,padding:"32px 20px",boxShadow:"0 4px 20px rgba(0,0,0,0.06)",border:"1px solid #e2e8f0",textAlign:"center"}}>
+              <div style={{fontSize:40,marginBottom:12}}>📅</div>
+              <div style={{fontSize:14,fontWeight:700,color:"#374151",fontFamily:"'Inter','Segoe UI',sans-serif",marginBottom:6}}>Selecciona un día</div>
+              <div style={{fontSize:12,color:"#9ca3af"}}>Haz click en cualquier día para ver los eventos disponibles</div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ── Modales ── */}
-      {evModal?.tipo==="poliza"    && renderModalPoliza(evModal)}
-      {evModal?.tipo==="cumpleanos"&& renderModalCumple(evModal)}
-      {evModal?.tipo==="tarea"     && renderModalTarea(evModal)}
-
+      {/* Modal registrar pago desde calendario */}
       {pagoCalendario&&(
         <Modal title={`Registrar Pago — ${pagoCalendario.numero}`} onClose={()=>setPagoCalendario(null)}>
           <ModalPago
@@ -8313,10 +7989,61 @@ function Calendario({ polizas, clientes, tareas, setPolizas }) {
           />
         </Modal>
       )}
+
+      {/* Modal detalle póliza desde calendario */}
+      {polizaCalendario&&(
+        <Modal title={`Póliza ${polizaCalendario.numero}`} onClose={()=>setPolizaCalendario(null)} wide maxW={580}>
+          <div style={{display:"flex",flexDirection:"column",gap:12}}>
+            <div style={{background:`linear-gradient(135deg,${ramoColor(polizaCalendario.ramo)},${ramoColor(polizaCalendario.ramo)}bb)`,borderRadius:12,padding:"14px 18px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div>
+                <div style={{fontSize:10,opacity:.8,fontWeight:700}}>{polizaCalendario.ramo?.toUpperCase()}{polizaCalendario.subramo?" · "+polizaCalendario.subramo.toUpperCase():""} · {polizaCalendario.aseguradora}</div>
+                <div style={{fontSize:18,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{polizaCalendario.numero}</div>
+                <div style={{fontSize:12,opacity:.9,marginTop:2}}>{polizaCalendario.cliente}</div>
+              </div>
+              <div style={{textAlign:"right"}}>
+                <div style={{fontSize:9,opacity:.7}}>PRIMA TOTAL</div>
+                <div style={{fontSize:22,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>${(parseFloat(polizaCalendario.primaTotal)||parseFloat(polizaCalendario.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
+              </div>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
+              {[["Aseguradora",polizaCalendario.aseguradora||"—"],["Forma de pago",polizaCalendario.formaPago||polizaCalendario.frecuencia||"—"],["Inicio vigencia",polizaCalendario.inicio||"—"],["Fin vigencia",polizaCalendario.vencimiento||"—"],["Prima neta",polizaCalendario.primaNeta?`$${Number(polizaCalendario.primaNeta).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"],["Agente",polizaCalendario.agentePoliza||"—"]].map(([l,v])=>(
+                <div key={l} style={{background:"#f9fafb",borderRadius:9,padding:"9px 12px"}}>
+                  <div style={{fontSize:9,color:"#9ca3af",fontWeight:700,marginBottom:2}}>{l.toUpperCase()}</div>
+                  <div style={{fontSize:13,fontWeight:600,color:"#111827"}}>{v}</div>
+                </div>
+              ))}
+            </div>
+            {polizaCalendario.coberturas?.length>0&&(
+              <div style={{background:"#f0fdf4",borderRadius:9,padding:"10px 13px"}}>
+                <div style={{fontSize:9,color:"#065f46",fontWeight:700,marginBottom:6}}>COBERTURAS</div>
+                <div style={{display:"flex",flexWrap:"wrap",gap:5}}>{polizaCalendario.coberturas.map(c=><span key={c} style={{background:"#d1fae5",color:"#065f46",fontSize:11,padding:"2px 8px",borderRadius:14,fontWeight:600}}>{c}</span>)}</div>
+              </div>
+            )}
+            {/* Botones de contacto */}
+            <div style={{display:"flex",gap:9,flexWrap:"wrap",paddingTop:4}}>
+              {(polizaCalendario.whatsappCliente||polizaCalendario.telefonoCliente)&&(
+                <button style={{background:"#25d366",color:"#fff",border:"none",borderRadius:9,padding:"9px 16px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:6}}
+                  onClick={()=>{
+                    const num=(polizaCalendario.whatsappCliente||polizaCalendario.telefonoCliente||"").replace(/\D/g,"");
+                    const msg=encodeURIComponent("Hola "+polizaCalendario.cliente?.split(" ")[0]+", te recordamos que tu póliza "+polizaCalendario.numero+" de "+polizaCalendario.aseguradora+" vence el "+polizaCalendario.vencimiento+". Contáctanos para renovarla. — Tu Agente de Seguros");
+                    window.open("https://wa.me/52"+num+"?text="+msg);
+                  }}>
+                  💬 WhatsApp
+                </button>
+              )}
+              {polizaCalendario.emailCliente&&(
+                <a href={`mailto:${polizaCalendario.emailCliente}?subject=${encodeURIComponent("Tu póliza "+polizaCalendario.numero+" vence pronto")}&body=${encodeURIComponent("Hola "+polizaCalendario.cliente?.split(" ")[0]+",\n\nTe recordamos que tu póliza "+polizaCalendario.numero+" de "+polizaCalendario.aseguradora+" vence el "+polizaCalendario.vencimiento+".\n\nContáctanos para renovarla.\n\nSaludos,\nTu Agente de Seguros")}`}
+                  style={{background:"#2563eb",color:"#fff",border:"none",borderRadius:9,padding:"9px 16px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",textDecoration:"none",display:"inline-flex",alignItems:"center",gap:6}}>
+                  ✉️ Enviar correo
+                </a>
+              )}
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // MÓDULO SINIESTROS
 // ═══════════════════════════════════════════════════════════════════
@@ -9599,101 +9326,14 @@ function useLocalStorage(key, initialValue) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// HOOK useSupabaseTable — lee y escribe en Supabase por agente_id
-// Convierte automáticamente camelCase <-> snake_case
-// ═══════════════════════════════════════════════════════════════════
-const toSnake = str => str.replace(/[A-Z]/g, l => `_${l.toLowerCase()}`);
-const toCamel = str => str.replace(/_([a-z])/g, (_, l) => l.toUpperCase());
-
-function convertKeys(obj, fn) {
-  if (!obj || typeof obj !== "object" || Array.isArray(obj)) return obj;
-  return Object.fromEntries(Object.entries(obj).map(([k, v]) => [fn(k), v]));
-}
-
-const CAMPOS_EXCLUIR = new Set(["id", "agente_id", "created_at", "updated_at", "polizas"]);
-
-function useSupabaseTable(tabla, agenteId, initialValue = []) {
-  const [data, setData] = useState(initialValue);
-  const [loading, setLoading] = useState(true);
-
-  // Helper: obtener cliente Supabase con sesión activa
-  const getClient = async () => {
-    await supabase.auth.getSession();
-    return supabase;
-  };
-
-  useEffect(() => {
-    if (!agenteId) { setLoading(false); return; }
-    setLoading(true);
-    getClient().then(sb => sb
-      .from(tabla)
-      .select("*")
-      .eq("agente_id", agenteId)
-      .order("created_at", { ascending: true })
-      .then(({ data: rows, error }) => {
-        if (!error && rows) {
-          setData(rows.map(r => convertKeys(r, toCamel)));
-        }
-        setLoading(false);
-      })
-    );
-  }, [tabla, agenteId]);
-
-  const guardar = async (nuevoArray) => {
-    setData(nuevoArray);
-  };
-
-  const insertar = async (item) => {
-    const sb = await getClient();
-    const limpio = Object.fromEntries(
-      Object.entries(item).filter(([k]) => !CAMPOS_EXCLUIR.has(k))
-    );
-    const nuevo = { ...convertKeys(limpio, toSnake), agente_id: agenteId };
-    const { data: inserted, error } = await sb.from(tabla).insert(nuevo).select().single();
-    if (error) { console.error(`Supabase insert error [${tabla}]:`, error); return null; }
-    if (inserted) {
-      const reg = convertKeys(inserted, toCamel);
-      setData(prev => [...prev, reg]);
-      return reg;
-    }
-    return null;
-  };
-
-  const actualizar = async (id, cambios) => {
-    const sb = await getClient();
-    const limpio = Object.fromEntries(
-      Object.entries(cambios).filter(([k]) => !CAMPOS_EXCLUIR.has(k) && k !== "agente_id")
-    );
-    const campos = convertKeys(limpio, toSnake);
-    const { data: updated, error } = await sb.from(tabla).update(campos).eq("id", id).eq("agente_id", agenteId).select().single();
-    if (error) { console.error(`Supabase update error [${tabla}]:`, error); return null; }
-    if (updated) {
-      const reg = convertKeys(updated, toCamel);
-      setData(prev => prev.map(r => r.id === id ? reg : r));
-      return reg;
-    }
-    return null;
-  };
-
-  const eliminar = async (id) => {
-    const sb = await getClient();
-    const { error } = await sb.from(tabla).delete().eq("id", id).eq("agente_id", agenteId);
-    if (!error) setData(prev => prev.filter(r => r.id !== id));
-    return !error;
-  };
-
-  return [data, guardar, loading, { insertar, actualizar, eliminar }];
-}
-
-// ═══════════════════════════════════════════════════════════════════
 // PERMISOS POR ROL
 // ═══════════════════════════════════════════════════════════════════
 const PERMISOS = {
-  admin:      ["dashboard","clientes","polizas","calendario","pipeline","exportar","importar","pai","configuracion","subagentes","usuarios","cancelar_poliza","registrar_pago","comisiones","siniestros","tareas"],
-  agente:     ["dashboard","clientes","polizas","calendario","pipeline","exportar","importar","pai","configuracion","subagentes","usuarios","cancelar_poliza","registrar_pago","comisiones","siniestros","tareas"],
-  asistente:  ["dashboard","clientes","polizas","calendario","pipeline","exportar","pai","subagentes","registrar_pago","comisiones","siniestros","tareas"],
-  capturista: ["dashboard","clientes","polizas","calendario","registrar_pago","siniestros","tareas"],
-  subagente:  ["clientes","polizas","calendario","tareas"],
+  admin:      ["dashboard","clientes","polizas","calendario","pipeline","exportar","importar","pai","configuracion","subagentes","usuarios","cancelar_poliza","registrar_pago","comisiones","siniestros"],
+  agente:     ["dashboard","clientes","polizas","calendario","pipeline","exportar","importar","pai","configuracion","subagentes","usuarios","cancelar_poliza","registrar_pago","comisiones","siniestros"],
+  asistente:  ["dashboard","clientes","polizas","calendario","pipeline","exportar","pai","subagentes","registrar_pago","comisiones","siniestros"],
+  capturista: ["dashboard","clientes","polizas","calendario","registrar_pago","siniestros"],
+  subagente:  ["clientes","polizas","calendario"],
 };
 
 function puedeVer(rol, permiso) {
@@ -9764,19 +9404,39 @@ function LoginScreen({ usuarios, config, onLogin }) {
     if (!username || !password) { setError("Ingresa usuario y contraseña"); return; }
     setLoading(true);
     setError("");
-    try {
-      const { error: authError } = await supabase.auth.signInWithPassword({ email: username, password: password });
-      if (authError) { setError("Usuario o contraseña incorrectos"); setLoading(false); return; }
-      const { data: { user: authUser }, error: userError } = await supabase.auth.getUser();
-      if (userError || !authUser) { setError("Error al verificar sesión"); setLoading(false); return; }
-      const { data: agente, error: queryError } = await supabase.from("agentes").select("id, nombre, email, plan, status").eq("email", authUser.email).single();
-      if (queryError || !agente) { await supabase.auth.signOut(); setError("Usuario no encontrado en el sistema"); setLoading(false); return; }
-      if (agente.status !== "activo") { await supabase.auth.signOut(); setError("Tu cuenta está suspendida. Contacta al administrador."); setLoading(false); return; }
-      const sesion = { id: agente.id, nombre: agente.nombre, username: agente.email, rol: agente.plan || "agente", clave: "", loginAt: new Date().toISOString() };
-      localStorage.setItem("crm_sesion", JSON.stringify(sesion));
-      onLogin(sesion);
+
+    const user = usuarios.find(u =>
+      u.username?.toLowerCase() === username.toLowerCase() &&
+      u.status === "activo"
+    );
+
+    if (!user) { setError("Usuario no encontrado o inactivo"); setLoading(false); return; }
+
+    // Detectar primer acceso: password vacío o flag primerAcceso
+    if (!user.password || user.primerAcceso) {
+      // Cualquier contraseña que escriba se usa para crear la nueva
+      setPrimerAcceso(true);
+      setUserPrimerAcceso(user);
       setLoading(false);
-    } catch (err) { console.error("Login error:", err); setError("Error de conexión. Intenta de nuevo."); setLoading(false); }
+      return;
+    }
+
+    const passOk = await verificarPassword(password, user.password);
+
+    if (!passOk) { setError("Contraseña incorrecta"); setLoading(false); return; }
+
+    const sesion = {
+      id: user.id,
+      nombre: user.nombre,
+      username: user.username,
+      rol: user.rol,
+      clave: user.clave,
+      loginAt: new Date().toISOString(),
+    };
+    localStorage.setItem("crm_sesion", JSON.stringify(sesion));
+    onLogin(sesion);
+    setLoading(false);
+    window.location.reload();
   };
 
   // Handler para crear contraseña en primer acceso
@@ -9817,7 +9477,7 @@ function LoginScreen({ usuarios, config, onLogin }) {
   };
 
   const logoEmpresa = config?.logo;
-  const nombreEmpresa = config?.nombre || "SeguCore";
+  const nombreEmpresa = config?.nombre || "CRM Seguros";
 
   // Pantalla de primer acceso — crear contraseña
   if (primerAcceso && userPrimerAcceso) return (
@@ -10003,8 +9663,20 @@ function useIsMobile() {
 // ═══════════════════════════════════════════════════════════════════
 export default function CRMSeguros() {
   const [vista, setVista] = useState("dashboard");
+  const [clientes,   setClientes]   = useLocalStorage("crm_clientes",   CLIENTES_INIT);
+  const [polizas,    setPolizas]    = useLocalStorage("crm_polizas",    POLIZAS_INIT);
+  const [pipeline,   setPipeline]   = useLocalStorage("crm_pipeline",   PIPELINE_INIT);
+  const [tareas,     setTareas]     = useLocalStorage("crm_tareas",     TAREAS_INIT);
+  const [usuarios,   setUsuarios]   = useLocalStorage("crm_usuarios",   USUARIOS_INIT);
+  const [paiMetas,   setPaiMetas]   = useLocalStorage("crm_paiMetas",   PAI_METAS_INIT);
+  const [subagentes, setSubagentes] = useLocalStorage("crm_subagentes", SUBAGENTES_INIT);
+  const [config,     setConfig]     = useLocalStorage("crm_config",     {nombre:"SeguroCRM",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""});
+  const [historialNotif, setHistorialNotif] = useLocalStorage("crm_historial_notif", []);
+  const [tablaComisiones, setTablaComisiones] = useLocalStorage("crm_tabla_comisiones", []);
+  const [pagosComision, setPagosComision] = useLocalStorage("crm_pagos_comision", []);
+  const [siniestros, setSiniestros]       = useLocalStorage("crm_siniestros", []);
 
-  // Sesión activa — debe ir primero para tener agenteId disponible
+  // Sesión activa
   const [sesion, setSesion] = useState(() => {
     try {
       const s = localStorage.getItem("crm_sesion");
@@ -10012,31 +9684,12 @@ export default function CRMSeguros() {
     } catch { return null; }
   });
 
-  const agenteId = sesion?.id || null;
-
-  // ── Datos en Supabase ──────────────────────────────────────────
-  const [clientes,   setClientes,   loadingClientes,   clientesOps]   = useSupabaseTable("clientes",   agenteId, []);
-  const [polizas,    setPolizas,    loadingPolizas,    polizasOps]    = useSupabaseTable("polizas",    agenteId, []);
-  const [pipeline,   setPipeline,   loadingPipeline,   pipelineOps]   = useSupabaseTable("pipeline",   agenteId, []);
-  const [tareas,     setTareas,     loadingTareas,     tareasOps]     = useSupabaseTable("tareas",     agenteId, []);
-  const [siniestros, setSiniestros, loadingSiniestros, siniestrosOps] = useSupabaseTable("siniestros", agenteId, []);
-  const [subagentes, setSubagentes, loadingSubagentes, subagentesOps] = useSupabaseTable("subagentes", agenteId, []);
-  const [paiMetas,   setPaiMetas,   loadingMetas,      metasOps]      = useSupabaseTable("metas",      agenteId, []);
-
-  // ── Datos que siguen en localStorage (fase 2) ─────────────────
-  const [usuarios,        setUsuarios]        = useLocalStorage("crm_usuarios",        USUARIOS_INIT);
-  const [config,          setConfig]          = useLocalStorage("crm_config",          {nombre:"SeguCore",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""});
-  const [historialNotif,  setHistorialNotif]  = useLocalStorage("crm_historial_notif", []);
-  const [tablaComisiones, setTablaComisiones] = useLocalStorage("crm_tabla_comisiones",[]);
-  const [pagosComision,   setPagosComision]   = useLocalStorage("crm_pagos_comision",  []);
-
   const handleLogin = (sesionData) => {
     localStorage.setItem("crm_sesion", JSON.stringify(sesionData));
     setSesion(sesionData);
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  const handleLogout = () => {
     localStorage.removeItem("crm_sesion");
     window.location.reload();
   };
@@ -10124,7 +9777,30 @@ export default function CRMSeguros() {
   };
   const [plantillas, setPlantillas] = useLocalStorage("crm_plantillas", PLANTILLAS_DEFAULT);
 
+  // Mostrar login si no hay sesión
+  if (!sesion) {
+    return <LoginScreen usuarios={usuarios} config={config} onLogin={handleLogin}/>;
+  }
+
+  const rol = sesion.rol || "capturista";
+  const puede = (accion) => puedeVer(rol, accion);
   const isMobile = useIsMobile();
+
+  const nav=[
+    {id:"dashboard",     label:"Dashboard",    icon:"dashboard"},
+    {id:"calendario",    label:"Calendario",   icon:"tasks"},
+    {id:"clientes",      label:"Clientes",     icon:"clients"},
+    {id:"polizas",       label:"Pólizas",      icon:"policies", badge:"IA"},
+    {id:"pipeline",      label:"Prospectos",   icon:"pipeline"},
+    {id:"exportar",      label:"Exportar",     icon:"scan", badge:"NEW"},
+    {id:"importar",      label:"Importar BD",  icon:"scan"},
+    {id:"siniestros",    label:"Siniestros",   icon:"shield", badge:"NEW"},
+    {id:"pai",           label:"Metas",        icon:"trophy"},
+    {id:"comisiones",    label:"Comisiones",   icon:"trophy"},
+    {id:"configuracion", label:"Configuración",icon:"users", badge:"NEW"},
+  ].filter(item => puede(item.id));
+
+  const badgeColors={IA:"#2563eb",NEW:"#25d366"};
 
   useEffect(()=>{
     if (!document.getElementById("crm-fonts")) {
@@ -10152,31 +9828,6 @@ export default function CRMSeguros() {
     }
   },[]);
 
-  // Mostrar login si no hay sesión
-  if (!sesion) {
-    return <LoginScreen usuarios={usuarios} config={config} onLogin={handleLogin}/>;
-  }
-
-  const rol = sesion.rol || "capturista";
-  const puede = (accion) => puedeVer(rol, accion);
-
-  const nav=[
-    {id:"dashboard",     label:"Dashboard",    icon:"dashboard"},
-    {id:"calendario",    label:"Calendario",   icon:"tasks"},
-    {id:"clientes",      label:"Clientes",     icon:"clients"},
-    {id:"polizas",       label:"Pólizas",      icon:"policies", badge:"IA"},
-    {id:"pipeline",      label:"Prospectos",   icon:"pipeline"},
-    {id:"tareas",        label:"Agenda",       icon:"tasks"},
-    {id:"exportar",      label:"Exportar",     icon:"scan", badge:"NEW"},
-    {id:"importar",      label:"Importar BD",  icon:"scan"},
-    {id:"siniestros",    label:"Siniestros",   icon:"shield", badge:"NEW"},
-    {id:"pai",           label:"Metas",        icon:"trophy"},
-    {id:"comisiones",    label:"Comisiones",   icon:"trophy"},
-    {id:"configuracion", label:"Configuración",icon:"users", badge:"NEW"},
-  ].filter(item => puede(item.id));
-
-  const badgeColors={IA:"#2563eb",NEW:"#25d366"};
-
   return(
     <div style={{display:"flex",height:"100vh",fontFamily:"'Inter','DM Sans','Segoe UI',sans-serif",background:"#f1f5f9",flexDirection:isMobile?"column":"row"}}>
 
@@ -10186,7 +9837,7 @@ export default function CRMSeguros() {
         <div style={{padding:"0 16px 20px"}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
             <div style={{width:36,height:36,background:"linear-gradient(135deg,#2563eb,#7c3aed)",borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}><Icon name="shield" size={19}/></div>
-            <div><div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Inter','Segoe UI',sans-serif"}}>SeguCore</div><div style={{color:"#475569",fontSize:10}}>Gestiona, Protege y Crece</div></div>
+            <div><div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Inter','Segoe UI',sans-serif"}}>SeguroCRM</div><div style={{color:"#475569",fontSize:10}}>Agente Profesional</div></div>
           </div>
         </div>
         <nav style={{flex:1,overflowY:"auto"}}>
@@ -10371,8 +10022,8 @@ export default function CRMSeguros() {
         )}
 
         {vista==="dashboard"&&puede("dashboard")&&<Dashboard clientes={clientes} polizas={polizas} pipeline={pipeline} tareas={tareas} paiMetas={paiMetas}/>}
-        {vista==="clientes"&&puede("clientes")&&<Clientes clientes={clientes} setClientes={setClientes} clientesOps={clientesOps} polizas={polizas} setPolizas={setPolizas} sesion={sesion}/>}
-        {vista==="polizas"&&puede("polizas")&&<Polizas polizas={polizas} setPolizas={setPolizas} polizasOps={polizasOps} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes} plantillas={plantillas} puede={puede} sesion={sesion}/>}
+        {vista==="clientes"&&puede("clientes")&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas} sesion={sesion}/>}
+        {vista==="polizas"&&puede("polizas")&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes} plantillas={plantillas} puede={puede} sesion={sesion}/>}
         {vista==="comisiones"&&puede("comisiones")&&<Comisiones
           polizas={polizas}
           subagentes={subagentes}
@@ -10395,8 +10046,8 @@ export default function CRMSeguros() {
         {vista==="pai"&&puede("pai")&&<PAI paiMetas={paiMetas} setPaiMetas={setPaiMetas}/>}
         {vista==="siniestros"&&puede("siniestros")&&<Siniestros siniestros={siniestros} setSiniestros={setSiniestros} clientes={clientes} polizas={polizas} sesion={sesion}/>}
         {vista==="exportar"&&puede("exportar")&&<Exportar clientes={clientes} polizas={polizas} siniestros={siniestros} pagosComision={pagosComision} tablaComisiones={tablaComisiones} config={config}/>}
-        {vista==="pipeline"&&puede("pipeline")&&<Pipeline pipeline={pipeline} setPipeline={setPipeline} pipelineOps={pipelineOps}/>}
-        {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas} tareasOps={tareasOps} clientes={clientes} pipeline={pipeline}/>}
+        {vista==="pipeline"&&puede("pipeline")&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}
+        {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas}/>}
         {vista==="calendario"&&puede("calendario")&&<Calendario polizas={polizas} clientes={clientes} tareas={tareas} setPolizas={setPolizas}/>}
         {vista==="importar"&&puede("importar")&&<Importador clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas}/>}
         {vista==="configuracion"&&puede("configuracion")&&<Configuracion config={config} setConfig={setConfig} subagentes={subagentes} setSubagentes={setSubagentes} usuarios={usuarios} setUsuarios={setUsuarios} polizas={polizas} setPolizas={setPolizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes} historialNotif={historialNotif} setHistorialNotif={setHistorialNotif}/>}
@@ -10427,7 +10078,6 @@ export default function CRMSeguros() {
                   {[
                     {id:"dashboard",  label:"Dashboard",    icon:"dashboard"},
                     {id:"calendario", label:"Calendario",   icon:"tasks"},
-                    {id:"tareas",     label:"Agenda",       icon:"tasks"},
                     {id:"siniestros", label:"Siniestros",   icon:"shield"},
                     {id:"exportar",   label:"Exportar",     icon:"scan"},
                     {id:"importar",   label:"Importar BD",  icon:"scan"},

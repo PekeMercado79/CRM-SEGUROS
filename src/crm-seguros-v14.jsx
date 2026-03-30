@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, RadialBarChart, RadialBar } from "recharts";
+import { useState, useRef, useEffect } from "react"; // rebuild
 import { supabase } from "./supabase";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, RadialBarChart, RadialBar } from "recharts";
 
 // ═══════════════════════════════════════════════════════════════════
 // GOOGLE CALENDAR — Google Identity Services (GIS)
@@ -256,16 +256,6 @@ const PALABRAS_VACIAS = ["DE","DEL","LA","LAS","LOS","Y","EL","EN","CON","POR","
 const CONSONANTES = /[BCDFGHJKLMNÑPQRSTVWXYZ]/i;
 const VOCALES = /[AEIOU]/i;
 
-// Convierte texto a Title Case respetando preposiciones españolas
-function toTitleCase(str) {
-  if (!str) return "";
-  const minusculas = ["de","del","la","las","los","el","en","y","a","al","con","por","para","sin","sobre","entre","bajo"];
-  return str.toLowerCase().replace(/\S+/g, (word, offset) => {
-    if (offset !== 0 && minusculas.includes(word)) return word;
-    return word.charAt(0).toUpperCase() + word.slice(1);
-  });
-}
-
 function generarRFC(nombre, apellidoP, apellidoM, fechaNacimiento) {
   // fechaNacimiento esperado: DD/MM/AAAA
   if (!nombre || !apellidoP) return "";
@@ -394,7 +384,7 @@ const Modal = ({ title, onClose, children, wide, maxW }) => (
   <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:20}} onClick={onClose}>
     <div style={{background:"#fff",borderRadius:20,width:"100%",maxWidth:maxW||(wide?760:500),maxHeight:"92vh",display:"flex",flexDirection:"column",overflow:"hidden"}} onClick={e=>e.stopPropagation()}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"20px 28px 16px",borderBottom:"1px solid #f3f4f6",flexShrink:0,background:"#fff",borderRadius:"20px 20px 0 0"}}>
-        <h3 style={{margin:0,fontSize:17,fontWeight:700,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{title}</h3>
+        <h3 style={{margin:0,fontSize:17,fontWeight:700,fontFamily:"'Playfair Display',serif"}}>{title}</h3>
         <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:"#6b7280",display:"flex",flexShrink:0}}><Icon name="x" size={22}/></button>
       </div>
       <div style={{overflowY:"auto",padding:"20px 28px 28px",flex:1}}>
@@ -435,7 +425,7 @@ const ProgressBar = ({ value, max, color, height=8 }) => {
 
 const SectionTitle = ({ title, sub }) => (
   <div style={{marginBottom:4}}>
-    <h2 style={{margin:0,fontSize:24,fontWeight:800,fontFamily:"'Inter','Segoe UI',sans-serif",color:"#111827"}}>{title}</h2>
+    <h2 style={{margin:0,fontSize:24,fontWeight:800,fontFamily:"'Playfair Display',serif",color:"#111827"}}>{title}</h2>
     {sub&&<p style={{margin:"3px 0 0",color:"#6b7280",fontSize:13}}>{sub}</p>}
   </div>
 );
@@ -506,7 +496,7 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
   return (
     <div style={{display:"flex",flexDirection:"column",gap:24}}>
       <div>
-        <h2 style={{margin:0,fontSize:24,fontWeight:800,fontFamily:"'Inter','Segoe UI',sans-serif",color:"#111827"}}>Panel Principal</h2>
+        <h2 style={{margin:0,fontSize:24,fontWeight:800,fontFamily:"'Playfair Display',serif",color:"#111827"}}>Panel Principal</h2>
         <p style={{margin:"3px 0 0",color:"#6b7280",fontSize:13}}>Resumen operativo — 2025</p>
       </div>
 
@@ -577,7 +567,7 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
           </div>
           <div style={{background:"linear-gradient(135deg,#0f172a,#1e3a5f)",borderRadius:12,padding:"8px 16px",color:"#fff",textAlign:"center"}}>
             <div style={{fontSize:10,color:"#94a3b8",letterSpacing:"0.05em"}}>GLOBAL</div>
-            <div style={{fontSize:22,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif",color:pctPAI>=80?"#4ade80":pctPAI>=50?"#fbbf24":"#f87171"}}>{pctPAI}%</div>
+            <div style={{fontSize:22,fontWeight:900,fontFamily:"'Playfair Display',serif",color:pctPAI>=80?"#4ade80":pctPAI>=50?"#fbbf24":"#f87171"}}>{pctPAI}%</div>
           </div>
         </div>
         <ResponsiveContainer width="100%" height={200}>
@@ -599,12 +589,12 @@ function Dashboard({ clientes, polizas, pipeline, tareas, paiMetas, onVerPoliza 
             <div style={{background:`linear-gradient(135deg,${ramoColor(alertaDetalle.ramo)},${ramoColor(alertaDetalle.ramo)}bb)`,borderRadius:12,padding:"14px 18px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
                 <div style={{fontSize:10,opacity:.8,fontWeight:700}}>{alertaDetalle.ramo?.toUpperCase()}{alertaDetalle.subramo?" · "+alertaDetalle.subramo.toUpperCase():""} · {alertaDetalle.aseguradora}</div>
-                <div style={{fontSize:18,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{alertaDetalle.numero}</div>
+                <div style={{fontSize:18,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>{alertaDetalle.numero}</div>
                 <div style={{fontSize:12,opacity:.9,marginTop:2}}>{alertaDetalle.cliente}</div>
               </div>
               <div style={{textAlign:"right"}}>
                 <div style={{fontSize:9,opacity:.7}}>PRIMA TOTAL</div>
-                <div style={{fontSize:22,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>${(parseFloat(alertaDetalle.primaTotal)||parseFloat(alertaDetalle.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
+                <div style={{fontSize:22,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>${(parseFloat(alertaDetalle.primaTotal)||parseFloat(alertaDetalle.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
               </div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
@@ -647,76 +637,12 @@ const FORM_CLIENTE_INIT = {
 // ═══════════════════════════════════════════════════════════════════
 // DETALLE CLIENTE MODAL
 // ═══════════════════════════════════════════════════════════════════
-function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar, onRegistrarPago, sesion }) {
+function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar, onRegistrarPago }) {
   const [editando, setEditando] = useState(false);
   const [form, setForm] = useState({...cliente});
   const [guardado, setGuardado] = useState(false);
   const [polizaVer, setPolizaVer] = useState(null);
   const [polizaPago, setPolizaPago] = useState(null);
-  const [nuevaNota, setNuevaNota] = useState("");
-  const [agregandoNota, setAgregandoNota] = useState(false);
-  const [subiendoArchivo, setSubiendoArchivo] = useState(false);
-  const fileInputRef = useRef(null);
-
-  const agregarNota = () => {
-    if (!nuevaNota.trim()) return;
-    const nota = {
-      id: Date.now(),
-      texto: nuevaNota.trim(),
-      fecha: new Date().toLocaleDateString("es-MX", {day:"2-digit",month:"2-digit",year:"numeric"}),
-      hora: new Date().toLocaleTimeString("es-MX", {hour:"2-digit",minute:"2-digit"}),
-      autor: sesion?.nombre || "Usuario",
-    };
-    const notasActualizadas = [...(cliente.notasHistorial||[]), nota];
-    onGuardar({...cliente, notasHistorial: notasActualizadas});
-    setNuevaNota("");
-    setAgregandoNota(false);
-  };
-
-  const eliminarNota = (id) => {
-    const notasActualizadas = (cliente.notasHistorial||[]).filter(n=>n.id!==id);
-    onGuardar({...cliente, notasHistorial: notasActualizadas});
-  };
-
-  const TIPOS_DOCUMENTO = [
-    {key:"ine_frente",    label:"INE Frente"},
-    {key:"ine_reverso",   label:"INE Reverso"},
-    {key:"ine_rep_legal", label:"INE Rep. Legal"},
-    {key:"acta_const",    label:"Acta Constitutiva"},
-    {key:"poder_notarial",label:"Poder Notarial"},
-    {key:"endoso",        label:"Endoso"},
-    {key:"comprobante",   label:"Comprobante Domicilio"},
-    {key:"otro",          label:"Otro documento"},
-  ];
-
-  const subirArchivo = (e, tipoKey) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { alert("El archivo no debe superar 5 MB"); return; }
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const nuevoDoc = {
-        id: Date.now(),
-        tipo: tipoKey,
-        label: TIPOS_DOCUMENTO.find(t=>t.key===tipoKey)?.label || tipoKey,
-        nombre: file.name,
-        mimeType: file.type,
-        base64: ev.target.result,
-        fecha: new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"2-digit",year:"numeric"}),
-        autor: sesion?.nombre || "Usuario",
-      };
-      const docsActualizados = [...(cliente.documentos||[]), nuevoDoc];
-      onGuardar({...cliente, documentos: docsActualizados});
-    };
-    reader.readAsDataURL(file);
-    e.target.value = "";
-  };
-
-  const eliminarDoc = (id) => {
-    if (!window.confirm("¿Eliminar este documento?")) return;
-    const docsActualizados = (cliente.documentos||[]).filter(d=>d.id!==id);
-    onGuardar({...cliente, documentos: docsActualizados});
-  };
 
   const upd = (k,v) => setForm(p=>({...p,[k]:v}));
 
@@ -803,136 +729,6 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar, onRegist
                   <Btn onClick={()=>window.open("https://wa.me/52"+cliente.whatsapp.replace(/\D/g,""),"_blank")} color="#25d366" icon="whatsapp">
                     Abrir WhatsApp
                   </Btn>
-                </div>
-              )}
-            </div>
-
-            {/* SECCIÓN NOTAS */}
-            <div style={{background:"#f8fafc",borderRadius:12,padding:"16px 18px"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-                <div style={{fontSize:11,fontWeight:800,color:"#6b7280",letterSpacing:"0.08em"}}>
-                  📝 NOTAS ({(cliente.notasHistorial||[]).length})
-                </div>
-                <button onClick={()=>setAgregandoNota(v=>!v)}
-                  style={{background:"#0f172a",color:"#fff",border:"none",borderRadius:7,padding:"5px 14px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                  + Agregar nota
-                </button>
-              </div>
-
-              {/* Formulario nueva nota */}
-              {agregandoNota&&(
-                <div style={{background:"#fff",borderRadius:10,padding:"12px",marginBottom:12,border:"1.5px solid #2563eb33"}}>
-                  <textarea
-                    value={nuevaNota}
-                    onChange={e=>setNuevaNota(e.target.value)}
-                    placeholder="Escribe una nota o comentario sobre este cliente..."
-                    rows={3}
-                    style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:8,padding:"8px 10px",fontSize:12,fontFamily:"inherit",resize:"none",lineHeight:1.6,boxSizing:"border-box",outline:"none"}}
-                    autoFocus
-                  />
-                  <div style={{display:"flex",gap:8,marginTop:8}}>
-                    <button onClick={()=>{setAgregandoNota(false);setNuevaNota("");}}
-                      style={{background:"#f3f4f6",border:"none",borderRadius:7,padding:"6px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",color:"#6b7280"}}>
-                      Cancelar
-                    </button>
-                    <button onClick={agregarNota}
-                      style={{background:"#059669",color:"#fff",border:"none",borderRadius:7,padding:"6px 18px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                      💾 Guardar nota
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Lista de notas */}
-              {(cliente.notasHistorial||[]).length===0&&!agregandoNota?(
-                <div style={{textAlign:"center",color:"#9ca3af",fontSize:12,padding:"16px 0"}}>
-                  No hay notas registradas para este cliente
-                </div>
-              ):(
-                <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  {[...(cliente.notasHistorial||[])].reverse().map(nota=>(
-                    <div key={nota.id} style={{background:"#fff",borderRadius:9,padding:"10px 12px",border:"1px solid #e5e7eb",position:"relative"}}>
-                      <div style={{fontSize:12,color:"#111827",lineHeight:1.6,paddingRight:24}}>{nota.texto}</div>
-                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:6}}>
-                        <div style={{fontSize:10,color:"#9ca3af"}}>
-                          🕐 {nota.fecha} {nota.hora} · {nota.autor}
-                        </div>
-                        <button onClick={()=>eliminarNota(nota.id)}
-                          style={{background:"none",border:"none",color:"#dc2626",cursor:"pointer",fontSize:11,padding:"0 4px",fontFamily:"inherit",opacity:0.6}}
-                          title="Eliminar nota">
-                          ✕
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* SECCIÓN DOCUMENTOS */}
-            <div style={{background:"#f8fafc",borderRadius:12,padding:"16px 18px"}}>
-              <div style={{fontSize:11,fontWeight:800,color:"#6b7280",letterSpacing:"0.08em",marginBottom:12}}>
-                📎 DOCUMENTOS ({(cliente.documentos||[]).length})
-              </div>
-
-              {/* Botones para subir por tipo */}
-              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(140px,1fr))",gap:8,marginBottom:12}}>
-                {TIPOS_DOCUMENTO.map(tipo=>{
-                  const yaSubido = (cliente.documentos||[]).find(d=>d.tipo===tipo.key);
-                  return(
-                    <label key={tipo.key} style={{
-                      display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
-                      gap:4,padding:"10px 8px",borderRadius:9,cursor:"pointer",textAlign:"center",
-                      border: yaSubido ? "1.5px solid #059669" : "1.5px dashed #cbd5e1",
-                      background: yaSubido ? "#f0fdf4" : "#fff",
-                      transition:"all 0.15s"
-                    }}>
-                      <span style={{fontSize:20}}>{yaSubido ? "✅" : "📄"}</span>
-                      <span style={{fontSize:10,fontWeight:700,color: yaSubido ? "#059669" : "#6b7280"}}>{tipo.label}</span>
-                      {yaSubido && <span style={{fontSize:9,color:"#9ca3af"}}>Subido</span>}
-                      <input type="file" accept="image/*,application/pdf" style={{display:"none"}}
-                        onChange={e=>subirArchivo(e, tipo.key)}/>
-                    </label>
-                  );
-                })}
-              </div>
-
-              {/* Lista de documentos subidos */}
-              {(cliente.documentos||[]).length === 0 ? (
-                <div style={{textAlign:"center",color:"#9ca3af",fontSize:12,padding:"8px 0"}}>
-                  No hay documentos adjuntos
-                </div>
-              ) : (
-                <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  {(cliente.documentos||[]).map(doc=>{
-                    const esPDF = doc.mimeType==="application/pdf" || doc.nombre?.toLowerCase().endsWith(".pdf");
-                    return(
-                      <div key={doc.id} style={{background:"#fff",borderRadius:9,padding:"10px 12px",border:"1px solid #e5e7eb",display:"flex",alignItems:"center",gap:12}}>
-                        <span style={{fontSize:24,flexShrink:0}}>{esPDF ? "📄" : "🖼️"}</span>
-                        <div style={{flex:1,minWidth:0}}>
-                          <div style={{fontSize:11,fontWeight:700,color:"#374151"}}>{doc.label}</div>
-                          <div style={{fontSize:10,color:"#9ca3af",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{doc.nombre}</div>
-                          <div style={{fontSize:9,color:"#9ca3af"}}>{doc.fecha} · {doc.autor}</div>
-                        </div>
-                        <div style={{display:"flex",gap:6,flexShrink:0}}>
-                          <a href={doc.base64} download={doc.nombre}
-                            style={{background:"#eff6ff",border:"1px solid #bfdbfe",borderRadius:6,padding:"4px 10px",fontSize:10,fontWeight:700,color:"#1d4ed8",textDecoration:"none"}}>
-                            ⬇ Descargar
-                          </a>
-                          {!esPDF && (
-                            <a href={doc.base64} target="_blank" rel="noreferrer"
-                              style={{background:"#f0fdf4",border:"1px solid #bbf7d0",borderRadius:6,padding:"4px 10px",fontSize:10,fontWeight:700,color:"#059669",textDecoration:"none"}}>
-                              👁 Ver
-                            </a>
-                          )}
-                          <button onClick={()=>eliminarDoc(doc.id)}
-                            style={{background:"#fef2f2",border:"1px solid #fecaca",borderRadius:6,padding:"4px 8px",fontSize:10,fontWeight:700,color:"#dc2626",cursor:"pointer",fontFamily:"inherit"}}>
-                            ✕
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
                 </div>
               )}
             </div>
@@ -1175,12 +971,12 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar, onRegist
             <div style={{background:`linear-gradient(135deg,${ramoColor(polizaVer.ramo)},${ramoColor(polizaVer.ramo)}bb)`,borderRadius:12,padding:"14px 18px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
                 <div style={{fontSize:10,opacity:.8,fontWeight:700}}>{polizaVer.ramo?.toUpperCase()}{polizaVer.subramo?" · "+polizaVer.subramo.toUpperCase():""} · {polizaVer.aseguradora}</div>
-                <div style={{fontSize:18,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{polizaVer.numero}</div>
+                <div style={{fontSize:18,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>{polizaVer.numero}</div>
                 <div style={{fontSize:12,opacity:.9,marginTop:2}}>{polizaVer.cliente}</div>
               </div>
               <div style={{textAlign:"right"}}>
                 <div style={{fontSize:9,opacity:.7}}>PRIMA TOTAL</div>
-                <div style={{fontSize:22,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>${(parseFloat(polizaVer.primaTotal)||parseFloat(polizaVer.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
+                <div style={{fontSize:22,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>${(parseFloat(polizaVer.primaTotal)||parseFloat(polizaVer.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
                 <div style={{fontSize:11,opacity:.8,marginTop:2}}>{polizaVer.formaPago||polizaVer.frecuencia}</div>
               </div>
             </div>
@@ -1229,7 +1025,7 @@ function DetalleClienteModal({ cliente, polizas=[], onClose, onGuardar, onRegist
   );
 }
 
-function Clientes({ clientes, setClientes, clientesOps, polizas=[], setPolizas, sesion }) {
+function Clientes({ clientes, setClientes, polizas=[], setPolizas }) {
   const [busqueda, setBusqueda] = useState("");
   const [viewModeC, setViewModeC] = useState("cards");
   const [showModal, setShowModal] = useState(false);
@@ -1262,7 +1058,7 @@ function Clientes({ clientes, setClientes, clientesOps, polizas=[], setPolizas, 
     return Object.keys(e).length === 0;
   };
 
-  const guardar = async () => {
+  const guardar = () => {
     if (!validar()) return;
     const nombreNuevo = `${form.nombre} ${form.apellidoPaterno} ${form.apellidoMaterno||""}`.trim().toLowerCase();
     const rfcNuevo = (form.rfc||"").trim().toUpperCase();
@@ -1275,11 +1071,7 @@ function Clientes({ clientes, setClientes, clientesOps, polizas=[], setPolizas, 
       alert(`⚠️ Ya existe un cliente con ${msg}. No se puede guardar duplicado.`);
       return;
     }
-    if (clientesOps) {
-      await clientesOps.insertar({ ...form, polizas: 0 });
-    } else {
-      setClientes(prev=>[...prev,{...form,id:Date.now(),polizas:0}]);
-    }
+    setClientes(prev=>[...prev,{...form,id:Date.now(),polizas:0}]);
     setShowModal(false);
     setForm(FORM_CLIENTE_INIT);
     setErrores({});
@@ -1387,7 +1179,7 @@ function Clientes({ clientes, setClientes, clientesOps, polizas=[], setPolizas, 
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
                 <div>
                   <Inp label="Nombre(s) *" value={form.nombre} onChange={e=>{
-                    const v=toTitleCase(e.target.value);
+                    const v=e.target.value;
                     const rfc=generarRFC(v,form.apellidoPaterno,form.apellidoMaterno,form.fechaNacimiento);
                     setForm(p=>({...p,nombre:v,rfc}));
                   }} placeholder="María"/>
@@ -1395,14 +1187,14 @@ function Clientes({ clientes, setClientes, clientesOps, polizas=[], setPolizas, 
                 </div>
                 <div>
                   <Inp label="Apellido Paterno *" value={form.apellidoPaterno} onChange={e=>{
-                    const v=toTitleCase(e.target.value);
+                    const v=e.target.value;
                     const rfc=generarRFC(form.nombre,v,form.apellidoMaterno,form.fechaNacimiento);
                     setForm(p=>({...p,apellidoPaterno:v,rfc}));
                   }} placeholder="González"/>
                   <ErrMsg k="apellidoPaterno"/>
                 </div>
                 <Inp label="Apellido Materno" value={form.apellidoMaterno} onChange={e=>{
-                  const v=toTitleCase(e.target.value);
+                  const v=e.target.value;
                   const rfc=generarRFC(form.nombre,form.apellidoPaterno,v,form.fechaNacimiento);
                   setForm(p=>({...p,apellidoMaterno:v,rfc}));
                 }} placeholder="Ruiz"/>
@@ -1446,13 +1238,13 @@ function Clientes({ clientes, setClientes, clientesOps, polizas=[], setPolizas, 
             <div style={{background:"#f8fafc",borderRadius:12,padding:"16px 18px"}}>
               <div style={{fontSize:11,fontWeight:800,color:"#6b7280",letterSpacing:"0.08em",marginBottom:12}}>DIRECCIÓN</div>
               <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:12,marginBottom:12}}>
-                <Inp label="Calle" value={form.calle} onChange={e=>f("calle")(toTitleCase(e.target.value))} placeholder="Insurgentes Sur"/>
+                <Inp label="Calle" value={form.calle} onChange={e=>f("calle")(e.target.value)} placeholder="Insurgentes Sur"/>
                 <Inp label="Número" value={form.numero} onChange={e=>f("numero")(e.target.value)} placeholder="1234"/>
               </div>
               <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 2fr",gap:12}}>
-                <Inp label="Colonia" value={form.colonia} onChange={e=>f("colonia")(toTitleCase(e.target.value))} placeholder="Del Valle"/>
+                <Inp label="Colonia" value={form.colonia} onChange={e=>f("colonia")(e.target.value)} placeholder="Del Valle"/>
                 <Inp label="C.P." value={form.cp} onChange={e=>f("cp")(e.target.value)} placeholder="03100"/>
-                <Inp label="Ciudad / Municipio" value={form.ciudad} onChange={e=>f("ciudad")(toTitleCase(e.target.value))} placeholder="Benito Juárez"/>
+                <Inp label="Ciudad / Municipio" value={form.ciudad} onChange={e=>f("ciudad")(e.target.value)} placeholder="Benito Juárez"/>
                 <Sel label="Estado" value={form.estado} onChange={e=>f("estado")(e.target.value)}>
                   <option value="">Seleccionar estado</option>
                   {ESTADOS_MX.map(es=><option key={es}>{es}</option>)}
@@ -1470,16 +1262,11 @@ function Clientes({ clientes, setClientes, clientesOps, polizas=[], setPolizas, 
         cliente={showDetalle}
         polizas={polizas}
         onClose={()=>setShowDetalle(null)}
-        onGuardar={async (clienteEditado)=>{
-          if (clientesOps) {
-            await clientesOps.actualizar(clienteEditado.id, clienteEditado);
-          } else {
-            setClientes(prev=>prev.map(c=>c.id===clienteEditado.id?clienteEditado:c));
-          }
+        onGuardar={(clienteEditado)=>{
+          setClientes(prev=>prev.map(c=>c.id===clienteEditado.id?clienteEditado:c));
           setShowDetalle(clienteEditado);
         }}
         onRegistrarPago={registrarPagoDesdeCliente}
-        sesion={sesion}
       />}
     </div>
   );
@@ -1592,15 +1379,6 @@ const INCISO_INIT = {
   primaNeta:"", gastosExpedicion:"600", primaConIva:"",
   coberturasAutos:{},
 };
-
-function SecBox({title, color="#6b7280", children}) {
-  return (
-    <div style={{background:"#f8fafc",borderRadius:12,padding:"14px 16px",border:`1px solid ${color}22`}}>
-      <div style={{fontSize:10,fontWeight:800,color,letterSpacing:"0.08em",marginBottom:12}}>{title}</div>
-      {children}
-    </div>
-  );
-}
 
 function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
   const [paso, setPaso] = useState(1);
@@ -1765,7 +1543,12 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
     setForm(p=>({...p, incisos:(p.incisos||[]).filter((_,i)=>i!==idx).map((inc,i)=>({...inc, numero:i+1}))}));
   };
 
-
+  const SecBox = ({title, color="#6b7280", children}) => (
+    <div style={{background:"#f8fafc",borderRadius:12,padding:"14px 16px",border:`1px solid ${color}22`}}>
+      <div style={{fontSize:10,fontWeight:800,color,letterSpacing:"0.08em",marginBottom:12}}>{title}</div>
+      {children}
+    </div>
+  );
 
   return (
     <Modal title="Nueva Póliza" onClose={onClose} wide maxW={760}>
@@ -2058,7 +1841,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
                 <div style={{color:"#94a3b8",fontSize:12,fontWeight:600}}>PRIMA TOTAL A PAGAR</div>
                 <div style={{color:"#60a5fa",fontSize:11,marginTop:2}}>{form.formaPago||"Anual"} · {calcRecibos(form).length} recibo{calcRecibos(form).length>1?"s":""}</div>
               </div>
-              <div style={{color:"#fff",fontSize:26,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>
+              <div style={{color:"#fff",fontSize:26,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>
                 ${parseFloat(calcPrimaTotal(form)).toLocaleString("es-MX",{minimumFractionDigits:2})}
               </div>
             </div>
@@ -2200,7 +1983,7 @@ function ModalPoliza({ clientes, subagentes, onGuardar, onClose }) {
                   <div style={{fontWeight:700}}>{form.incisos.length} Vehículos · Prima total flotilla</div>
                   <div style={{fontSize:10,marginTop:2}}>Suma de todas las primas con IVA</div>
                 </div>
-                <div style={{color:"#fff",fontSize:24,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>
+                <div style={{color:"#fff",fontSize:24,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>
                   ${(form.incisos.reduce((s,i)=>s+(parseFloat(i.primaConIva)||0),0)).toLocaleString("es-MX",{minimumFractionDigits:2})}
                 </div>
               </div>
@@ -2557,7 +2340,7 @@ function DocAdjunto({ poliza, onSubir }) {
   );
 }
 
-function Polizas({ polizas, setPolizas, polizasOps, clientes, setClientes, subagentes, setSubagentes, plantillas }) {
+function Polizas({ polizas, setPolizas, clientes, setClientes, subagentes, setSubagentes, plantillas }) {
   const [filtro, setFiltro] = useState("todas");
   const [filtroRamo, setFiltroRamo] = useState("todos");
   const [showModal, setShowModal] = useState(false);
@@ -2619,25 +2402,26 @@ function Polizas({ polizas, setPolizas, polizasOps, clientes, setClientes, subag
   const [polizaRecienGuardada, setPolizaRecienGuardada] = useState(null);
   const [showBienvenida, setShowBienvenida] = useState(null); // {poliza, tieneWA, tieneEmail}
 
-  const onGuardar = async (data) => {
+  const onGuardar = (data) => {
     const normNum = (s) => (s||"").trim().toLowerCase().replace(/[\s\-_]/g,"");
     const num = normNum(data.numero);
     if (num && polizas.some(p => normNum(p.numero) === num && p.status !== "cancelada")) {
       alert(`⚠️ Ya existe una póliza con el número "${data.numero}". No se puede guardar duplicada.`);
       return;
     }
+    // Si hay clienteId, vincular con cliente existente (evitar duplicados)
     if (data.clienteId) {
       setClientes(prev => prev.map(c => c.id===data.clienteId ? {...c, polizas:(c.polizas||0)+1} : c));
     }
     const id = Date.now() + Math.floor(Math.random()*9999);
     const nuevaPoliza = {...data, id};
     setPolizas(prev => [...prev, nuevaPoliza]);
-    if (polizasOps) await polizasOps.insertar(nuevaPoliza);
     setBusqueda("");
     setFiltro("todas");
     setFiltroRamo("todos");
     setPolizaRecienGuardada(id);
     setTimeout(()=>setPolizaRecienGuardada(null), 4000);
+    // Disparar bienvenida si hay WhatsApp o email
     const tieneWA = !!(data.telefonoCliente||data.whatsappCliente||"").replace(/\D/g,"");
     const tieneEmail = !!(data.emailCliente||"").trim();
     if (tieneWA || tieneEmail) {
@@ -2657,7 +2441,7 @@ function Polizas({ polizas, setPolizas, polizasOps, clientes, setClientes, subag
     return f; // ya es YYYY-MM-DD u otro
   };
 
-  const onExtracted = async (data, docData) => {
+  const onExtracted = (data, docData) => {
     // 1. Crear cliente si no existe
     let clienteId = "";
     let clienteNombre = data.cliente || "";
@@ -2678,12 +2462,13 @@ function Polizas({ polizas, setPolizas, polizasOps, clientes, setClientes, subag
           email:    c.email    || data.emailCliente    || "",
           telefono: c.telefono || data.telefonoCliente || "",
           whatsapp: c.whatsapp || data.whatsappCliente || data.telefonoCliente || "",
-          calle:    c.calle    || toTitleCase(data.clienteCalle    || ""),
+          // Dirección: solo si no tiene
+          calle:    c.calle    || data.clienteCalle    || "",
           numero:   c.numero   || data.clienteNumero   || "",
-          colonia:  c.colonia  || toTitleCase(data.clienteColonia || ""),
+          colonia:  c.colonia  || data.clienteColonia  || "",
           cp:       c.cp       || data.clienteCp       || "",
-          ciudad:   c.ciudad   || toTitleCase(data.clienteCiudad  || ""),
-          estado:   c.estado   || toTitleCase(data.clienteEstado  || ""),
+          ciudad:   c.ciudad   || data.clienteCiudad   || "",
+          estado:   c.estado   || data.clienteEstado   || "",
         } : c));
       } else {
         // Dividir nombre: para apellido compuesto tomar últimas 2 palabras como apellidos
@@ -2699,17 +2484,17 @@ function Polizas({ polizas, setPolizas, polizasOps, clientes, setClientes, subag
         }
         const nuevoCliente = {
           id: Date.now(),
-          nombre: toTitleCase(pNombre),
-          apellidoPaterno: toTitleCase(pApellidoP),
-          apellidoMaterno: toTitleCase(pApellidoM),
+          nombre: pNombre,
+          apellidoPaterno: pApellidoP,
+          apellidoMaterno: pApellidoM,
           rfc: data.rfcCliente || "",
           fechaNacimiento: data.fechaNacimiento || "",
-          calle:   toTitleCase(data.clienteCalle   || ""),
+          calle:   data.clienteCalle   || "",
           numero:  data.clienteNumero  || "",
-          colonia: toTitleCase(data.clienteColonia || ""),
+          colonia: data.clienteColonia || "",
           cp:      data.clienteCp      || "",
-          ciudad:  toTitleCase(data.clienteCiudad  || ""),
-          estado:  toTitleCase(data.clienteEstado  || ""),
+          ciudad:  data.clienteCiudad  || "",
+          estado:  data.clienteEstado  || "",
           email:    data.emailCliente    || "",
           telefono: data.telefonoCliente || "",
           whatsapp: data.whatsappCliente || data.telefonoCliente || "",
@@ -2737,7 +2522,7 @@ function Polizas({ polizas, setPolizas, polizasOps, clientes, setClientes, subag
       ...data,
       id,
       clienteId,
-      cliente: toTitleCase(clienteNombre),
+      cliente: clienteNombre,
       rfc: data.rfcCliente || "",
       inicio: normalizarFecha(data.inicio),
       vencimiento: normalizarFecha(data.vencimiento),
@@ -2765,19 +2550,6 @@ function Polizas({ polizas, setPolizas, polizasOps, clientes, setClientes, subag
     };
 
     setPolizas(prev => [...prev, mapped]);
-    if (polizasOps) {
-      const CAMPOS_CLIENTE = new Set([
-        "fechaNacimiento","sexo","calle","colonia","cp","ciudad","estadoCliente",
-        "apellidoPaterno","apellidoMaterno","whatsapp","telefono","email",
-        "rfcCliente","emailCliente","telefonoCliente","whatsappCliente",
-        "clienteCalle","clienteNumero","clienteColonia","clienteCp",
-        "clienteCiudad","clienteEstado","_autoCreado","numero"
-      ]);
-      const mappedLimpio = Object.fromEntries(
-        Object.entries(mapped).filter(([k]) => !CAMPOS_CLIENTE.has(k))
-      );
-      await polizasOps.insertar(mappedLimpio);
-    }
     setBusqueda("");
     setFiltro("todas");
     setFiltroRamo("todos");
@@ -2786,45 +2558,35 @@ function Polizas({ polizas, setPolizas, polizasOps, clientes, setClientes, subag
     setShowScan(false);
   };
 
-  const cancelarPoliza = async (id) => {
+  const cancelarPoliza = (id) => {
     if (!window.confirm("¿Cancelar esta póliza? Esta acción no se puede deshacer.")) return;
     setPolizas(prev => prev.map(p => p.id === id ? {...p, status:"cancelada"} : p));
-    if (polizasOps) await polizasOps.actualizar(id, { status: "cancelada" });
     setShowDetalle(null);
   };
 
-  const recuperarPoliza = async (id) => {
+  const recuperarPoliza = (id) => {
     setPolizas(prev => prev.map(p => p.id === id ? {...p, status:"activa"} : p));
-    if (polizasOps) await polizasOps.actualizar(id, { status: "activa" });
   };
 
-  const registrarPago = async (pago) => {
-    const polizaActual = polizas.find(p => p.id === showPago.id);
-    const nuevosPagos = [...(polizaActual?.pagos||[]), pago];
+  const registrarPago = (pago) => {
     setPolizas(prev => prev.map(p => p.id === showPago.id
-      ? {...p, pagos:nuevosPagos, ultimoPago:pago}
+      ? {...p, pagos:[...(p.pagos||[]), pago], ultimoPago:pago}
       : p
     ));
-    setShowDetalle(prev => prev ? {...prev, pagos:nuevosPagos, ultimoPago:pago} : prev);
-    if (polizasOps) await polizasOps.actualizar(showPago.id, { pagos: nuevosPagos, ultimoPago: pago });
+    setShowDetalle(prev => prev ? {...prev, pagos:[...(prev.pagos||[]), pago], ultimoPago:pago} : prev);
   };
 
-  const eliminarPago = async (polizaId, pagoId) => {
-    const polizaActual = polizas.find(p => p.id === polizaId);
-    const nuevosPagos = (polizaActual?.pagos||[]).filter(pg=>pg.id!==pagoId);
+  const eliminarPago = (polizaId, pagoId) => {
     setPolizas(prev => prev.map(p => p.id === polizaId
-      ? {...p, pagos:nuevosPagos}
+      ? {...p, pagos:(p.pagos||[]).filter(pg=>pg.id!==pagoId)}
       : p
     ));
-    setShowDetalle(prev => prev ? {...prev, pagos:nuevosPagos} : prev);
-    setShowPago(prev => prev && prev.id===polizaId ? {...prev, pagos:nuevosPagos} : prev);
-    if (polizasOps) await polizasOps.actualizar(polizaId, { pagos: nuevosPagos });
+    setShowDetalle(prev => prev ? {...prev, pagos:(prev.pagos||[]).filter(pg=>pg.id!==pagoId)} : prev);
+    setShowPago(prev => prev && prev.id===polizaId ? {...prev, pagos:(prev.pagos||[]).filter(pg=>pg.id!==pagoId)} : prev);
   };
 
-  const renovarPoliza = async (nueva) => {
+  const renovarPoliza = (nueva) => {
     setPolizas(prev => [...prev.map(p => p.id === showRenovar.id ? {...p, status:"vencida"} : p), nueva]);
-    if (polizasOps) await polizasOps.actualizar(showRenovar.id, { status: "vencida" });
-    if (polizasOps) await polizasOps.insertar(nueva);
     setShowDetalle(null);
   };
 
@@ -3106,7 +2868,7 @@ function Polizas({ polizas, setPolizas, polizasOps, clientes, setClientes, subag
                   {STATUS_CFG[polizaDetalle._status].label}
                 </span>
                 <div style={{fontSize:9,opacity:.7}}>PRIMA TOTAL</div>
-                <div style={{fontSize:24,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>${Number(polizaDetalle.primaTotal||polizaDetalle.prima||0).toLocaleString()}</div>
+                <div style={{fontSize:24,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>${Number(polizaDetalle.primaTotal||polizaDetalle.prima||0).toLocaleString()}</div>
                 <div style={{fontSize:11,opacity:.8}}>{polizaDetalle.formaPago||polizaDetalle.frecuencia}</div>
               </div>
             </div>
@@ -3401,7 +3163,7 @@ function Polizas({ polizas, setPolizas, polizasOps, clientes, setClientes, subag
         </Modal>
       )}
 
-      {showModal&&<ModalPoliza key="modal-poliza-stable" clientes={clientes} subagentes={subagentes||[]} onGuardar={onGuardar} onClose={()=>setShowModal(false)}/>}
+      {showModal&&<ModalPoliza clientes={clientes} subagentes={subagentes||[]} onGuardar={onGuardar} onClose={()=>setShowModal(false)}/>}
       {showScan&&<ScanPoliza onClose={()=>setShowScan(false)} onExtracted={onExtracted} subagentes={subagentes||[]}/>}
     </div>
   );
@@ -3676,18 +3438,16 @@ function ScanPoliza({ onClose, onExtracted, subagentes }) {
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({
           model:"claude-sonnet-4-20250514",
-          max_tokens:4000,
+          max_tokens:1500,
           messages:[{role:"user",content:[block,{type:"text",text:prompt}]}]
         })
       });
-      const rawText = await res.text();
-      let data;
-      try { data = JSON.parse(rawText); }
-      catch(je) { throw new Error("Respuesta inválida del servidor. El PDF puede ser muy grande — intenta con una imagen JPG de la póliza."); }
-      if(!res.ok) throw new Error(data.error?.message||"Error en API");
+      const data=await res.json();
+      if(!res.ok)throw new Error(data.error?.message||"Error en API");
       const text=data.content.map(b=>b.text||"").join("");
+      // Extraer JSON robusto — busca el primer { hasta el ultimo }
       const match = text.match(/\{[\s\S]*\}/);
-      if(!match) throw new Error("La IA no devolvió un JSON válido. Intenta con una imagen de la póliza.");
+      if(!match) throw new Error("La IA no devolvio un JSON valido");
       const parsed = JSON.parse(match[0]);
       setResult(parsed);
       setStep("result");
@@ -3717,7 +3477,7 @@ function ScanPoliza({ onClose, onExtracted, subagentes }) {
       {step==="analyzing"&&(
         <div style={{textAlign:"center",padding:"50px 20px"}}>
           <div style={{fontSize:40,marginBottom:14}}>🔍</div>
-          <div style={{fontWeight:700,fontSize:16,fontFamily:"'Inter','Segoe UI',sans-serif"}}>Analizando póliza...</div>
+          <div style={{fontWeight:700,fontSize:16,fontFamily:"'Playfair Display',serif"}}>Analizando póliza...</div>
           <style>{`@keyframes bounce{0%,80%,100%{transform:scale(.8);opacity:.5}40%{transform:scale(1.2);opacity:1}}`}</style>
           <div style={{display:"flex",justifyContent:"center",gap:6,marginTop:20}}>
             {[0,1,2].map(i=><div key={i} style={{width:10,height:10,borderRadius:"50%",background:"#2563eb",animation:`bounce 1.2s ${i*.2}s infinite`}}/>)}
@@ -4012,7 +3772,7 @@ function ComunicacionConfig({ plantillas, setPlantillas, plantillasDefault, clie
           {/* Pendientes del día */}
           <div style={{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
             <div style={{background:"#0f172a",padding:"14px 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Inter','Segoe UI',sans-serif"}}>
+              <div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>
                 📋 Notificaciones pendientes hoy
               </div>
               {pendientes.length>0&&<span style={{background:"#dc2626",color:"#fff",borderRadius:20,padding:"2px 10px",fontSize:12,fontWeight:800}}>{pendientes.length}</span>}
@@ -4061,7 +3821,7 @@ function ComunicacionConfig({ plantillas, setPlantillas, plantillasDefault, clie
 
           {/* Reglas de notificación */}
           <div style={{background:"#fff",borderRadius:14,padding:"18px 20px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-            <div style={{fontSize:13,fontWeight:800,color:"#111827",marginBottom:14,fontFamily:"'Inter','Segoe UI',sans-serif"}}>
+            <div style={{fontSize:13,fontWeight:800,color:"#111827",marginBottom:14,fontFamily:"'Playfair Display',serif"}}>
               ⚙️ Reglas de envío automático
             </div>
             <div style={{display:"flex",flexDirection:"column",gap:10}}>
@@ -4098,7 +3858,7 @@ function ComunicacionConfig({ plantillas, setPlantillas, plantillasDefault, clie
           {/* Historial */}
           <div style={{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
             <div style={{padding:"14px 20px",borderBottom:"1px solid #f3f4f6",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <div style={{fontSize:13,fontWeight:800,color:"#111827",fontFamily:"'Inter','Segoe UI',sans-serif"}}>📜 Historial de envíos</div>
+              <div style={{fontSize:13,fontWeight:800,color:"#111827",fontFamily:"'Playfair Display',serif"}}>📜 Historial de envíos</div>
               {(historialNotif||[]).length>0&&(
                 <button onClick={()=>{if(window.confirm("¿Limpiar historial?"))setHistorialNotif([]);}}
                   style={{background:"#fef2f2",color:"#dc2626",border:"1px solid #fecaca",borderRadius:7,
@@ -4452,12 +4212,6 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
   const [resultados, setResultados] = useState([]); // pólizas encontradas
   const [aplicados, setAplicados] = useState({}); // id => aplicado
   const excelRef = useRef();
-  // Filtros historial
-  const [filtroHistMes, setFiltroHistMes] = useState(-1);
-  const [filtroHistAnio, setFiltroHistAnio] = useState(-1);
-  const [filtroHistTipo, setFiltroHistTipo] = useState("todos");
-  // Resumen anual
-  const [anioAnual, setAnioAnual] = useState(new Date().getFullYear());
 
   const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
   const RAMOS_COM = ["Autos","Vida","Gastos Médicos","Daños"];
@@ -4682,8 +4436,8 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
       </div>
 
       {/* Tabs */}
-      <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:12,padding:4,width:"fit-content",flexWrap:"wrap"}}>
-        {[["resumen","📊 Resumen"],["anual","📅 Anual"],["tabla","⚙️ Tabla %"],["importar","📥 Importar Excel"],["subagentes","👥 Subagentes"],["historial","📜 Historial"]].map(([t,l])=>(
+      <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:12,padding:4,width:"fit-content"}}>
+        {[["resumen","📊 Resumen"],["tabla","⚙️ Tabla %"],["importar","📥 Importar Excel"],["subagentes","👥 Subagentes"],["historial","📜 Historial"]].map(([t,l])=>(
           <button key={t} onClick={()=>setTab(t)}
             style={{background:tab===t?"#fff":"none",border:"none",borderRadius:9,padding:"8px 18px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",color:tab===t?"#111827":"#6b7280",boxShadow:tab===t?"0 1px 4px rgba(0,0,0,0.1)":"none"}}>
             {l}
@@ -4691,125 +4445,20 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
         ))}
       </div>
 
-      {/* RESUMEN ANUAL */}
-      {tab==="anual"&&(()=>{
-        const anioOpts=Array.from({length:5},(_,i)=>new Date().getFullYear()-2+i);
-        const resumenAnual=MESES.map((mes,m)=>{
-          const polizasMesA=polizas.filter(p=>{if(p.status==="cancelada")return false;return(p.pagos||[]).some(pg=>{const f=new Date(pg.fechaPago||"");return f.getMonth()===m&&f.getFullYear()===anioAnual;});});
-          const comisionesMesA=polizasMesA.map(p=>{
-            const pagosMesA=(p.pagos||[]).filter(pg=>{const f=new Date(pg.fechaPago||"");return f.getMonth()===m&&f.getFullYear()===anioAnual;});
-            const montoPagado=pagosMesA.reduce((a,pg)=>a+(parseFloat(pg.monto)||0),0);
-            const pct=getPct(p);
-            const comisionDirecta=pagosMesA.reduce((a,pg)=>a+(parseFloat(pg.comisionAgente)||0),0);
-            const comisionBruta=comisionDirecta>0?comisionDirecta:montoPagado*pct/100;
-            const reg=pagosComision.find(pc=>pc.polizaId===p.id&&pc.mes===m&&pc.anio===anioAnual&&!pc.subagentId);
-            return{comisionFinal:reg?.comisionImporte||comisionBruta,estado:reg?.estado||"pendiente"};
-          }).filter(c=>c.comisionFinal>0);
-          const totalM=comisionesMesA.reduce((a,c)=>a+c.comisionFinal,0);
-          const cobradoM=comisionesMesA.filter(c=>c.estado==="cobrada").reduce((a,c)=>a+c.comisionFinal,0);
-          return{mes,m,total:totalM,cobrado:cobradoM,pendiente:totalM-cobradoM,polizas:comisionesMesA.length};
-        });
-        const totalAnio=resumenAnual.reduce((a,r)=>a+r.total,0);
-        const cobradoAnio=resumenAnual.reduce((a,r)=>a+r.cobrado,0);
-        const pendienteAnio=resumenAnual.reduce((a,r)=>a+r.pendiente,0);
-        const maxAnual=Math.max(...resumenAnual.map(r=>r.total),1);
-        return(
-          <div style={{display:"flex",flexDirection:"column",gap:16}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
-              <div style={{fontSize:14,fontWeight:800,color:"#111827"}}>Resumen Anual de Comisiones</div>
-              <div style={{display:"flex",gap:8,alignItems:"center"}}>
-                <select value={anioAnual} onChange={e=>setAnioAnual(Number(e.target.value))}
-                  style={{background:"#0f172a",border:"none",borderRadius:9,padding:"8px 16px",fontSize:13,fontWeight:700,color:"#fff",cursor:"pointer",outline:"none",fontFamily:"inherit"}}>
-                  {anioOpts.map(y=><option key={y} value={y} style={{background:"#0f172a"}}>{y}</option>)}
-                </select>
-                <button onClick={()=>{
-                  const rows=[["Mes","Comisión Total","Cobrado","Pendiente","Pólizas"]];
-                  resumenAnual.forEach(r=>rows.push([r.mes,r.total.toFixed(2),r.cobrado.toFixed(2),r.pendiente.toFixed(2),r.polizas]));
-                  rows.push(["TOTAL",totalAnio.toFixed(2),cobradoAnio.toFixed(2),pendienteAnio.toFixed(2),"—"]);
-                  const csv=rows.map(r=>r.map(v=>`"${v}"`).join(",")).join("\n");
-                  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
-                  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`Comisiones_${anioAnual}.csv`;a.click();
-                }} style={{background:"#2563eb",color:"#fff",border:"none",borderRadius:9,padding:"8px 16px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>📥 Exportar CSV</button>
-              </div>
-            </div>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14}}>
-              {[{label:"Total comisionado",value:`$${totalAnio.toLocaleString("es-MX",{maximumFractionDigits:0})}`,accent:"#2563eb"},{label:"Total cobrado",value:`$${cobradoAnio.toLocaleString("es-MX",{maximumFractionDigits:0})}`,accent:"#059669"},{label:"Total pendiente",value:`$${pendienteAnio.toLocaleString("es-MX",{maximumFractionDigits:0})}`,accent:"#d97706"}].map(({label,value,accent})=>(
-                <div key={label} style={{background:"#fff",borderRadius:16,padding:"18px 20px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)",borderTop:`3px solid ${accent}`}}>
-                  <div style={{fontSize:10,color:"#94a3b8",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>{label}</div>
-                  <div style={{fontSize:26,fontWeight:800,color:"#0f172a",fontFamily:"'Inter',sans-serif"}}>{value}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{background:"#fff",borderRadius:16,padding:"20px 24px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-              <div style={{fontSize:13,fontWeight:800,color:"#111827",marginBottom:16}}>📈 Comisiones por mes — {anioAnual}</div>
-              <div style={{display:"flex",gap:6,alignItems:"flex-end",height:140}}>
-                {resumenAnual.map((r,i)=>{
-                  const h=Math.max((r.total/maxAnual)*100,r.total>0?4:0);
-                  const cobPct=r.total>0?(r.cobrado/r.total*100):0;
-                  return(
-                    <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
-                      <div style={{fontSize:9,fontWeight:700,color:"#374151",textAlign:"center"}}>{r.total>0?"$"+(r.total/1000).toFixed(1)+"k":""}</div>
-                      <div style={{width:"100%",borderRadius:"4px 4px 0 0",position:"relative",height:`${h}%`,minHeight:r.total>0?4:0,background:"#fbbf24"}}>
-                        <div style={{position:"absolute",bottom:0,left:0,right:0,background:"#2563eb",borderRadius:"4px 4px 0 0",height:`${cobPct}%`}}/>
-                      </div>
-                      <div style={{fontSize:8,color:"#94a3b8",fontWeight:600,textAlign:"center"}}>{r.mes.slice(0,3)}</div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div style={{display:"flex",gap:16,marginTop:12,fontSize:11,color:"#6b7280"}}>
-                <span><span style={{display:"inline-block",width:10,height:10,background:"#2563eb",borderRadius:2,marginRight:4}}/>Cobrado</span>
-                <span><span style={{display:"inline-block",width:10,height:10,background:"#fbbf24",borderRadius:2,marginRight:4}}/>Pendiente</span>
-              </div>
-            </div>
-            <div style={{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-              <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-                <thead><tr style={{background:"#0f172a"}}>{["Mes","Pólizas","Comisión total","Cobrado","Pendiente","Avance"].map(h=><th key={h} style={{padding:"10px 14px",textAlign:"left",color:"#fff",fontWeight:700,fontSize:10}}>{h}</th>)}</tr></thead>
-                <tbody>
-                  {resumenAnual.map((r,i)=>{
-                    const pct=r.total>0?(r.cobrado/r.total*100):0;
-                    const esMesActual=r.m===new Date().getMonth()&&anioAnual===new Date().getFullYear();
-                    return(
-                      <tr key={i} style={{borderTop:"1px solid #f1f5f9",background:esMesActual?"#eff6ff":i%2===0?"#fff":"#fafafa",cursor:"pointer"}} onClick={()=>{setMesSelec(r.m);setAnioSelec(anioAnual);setTab("resumen");}}>
-                        <td style={{padding:"9px 14px",fontWeight:esMesActual?800:600,color:esMesActual?"#1d4ed8":"#111827"}}>{r.mes}{esMesActual&&<span style={{fontSize:9,background:"#dbeafe",color:"#1d4ed8",padding:"1px 5px",borderRadius:4,marginLeft:4}}>Actual</span>}</td>
-                        <td style={{padding:"9px 14px",color:"#6b7280"}}>{r.polizas||"—"}</td>
-                        <td style={{padding:"9px 14px",fontWeight:700,color:"#111827"}}>{r.total>0?`$${r.total.toLocaleString("es-MX",{maximumFractionDigits:0})}`:"—"}</td>
-                        <td style={{padding:"9px 14px",fontWeight:700,color:"#059669"}}>{r.cobrado>0?`$${r.cobrado.toLocaleString("es-MX",{maximumFractionDigits:0})}`:"—"}</td>
-                        <td style={{padding:"9px 14px",color:"#d97706",fontWeight:600}}>{r.pendiente>0?`$${r.pendiente.toLocaleString("es-MX",{maximumFractionDigits:0})}`:"—"}</td>
-                        <td style={{padding:"9px 14px"}}>{r.total>0?(<div style={{display:"flex",alignItems:"center",gap:6}}><div style={{flex:1,height:6,background:"#f1f5f9",borderRadius:3,overflow:"hidden"}}><div style={{width:`${pct}%`,height:"100%",background:"#059669",borderRadius:3}}/></div><span style={{fontSize:10,fontWeight:700,color:"#374151",minWidth:32}}>{pct.toFixed(0)}%</span></div>):"—"}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-                <tfoot><tr style={{background:"#0f172a"}}>
-                  <td style={{padding:"10px 14px",color:"#94a3b8",fontWeight:700,fontSize:11}}>TOTAL {anioAnual}</td>
-                  <td style={{padding:"10px 14px",color:"#94a3b8"}}>—</td>
-                  <td style={{padding:"10px 14px",color:"#fff",fontWeight:900,fontSize:13}}>${totalAnio.toLocaleString("es-MX",{maximumFractionDigits:0})}</td>
-                  <td style={{padding:"10px 14px",color:"#34d399",fontWeight:900}}>${cobradoAnio.toLocaleString("es-MX",{maximumFractionDigits:0})}</td>
-                  <td style={{padding:"10px 14px",color:"#fbbf24",fontWeight:700}}>${pendienteAnio.toLocaleString("es-MX",{maximumFractionDigits:0})}</td>
-                  <td style={{padding:"10px 14px",color:"#94a3b8",fontSize:11}}>{totalAnio>0?`${(cobradoAnio/totalAnio*100).toFixed(0)}% cobrado`:"—"}</td>
-                </tr></tfoot>
-              </table>
-            </div>
-          </div>
-        );
-      })()}
-
       {/* IMPORTAR EXCEL */}
       {tab==="importar"&&(
         <div style={{display:"flex",flexDirection:"column",gap:16}}>
           <div style={{background:"#eff6ff",borderRadius:12,padding:"14px 18px",border:"1px solid #bfdbfe",fontSize:13,color:"#1e40af"}}>
-            <div style={{fontWeight:800,marginBottom:4}}>📥 Lector Universal de Comisiones</div>
-            <div style={{fontSize:12}}>Sube el reporte de comisiones de <b>cualquier aseguradora</b> (Mapfre, GNP, AXA, HDI, SURA, Qualitas, etc.). El sistema detecta automáticamente el formato, identifica los números de póliza, primas y comisiones.</div>
+            <div style={{fontWeight:800,marginBottom:4}}>📥 Lector IA de Excel de comisiones</div>
+            <div style={{fontSize:12}}>Sube el reporte de actividades de tu aseguradora. La IA identificará automáticamente las pólizas, primas pagadas, comisiones e importes. Compatible con GNP NewTron, TronWeb y otros formatos.</div>
           </div>
 
           {/* Subir archivo */}
           {!excelData&&(
             <div style={{background:"#fff",borderRadius:14,padding:"32px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,0.07)",border:"2px dashed #e2e8f0"}}>
               <div style={{fontSize:40,marginBottom:12}}>📊</div>
-              <div style={{fontSize:14,fontWeight:700,color:"#374151",marginBottom:6}}>Sube tu reporte de comisiones</div>
-              <div style={{fontSize:12,color:"#9ca3af",marginBottom:4}}>Formatos soportados: .xlsx, .xls</div>
-              <div style={{fontSize:11,color:"#6b7280",marginBottom:16}}>Compatible con cualquier aseguradora · Detección automática de formato</div>
+              <div style={{fontSize:14,fontWeight:700,color:"#374151",marginBottom:6}}>Sube tu Excel de comisiones</div>
+              <div style={{fontSize:12,color:"#9ca3af",marginBottom:16}}>Formatos soportados: .xlsx, .xls</div>
               <input ref={excelRef} type="file" accept=".xlsx,.xls" style={{display:"none"}}
                 onChange={async (e)=>{
                   const file = e.target.files[0];
@@ -4818,65 +4467,66 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
                   setProcesando(true);
                   setResultados([]);
                   setAplicados({});
+                  // Leer Excel con SheetJS
                   try {
                     const XLSX = await import("https://cdn.sheetjs.com/xlsx-0.20.1/package/xlsx.mjs");
                     const buffer = await file.arrayBuffer();
                     const wb = XLSX.read(buffer);
-                    const toNum = s=>parseFloat(String(s||"").replace(/[,$\s]/g,""))||0;
-                    const esNumPoliza = s=>{const n=String(s||"").trim().replace(/[\s\-\.]/g,"");return n.length>=6&&/\d{4,}/.test(n)&&!/^[a-zA-Z]+$/.test(n);};
-                    const parseFecha = raw=>{const s=String(raw||"").trim().replace(/\D/g,"");if(s.length===8){const a=parseInt(s.slice(0,4));if(a>1900&&a<2100)return`${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;return`${s.slice(4,8)}-${s.slice(2,4)}-${s.slice(0,2)}`;}return"";};
-                    const normRamo=r=>{const u=String(r||"").toUpperCase();if(/AUTO|AUTOS|410|411|412|VEHIC/.test(u))return"Autos";if(/GASTO|MEDIC|HOSPIT|SALUD|GMM|PROTEC/.test(u))return"Gastos Médicos";if(/VIDA|LIFE|TEMPORAL/.test(u))return"Vida";if(/DAÑO|HOGAR|INCEND|NEGOC/.test(u))return"Daños";return r||"Otro";};
-                    const detectarColumnas=hr=>{const c={poliza:-1,cliente:-1,prima:-1,comision:-1,fecha:-1,ramo:-1,recibo:-1};hr.forEach((h,i)=>{const u=String(h||"").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");if(c.poliza<0&&/POLIZA|NUMERO|POLICY|NO\.?\s*POL/.test(u))c.poliza=i;if(c.cliente<0&&/CLIENTE|CONTRAT|ASEGURADO|NOMBRE/.test(u))c.cliente=i;if(c.prima<0&&/PRIMA|PREMIO|PRIMA.*BASE|MONTO/.test(u))c.prima=i;if(c.comision<0&&/COMIS|IMPORT.*COM|COM.*AGENT/.test(u))c.comision=i;if(c.fecha<0&&/FECHA|DATE|PAGO/.test(u))c.fecha=i;if(c.ramo<0&&/RAMO|PRODUCTO|TIPO/.test(u))c.ramo=i;if(c.recibo<0&&/RECIBO|RECEIPT|FACTURA|FOLIO/.test(u))c.recibo=i;});return c;};
-                    const esFormatoMapfre=rows=>{const h=rows[0]||[];return String(h[6]||"").toUpperCase().includes("CLAVE")||String(h[1]||"").toUpperCase().includes("POLIZA");};
-                    let filas=[];
+                    // Extraer todas las hojas
+                    let filas = [];
                     wb.SheetNames.forEach(sheetName=>{
-                      const ws=wb.Sheets[sheetName];
-                      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:""});
-                      if(rows.length<2)return;
-                      if(esFormatoMapfre(rows)){
-                        const tieneColFecha=rows[0].length>=11;
-                        rows.forEach((row,idx)=>{
-                          if(idx===0)return;
-                          const polizaNum=String(row[1]||"").trim();
-                          const clave=String(row[6]||"").trim().toUpperCase();
-                          if(!esNumPoliza(polizaNum)||clave!=="CT")return;
-                          const primaBase=toNum(row[8]);const importe=toNum(row[9]);
-                          if(primaBase<=0&&importe<=0)return;
-                          let fechaPago="";
-                          if(tieneColFecha)fechaPago=parseFecha(row[10]);
-                          if(!fechaPago){const dia=String(row[0]||"").trim();for(let j=idx+1;j<rows.length&&j<idx+20;j++){if(String(rows[j][0]||"").trim()!==dia)break;if(String(rows[j][6]||"").trim().toUpperCase()==="DC"){const m=String(rows[j][7]||"").match(/(\d{8})/);if(m){fechaPago=parseFecha(m[1]);break;}}}}
-                          filas.push({polizaNum,cliente:String(row[7]||"").trim(),ramo:normRamo(row[3]),recibo:String(row[4]||"").trim(),primaBase,importe,fechaPago,hoja:sheetName});
-                        });
-                      } else {
-                        let headerIdx=0;
-                        for(let i=0;i<Math.min(10,rows.length);i++){if(rows[i].some(c=>/POLIZA|POLIZA|NUMERO|POLICY/i.test(String(c||"")))){headerIdx=i;break;}}
-                        const cols=detectarColumnas(rows[headerIdx]);
-                        rows.forEach((row,idx)=>{
-                          if(idx<=headerIdx)return;
-                          let polizaNum="";
-                          if(cols.poliza>=0){polizaNum=String(row[cols.poliza]||"").trim();}
-                          else{for(let c=0;c<row.length;c++){if(esNumPoliza(row[c])){polizaNum=String(row[c]).trim();break;}}}
-                          if(!esNumPoliza(polizaNum))return;
-                          let primaBase=cols.prima>=0?toNum(row[cols.prima]):0;
-                          let importe=cols.comision>=0?toNum(row[cols.comision]):0;
-                          if(primaBase<=0&&importe<=0){const nums=row.map(toNum).filter(n=>n>0).sort((a,b)=>b-a);primaBase=nums[0]||0;importe=nums[1]||0;}
-                          if(primaBase<=0&&importe<=0)return;
-                          let fechaPago=cols.fecha>=0?parseFecha(row[cols.fecha]):"";
-                          if(!fechaPago){for(let c=0;c<row.length;c++){const f=parseFecha(row[c]);if(f){fechaPago=f;break;}}}
-                          filas.push({polizaNum,cliente:cols.cliente>=0?String(row[cols.cliente]||"").trim():"",ramo:normRamo(cols.ramo>=0?row[cols.ramo]:""),recibo:cols.recibo>=0?String(row[cols.recibo]||"").trim():"",primaBase,importe,fechaPago,hoja:sheetName});
-                        });
-                      }
+                      const ws = wb.Sheets[sheetName];
+                      const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:""});
+                      rows.forEach(row=>{
+                        // Filtrar filas con número de póliza (columna 1, index 1)
+                        const polizaNum = String(row[1]||"").trim();
+                        if (polizaNum && polizaNum.length >= 8 && !isNaN(polizaNum.replace(/\D/g,""))) {
+                          const clave = String(row[6]||"").trim();
+                          if (clave==="CT"||clave==="ct"||clave==="Ct"||clave==="") {
+                            // Parsear fecha de la última columna (DDMMYYYY)
+                            const fechaRaw = String(row[row.length-1]||"").trim();
+                            let fechaPago = "";
+                            if (/^\d{8}$/.test(fechaRaw)) {
+                              fechaPago = `${fechaRaw.slice(6,8)}/${fechaRaw.slice(4,6)}/${fechaRaw.slice(0,4)}`.replace(/^(\d{2})\/(\d{2})\/(\d{4})$/,"$3-$2-$1");
+                            }
+                            filas.push({
+                              polizaNum,
+                              endoso: String(row[2]||"").trim(),
+                              ramo: String(row[3]||"").trim(),
+                              recibo: String(row[4]||"").trim(),
+                              cliente: String(row[7]||"").trim(),
+                              primaBase: parseFloat(String(row[8]||"0").replace(/[,$]/g,""))||0,
+                              importe: parseFloat(String(row[9]||"0").replace(/[,$]/g,""))||0,
+                              fechaPago,
+                              hoja: sheetName,
+                            });
+                          }
+                        }
+                      });
                     });
-                    const norm=s=>String(s||"").replace(/[\s\-\.\/]/g,"").toUpperCase().replace(/^0+/,"");
-                    const encontradas=filas.map(f=>{
-                      const bExcel=norm(f.polizaNum);
-                      const poliza=polizas.find(p=>{const nCRM=norm(p.numero);if(nCRM===bExcel)return true;if(nCRM.endsWith(bExcel)||bExcel.endsWith(nCRM))return true;if(nCRM.length>=8&&bExcel.length>=8&&nCRM.slice(-8)===bExcel.slice(-8))return true;if(nCRM.length>=6&&bExcel.length>=6&&nCRM.slice(-6)===bExcel.slice(-6))return true;return false;});
-                      const subagente=poliza?.subagenteId?subagentes.find(s=>s.id===poliza.subagenteId):null;
-                      const pctSA=parseFloat(subagente?.comision||0);const isrSA=parseFloat(subagente?.impuestos||15);
-                      const comBruta=f.importe>0?f.importe:(f.primaBase*(getPct(poliza||{})/100));
-                      const comSABruta=f.primaBase*pctSA/100;const comSAIsr=comSABruta*isrSA/100;const comSANeta=comSABruta-comSAIsr;
-                      const candidatos=!poliza?polizas.filter(p=>norm(p.numero).slice(-4)===bExcel.slice(-4)).slice(0,3).map(p=>p.numero):[];
-                      return{...f,id:Date.now()+Math.random(),poliza,subagente,comisionAgente:comBruta,comSABruta,comSAIsr,comSANeta,pctSA,isrSA,encontrada:!!poliza,candidatos};
+                    // Buscar cada póliza en el sistema
+                    const encontradas = filas.map(f=>{
+                      const poliza = polizas.find(p=>{
+                        const n = String(p.numero||"").replace(/[\s\-]/g,"");
+                        const b = String(f.polizaNum||"").replace(/[\s\-]/g,"");
+                        return n===b || n.endsWith(b) || b.endsWith(n);
+                      });
+                      const subagente = poliza?.subagenteId ? subagentes.find(s=>s.id===poliza.subagenteId) : null;
+                      const pctSA = parseFloat(subagente?.comision||0);
+                      const isrSA = parseFloat(subagente?.impuestos||15);
+                      const comBruta = f.importe > 0 ? f.importe : (f.primaBase * (getPct(poliza||{})/100));
+                      const comSABruta = f.primaBase * pctSA / 100;
+                      const comSAIsr = comSABruta * isrSA / 100;
+                      const comSANeta = comSABruta - comSAIsr;
+                      return {
+                        ...f,
+                        id: Date.now()+Math.random(),
+                        poliza,
+                        subagente,
+                        comisionAgente: comBruta,
+                        comSABruta, comSAIsr, comSANeta, pctSA, isrSA,
+                        encontrada: !!poliza,
+                      };
                     });
                     setResultados(encontradas);
                     setExcelData(filas);
@@ -4888,7 +4538,7 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
                 }}/>
               <button onClick={()=>excelRef.current.click()}
                 style={{background:"linear-gradient(135deg,#2563eb,#7c3aed)",color:"#fff",border:"none",borderRadius:10,padding:"12px 28px",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                📂 Seleccionar reporte de comisiones
+                📂 Seleccionar archivo Excel
               </button>
             </div>
           )}
@@ -4948,10 +4598,7 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
                         <td style={{padding:"8px 12px",fontWeight:700,color:"#059669"}}>{r.comSANeta>0?`$${r.comSANeta.toLocaleString("es-MX",{maximumFractionDigits:2})}`:"—"}</td>
                         <td style={{padding:"8px 12px"}}>
                           {!r.encontrada?(
-                            <div>
-                              <span style={{background:"#fee2e2",color:"#dc2626",padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:9}}>No encontrada</span>
-                              {r.candidatos&&r.candidatos.length>0&&<div style={{fontSize:9,color:"#9ca3af",marginTop:3}}>¿Similar? {r.candidatos.join(", ")}</div>}
-                            </div>
+                            <span style={{background:"#fee2e2",color:"#dc2626",padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:9}}>No encontrada</span>
                           ):aplicados[r.id]?(
                             <span style={{background:"#d1fae5",color:"#059669",padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:9}}>✓ Aplicado</span>
                           ):(
@@ -4980,7 +4627,7 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
       {tab==="resumen"&&(
         <div style={{display:"flex",flexDirection:"column",gap:16}}>
           <div style={{background:"#fff",borderRadius:16,padding:"20px 24px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-            <div style={{fontSize:13,fontWeight:800,color:"#111827",fontFamily:"'Inter','Segoe UI',sans-serif",marginBottom:16}}>📈 Comparativo últimos 6 meses</div>
+            <div style={{fontSize:13,fontWeight:800,color:"#111827",fontFamily:"'Playfair Display',serif",marginBottom:16}}>📈 Comparativo últimos 6 meses</div>
             <div style={{display:"flex",gap:8,alignItems:"flex-end",height:120}}>
               {comparativo.map((c,i)=>(
                 <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
@@ -4993,7 +4640,7 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
           </div>
           <div style={{background:"#fff",borderRadius:16,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
             <div style={{padding:"14px 20px",borderBottom:"1px solid #f3f4f6",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <div style={{fontSize:13,fontWeight:800,color:"#111827",fontFamily:"'Inter','Segoe UI',sans-serif"}}>Comisiones — {MESES[mesSelec]} {anioSelec}</div>
+              <div style={{fontSize:13,fontWeight:800,color:"#111827",fontFamily:"'Playfair Display',serif"}}>Comisiones — {MESES[mesSelec]} {anioSelec}</div>
               {comisionesMes.filter(c=>c.estado==="pendiente").length>0&&(
                 <button onClick={()=>comisionesMes.filter(c=>c.estado==="pendiente").forEach(c=>marcarEstado(c.poliza.id,"cobrada"))}
                   style={{background:"#059669",color:"#fff",border:"none",borderRadius:8,padding:"6px 14px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
@@ -5108,7 +4755,7 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
                 <div style={{background:"linear-gradient(135deg,#0f172a,#1e3a5f)",padding:"14px 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                   <div>
                     <div style={{color:"#94a3b8",fontSize:10,fontWeight:700,letterSpacing:"0.06em"}}>SUBAGENTE</div>
-                    <div style={{color:"#fff",fontSize:15,fontWeight:800,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{sa.nombre}</div>
+                    <div style={{color:"#fff",fontSize:15,fontWeight:800,fontFamily:"'Playfair Display',serif"}}>{sa.nombre}</div>
                     <div style={{color:"#64748b",fontSize:11,marginTop:2}}>{sa.comision}% comisión · {sa.impuestos||15}% ISR</div>
                   </div>
                   <div style={{textAlign:"right"}}>
@@ -5153,83 +4800,41 @@ function Comisiones({ polizas, subagentes, tablaComisiones, setTablaComisiones, 
       )}
 
       {/* HISTORIAL */}
-      {tab==="historial"&&(()=>{
-        const aniosHist=[...new Set(pagosComision.map(pc=>pc.anio).filter(Boolean))].sort((a,b)=>b-a);
-        const histFiltrado=[...pagosComision].reverse().filter(pc=>{
-          if(pc.estado!=="cobrada"&&pc.estado!=="pagada")return false;
-          if(filtroHistMes!==-1&&pc.mes!==filtroHistMes)return false;
-          if(filtroHistAnio!==-1&&pc.anio!==filtroHistAnio)return false;
-          if(filtroHistTipo==="agente"&&pc.subagentId)return false;
-          if(filtroHistTipo==="subagente"&&!pc.subagentId)return false;
-          return true;
-        });
-        const totalHist=histFiltrado.reduce((a,pc)=>a+(parseFloat(pc.comisionImporte)||0),0);
-        return(
-          <div style={{display:"flex",flexDirection:"column",gap:12}}>
-            <div style={{background:"#fff",borderRadius:12,padding:"14px 18px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)",display:"flex",gap:10,flexWrap:"wrap",alignItems:"center",justifyContent:"space-between"}}>
-              <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
-                <span style={{fontSize:12,fontWeight:700,color:"#374151"}}>Filtrar:</span>
-                <select value={filtroHistMes} onChange={e=>setFiltroHistMes(Number(e.target.value))} style={{border:"1.5px solid #e2e8f0",borderRadius:8,padding:"6px 10px",fontSize:12,fontWeight:600,color:"#374151",background:"#f8fafc",fontFamily:"inherit",cursor:"pointer"}}>
-                  <option value={-1}>Todos los meses</option>
-                  {MESES.map((m,i)=><option key={i} value={i}>{m}</option>)}
-                </select>
-                <select value={filtroHistAnio} onChange={e=>setFiltroHistAnio(Number(e.target.value))} style={{border:"1.5px solid #e2e8f0",borderRadius:8,padding:"6px 10px",fontSize:12,fontWeight:600,color:"#374151",background:"#f8fafc",fontFamily:"inherit",cursor:"pointer"}}>
-                  <option value={-1}>Todos los años</option>
-                  {aniosHist.map(y=><option key={y} value={y}>{y}</option>)}
-                </select>
-                <select value={filtroHistTipo} onChange={e=>setFiltroHistTipo(e.target.value)} style={{border:"1.5px solid #e2e8f0",borderRadius:8,padding:"6px 10px",fontSize:12,fontWeight:600,color:"#374151",background:"#f8fafc",fontFamily:"inherit",cursor:"pointer"}}>
-                  <option value="todos">Agente + Subagentes</option>
-                  <option value="agente">Solo agente</option>
-                  <option value="subagente">Solo subagentes</option>
-                </select>
-              </div>
-              <div style={{display:"flex",gap:8,alignItems:"center"}}>
-                <div style={{background:"#eff6ff",borderRadius:8,padding:"6px 14px",fontSize:12,fontWeight:700,color:"#1d4ed8"}}>Total: ${totalHist.toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
-                {histFiltrado.length>0&&<button onClick={()=>{
-                  const rows=[["Fecha","Póliza","Cliente","Tipo","Mes","Año","Importe","Estado"]];
-                  histFiltrado.forEach(pc=>{const poliza=polizas.find(p=>p.id===pc.polizaId);const sa=pc.subagentId?subagentes.find(s=>s.id===pc.subagentId):null;rows.push([pc.fecha,poliza?.numero||"—",poliza?.cliente||"—",sa?`SA: ${sa.nombre}`:"Agente",MESES[pc.mes]||"—",pc.anio||"—",(parseFloat(pc.comisionImporte)||0).toFixed(2),pc.estado]);});
-                  rows.push(["","","","","","TOTAL",totalHist.toFixed(2),""]);
-                  const csv=rows.map(r=>r.map(v=>`"${v}"`).join(",")).join("\n");
-                  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
-                  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="Historial_Comisiones.csv";a.click();
-                }} style={{background:"#2563eb",color:"#fff",border:"none",borderRadius:8,padding:"6px 14px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>📥 Exportar CSV</button>}
-              </div>
-            </div>
-            <div style={{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-              {histFiltrado.length===0?(
-                <div style={{padding:"40px",textAlign:"center",color:"#9ca3af",fontSize:13}}><div style={{fontSize:32,marginBottom:8}}>📜</div>Sin registros con los filtros seleccionados</div>
-              ):(
-                <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-                  <thead><tr style={{background:"#0f172a"}}>{["Fecha","Póliza","Cliente","Tipo","Mes / Año","Importe","Estado"].map(h=><th key={h} style={{padding:"10px 12px",textAlign:"left",fontWeight:700,color:"#fff",fontSize:10,whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
-                  <tbody>
-                    {histFiltrado.map((pc,i)=>{
-                      const poliza=polizas.find(p=>p.id===pc.polizaId);
-                      const sa=pc.subagentId?subagentes.find(s=>s.id===pc.subagentId):null;
-                      const importe=parseFloat(pc.comisionImporte)||0;
-                      return(
-                        <tr key={i} style={{borderTop:"1px solid #f1f5f9",background:i%2===0?"#fff":"#fafafa"}}>
-                          <td style={{padding:"9px 12px",color:"#6b7280",whiteSpace:"nowrap"}}>{pc.fecha||"—"}</td>
-                          <td style={{padding:"9px 12px",fontFamily:"monospace",fontWeight:700,color:"#1d4ed8",fontSize:11}}>{poliza?.numero||"—"}</td>
-                          <td style={{padding:"9px 12px",color:"#374151",maxWidth:140,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{poliza?.cliente||"—"}</td>
-                          <td style={{padding:"9px 12px"}}><span style={{background:sa?"#ede9fe":"#dbeafe",color:sa?"#7c3aed":"#1d4ed8",padding:"2px 8px",borderRadius:6,fontWeight:700,fontSize:10}}>{sa?`SA: ${sa.nombre}`:"Agente"}</span></td>
-                          <td style={{padding:"9px 12px",color:"#6b7280",whiteSpace:"nowrap"}}>{MESES[pc.mes]||"—"} {pc.anio||""}</td>
-                          <td style={{padding:"9px 12px",fontWeight:800,color:importe>0?"#059669":"#9ca3af",fontFamily:"'Inter',sans-serif"}}>{importe>0?`$${importe.toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2})}`:"—"}</td>
-                          <td style={{padding:"9px 12px"}}><span style={{background:"#d1fae5",color:"#059669",padding:"2px 8px",borderRadius:6,fontWeight:700,fontSize:10}}>✓ {pc.estado==="cobrada"?"Cobrada":"Pagada"}</span></td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                  <tfoot><tr style={{background:"#0f172a"}}>
-                    <td colSpan={5} style={{padding:"10px 12px",color:"#94a3b8",fontWeight:700,fontSize:11}}>TOTAL ({histFiltrado.length} registros)</td>
-                    <td style={{padding:"10px 12px",fontWeight:900,color:"#fff",fontFamily:"'Inter',sans-serif",fontSize:13}}>${totalHist.toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-                    <td/>
-                  </tr></tfoot>
-                </table>
-              )}
-            </div>
+      {tab==="historial"&&(
+        <div style={{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+          <div style={{padding:"14px 20px",borderBottom:"1px solid #f3f4f6"}}>
+            <div style={{fontSize:13,fontWeight:800,color:"#111827",fontFamily:"'Playfair Display',serif"}}>📜 Historial de comisiones cobradas / pagadas</div>
           </div>
-        );
-      })()}
+          {pagosComision.filter(pc=>pc.estado==="cobrada"||pc.estado==="pagada").length===0?(
+            <div style={{padding:"32px",textAlign:"center",color:"#9ca3af",fontSize:13}}>Sin historial registrado aún</div>
+          ):(
+            <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+              <thead>
+                <tr style={{background:"#f8fafc"}}>
+                  {["Fecha","Póliza","Tipo","Mes","Estado"].map(h=>(
+                    <th key={h} style={{padding:"10px 12px",textAlign:"left",fontWeight:700,color:"#374151",fontSize:10}}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[...pagosComision].reverse().filter(pc=>pc.estado==="cobrada"||pc.estado==="pagada").map((pc,i)=>{
+                  const poliza=polizas.find(p=>p.id===pc.polizaId);
+                  const sa=pc.subagentId?subagentes.find(s=>s.id===pc.subagentId):null;
+                  return(
+                    <tr key={i} style={{borderTop:"1px solid #f1f5f9",background:i%2===0?"#fff":"#fafafa"}}>
+                      <td style={{padding:"9px 12px",color:"#6b7280"}}>{pc.fecha}</td>
+                      <td style={{padding:"9px 12px",fontFamily:"monospace",fontWeight:700,color:"#1d4ed8",fontSize:11}}>{poliza?.numero||"—"}</td>
+                      <td style={{padding:"9px 12px"}}><span style={{background:sa?"#ede9fe":"#dbeafe",color:sa?"#7c3aed":"#1d4ed8",padding:"2px 8px",borderRadius:6,fontWeight:700,fontSize:10}}>{sa?`SA: ${sa.nombre}`:"Comisión agente"}</span></td>
+                      <td style={{padding:"9px 12px",color:"#6b7280"}}>{MESES[pc.mes]} {pc.anio}</td>
+                      <td style={{padding:"9px 12px"}}><span style={{background:"#d1fae5",color:"#059669",padding:"2px 8px",borderRadius:6,fontWeight:700,fontSize:10}}>✓ {pc.estado==="cobrada"?"Cobrada":"Pagada"}</span></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
 
       {/* Modal agregar/editar % */}
       {showModalTabla&&(
@@ -5334,7 +4939,7 @@ function PAI({ paiMetas, setPaiMetas }) {
       {paiMetas.length===0&&(
         <div style={{background:"#fff",borderRadius:16,padding:"48px 24px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
           <div style={{fontSize:44,marginBottom:12}}>🎯</div>
-          <div style={{fontWeight:800,fontSize:16,fontFamily:"'Inter','Segoe UI',sans-serif",marginBottom:6}}>Sin metas registradas</div>
+          <div style={{fontWeight:800,fontSize:16,fontFamily:"'Playfair Display',serif",marginBottom:6}}>Sin metas registradas</div>
           <div style={{fontSize:13,color:"#6b7280",marginBottom:20}}>Agrega tu primera meta de bono por ramo para comenzar el seguimiento</div>
           <Btn onClick={()=>setShowModal(true)} color="#059669" icon="plus">Crear primera meta</Btn>
         </div>
@@ -5345,7 +4950,7 @@ function PAI({ paiMetas, setPaiMetas }) {
         <div style={{background:"linear-gradient(135deg,#0f172a,#1e3a5f)",borderRadius:18,padding:"24px 28px",display:"flex",alignItems:"center",gap:28}}>
           <div style={{flex:1}}>
             <div style={{fontSize:10,color:"#60a5fa",fontWeight:700,letterSpacing:"0.1em",marginBottom:4}}>PROGRESO GLOBAL DE BONO</div>
-            <div style={{fontSize:40,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif",color:pctGlobal>=80?"#4ade80":pctGlobal>=50?"#fbbf24":"#f87171",lineHeight:1}}>{pctGlobal}%</div>
+            <div style={{fontSize:40,fontWeight:900,fontFamily:"'Playfair Display',serif",color:pctGlobal>=80?"#4ade80":pctGlobal>=50?"#fbbf24":"#f87171",lineHeight:1}}>{pctGlobal}%</div>
             <div style={{color:"#94a3b8",fontSize:13,marginTop:4}}>${totalCobrado.toLocaleString()} cobrado de ${totalMeta.toLocaleString()}</div>
             <div style={{marginTop:12}}><ProgressBar value={totalCobrado} max={totalMeta} color={pctGlobal>=80?"#4ade80":pctGlobal>=50?"#fbbf24":"#f87171"} height={10}/></div>
           </div>
@@ -5374,10 +4979,10 @@ function PAI({ paiMetas, setPaiMetas }) {
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                     <div>
                       <div style={{fontSize:10,opacity:.8,fontWeight:700,letterSpacing:"0.08em"}}>{m.periodicidad?.toUpperCase()||"TRIMESTRAL"} · {m.periodo||"Sin período"}</div>
-                      <div style={{fontSize:20,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{m.ramo}</div>
+                      <div style={{fontSize:20,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>{m.ramo}</div>
                     </div>
                     <div style={{textAlign:"right"}}>
-                      <div style={{fontSize:30,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif",opacity:.9}}>{pct}%</div>
+                      <div style={{fontSize:30,fontWeight:900,fontFamily:"'Playfair Display',serif",opacity:.9}}>{pct}%</div>
                     </div>
                   </div>
                   <div style={{marginTop:10}}><div style={{background:"rgba(255,255,255,.3)",borderRadius:99,height:7}}><div style={{height:"100%",width:`${Math.min(pct,100)}%`,background:"#fff",borderRadius:99,transition:"width .6s"}}/></div></div>
@@ -5427,7 +5032,7 @@ function PAI({ paiMetas, setPaiMetas }) {
               <div key={periodo} style={{background:"#fff",borderRadius:16,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
                 {/* Header del trimestre */}
                 <div style={{background:"#0f172a",padding:"14px 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                  <div style={{color:"#f1f5f9",fontWeight:800,fontSize:15,fontFamily:"'Inter','Segoe UI',sans-serif"}}>📅 {periodo}</div>
+                  <div style={{color:"#f1f5f9",fontWeight:800,fontSize:15,fontFamily:"'Playfair Display',serif"}}>📅 {periodo}</div>
                   <div style={{display:"flex",alignItems:"center",gap:14}}>
                     <div style={{color:"#94a3b8",fontSize:12}}>Meta: <strong style={{color:"#e2e8f0"}}>${metaTotal.toLocaleString()}</strong></div>
                     <div style={{color:"#94a3b8",fontSize:12}}>Cobrado: <strong style={{color:"#4ade80"}}>${cobradoTotal.toLocaleString()}</strong></div>
@@ -5443,7 +5048,7 @@ function PAI({ paiMetas, setPaiMetas }) {
                     return(
                       <div key={m.id} style={{padding:"16px 18px",borderRight:i<metas.length-1?"1px solid #f3f4f6":"none",textAlign:"center"}}>
                         <div style={{fontSize:11,fontWeight:800,color:c1,marginBottom:4}}>{m.ramo}</div>
-                        <div style={{fontSize:24,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif",color:alcanzado?"#059669":c1}}>{pct}%</div>
+                        <div style={{fontSize:24,fontWeight:900,fontFamily:"'Playfair Display',serif",color:alcanzado?"#059669":c1}}>{pct}%</div>
                         <div style={{fontSize:11,color:"#6b7280",marginTop:2}}>${m.cobrado.toLocaleString()} / ${m.metaBono.toLocaleString()}</div>
                         <div style={{marginTop:8}}><div style={{height:5,background:"#f3f4f6",borderRadius:99}}><div style={{height:"100%",width:`${Math.min(pct,100)}%`,background:alcanzado?"#059669":c1,borderRadius:99}}/></div></div>
                         <div style={{marginTop:6,fontSize:11,fontWeight:700,color:alcanzado?"#059669":"#9ca3af"}}>{alcanzado?"🏆 Meta alcanzada":"⬤ "+getEstado(pct).label.split(" ").slice(1).join(" ")}</div>
@@ -5502,7 +5107,7 @@ function PAI({ paiMetas, setPaiMetas }) {
           {loadingAlerta?(
             <div style={{textAlign:"center",padding:"44px 20px"}}>
               <div style={{fontSize:38,marginBottom:12}}>🤖</div>
-              <div style={{fontWeight:700,fontSize:15,fontFamily:"'Inter','Segoe UI',sans-serif"}}>Generando reporte...</div>
+              <div style={{fontWeight:700,fontSize:15,fontFamily:"'Playfair Display',serif"}}>Generando reporte...</div>
               <style>{`@keyframes b2{0%,80%,100%{transform:scale(.8);opacity:.5}40%{transform:scale(1.2);opacity:1}}`}</style>
               <div style={{display:"flex",justifyContent:"center",gap:6,marginTop:18}}>{[0,1,2].map(i=><div key={i} style={{width:9,height:9,borderRadius:"50%",background:"#7c3aed",animation:`b2 1.2s ${i*.2}s infinite`}}/>)}</div>
             </div>
@@ -5532,7 +5137,7 @@ function PAI({ paiMetas, setPaiMetas }) {
 // ═══════════════════════════════════════════════════════════════════
 // CAPTURA PROSPECTOS — formulario para redes/correo/WA
 // ═══════════════════════════════════════════════════════════════════
-function CapturaProspectos({ setPipeline, pipelineOps }) {
+function CapturaProspectos({ setPipeline }) {
   const [toast, setToast] = useState(null);
   const showT = (m) => { setToast(m); setTimeout(()=>setToast(null),3000); };
   const CANALES = [
@@ -5569,22 +5174,14 @@ function CapturaProspectos({ setPipeline, pipelineOps }) {
     setPaso(2);
   };
 
-  const guardar = async () => {
+  const guardar = () => {
     if(!form.nombre.trim()) { showT("Agrega el nombre del prospecto"); return; }
-    const nuevoProspecto={
+    setPipeline(prev=>[{
       id:Date.now(), cliente:form.nombre, tipo:form.tipo, etapa:"Contacto", probabilidad:20,
       seguimiento:"", telefono:form.telefono, email:form.email, ciudad:form.ciudad,
       edad:parseInt(form.edad)||null, fuente:fuenteMap[canal]||"Otro",
       notas:form.notas, fechaAlta:new Date().toLocaleDateString("es-MX"),
-      historial:[{
-        id:Date.now(),tipo:"etapa",
-        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
-        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
-        texto:"Prospecto registrado",etapa:"Contacto",
-      }]
-    };
-    if(pipelineOps) await pipelineOps.insertar(nuevoProspecto);
-    else setPipeline(prev=>[nuevoProspecto,...prev]);
+    },...prev]);
     showT("Prospecto guardado correctamente");
     setTexto(""); setForm({nombre:"",telefono:"",email:"",tipo:"",notas:"",ciudad:"",edad:""}); setPaso(1);
   };
@@ -5676,33 +5273,126 @@ function CapturaProspectos({ setPipeline, pipelineOps }) {
   );
 }
 
-function ModalHistorial({ prospecto, onClose, etapas, colors, TIPOS_HISTORIAL, cambiarEtapa, agregarHistorial }) {
-  const [tipoEntrada, setTipoEntrada] = useState("nota");
-  const [textoEntrada, setTextoEntrada] = useState("");
-  const [nuevaEtapa, setNuevaEtapa] = useState(prospecto.etapa);
-  const historial = [...(prospecto.historial||[])].reverse();
+function Pipeline({ pipeline, setPipeline }) {
+  const etapas=["Contacto","Cotización","Propuesta","Negociación","Cierre"];
+  const colors={Contacto:"#6b7280",Cotización:"#2563eb",Propuesta:"#7c3aed",Negociación:"#d97706",Cierre:"#059669"};
+  const [showModal,setShowModal]=useState(false);
+  const [tab,setTab]=useState("kanban");
+  const [tabPipeline,setTabPipeline]=useState("prospectos");
+  const [prospectoHistorial,setProspectoHistorial]=useState(null); // prospecto seleccionado para historial
+  const [form,setForm]=useState({cliente:"",tipo:"",etapa:"Contacto",probabilidad:20,seguimiento:"",telefono:"",email:"",ciudad:"",edad:"",fuente:"Manual",landingUrl:"",redSocial:"",notas:""});
+  const fuenteOpts=["Manual","Landing Page","Facebook","Instagram","LinkedIn","Referido","WhatsApp","Otro"];
+  const fuenteColor={Manual:"#6b7280","Landing Page":"#2563eb",Facebook:"#1877f2",Instagram:"#e1306c",LinkedIn:"#0a66c2",Referido:"#059669",WhatsApp:"#25d366",Otro:"#6b7280"};
 
-  const guardarEntrada = () => {
-    if (!textoEntrada.trim() && tipoEntrada!=="etapa") return;
-    if (tipoEntrada==="etapa") {
-      cambiarEtapa(prospecto.id, nuevaEtapa);
-      setTextoEntrada("");
-      return;
-    }
-    const cfg = TIPOS_HISTORIAL.find(t=>t.key===tipoEntrada);
-    agregarHistorial(prospecto.id, {tipo:tipoEntrada, texto:textoEntrada, icon:cfg?.icon});
-    setTextoEntrada("");
+  // Guardar nuevo prospecto
+  const guardar=()=>{
+    if(!form.cliente)return;
+    setPipeline(prev=>[...prev,{
+      ...form,id:Date.now(),
+      probabilidad:Number(form.probabilidad),
+      edad:Number(form.edad)||null,
+      fechaAlta:new Date().toLocaleDateString("es-MX"),
+      historial:[{
+        id:Date.now(),
+        tipo:"etapa",
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+        texto:"Prospecto registrado",
+        etapa:"Contacto",
+      }]
+    }]);
+    setShowModal(false);
+    setForm({cliente:"",tipo:"",etapa:"Contacto",probabilidad:20,seguimiento:"",telefono:"",email:"",ciudad:"",edad:"",fuente:"Manual",landingUrl:"",redSocial:"",notas:""});
   };
 
-  return (
-    <Modal title={`📋 ${prospecto.cliente}`} onClose={onClose} wide maxW={680}>
+  // Agregar entrada al historial
+  const agregarHistorial = (prospectoId, entrada) => {
+    setPipeline(prev=>prev.map(p=>p.id===prospectoId?{
+      ...p,
+      historial:[...(p.historial||[]), {
+        ...entrada,
+        id:Date.now(),
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+      }]
+    }:p));
+    // Actualizar el prospecto en el modal
+    setProspectoHistorial(prev=>prev?{
+      ...prev,
+      historial:[...(prev.historial||[]),{
+        ...entrada,
+        id:Date.now()+1,
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+      }]
+    }:null);
+  };
+
+  // Cambiar etapa con registro en historial
+  const cambiarEtapa = (prospectoId, nuevaEtapa) => {
+    const p = pipeline.find(x=>x.id===prospectoId);
+    if (!p||p.etapa===nuevaEtapa) return;
+    setPipeline(prev=>prev.map(x=>x.id===prospectoId?{
+      ...x,
+      etapa:nuevaEtapa,
+      historial:[...(x.historial||[]),{
+        id:Date.now(),
+        tipo:"etapa",
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+        texto:`Etapa cambiada a ${nuevaEtapa}`,
+        etapaAnterior:x.etapa,
+        etapa:nuevaEtapa,
+      }]
+    }:x));
+    setProspectoHistorial(prev=>prev&&prev.id===prospectoId?{
+      ...prev,etapa:nuevaEtapa,
+      historial:[...(prev.historial||[]),{
+        id:Date.now()+1,tipo:"etapa",
+        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
+        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+        texto:`Etapa cambiada a ${nuevaEtapa}`,etapaAnterior:prev.etapa,etapa:nuevaEtapa,
+      }]
+    }:prev);
+  };
+
+  // Config de tipos de entrada en historial
+  const TIPOS_HISTORIAL = [
+    {key:"nota",     label:"Nota",           icon:"📝", color:"#6b7280"},
+    {key:"llamada",  label:"Llamada",         icon:"📞", color:"#2563eb"},
+    {key:"cita",     label:"Cita",            icon:"📅", color:"#7c3aed"},
+    {key:"cotizacion",label:"Cotización",     icon:"📄", color:"#d97706"},
+    {key:"etapa",    label:"Cambio de etapa", icon:"🔄", color:"#059669"},
+  ];
+
+  // Modal historial
+  const ModalHistorial = ({ prospecto, onClose }) => {
+    const [tipoEntrada, setTipoEntrada] = useState("nota");
+    const [textoEntrada, setTextoEntrada] = useState("");
+    const [nuevaEtapa, setNuevaEtapa] = useState(prospecto.etapa);
+    const historial = [...(prospecto.historial||[])].reverse();
+
+    const guardarEntrada = () => {
+      if (!textoEntrada.trim() && tipoEntrada!=="etapa") return;
+      if (tipoEntrada==="etapa") {
+        cambiarEtapa(prospecto.id, nuevaEtapa);
+        setTextoEntrada("");
+        return;
+      }
+      const cfg = TIPOS_HISTORIAL.find(t=>t.key===tipoEntrada);
+      agregarHistorial(prospecto.id, {tipo:tipoEntrada, texto:textoEntrada, icon:cfg?.icon});
+      setTextoEntrada("");
+    };
+
+    return (
+      <Modal title={`📋 ${prospecto.cliente}`} onClose={onClose} wide maxW={680}>
         <div style={{display:"flex",flexDirection:"column",gap:16}}>
 
           {/* Header prospecto */}
           <div style={{background:`linear-gradient(135deg,${colors[prospecto.etapa]||"#6b7280"},${colors[prospecto.etapa]||"#6b7280"}bb)`,borderRadius:12,padding:"14px 18px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
             <div>
               <div style={{fontSize:11,opacity:.8,fontWeight:700,letterSpacing:"0.06em"}}>{prospecto.fuente||"MANUAL"} · {prospecto.tipo||"Por definir"}</div>
-              <div style={{fontSize:20,fontWeight:800,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{toTitleCase(prospecto.cliente)}</div>
+              <div style={{fontSize:20,fontWeight:800,fontFamily:"'Playfair Display',serif"}}>{prospecto.cliente}</div>
               {prospecto.telefono&&<div style={{fontSize:12,opacity:.85,marginTop:2}}>📱 {prospecto.telefono}</div>}
             </div>
             <div style={{textAlign:"right"}}>
@@ -5798,113 +5488,7 @@ function ModalHistorial({ prospecto, onClose, etapas, colors, TIPOS_HISTORIAL, c
         </div>
       </Modal>
     );
-}
-
-function Pipeline({ pipeline, setPipeline, pipelineOps }) {
-  const etapas=["Contacto","Cotización","Propuesta","Negociación","Cierre"];
-  const colors={Contacto:"#6b7280",Cotización:"#2563eb",Propuesta:"#7c3aed",Negociación:"#d97706",Cierre:"#059669"};
-  const [showModal,setShowModal]=useState(false);
-  const [tab,setTab]=useState("kanban");
-  const [tabPipeline,setTabPipeline]=useState("prospectos");
-  const [prospectoHistorial,setProspectoHistorial]=useState(null); // prospecto seleccionado para historial
-  const [form,setForm]=useState({cliente:"",tipo:"",etapa:"Contacto",probabilidad:20,seguimiento:"",telefono:"",email:"",ciudad:"",edad:"",fuente:"Manual",landingUrl:"",redSocial:"",notas:""});
-  const fuenteOpts=["Manual","Landing Page","Facebook","Instagram","LinkedIn","Referido","WhatsApp","Otro"];
-  const fuenteColor={Manual:"#6b7280","Landing Page":"#2563eb",Facebook:"#1877f2",Instagram:"#e1306c",LinkedIn:"#0a66c2",Referido:"#059669",WhatsApp:"#25d366",Otro:"#6b7280"};
-
-  // Guardar nuevo prospecto
-  const guardar=async ()=>{
-    if(!form.cliente)return;
-    const nuevoProspecto={
-      ...form,id:Date.now(),
-      probabilidad:Number(form.probabilidad),
-      edad:Number(form.edad)||null,
-      fechaAlta:new Date().toLocaleDateString("es-MX"),
-      historial:[{
-        id:Date.now(),
-        tipo:"etapa",
-        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
-        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
-        texto:"Prospecto registrado",
-        etapa:"Contacto",
-      }]
-    };
-    if(pipelineOps) await pipelineOps.insertar(nuevoProspecto);
-    else setPipeline(prev=>[...prev, nuevoProspecto]);
-    setShowModal(false);
-    setForm({cliente:"",tipo:"",etapa:"Contacto",probabilidad:20,seguimiento:"",telefono:"",email:"",ciudad:"",edad:"",fuente:"Manual",landingUrl:"",redSocial:"",notas:""});
   };
-
-  // Agregar entrada al historial
-  const agregarHistorial = async (prospectoId, entrada) => {
-    const nuevaEntrada = {
-      ...entrada,
-      id:Date.now(),
-      fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
-      hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
-    };
-    let historialActualizado;
-    setPipeline(prev=>prev.map(p=>{
-      if(p.id===prospectoId){
-        historialActualizado=[...(p.historial||[]), nuevaEntrada];
-        return {...p, historial:historialActualizado};
-      }
-      return p;
-    }));
-    // Actualizar el prospecto en el modal
-    setProspectoHistorial(prev=>prev?{
-      ...prev,
-      historial:[...(prev.historial||[]),{
-        ...entrada,
-        id:Date.now()+1,
-        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
-        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
-      }]
-    }:null);
-    if(pipelineOps && historialActualizado!==undefined){
-      const prosp = pipeline.find(p=>p.id===prospectoId);
-      if(prosp) await pipelineOps.actualizar(prospectoId, { historial:[...(prosp.historial||[]), nuevaEntrada] });
-    }
-  };
-
-  // Cambiar etapa con registro en historial
-  const cambiarEtapa = async (prospectoId, nuevaEtapa) => {
-    const p = pipeline.find(x=>x.id===prospectoId);
-    if (!p||p.etapa===nuevaEtapa) return;
-    const entradaHistorial = {
-      id:Date.now(),
-      tipo:"etapa",
-      fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
-      hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
-      texto:`Etapa cambiada a ${nuevaEtapa}`,
-      etapaAnterior:p.etapa,
-      etapa:nuevaEtapa,
-    };
-    const nuevoHistorial = [...(p.historial||[]), entradaHistorial];
-    setPipeline(prev=>prev.map(x=>x.id===prospectoId?{
-      ...x,
-      etapa:nuevaEtapa,
-      historial:nuevoHistorial,
-    }:x));
-    setProspectoHistorial(prev=>prev&&prev.id===prospectoId?{
-      ...prev,etapa:nuevaEtapa,
-      historial:[...(prev.historial||[]),{
-        id:Date.now()+1,tipo:"etapa",
-        fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}),
-        hora:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
-        texto:`Etapa cambiada a ${nuevaEtapa}`,etapaAnterior:prev.etapa,etapa:nuevaEtapa,
-      }]
-    }:prev);
-    if(pipelineOps) await pipelineOps.actualizar(prospectoId, { etapa:nuevaEtapa, historial:nuevoHistorial });
-  };
-
-  // Config de tipos de entrada en historial
-  const TIPOS_HISTORIAL = [
-    {key:"nota",     label:"Nota",           icon:"📝", color:"#6b7280"},
-    {key:"llamada",  label:"Llamada",         icon:"📞", color:"#2563eb"},
-    {key:"cita",     label:"Cita",            icon:"📅", color:"#7c3aed"},
-    {key:"cotizacion",label:"Cotización",     icon:"📄", color:"#d97706"},
-    {key:"etapa",    label:"Cambio de etapa", icon:"🔄", color:"#059669"},
-  ];
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
@@ -5921,7 +5505,7 @@ function Pipeline({ pipeline, setPipeline, pipelineOps }) {
           {tabPipeline==="prospectos"&&<Btn onClick={()=>setShowModal(true)} color="#7c3aed" icon="plus">Nuevo Prospecto</Btn>}
         </div>
       </div>
-      {tabPipeline==="captura"&&<CapturaProspectos setPipeline={setPipeline} pipelineOps={pipelineOps}/>}
+      {tabPipeline==="captura"&&<CapturaProspectos setPipeline={setPipeline}/>}
       {tabPipeline==="prospectos"&&<>
       <div style={{display:"flex",gap:0,background:"#f3f4f6",borderRadius:11,padding:4,width:"fit-content"}}>
         {[["kanban","🗂 Kanban"],["lista","📋 Lista"]].map(([t,l])=>(
@@ -5935,7 +5519,7 @@ function Pipeline({ pipeline, setPipeline, pipelineOps }) {
               <div style={{marginBottom:9}}><div style={{fontSize:9,fontWeight:800,color:colors[etapa],letterSpacing:"0.08em"}}>{etapa.toUpperCase()}</div><div style={{fontSize:11,color:"#9ca3af"}}>{items.length}</div></div>
               {items.map(item=>(
                 <div key={item.id} style={{background:"#fff",borderRadius:9,padding:"9px 11px",boxShadow:"0 1px 3px rgba(0,0,0,.05)",borderLeft:`3px solid ${colors[etapa]}`,marginBottom:7}}>
-                  <div style={{fontSize:12,fontWeight:700}}>{toTitleCase(item.cliente)}</div>
+                  <div style={{fontSize:12,fontWeight:700}}>{item.cliente}</div>
                   <div style={{fontSize:11,color:"#6b7280"}}>{item.tipo}</div>
                   {item.ciudad&&<div style={{fontSize:10,color:"#9ca3af"}}>📍 {item.ciudad}{item.edad?` · ${item.edad} años`:""}</div>}
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:4}}>
@@ -5961,7 +5545,7 @@ function Pipeline({ pipeline, setPipeline, pipelineOps }) {
             <thead><tr style={{background:"#f9fafb"}}>{["Nombre","Tipo","Ciudad","Edad","Fuente","Etapa","Seguimiento",""].map(h=><th key={h} style={{padding:"10px 14px",textAlign:"left",fontSize:11,fontWeight:700,color:"#6b7280"}}>{h}</th>)}</tr></thead>
             <tbody>{pipeline.map(p=>(
               <tr key={p.id} style={{borderTop:"1px solid #f3f4f6"}}>
-                <td style={{padding:"11px 14px",fontWeight:700,fontSize:13}}>{toTitleCase(p.cliente)}</td>
+                <td style={{padding:"11px 14px",fontWeight:700,fontSize:13}}>{p.cliente}</td>
                 <td style={{padding:"11px 14px",fontSize:12,color:"#6b7280"}}>{p.tipo||"—"}</td>
                 <td style={{padding:"11px 14px",fontSize:12}}>{p.ciudad||"—"}</td>
                 <td style={{padding:"11px 14px",fontSize:12}}>{p.edad?`${p.edad} años`:"—"}</td>
@@ -6032,291 +5616,25 @@ function Pipeline({ pipeline, setPipeline, pipelineOps }) {
 // ═══════════════════════════════════════════════════════════════════
 // TAREAS
 // ═══════════════════════════════════════════════════════════════════
-function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
-  const FORM_INIT = {titulo:"",fecha:"",tipo:"llamada",prioridad:"media",notas:"",
-    contactoNombre:"",contactoTel:"",contactoEmail:"",contactoId:null,contactoTipo:null};
+function Tareas({ tareas, setTareas }) {
   const [showModal,setShowModal]=useState(false);
-  const [form,setForm]=useState(FORM_INIT);
-  const [busqueda,setBusqueda]=useState("");
-  const [sugerencias,setSugerencias]=useState([]);
-  const [guardando,setGuardando]=useState(false);
-  const [gcalMsg,setGcalMsg]=useState(null);
-  // Estados separados para evitar bug de foco al capturar tel/email
-  const [capturaTel,setCapturaTel]=useState("");
-  const [capturaEmail,setCapturaEmail]=useState("");
-
-  // Autocomplete — busca en clientes y pipeline
-  const buscarContacto=(texto)=>{
-    setBusqueda(texto);
-    setForm(p=>({...p,contactoNombre:texto,contactoId:null,contactoTipo:null,contactoTel:"",contactoEmail:""}));
-    if(!texto||texto.length<2){setSugerencias([]);return;}
-    const q=texto.toLowerCase();
-    const resClientes=(clientes||[]).filter(c=>{
-      const n=`${c.nombre} ${c.apellidoPaterno} ${c.apellidoMaterno||""}`.toLowerCase();
-      return n.includes(q);
-    }).slice(0,4).map(c=>({
-      id:c.id, tipo:"cliente",
-      nombre:`${c.nombre} ${c.apellidoPaterno} ${c.apellidoMaterno||""}`.trim(),
-      tel:c.telefono||c.whatsapp||"", email:c.email||"",
-      badge:"Cliente", badgeColor:"#2563eb"
-    }));
-    const resProspectos=(pipeline||[]).filter(p=>{
-      return (p.cliente||"").toLowerCase().includes(q);
-    }).slice(0,4).map(p=>({
-      id:p.id, tipo:"prospecto",
-      nombre:p.cliente||"", tel:p.telefono||"", email:p.email||"",
-      badge:"Prospecto", badgeColor:"#d97706"
-    }));
-    setSugerencias([...resClientes,...resProspectos].slice(0,6));
-  };
-
-  const seleccionarContacto=(sug)=>{
-    setBusqueda(sug.nombre);
-    setSugerencias([]);
-    setForm(p=>({...p,
-      contactoNombre:sug.nombre,
-      contactoId:sug.id,
-      contactoTipo:sug.tipo,
-      contactoTel:sug.tel,
-      contactoEmail:sug.email,
-    }));
-  };
-
-  const toggle=async(id)=>{
-    const tarea=tareas.find(t=>t.id===id);
-    if(!tarea)return;
-    const nuevoDone=!tarea.done;
-    if(tareasOps) await tareasOps.actualizar(id,{done:nuevoDone});
-    else setTareas(prev=>prev.map(t=>t.id===id?{...t,done:nuevoDone}:t));
-  };
-
-  const guardar=async()=>{
-    if(!form.titulo)return;
-    setGuardando(true);
-    const telFinal = form.contactoTel || capturaTel;
-    const emailFinal = form.contactoEmail || capturaEmail;
-    const nueva={
-      titulo:form.titulo, fecha:form.fecha, tipo:form.tipo, prioridad:form.prioridad, done:false,
-      notas:form.notas||null,
-      contacto_nombre:form.contactoNombre||null,
-      contacto_tel:telFinal||null,
-      contacto_email:emailFinal||null,
-      contacto_id:form.contactoId||null,
-      contacto_tipo:form.contactoTipo||null,
-    };
-    if(tareasOps) await tareasOps.insertar(nueva);
-    else setTareas(prev=>[...prev,{...nueva,id:Date.now()}]);
-
-    // Google Calendar — llamada, email, cita, recordatorio con fecha
-    if(form.fecha && form.tipo!=="doc"){
-      const iconos={cita:"📅",llamada:"📞",email:"✉️",recordatorio:"🔔"};
-      const titulo=`${iconos[form.tipo]||""} ${form.titulo}${form.contactoNombre?" · "+form.contactoNombre:""}`;
-      const desc=form.tipo==="llamada"&&telFinal?`Tel: ${telFinal}`
-        :form.tipo==="email"&&emailFinal?`Email: ${emailFinal}`
-        :form.tipo==="recordatorio"&&form.notas?form.notas
-        :form.contactoNombre||"";
-      try {
-        const res=await agregarEventoCalendar(titulo,desc,form.fecha);
-        if(res.ok) setGcalMsg("✅ Agregado a Google Calendar");
-        else setGcalMsg("⚠️ No se pudo sincronizar con Google Calendar");
-      } catch { setGcalMsg("⚠️ No se pudo sincronizar con Google Calendar"); }
-      setTimeout(()=>setGcalMsg(null),4000);
-    }
-
-    setGuardando(false);
-    setShowModal(false);
-    setBusqueda("");
-    setCapturaTel("");
-    setCapturaEmail("");
-    setForm(FORM_INIT);
-  };
-
-  const prioColor={alta:"#dc2626",media:"#d97706",baja:"#059669"};
-  const prioTextColor={alta:"#991b1b",media:"#92400e",baja:"#065f46"};
-  const tipoIcon={llamada:"📞",email:"✉️",cita:"📅",recordatorio:"🔔"};
-
-  const pendientes=tareas.filter(t=>!t.done);
-  const completadas=tareas.filter(t=>t.done);
-
+  const [form,setForm]=useState({titulo:"",fecha:"",tipo:"llamada",prioridad:"media"});
+  const toggle=(id)=>setTareas(prev=>prev.map(t=>t.id===id?{...t,done:!t.done}:t));
+  const guardar=()=>{if(!form.titulo)return;setTareas(prev=>[...prev,{...form,id:Date.now(),done:false}]);setShowModal(false);setForm({titulo:"",fecha:"",tipo:"llamada",prioridad:"media"});};
+  const pendientes=tareas.filter(t=>!t.done);const completadas=tareas.filter(t=>t.done);
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-        <SectionTitle title="Agenda" sub={`${pendientes.length} pendientes`}/>
-        <Btn onClick={()=>setShowModal(true)} color="#d97706" icon="plus">Nueva Tarea</Btn>
-      </div>
-
-      {gcalMsg&&(
-        <div style={{background:gcalMsg.startsWith("✅")?"#d1fae5":"#fef3c7",border:`1px solid ${gcalMsg.startsWith("✅")?"#6ee7b7":"#fde68a"}`,borderRadius:10,padding:"10px 16px",fontSize:13,fontWeight:600,color:gcalMsg.startsWith("✅")?"#065f46":"#92400e"}}>
-          {gcalMsg}
-        </div>
-      )}
-
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><SectionTitle title="Agenda" sub={`${pendientes.length} pendientes`}/><Btn onClick={()=>setShowModal(true)} color="#d97706" icon="plus">Nueva Tarea</Btn></div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
-        {/* Pendientes */}
-        <div style={{background:"#fff",borderRadius:15,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}>
-          <h3 style={{margin:"0 0 13px",fontSize:14,fontWeight:700}}>⏳ Pendientes</h3>
-          {pendientes.length===0&&<p style={{color:"#d1d5db",fontSize:13}}>Sin pendientes</p>}
-          {pendientes.map(t=>(
-            <div key={t.id} style={{display:"flex",alignItems:"flex-start",gap:9,padding:"10px 11px",background:"#fafafa",borderRadius:9,marginBottom:7,borderLeft:`3px solid ${prioColor[t.prioridad]||"#6b7280"}`}}>
-              <button onClick={()=>toggle(t.id)} style={{width:19,height:19,borderRadius:"50%",border:"2px solid #d1d5db",background:"none",cursor:"pointer",flexShrink:0,marginTop:2}}/>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:13,fontWeight:600}}>{tipoIcon[t.tipo]||"📌"} {t.titulo}</div>
-                {t.contacto_nombre&&(
-                  <div style={{fontSize:11,color:"#6b7280",marginTop:2}}>
-                    👤 {t.contacto_nombre}
-                    {t.tipo==="llamada"&&t.contacto_tel&&<span style={{marginLeft:6,color:"#2563eb"}}>📞 {t.contacto_tel}</span>}
-                    {t.tipo==="email"&&t.contacto_email&&<span style={{marginLeft:6,color:"#2563eb"}}>✉️ {t.contacto_email}</span>}
-                  </div>
-                )}
-                {t.notas&&<div style={{fontSize:11,color:"#6b7280",marginTop:2,fontStyle:"italic"}}>📝 {t.notas}</div>}
-                <div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>📅 {t.fecha||"Sin fecha"}</div>
-              </div>
-              <span style={{fontSize:11,fontWeight:600,color:prioTextColor[t.prioridad]||"#374151",flexShrink:0}}>{t.prioridad}</span>
-            </div>
-          ))}
+        <div style={{background:"#fff",borderRadius:15,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}><h3 style={{margin:"0 0 13px",fontSize:14,fontWeight:700}}>⏳ Pendientes</h3>
+          {pendientes.map(t=>(<div key={t.id} style={{display:"flex",alignItems:"flex-start",gap:9,padding:"9px 11px",background:"#fafafa",borderRadius:9,marginBottom:7,borderLeft:`3px solid ${t.prioridad==="alta"?"#dc2626":t.prioridad==="media"?"#d97706":"#059669"}`}}><button onClick={()=>toggle(t.id)} style={{width:19,height:19,borderRadius:"50%",border:"2px solid #d1d5db",background:"none",cursor:"pointer",flexShrink:0,marginTop:2}}/><div style={{flex:1}}><div style={{fontSize:13,fontWeight:600}}>{t.titulo}</div><div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>📅 {t.fecha}</div></div><span style={{fontSize:11,fontWeight:600,color:t.prioridad==="alta"?"#991b1b":t.prioridad==="media"?"#92400e":"#065f46"}}>{t.prioridad}</span></div>))}
         </div>
-
-        {/* Completadas */}
-        <div style={{background:"#fff",borderRadius:15,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}>
-          <h3 style={{margin:"0 0 13px",fontSize:14,fontWeight:700}}>✅ Completadas</h3>
+        <div style={{background:"#fff",borderRadius:15,padding:20,boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}><h3 style={{margin:"0 0 13px",fontSize:14,fontWeight:700}}>✅ Completadas</h3>
+          {completadas.map(t=>(<div key={t.id} style={{display:"flex",alignItems:"flex-start",gap:9,padding:"9px 11px",background:"#f0fdf4",borderRadius:9,marginBottom:7,opacity:.75}}><button onClick={()=>toggle(t.id)} style={{width:19,height:19,borderRadius:"50%",border:"none",background:"#059669",cursor:"pointer",flexShrink:0,marginTop:2,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}><Icon name="check" size={10}/></button><div style={{flex:1}}><div style={{fontSize:13,color:"#6b7280",textDecoration:"line-through"}}>{t.titulo}</div><div style={{fontSize:11,color:"#9ca3af"}}>📅 {t.fecha}</div></div></div>))}
           {completadas.length===0&&<p style={{color:"#d1d5db",fontSize:13}}>Sin completadas</p>}
-          {completadas.map(t=>(
-            <div key={t.id} style={{display:"flex",alignItems:"flex-start",gap:9,padding:"10px 11px",background:"#f0fdf4",borderRadius:9,marginBottom:7,opacity:.75}}>
-              <button onClick={()=>toggle(t.id)} style={{width:19,height:19,borderRadius:"50%",border:"none",background:"#059669",cursor:"pointer",flexShrink:0,marginTop:2,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}><Icon name="check" size={10}/></button>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:13,color:"#6b7280",textDecoration:"line-through"}}>{tipoIcon[t.tipo]||"📌"} {t.titulo}</div>
-                {t.contacto_nombre&&<div style={{fontSize:11,color:"#9ca3af"}}>👤 {t.contacto_nombre}</div>}
-                <div style={{fontSize:11,color:"#9ca3af"}}>📅 {t.fecha||"Sin fecha"}</div>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
-
-      {/* Modal Nueva Tarea */}
-      {showModal&&(
-        <Modal title="Nueva Tarea" onClose={()=>{setShowModal(false);setBusqueda("");setCapturaTel("");setCapturaEmail("");setForm(FORM_INIT);}}>
-          <div style={{display:"flex",flexDirection:"column",gap:13}}>
-
-            {/* 1. Descripción */}
-            <Inp label="Descripción *" value={form.titulo} onChange={e=>setForm(p=>({...p,titulo:e.target.value}))} placeholder="Ej: Llamar para cotización GMM"/>
-
-            {/* 2. Contacto */}
-            <div style={{position:"relative"}}>
-              <Inp label="Contacto" value={busqueda} onChange={e=>buscarContacto(e.target.value)} placeholder="Escribe nombre de cliente o prospecto..."/>
-              {sugerencias.length>0&&(
-                <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#fff",border:"1.5px solid #e5e7eb",borderRadius:10,boxShadow:"0 4px 16px rgba(0,0,0,0.12)",zIndex:50,overflow:"hidden"}}>
-                  {sugerencias.map((s,i)=>(
-                    <button key={i} onClick={()=>seleccionarContacto(s)}
-                      style={{width:"100%",display:"flex",alignItems:"center",gap:10,padding:"10px 14px",background:"none",border:"none",cursor:"pointer",borderBottom:"1px solid #f3f4f6",fontFamily:"inherit",textAlign:"left"}}
-                      onMouseEnter={e=>e.currentTarget.style.background="#f9fafb"}
-                      onMouseLeave={e=>e.currentTarget.style.background="none"}>
-                      <div style={{flex:1}}>
-                        <div style={{fontSize:13,fontWeight:600,color:"#111827"}}>{s.nombre}</div>
-                        <div style={{fontSize:11,color:"#9ca3af"}}>
-                          {s.tel&&`📞 ${s.tel}`}{s.tel&&s.email&&" · "}{s.email&&`✉️ ${s.email}`}
-                        </div>
-                      </div>
-                      <span style={{fontSize:10,fontWeight:700,background:s.badgeColor+"18",color:s.badgeColor,padding:"2px 8px",borderRadius:20,flexShrink:0}}>{s.badge}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Info contextual del contacto seleccionado */}
-            {form.contactoNombre&&(
-              <div style={{background:"#f8fafc",borderRadius:10,padding:"12px 14px",border:"1px solid #e2e8f0"}}>
-                <div style={{fontSize:12,fontWeight:700,color:"#374151",marginBottom:8}}>
-                  👤 {form.contactoNombre}
-                  {form.contactoTipo&&<span style={{marginLeft:8,fontSize:10,fontWeight:700,background:form.contactoTipo==="cliente"?"#dbeafe":"#fef3c7",color:form.contactoTipo==="cliente"?"#1e40af":"#92400e",padding:"2px 8px",borderRadius:20}}>{form.contactoTipo==="cliente"?"Cliente":"Prospecto"}</span>}
-                </div>
-                {form.tipo==="llamada"&&(
-                  <div>
-                    <div style={{fontSize:11,color:"#6b7280",marginBottom:4}}>📞 Teléfono para llamar</div>
-                    {form.contactoTel
-                      ? <div style={{fontSize:14,fontWeight:700,color:"#2563eb"}}>{form.contactoTel}</div>
-                      : <div>
-                          <div style={{fontSize:11,color:"#d97706",marginBottom:6}}>⚠️ Sin teléfono registrado — captura o guarda sin él</div>
-                          <Inp placeholder="Capturar teléfono (opcional)" value={capturaTel} onChange={e=>setCapturaTel(e.target.value)}/>
-                        </div>
-                    }
-                  </div>
-                )}
-                {form.tipo==="email"&&(
-                  <div>
-                    <div style={{fontSize:11,color:"#6b7280",marginBottom:4}}>✉️ Correo para enviar</div>
-                    {form.contactoEmail
-                      ? <div style={{fontSize:14,fontWeight:700,color:"#2563eb"}}>{form.contactoEmail}</div>
-                      : <div>
-                          <div style={{fontSize:11,color:"#d97706",marginBottom:6}}>⚠️ Sin correo registrado — captura o guarda sin él</div>
-                          <Inp placeholder="Capturar correo (opcional)" type="email" value={capturaEmail} onChange={e=>setCapturaEmail(e.target.value)}/>
-                        </div>
-                    }
-                  </div>
-                )}
-                {form.tipo==="cita"&&<div style={{fontSize:12,color:"#059669",fontWeight:600}}>📅 Se agregará automáticamente a Google Calendar</div>}
-                {form.tipo==="recordatorio"&&<div style={{fontSize:12,color:"#7c3aed",fontWeight:600}}>🔔 Se guardará en el calendario del sistema y Google Calendar</div>}
-              </div>
-            )}
-
-            {/* Contacto no encontrado — captura manual */}
-            {busqueda.length>1&&!form.contactoId&&sugerencias.length===0&&(
-              <div style={{background:"#fefce8",borderRadius:10,padding:"12px 14px",border:"1px solid #fde68a"}}>
-                <div style={{fontSize:12,color:"#92400e",marginBottom:8}}>⚠️ No encontrado — captura el dato o guarda sin contacto</div>
-                <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  {form.tipo==="llamada"&&<Inp placeholder="Teléfono (opcional)" value={capturaTel} onChange={e=>setCapturaTel(e.target.value)}/>}
-                  {form.tipo==="email"&&<Inp placeholder="Correo (opcional)" type="email" value={capturaEmail} onChange={e=>setCapturaEmail(e.target.value)}/>}
-                  <div style={{fontSize:11,color:"#6b7280"}}>La tarea se guardará sin crear registro en el sistema.</div>
-                </div>
-              </div>
-            )}
-
-            {/* 3. Tipo y Prioridad */}
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
-              <Sel label="Tipo" value={form.tipo} onChange={e=>setForm(p=>({...p,tipo:e.target.value}))}>
-                <option value="llamada">📞 Llamada</option>
-                <option value="email">✉️ Email</option>
-                <option value="cita">📅 Cita</option>
-                <option value="recordatorio">🔔 Recordatorio</option>
-              </Sel>
-              <Sel label="Prioridad" value={form.prioridad} onChange={e=>setForm(p=>({...p,prioridad:e.target.value}))}>
-                <option value="alta">🔴 Alta</option>
-                <option value="media">🟡 Media</option>
-                <option value="baja">🟢 Baja</option>
-              </Sel>
-            </div>
-
-            {/* 4. Fecha */}
-            <Inp label="Fecha" type="date" value={form.fecha} onChange={e=>setForm(p=>({...p,fecha:e.target.value}))}/>
-
-            {/* Notas — visible siempre, destacado en recordatorio */}
-            <div style={{display:"flex",flexDirection:"column",gap:5}}>
-              <label style={{fontSize:12,fontWeight:600,color:"#374151"}}>
-                Notas {form.tipo==="recordatorio"&&<span style={{color:"#7c3aed"}}>(recomendado)</span>}
-              </label>
-              <textarea
-                value={form.notas}
-                onChange={e=>setForm(p=>({...p,notas:e.target.value}))}
-                placeholder={form.tipo==="recordatorio"?"Describe el recordatorio...":"Notas adicionales (opcional)"}
-                rows={3}
-                style={{border:"1.5px solid #e5e7eb",borderRadius:9,padding:"9px 13px",fontSize:13,outline:"none",fontFamily:"inherit",width:"100%",boxSizing:"border-box",resize:"vertical",
-                  borderColor:form.tipo==="recordatorio"?"#c4b5fd":"#e5e7eb"}}
-              />
-            </div>
-
-            {form.fecha&&(
-              <div style={{background:"#eff6ff",borderRadius:9,padding:"9px 13px",fontSize:12,color:"#1e40af",display:"flex",alignItems:"center",gap:7}}>
-                <Icon name="calendar" size={14}/> Se sincronizará con Google Calendar al guardar
-              </div>
-            )}
-
-            <Btn onClick={guardar} color="#d97706" style={{width:"100%",justifyContent:"center"}} disabled={!form.titulo||guardando}>
-              {guardando?"Guardando...":"Guardar Tarea"}
-            </Btn>
-          </div>
-        </Modal>
-      )}
+      {showModal&&(<Modal title="Nueva Tarea" onClose={()=>setShowModal(false)}><div style={{display:"flex",flexDirection:"column",gap:12}}><Inp label="Descripción *" value={form.titulo} onChange={e=>setForm(p=>({...p,titulo:e.target.value}))}/><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}><Sel label="Tipo" value={form.tipo} onChange={e=>setForm(p=>({...p,tipo:e.target.value}))}><option value="llamada">📞 Llamada</option><option value="email">✉️ Email</option><option value="cita">📅 Cita</option><option value="doc">📄 Doc</option></Sel><Sel label="Prioridad" value={form.prioridad} onChange={e=>setForm(p=>({...p,prioridad:e.target.value}))}><option value="alta">🔴 Alta</option><option value="media">🟡 Media</option><option value="baja">🟢 Baja</option></Sel></div><Inp label="Fecha" type="date" value={form.fecha} onChange={e=>setForm(p=>({...p,fecha:e.target.value}))}/><Btn onClick={guardar} color="#d97706" style={{width:"100%",justifyContent:"center"}}>Guardar</Btn></div></Modal>)}
     </div>
   );
 }
@@ -7218,7 +6536,7 @@ function Importador({clientes,setClientes,polizas,setPolizas}) {
             </div>
             {importados.length>0&&(
               <div style={{background:"#f0fdf4",borderRadius:12,padding:"16px 24px",display:"inline-block",margin:"8px auto"}}>
-                <div style={{fontSize:42,fontWeight:900,color:"#059669",fontFamily:"'Inter','Segoe UI',sans-serif"}}>{importados.length}</div>
+                <div style={{fontSize:42,fontWeight:900,color:"#059669",fontFamily:"'Playfair Display',serif"}}>{importados.length}</div>
                 <div style={{fontSize:13,color:"#065f46",fontWeight:600}}>
                   {tipo==="clientes"?"clientes importados":"pólizas importadas"} correctamente
                 </div>
@@ -7997,8 +7315,8 @@ function Calendario({ polizas, clientes, tareas, setPolizas }) {
   if (filtro==="todos"||filtro==="polizas") {
     polizas.forEach(p=>{
       const st=getStatus(p);
-      add(p.vencimiento,{tipo:"vencimiento",label:(p.numero||"").slice(-8),sub:p.cliente,color:ST_COLOR[st],icon:"📋",obj:p,st});
-      add(p.inicio,{tipo:"inicio",label:(p.numero||"").slice(-8),sub:p.cliente,color:"#2563eb",icon:"🟢",obj:p,st:"activa"});
+      add(p.vencimiento,{tipo:"vencimiento",label:p.numero.slice(-8),sub:p.cliente,color:ST_COLOR[st],icon:"📋",obj:p,st});
+      add(p.inicio,{tipo:"inicio",label:p.numero.slice(-8),sub:p.cliente,color:"#2563eb",icon:"🟢",obj:p,st:"activa"});
     });
   }
   if (filtro==="todos"||filtro==="cumpleanos") {
@@ -8081,7 +7399,7 @@ function Calendario({ polizas, clientes, tareas, setPolizas }) {
             <div style={{display:"flex",alignItems:"center",gap:10}}>
               <select value={mes} onChange={e=>setMes(Number(e.target.value))}
                 style={{background:"linear-gradient(135deg,#0f172a,#1e3a5f)",border:"none",borderRadius:10,padding:"8px 14px",
-                  fontSize:15,fontWeight:800,color:"#fff",fontFamily:"'Inter','Segoe UI',sans-serif",cursor:"pointer",outline:"none",appearance:"none"}}>
+                  fontSize:15,fontWeight:800,color:"#fff",fontFamily:"'Playfair Display',serif",cursor:"pointer",outline:"none",appearance:"none"}}>
                 {MESES.map((m,i)=><option key={i} value={i} style={{background:"#0f172a"}}>{m}</option>)}
               </select>
               <select value={anio} onChange={e=>setAnio(Number(e.target.value))}
@@ -8182,7 +7500,7 @@ function Calendario({ polizas, clientes, tareas, setPolizas }) {
               {/* Header */}
               <div style={{background:"linear-gradient(135deg,#0f172a,#1e3a5f)",padding:"14px 16px",flexShrink:0}}>
                 <div style={{fontSize:9,color:"#64748b",fontWeight:700,letterSpacing:"0.08em",marginBottom:1}}>DÍA SELECCIONADO</div>
-                <div style={{fontSize:17,fontWeight:900,color:"#fff",fontFamily:"'Inter','Segoe UI',sans-serif"}}>{diaSelec} de {MESES[mes]}</div>
+                <div style={{fontSize:17,fontWeight:900,color:"#fff",fontFamily:"'Playfair Display',serif"}}>{diaSelec} de {MESES[mes]}</div>
                 <div style={{fontSize:10,color:"#94a3b8",marginTop:1}}>{anio} · {evsDiaSelec.length} evento{evsDiaSelec.length>1?"s":""}</div>
               </div>
 
@@ -8288,7 +7606,7 @@ function Calendario({ polizas, clientes, tareas, setPolizas }) {
           ):(
             <div style={{background:"#fff",borderRadius:20,padding:"32px 20px",boxShadow:"0 4px 20px rgba(0,0,0,0.06)",border:"1px solid #e2e8f0",textAlign:"center"}}>
               <div style={{fontSize:40,marginBottom:12}}>📅</div>
-              <div style={{fontSize:14,fontWeight:700,color:"#374151",fontFamily:"'Inter','Segoe UI',sans-serif",marginBottom:6}}>Selecciona un día</div>
+              <div style={{fontSize:14,fontWeight:700,color:"#374151",fontFamily:"'Playfair Display',serif",marginBottom:6}}>Selecciona un día</div>
               <div style={{fontSize:12,color:"#9ca3af"}}>Haz click en cualquier día para ver los eventos disponibles</div>
             </div>
           )}
@@ -8319,12 +7637,12 @@ function Calendario({ polizas, clientes, tareas, setPolizas }) {
             <div style={{background:`linear-gradient(135deg,${ramoColor(polizaCalendario.ramo)},${ramoColor(polizaCalendario.ramo)}bb)`,borderRadius:12,padding:"14px 18px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
                 <div style={{fontSize:10,opacity:.8,fontWeight:700}}>{polizaCalendario.ramo?.toUpperCase()}{polizaCalendario.subramo?" · "+polizaCalendario.subramo.toUpperCase():""} · {polizaCalendario.aseguradora}</div>
-                <div style={{fontSize:18,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{polizaCalendario.numero}</div>
+                <div style={{fontSize:18,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>{polizaCalendario.numero}</div>
                 <div style={{fontSize:12,opacity:.9,marginTop:2}}>{polizaCalendario.cliente}</div>
               </div>
               <div style={{textAlign:"right"}}>
                 <div style={{fontSize:9,opacity:.7}}>PRIMA TOTAL</div>
-                <div style={{fontSize:22,fontWeight:900,fontFamily:"'Inter','Segoe UI',sans-serif"}}>${(parseFloat(polizaCalendario.primaTotal)||parseFloat(polizaCalendario.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
+                <div style={{fontSize:22,fontWeight:900,fontFamily:"'Playfair Display',serif"}}>${(parseFloat(polizaCalendario.primaTotal)||parseFloat(polizaCalendario.prima)||0).toLocaleString("es-MX",{maximumFractionDigits:0})}</div>
               </div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
@@ -9086,7 +8404,7 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:7,marginBottom:10}}>
             {[["Total","#374151",saldo.total],["Pendiente","#d97706",saldo.pendiente],["Pagado","#059669",saldo.pagado]].map(([l,c,v])=>(
               <div key={l} style={{textAlign:"center",background:c==="#d97706"?"#fffbeb":c==="#059669"?"#f0fdf4":"#f9fafb",borderRadius:9,padding:"8px 4px"}}>
-                <div style={{fontSize:13,fontWeight:900,color:c,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{fmtMXN(v)}</div>
+                <div style={{fontSize:13,fontWeight:900,color:c,fontFamily:"'Playfair Display',serif"}}>{fmtMXN(v)}</div>
                 <div style={{fontSize:9,color:c,fontWeight:700}}>{l}</div>
               </div>
             ))}
@@ -9156,11 +8474,11 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
                   <div style={{fontWeight:800,fontSize:13,color:"#111827",marginBottom:10}}>{sa.nombre} {sa.apellidoPaterno}</div>
                   <div style={{display:"flex",gap:8}}>
                     <div style={{flex:1,textAlign:"center",background:"#fffbeb",borderRadius:8,padding:"6px"}}>
-                      <div style={{fontSize:14,fontWeight:900,color:"#d97706",fontFamily:"'Inter','Segoe UI',sans-serif"}}>{fmtMXN(saldo.pendiente)}</div>
+                      <div style={{fontSize:14,fontWeight:900,color:"#d97706",fontFamily:"'Playfair Display',serif"}}>{fmtMXN(saldo.pendiente)}</div>
                       <div style={{fontSize:9,color:"#d97706",fontWeight:700}}>PENDIENTE</div>
                     </div>
                     <div style={{flex:1,textAlign:"center",background:"#f0fdf4",borderRadius:8,padding:"6px"}}>
-                      <div style={{fontSize:14,fontWeight:900,color:"#059669",fontFamily:"'Inter','Segoe UI',sans-serif"}}>{fmtMXN(saldo.pagado)}</div>
+                      <div style={{fontSize:14,fontWeight:900,color:"#059669",fontFamily:"'Playfair Display',serif"}}>{fmtMXN(saldo.pagado)}</div>
                       <div style={{fontSize:9,color:"#059669",fontWeight:700}}>PAGADO</div>
                     </div>
                   </div>
@@ -9275,7 +8593,7 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
             ].map(([ic,v,l,c])=>(
               <div key={l} style={{background:"#fff",borderRadius:13,padding:"16px",boxShadow:"0 1px 6px rgba(0,0,0,.06)",borderTop:`3px solid ${c}`}}>
                 <div style={{fontSize:22,marginBottom:6}}>{ic}</div>
-                <div style={{fontSize:22,fontWeight:900,color:c,fontFamily:"'Inter','Segoe UI',sans-serif",lineHeight:1}}>{v}</div>
+                <div style={{fontSize:22,fontWeight:900,color:c,fontFamily:"'Playfair Display',serif",lineHeight:1}}>{v}</div>
                 <div style={{fontSize:11,color:"#6b7280",marginTop:4}}>{l}</div>
               </div>
             ))}
@@ -9368,10 +8686,10 @@ function Subagentes({ subagentes, setSubagentes, polizas, setPolizas }) {
         <Modal title={editando?"Editar Subagente":"Nuevo Subagente"} onClose={()=>{setShowModal(false);setEditando(null);setForm(FORM_INIT);}}>
           <div style={{display:"flex",flexDirection:"column",gap:13}}>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
-              <Inp label="Nombre(s) *" value={form.nombre} onChange={e=>upd("nombre",toTitleCase(e.target.value))}/>
-              <Inp label="Apellido Paterno *" value={form.apellidoPaterno} onChange={e=>upd("apellidoPaterno",toTitleCase(e.target.value))}/>
+              <Inp label="Nombre(s) *" value={form.nombre} onChange={e=>upd("nombre",e.target.value)}/>
+              <Inp label="Apellido Paterno *" value={form.apellidoPaterno} onChange={e=>upd("apellidoPaterno",e.target.value)}/>
             </div>
-            <Inp label="Apellido Materno" value={form.apellidoMaterno} onChange={e=>upd("apellidoMaterno",toTitleCase(e.target.value))}/>
+            <Inp label="Apellido Materno" value={form.apellidoMaterno} onChange={e=>upd("apellidoMaterno",e.target.value)}/>
             <Inp label="Email" type="email" value={form.email} onChange={e=>upd("email",e.target.value)} placeholder="correo@ejemplo.com"/>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11}}>
               <Inp label="Teléfono" value={form.telefono} onChange={e=>upd("telefono",e.target.value)} placeholder="8110000000"/>
@@ -9466,7 +8784,7 @@ function ModalPagoComision({ poliza, subagentes, calcComision, fmtMXN, onPagar, 
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
           {[["Com. Bruta",fmtMXN(bruta),"#374151"],["ISR (10%)","-"+fmtMXN(isr),"#dc2626"],["Com. Neta",fmtMXN(neta),"#059669"]].map(([l,v,c])=>(
             <div key={l} style={{textAlign:"center",background:"#f9fafb",borderRadius:9,padding:"10px"}}>
-              <div style={{fontSize:15,fontWeight:900,color:c,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{v}</div>
+              <div style={{fontSize:15,fontWeight:900,color:c,fontFamily:"'Playfair Display',serif"}}>{v}</div>
               <div style={{fontSize:9,color:"#9ca3af",fontWeight:700}}>{l}</div>
             </div>
           ))}
@@ -9648,101 +8966,14 @@ function useLocalStorage(key, initialValue) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// HOOK useSupabaseTable — lee y escribe en Supabase por agente_id
-// Convierte automáticamente camelCase <-> snake_case
-// ═══════════════════════════════════════════════════════════════════
-const toSnake = str => str.replace(/[A-Z]/g, l => `_${l.toLowerCase()}`);
-const toCamel = str => str.replace(/_([a-z])/g, (_, l) => l.toUpperCase());
-
-function convertKeys(obj, fn) {
-  if (!obj || typeof obj !== "object" || Array.isArray(obj)) return obj;
-  return Object.fromEntries(Object.entries(obj).map(([k, v]) => [fn(k), v]));
-}
-
-const CAMPOS_EXCLUIR = new Set(["id", "agente_id", "created_at", "updated_at", "polizas"]);
-
-function useSupabaseTable(tabla, agenteId, initialValue = []) {
-  const [data, setData] = useState(initialValue);
-  const [loading, setLoading] = useState(true);
-
-  // Helper: obtener cliente Supabase con sesión activa
-  const getClient = async () => {
-    await supabase.auth.getSession();
-    return supabase;
-  };
-
-  useEffect(() => {
-    if (!agenteId) { setLoading(false); return; }
-    setLoading(true);
-    getClient().then(sb => sb
-      .from(tabla)
-      .select("*")
-      .eq("agente_id", agenteId)
-      .order("created_at", { ascending: true })
-      .then(({ data: rows, error }) => {
-        if (!error && rows) {
-          setData(rows.map(r => convertKeys(r, toCamel)));
-        }
-        setLoading(false);
-      })
-    );
-  }, [tabla, agenteId]);
-
-  const guardar = async (nuevoArray) => {
-    setData(nuevoArray);
-  };
-
-  const insertar = async (item) => {
-    const sb = await getClient();
-    const limpio = Object.fromEntries(
-      Object.entries(item).filter(([k]) => !CAMPOS_EXCLUIR.has(k))
-    );
-    const nuevo = { ...convertKeys(limpio, toSnake), agente_id: agenteId };
-    const { data: inserted, error } = await sb.from(tabla).insert(nuevo).select().single();
-    if (error) { console.error(`Supabase insert error [${tabla}]:`, error); return null; }
-    if (inserted) {
-      const reg = convertKeys(inserted, toCamel);
-      setData(prev => [...prev, reg]);
-      return reg;
-    }
-    return null;
-  };
-
-  const actualizar = async (id, cambios) => {
-    const sb = await getClient();
-    const limpio = Object.fromEntries(
-      Object.entries(cambios).filter(([k]) => !CAMPOS_EXCLUIR.has(k) && k !== "agente_id")
-    );
-    const campos = convertKeys(limpio, toSnake);
-    const { data: updated, error } = await sb.from(tabla).update(campos).eq("id", id).eq("agente_id", agenteId).select().single();
-    if (error) { console.error(`Supabase update error [${tabla}]:`, error); return null; }
-    if (updated) {
-      const reg = convertKeys(updated, toCamel);
-      setData(prev => prev.map(r => r.id === id ? reg : r));
-      return reg;
-    }
-    return null;
-  };
-
-  const eliminar = async (id) => {
-    const sb = await getClient();
-    const { error } = await sb.from(tabla).delete().eq("id", id).eq("agente_id", agenteId);
-    if (!error) setData(prev => prev.filter(r => r.id !== id));
-    return !error;
-  };
-
-  return [data, guardar, loading, { insertar, actualizar, eliminar }];
-}
-
-// ═══════════════════════════════════════════════════════════════════
 // PERMISOS POR ROL
 // ═══════════════════════════════════════════════════════════════════
 const PERMISOS = {
-  admin:      ["dashboard","clientes","polizas","calendario","pipeline","exportar","importar","pai","configuracion","subagentes","usuarios","cancelar_poliza","registrar_pago","comisiones","siniestros","tareas"],
-  agente:     ["dashboard","clientes","polizas","calendario","pipeline","exportar","importar","pai","configuracion","subagentes","usuarios","cancelar_poliza","registrar_pago","comisiones","siniestros","tareas"],
-  asistente:  ["dashboard","clientes","polizas","calendario","pipeline","exportar","pai","subagentes","registrar_pago","comisiones","siniestros","tareas"],
-  capturista: ["dashboard","clientes","polizas","calendario","registrar_pago","siniestros","tareas"],
-  subagente:  ["clientes","polizas","calendario","tareas"],
+  admin:      ["dashboard","clientes","polizas","calendario","pipeline","exportar","importar","pai","configuracion","subagentes","usuarios","cancelar_poliza","registrar_pago","comisiones","siniestros"],
+  agente:     ["dashboard","clientes","polizas","calendario","pipeline","exportar","importar","pai","configuracion","subagentes","usuarios","cancelar_poliza","registrar_pago","comisiones","siniestros"],
+  asistente:  ["dashboard","clientes","polizas","calendario","pipeline","exportar","pai","subagentes","registrar_pago","comisiones","siniestros"],
+  capturista: ["dashboard","clientes","polizas","calendario","registrar_pago","siniestros"],
+  subagente:  ["clientes","polizas","calendario"],
 };
 
 function puedeVer(rol, permiso) {
@@ -9808,61 +9039,51 @@ function LoginScreen({ usuarios, config, onLogin }) {
   const [newPass, setNewPass]             = useState("");
   const [newPass2, setNewPass2]           = useState("");
 
-  const handleLogin = async (e) => {
+ const handleLogin = async (e) => {
     e.preventDefault();
     if (!username || !password) { setError("Ingresa usuario y contraseña"); return; }
     setLoading(true);
     setError("");
-    try {
-      const { error: authError } = await supabase.auth.signInWithPassword({ email: username, password: password });
-      if (authError) { setError("Usuario o contraseña incorrectos"); setLoading(false); return; }
-      const { data: { user: authUser }, error: userError } = await supabase.auth.getUser();
-      if (userError || !authUser) { setError("Error al verificar sesión"); setLoading(false); return; }
-      const { data: agente, error: queryError } = await supabase.from("agentes").select("id, nombre, email, plan, status").eq("email", authUser.email).single();
-      if (queryError || !agente) { await supabase.auth.signOut(); setError("Usuario no encontrado en el sistema"); setLoading(false); return; }
-      if (agente.status !== "activo") { await supabase.auth.signOut(); setError("Tu cuenta está suspendida. Contacta al administrador."); setLoading(false); return; }
-      const sesion = { id: agente.id, nombre: agente.nombre, username: agente.email, rol: agente.plan || "agente", clave: "", loginAt: new Date().toISOString() };
-      localStorage.setItem("crm_sesion", JSON.stringify(sesion));
-      onLogin(sesion);
-      setLoading(false);
-    } catch (err) { console.error("Login error:", err); setError("Error de conexión. Intenta de nuevo."); setLoading(false); }
-  };
 
-  // Handler para crear contraseña en primer acceso
-  const handleCrearPassword = async (e) => {
-    e.preventDefault();
-    if (!newPass || newPass.length < 8) { setError("La contraseña debe tener al menos 8 caracteres"); return; }
-    if (newPass !== newPass2) { setError("Las contraseñas no coinciden"); return; }
-    setLoading(true);
-    setError("");
-    const passHash = await hashPasswordBcrypt(newPass);
-    // Actualizar usuario en lista — se persiste via useLocalStorage en el componente raíz
-    // Buscamos la referencia en el array y la mutamos vía el callback que recibimos
-    const updated = usuarios.map(u => u.id === userPrimerAcceso.id
-      ? { ...u, password: passHash, primerAcceso: false }
-      : u
-    );
-    // Forzar actualización en localStorage directamente
-    try {
-      const stored = JSON.parse(localStorage.getItem("crm_usuarios") || "[]");
-      const merged = stored.map(u => u.id === userPrimerAcceso.id
-        ? { ...u, password: passHash, primerAcceso: false }
-        : u
-      );
-      localStorage.setItem("crm_usuarios", JSON.stringify(merged));
-    } catch(e) { console.warn("localStorage update error", e); }
-    const sesion = {
-      id: userPrimerAcceso.id,
-      nombre: userPrimerAcceso.nombre,
-      username: userPrimerAcceso.username,
-      rol: userPrimerAcceso.rol,
-      clave: userPrimerAcceso.clave,
+    // Primero autenticar con Supabase Auth
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: username.toLowerCase().trim(),
+      password: password,
+    });
+    if (authError) {
+      setError("Usuario o contraseña incorrectos");
+      setLoading(false);
+      return;
+    }
+
+    // Ya autenticado, ahora consultar tabla agentes
+    const { data: agente, error: fetchError } = await supabase
+      .from("agentes")
+      .select("id, nombre, username, email, status")
+      .eq("email", username.toLowerCase().trim())
+      .single();
+    if (fetchError || !agente) {
+      await supabase.auth.signOut();
+      setError("Usuario no encontrado");
+      setLoading(false);
+      return;
+    }
+    if (agente.status !== "activo") {
+      await supabase.auth.signOut();
+      setError("Tu cuenta está suspendida. Contacta al administrador.");
+      setLoading(false);
+      return;
+    }
+
+    onLogin({
+      id: agente.id,
+      nombre: agente.nombre,
+      username: agente.username,
+      rol: "agente",
+      clave: agente.email,
       loginAt: new Date().toISOString(),
-    };
-    localStorage.setItem("crm_sesion", JSON.stringify(sesion));
-    onLogin(sesion);
+    });
     setLoading(false);
-    window.location.reload();
   };
 
   const logoEmpresa = config?.logo;
@@ -9950,13 +9171,13 @@ function LoginScreen({ usuarios, config, onLogin }) {
                 <Icon name="shield" size={30}/>
               </div>
           }
-          <div style={{color:"#f1f5f9",fontSize:22,fontWeight:800,fontFamily:"'Inter','Segoe UI',sans-serif"}}>{nombreEmpresa}</div>
+          <div style={{color:"#f1f5f9",fontSize:22,fontWeight:800,fontFamily:"'Playfair Display',serif"}}>{nombreEmpresa}</div>
           <div style={{color:"#64748b",fontSize:13,marginTop:4}}>Sistema de Gestión de Seguros</div>
         </div>
 
         {/* Card de login */}
         <div style={{background:"rgba(255,255,255,0.05)",backdropFilter:"blur(20px)",borderRadius:20,padding:"32px 36px",border:"1px solid rgba(255,255,255,0.1)",boxShadow:"0 25px 50px rgba(0,0,0,0.4)"}}>
-          <div style={{color:"#e2e8f0",fontSize:18,fontWeight:700,marginBottom:24,fontFamily:"'Inter','Segoe UI',sans-serif"}}>
+          <div style={{color:"#e2e8f0",fontSize:18,fontWeight:700,marginBottom:24,fontFamily:"'Playfair Display',serif"}}>
             Iniciar sesión
           </div>
 
@@ -9964,12 +9185,12 @@ function LoginScreen({ usuarios, config, onLogin }) {
             {/* Usuario */}
             <div>
               <label style={{fontSize:11,fontWeight:700,color:"#94a3b8",letterSpacing:"0.06em",display:"block",marginBottom:6}}>
-                USUARIO
+                EMAIL
               </label>
               <input
                 value={username}
                 onChange={e=>{setUsername(e.target.value);setError("");}}
-                placeholder="Ingresa tu usuario"
+                placeholder="Ingresa tu email"
                 autoComplete="username"
                 style={{width:"100%",background:"rgba(255,255,255,0.08)",border:"1.5px solid rgba(255,255,255,0.12)",
                   borderRadius:10,padding:"11px 14px",fontSize:14,color:"#f1f5f9",outline:"none",
@@ -10052,48 +9273,90 @@ function useIsMobile() {
 // ═══════════════════════════════════════════════════════════════════
 export default function CRMSeguros() {
   const [vista, setVista] = useState("dashboard");
+  const [clientes,   setClientes]   = useLocalStorage("crm_clientes",   CLIENTES_INIT);
+  const [polizas,    setPolizas]    = useLocalStorage("crm_polizas",    POLIZAS_INIT);
+  const [pipeline,   setPipeline]   = useLocalStorage("crm_pipeline",   PIPELINE_INIT);
+  const [tareas,     setTareas]     = useLocalStorage("crm_tareas",     TAREAS_INIT);
+  const [usuarios,   setUsuarios]   = useLocalStorage("crm_usuarios",   USUARIOS_INIT);
+  const [paiMetas,   setPaiMetas]   = useLocalStorage("crm_paiMetas",   PAI_METAS_INIT);
+  const [subagentes, setSubagentes] = useLocalStorage("crm_subagentes", SUBAGENTES_INIT);
+  const [config,     setConfig]     = useLocalStorage("crm_config",     {nombre:"SeguCore",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""});
+  const [historialNotif, setHistorialNotif] = useLocalStorage("crm_historial_notif", []);
+  const [tablaComisiones, setTablaComisiones] = useLocalStorage("crm_tabla_comisiones", []);
+  const [pagosComision, setPagosComision] = useLocalStorage("crm_pagos_comision", []);
+  const [siniestros, setSiniestros]       = useLocalStorage("crm_siniestros", []);
 
-  // Sesión activa — debe ir primero para tener agenteId disponible
-  const [sesion, setSesion] = useState(() => {
-    try {
-      const s = localStorage.getItem("crm_sesion");
-      return s ? JSON.parse(s) : null;
-    } catch { return null; }
-  });
+ // Sesión activa
+  const [sesion, setSesion] = useState(null);
 
-  const agenteId = sesion?.id || null;
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        supabase
+          .from("agentes")
+          .select("id, nombre, username, rol, clave, status")
+          .eq("id", session.user.id)
+          .single()
+          .then(({ data: agente }) => {
+            if (agente && agente.status === "activo") {
+              setSesion({
+                id: agente.id,
+                nombre: agente.nombre,
+                username: agente.username,
+                rol: agente.rol,
+                clave: agente.clave,
+                loginAt: session.user.last_sign_in_at,
+              });
+            } else {
+              supabase.auth.signOut();
+            }
+          });
+      }
+    });
 
-  // ── Datos en Supabase ──────────────────────────────────────────
-  const [clientes,   setClientes,   loadingClientes,   clientesOps]   = useSupabaseTable("clientes",   agenteId, []);
-  const [polizas,    setPolizas,    loadingPolizas,    polizasOps]    = useSupabaseTable("polizas",    agenteId, []);
-  const [pipeline,   setPipeline,   loadingPipeline,   pipelineOps]   = useSupabaseTable("pipeline",   agenteId, []);
-  const [tareas,     setTareas,     loadingTareas,     tareasOps]     = useSupabaseTable("tareas",     agenteId, []);
-  const [siniestros, setSiniestros, loadingSiniestros, siniestrosOps] = useSupabaseTable("siniestros", agenteId, []);
-  const [subagentes, setSubagentes, loadingSubagentes, subagentesOps] = useSupabaseTable("subagentes", agenteId, []);
-  const [paiMetas,   setPaiMetas,   loadingMetas,      metasOps]      = useSupabaseTable("metas",      agenteId, []);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === "SIGNED_OUT" || !session) {
+          setSesion(null);
+          return;
+        }
+        if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+          const { data: agente } = await supabase
+            .from("agentes")
+            .select("id, nombre, username, rol, clave, status")
+            .eq("id", session.user.id)
+            .single();
+          if (agente && agente.status === "activo") {
+            setSesion({
+              id: agente.id,
+              nombre: agente.nombre,
+              username: agente.username,
+              rol: agente.rol,
+              clave: agente.clave,
+              loginAt: session.user.last_sign_in_at,
+            });
+          } else {
+            await supabase.auth.signOut();
+            setSesion(null);
+          }
+        }
+      }
+    );
 
-  // ── Datos que siguen en localStorage (fase 2) ─────────────────
-  const [usuarios,        setUsuarios]        = useLocalStorage("crm_usuarios",        USUARIOS_INIT);
-  const [config,          setConfig]          = useLocalStorage("crm_config",          {nombre:"SeguCore",rfc:"",domicilio:"",ciudad:"",cp:"",telefono:"",email:"",web:"",licencia:"",aseguradoraPrincipal:"",emailRemitente:"",nombreRemitente:"",celularWA:"",firmaWA:"",firmaEmail:""});
-  const [historialNotif,  setHistorialNotif]  = useLocalStorage("crm_historial_notif", []);
-  const [tablaComisiones, setTablaComisiones] = useLocalStorage("crm_tabla_comisiones",[]);
-  const [pagosComision,   setPagosComision]   = useLocalStorage("crm_pagos_comision",  []);
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleLogin = (sesionData) => {
-    localStorage.setItem("crm_sesion", JSON.stringify(sesionData));
     setSesion(sesionData);
   };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    localStorage.removeItem("crm_sesion");
-    window.location.reload();
+    setSesion(null);
   };
-
   // ── Notificaciones internas ────────────────────────────────────────
   const [notifPanel, setNotifPanel] = useState(false);
   const [gcalToast, setGcalToast]   = useState(null);
-  const [masDrawer, setMasDrawer]   = useState(false);
 
   const getPolizasDias = (dias) => {
     const hoy = new Date(); hoy.setHours(0,0,0,0);
@@ -10173,7 +9436,30 @@ export default function CRMSeguros() {
   };
   const [plantillas, setPlantillas] = useLocalStorage("crm_plantillas", PLANTILLAS_DEFAULT);
 
+  // Mostrar login si no hay sesión
+  if (!sesion) {
+    return <LoginScreen usuarios={usuarios} config={config} onLogin={handleLogin}/>;
+  }
+
+  const rol = sesion.rol || "capturista";
+  const puede = (accion) => puedeVer(rol, accion);
   const isMobile = useIsMobile();
+
+  const nav=[
+    {id:"dashboard",     label:"Dashboard",    icon:"dashboard"},
+    {id:"calendario",    label:"Calendario",   icon:"tasks"},
+    {id:"clientes",      label:"Clientes",     icon:"clients"},
+    {id:"polizas",       label:"Pólizas",      icon:"policies", badge:"IA"},
+    {id:"pipeline",      label:"Prospectos",   icon:"pipeline"},
+    {id:"exportar",      label:"Exportar",     icon:"scan", badge:"NEW"},
+    {id:"importar",      label:"Importar BD",  icon:"scan"},
+    {id:"siniestros",    label:"Siniestros",   icon:"shield", badge:"NEW"},
+    {id:"pai",           label:"Metas",        icon:"trophy"},
+    {id:"comisiones",    label:"Comisiones",   icon:"trophy"},
+    {id:"configuracion", label:"Configuración",icon:"users", badge:"NEW"},
+  ].filter(item => puede(item.id));
+
+  const badgeColors={IA:"#2563eb",NEW:"#25d366"};
 
   useEffect(()=>{
     if (!document.getElementById("crm-fonts")) {
@@ -10201,31 +9487,6 @@ export default function CRMSeguros() {
     }
   },[]);
 
-  // Mostrar login si no hay sesión
-  if (!sesion) {
-    return <LoginScreen usuarios={usuarios} config={config} onLogin={handleLogin}/>;
-  }
-
-  const rol = sesion.rol || "capturista";
-  const puede = (accion) => puedeVer(rol, accion);
-
-  const nav=[
-    {id:"dashboard",     label:"Dashboard",    icon:"dashboard"},
-    {id:"calendario",    label:"Calendario",   icon:"tasks"},
-    {id:"clientes",      label:"Clientes",     icon:"clients"},
-    {id:"polizas",       label:"Pólizas",      icon:"policies", badge:"IA"},
-    {id:"pipeline",      label:"Prospectos",   icon:"pipeline"},
-    {id:"tareas",        label:"Agenda",       icon:"tasks"},
-    {id:"exportar",      label:"Exportar",     icon:"scan", badge:"NEW"},
-    {id:"importar",      label:"Importar BD",  icon:"scan"},
-    {id:"siniestros",    label:"Siniestros",   icon:"shield", badge:"NEW"},
-    {id:"pai",           label:"Metas",        icon:"trophy"},
-    {id:"comisiones",    label:"Comisiones",   icon:"trophy"},
-    {id:"configuracion", label:"Configuración",icon:"users", badge:"NEW"},
-  ].filter(item => puede(item.id));
-
-  const badgeColors={IA:"#2563eb",NEW:"#25d366"};
-
   return(
     <div style={{display:"flex",height:"100vh",fontFamily:"'Inter','DM Sans','Segoe UI',sans-serif",background:"#f1f5f9",flexDirection:isMobile?"column":"row"}}>
 
@@ -10235,7 +9496,7 @@ export default function CRMSeguros() {
         <div style={{padding:"0 16px 20px"}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
             <div style={{width:36,height:36,background:"linear-gradient(135deg,#2563eb,#7c3aed)",borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}><Icon name="shield" size={19}/></div>
-            <div><div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Inter','Segoe UI',sans-serif"}}>SeguCore</div><div style={{color:"#475569",fontSize:10}}>Gestiona, Protege y Crece</div></div>
+            <div><div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>SeguCore</div><div style={{color:"#475569",fontSize:10}}>Agente Profesional</div></div>
           </div>
         </div>
         <nav style={{flex:1,overflowY:"auto"}}>
@@ -10292,7 +9553,7 @@ export default function CRMSeguros() {
             <div style={{width:28,height:28,background:"linear-gradient(135deg,#2563eb,#7c3aed)",borderRadius:7,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}>
               <Icon name="shield" size={14}/>
             </div>
-            <span style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Inter','Segoe UI',sans-serif"}}>SeguCore</span>
+            <span style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>SeguCore</span>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
             {totalNotif>0&&(
@@ -10327,7 +9588,7 @@ export default function CRMSeguros() {
             <div style={{background:"#0f172a",padding:"14px 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div style={{display:"flex",alignItems:"center",gap:10}}>
                 <Icon name="bell" size={16}/>
-                <div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Inter','Segoe UI',sans-serif"}}>
+                <div style={{color:"#f1f5f9",fontWeight:800,fontSize:14,fontFamily:"'Playfair Display',serif"}}>
                   Alertas de Vencimiento
                 </div>
                 {totalNotif>0&&<span style={{background:"#dc2626",color:"#fff",borderRadius:20,padding:"2px 9px",fontSize:11,fontWeight:800}}>{totalNotif} polizas</span>}
@@ -10420,8 +9681,8 @@ export default function CRMSeguros() {
         )}
 
         {vista==="dashboard"&&puede("dashboard")&&<Dashboard clientes={clientes} polizas={polizas} pipeline={pipeline} tareas={tareas} paiMetas={paiMetas}/>}
-        {vista==="clientes"&&puede("clientes")&&<Clientes clientes={clientes} setClientes={setClientes} clientesOps={clientesOps} polizas={polizas} setPolizas={setPolizas} sesion={sesion}/>}
-        {vista==="polizas"&&puede("polizas")&&<Polizas polizas={polizas} setPolizas={setPolizas} polizasOps={polizasOps} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes} plantillas={plantillas} puede={puede} sesion={sesion}/>}
+        {vista==="clientes"&&puede("clientes")&&<Clientes clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas}/>}
+        {vista==="polizas"&&puede("polizas")&&<Polizas polizas={polizas} setPolizas={setPolizas} clientes={clientes} setClientes={setClientes} subagentes={subagentes} setSubagentes={setSubagentes} plantillas={plantillas} puede={puede} sesion={sesion}/>}
         {vista==="comisiones"&&puede("comisiones")&&<Comisiones
           polizas={polizas}
           subagentes={subagentes}
@@ -10444,8 +9705,8 @@ export default function CRMSeguros() {
         {vista==="pai"&&puede("pai")&&<PAI paiMetas={paiMetas} setPaiMetas={setPaiMetas}/>}
         {vista==="siniestros"&&puede("siniestros")&&<Siniestros siniestros={siniestros} setSiniestros={setSiniestros} clientes={clientes} polizas={polizas} sesion={sesion}/>}
         {vista==="exportar"&&puede("exportar")&&<Exportar clientes={clientes} polizas={polizas} siniestros={siniestros} pagosComision={pagosComision} tablaComisiones={tablaComisiones} config={config}/>}
-        {vista==="pipeline"&&puede("pipeline")&&<Pipeline pipeline={pipeline} setPipeline={setPipeline} pipelineOps={pipelineOps}/>}
-        {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas} tareasOps={tareasOps} clientes={clientes} pipeline={pipeline}/>}
+        {vista==="pipeline"&&puede("pipeline")&&<Pipeline pipeline={pipeline} setPipeline={setPipeline}/>}
+        {vista==="tareas"&&<Tareas tareas={tareas} setTareas={setTareas}/>}
         {vista==="calendario"&&puede("calendario")&&<Calendario polizas={polizas} clientes={clientes} tareas={tareas} setPolizas={setPolizas}/>}
         {vista==="importar"&&puede("importar")&&<Importador clientes={clientes} setClientes={setClientes} polizas={polizas} setPolizas={setPolizas}/>}
         {vista==="configuracion"&&puede("configuracion")&&<Configuracion config={config} setConfig={setConfig} subagentes={subagentes} setSubagentes={setSubagentes} usuarios={usuarios} setUsuarios={setUsuarios} polizas={polizas} setPolizas={setPolizas} plantillas={plantillas} setPlantillas={setPlantillas} plantillasDefault={PLANTILLAS_DEFAULT} clientes={clientes} historialNotif={historialNotif} setHistorialNotif={setHistorialNotif}/>}
@@ -10453,7 +9714,7 @@ export default function CRMSeguros() {
         {!puede(vista)&&(
           <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"60vh",gap:16}}>
             <div style={{fontSize:48}}>🔒</div>
-            <div style={{fontSize:20,fontWeight:800,fontFamily:"'Inter','Segoe UI',sans-serif",color:"#111827"}}>Acceso restringido</div>
+            <div style={{fontSize:20,fontWeight:800,fontFamily:"'Playfair Display',serif",color:"#111827"}}>Acceso restringido</div>
             <div style={{fontSize:14,color:"#6b7280"}}>No tienes permisos para ver esta sección.</div>
             <div style={{fontSize:12,color:"#9ca3af"}}>Contacta al administrador si necesitas acceso.</div>
           </div>
@@ -10462,101 +9723,44 @@ export default function CRMSeguros() {
 
       {/* Barra navegación inferior — solo móvil */}
       {isMobile&&(
-        <>
-          {/* Drawer "Más" */}
-          {masDrawer&&(
-            <div style={{position:"fixed",inset:0,zIndex:200}} onClick={()=>setMasDrawer(false)}>
-              <div style={{position:"absolute",bottom:62,left:0,right:0,
-                background:"#0f172a",borderTop:"1px solid #1e293b",
-                borderRadius:"20px 20px 0 0",padding:"16px 12px 8px",
-                boxShadow:"0 -8px 32px rgba(0,0,0,0.4)",animation:"slideUp .2s ease"}}
-                onClick={e=>e.stopPropagation()}>
-                <div style={{width:36,height:4,background:"#334155",borderRadius:2,margin:"0 auto 16px"}}/>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                  {[
-                    {id:"dashboard",  label:"Dashboard",    icon:"dashboard"},
-                    {id:"calendario", label:"Calendario",   icon:"tasks"},
-                    {id:"tareas",     label:"Agenda",       icon:"tasks"},
-                    {id:"siniestros", label:"Siniestros",   icon:"shield"},
-                    {id:"exportar",   label:"Exportar",     icon:"scan"},
-                    {id:"importar",   label:"Importar BD",  icon:"scan"},
-                    {id:"pai",        label:"Metas",        icon:"trophy"},
-                    {id:"configuracion",label:"Configuración",icon:"users"},
-                  ].filter(item=>puede(item.id)).map(item=>(
-                    <button key={item.id} onClick={()=>{setVista(item.id);setMasDrawer(false);}}
-                      style={{display:"flex",alignItems:"center",gap:10,padding:"12px 14px",
-                        background:vista===item.id?"#1e3a5f":"#1e293b",
-                        border:vista===item.id?"1px solid #2563eb":"1px solid #334155",
-                        borderRadius:12,cursor:"pointer",color:vista===item.id?"#93c5fd":"#94a3b8",
-                        fontFamily:"inherit",fontSize:13,fontWeight:500,transition:"all .15s"}}>
-                      <Icon name={item.icon} size={16}/>
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
-                {totalNotif>0&&(
-                  <button onClick={()=>{setNotifPanel(v=>!v);setMasDrawer(false);}}
-                    style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"center",
-                      gap:8,marginTop:10,padding:"11px",background:"rgba(220,38,38,0.15)",
-                      border:"1px solid rgba(220,38,38,0.3)",borderRadius:12,cursor:"pointer",
-                      color:"#fca5a5",fontFamily:"inherit",fontSize:13,fontWeight:600}}>
-                    <Icon name="bell" size={16}/>
-                    Ver alertas de vencimiento
-                    <span style={{background:"#dc2626",color:"#fff",borderRadius:20,padding:"1px 8px",fontSize:11,fontWeight:800}}>{totalNotif}</span>
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Bottom bar — 4 tabs principales + Más */}
-          <div style={{position:"fixed",bottom:0,left:0,right:0,background:"#0f172a",
-            borderTop:"1px solid #1e293b",display:"flex",alignItems:"center",
-            justifyContent:"space-around",padding:"6px 0 10px",zIndex:100,
-            boxShadow:"0 -4px 20px rgba(0,0,0,0.3)"}}>
-            {[
-              {id:"clientes",   label:"Clientes",   icon:"clients"},
-              {id:"polizas",    label:"Pólizas",     icon:"policies"},
-              {id:"pipeline",   label:"Prospectos",  icon:"pipeline"},
-              {id:"comisiones", label:"Comisiones",  icon:"trophy"},
-            ].map(item=>{
-              const activo = vista===item.id;
-              return(
-                <button key={item.id} onClick={()=>{setVista(item.id);setMasDrawer(false);}}
-                  style={{display:"flex",flexDirection:"column",alignItems:"center",gap:3,
-                    background:"none",border:"none",cursor:"pointer",padding:"4px 6px",
-                    color:activo?"#93c5fd":"#475569",fontFamily:"inherit",flex:1,
-                    position:"relative",transition:"color .15s"}}>
-                  {activo&&<div style={{position:"absolute",top:-6,left:"50%",transform:"translateX(-50%)",
-                    width:28,height:3,borderRadius:"0 0 3px 3px",background:"#3b82f6"}}/>}
-                  <Icon name={item.icon} size={22}/>
-                  <span style={{fontSize:9,fontWeight:activo?800:500,letterSpacing:"0.02em"}}>{item.label}</span>
-                </button>
-              );
-            })}
-            {/* Botón Más */}
-            <button onClick={()=>setMasDrawer(v=>!v)}
-              style={{display:"flex",flexDirection:"column",alignItems:"center",gap:3,
-                background:"none",border:"none",cursor:"pointer",padding:"4px 6px",
-                color:masDrawer||(vista!=="clientes"&&vista!=="polizas"&&vista!=="pipeline"&&vista!=="comisiones")?"#93c5fd":"#475569",
-                fontFamily:"inherit",flex:1,position:"relative",transition:"color .15s"}}>
-              {(masDrawer||(vista!=="clientes"&&vista!=="polizas"&&vista!=="pipeline"&&vista!=="comisiones"))&&
-                <div style={{position:"absolute",top:-6,left:"50%",transform:"translateX(-50%)",
-                  width:28,height:3,borderRadius:"0 0 3px 3px",background:"#3b82f6"}}/>}
-              <div style={{width:22,height:22,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:"4px"}}>
-                <div style={{width:16,height:2,background:"currentColor",borderRadius:1}}/>
-                <div style={{width:12,height:2,background:"currentColor",borderRadius:1}}/>
-                <div style={{width:16,height:2,background:"currentColor",borderRadius:1}}/>
-              </div>
-              <span style={{fontSize:9,fontWeight:500,letterSpacing:"0.02em"}}>Más</span>
-              {totalNotif>0&&!masDrawer&&(
-                <span style={{position:"absolute",top:2,right:"18%",background:"#dc2626",color:"#fff",
-                  fontSize:8,borderRadius:"50%",width:13,height:13,display:"flex",alignItems:"center",
-                  justifyContent:"center",fontWeight:800}}>{totalNotif}</span>
-              )}
-            </button>
-          </div>
-        </>
+        <div style={{position:"fixed",bottom:0,left:0,right:0,background:"#0f172a",
+          borderTop:"1px solid #1e293b",display:"flex",alignItems:"center",
+          justifyContent:"space-around",padding:"6px 0 10px",zIndex:100,
+          boxShadow:"0 -4px 20px rgba(0,0,0,0.3)"}}>
+          {[
+            {id:"dashboard",  label:"Inicio",    icon:"dashboard"},
+            {id:"clientes",   label:"Clientes",  icon:"clients"},
+            {id:"polizas",    label:"Pólizas",   icon:"policies"},
+            {id:"calendario", label:"Agenda",    icon:"tasks"},
+            {id:"_mas",       label:"Más",       icon:"users"},
+          ].filter(item=>item.id==="polizas"||item.id==="_mas"||puede(item.id)).map(item=>{
+            const activo = item.id==="_mas"
+              ? ["pai","pipeline","importar","configuracion"].includes(vista)
+              : vista===item.id;
+            return (
+              <button key={item.id} onClick={()=>{
+                if(item.id==="_mas") setVista(vista==="configuracion"?"dashboard":"configuracion");
+                else setVista(item.id);
+              }}
+                style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,
+                  background:"none",border:"none",cursor:"pointer",padding:"4px 8px",
+                  color:activo?"#93c5fd":"#475569",fontFamily:"inherit",flex:1,
+                  position:"relative",transition:"color .15s"}}>
+                <Icon name={item.icon} size={20}/>
+                <span style={{fontSize:9,fontWeight:activo?800:500}}>{item.label}</span>
+                {activo&&<div style={{position:"absolute",top:-6,left:"50%",transform:"translateX(-50%)",width:4,height:4,borderRadius:"50%",background:"#3b82f6"}}/>}
+              </button>
+            );
+          })}
+          <button onClick={()=>setNotifPanel(v=>!v)}
+            style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,
+              background:"none",border:"none",cursor:"pointer",padding:"4px 8px",
+              color:totalNotif>0?"#fca5a5":"#475569",fontFamily:"inherit",flex:1,position:"relative"}}>
+            <Icon name="bell" size={20}/>
+            <span style={{fontSize:9,fontWeight:500}}>Alertas</span>
+            {totalNotif>0&&<span style={{position:"absolute",top:0,right:"20%",background:"#dc2626",color:"#fff",fontSize:8,borderRadius:"50%",width:14,height:14,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800}}>{totalNotif}</span>}
+          </button>
+        </div>
       )}
     </div>
   );

@@ -6033,7 +6033,7 @@ function Pipeline({ pipeline, setPipeline, pipelineOps }) {
 // TAREAS
 // ═══════════════════════════════════════════════════════════════════
 function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
-  const FORM_INIT = {titulo:"",fecha:"",tipo:"llamada",prioridad:"media",
+  const FORM_INIT = {titulo:"",fecha:"",tipo:"llamada",prioridad:"media",notas:"",
     contactoNombre:"",contactoTel:"",contactoEmail:"",contactoId:null,contactoTipo:null};
   const [showModal,setShowModal]=useState(false);
   const [form,setForm]=useState(FORM_INIT);
@@ -6097,6 +6097,7 @@ function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
     const emailFinal = form.contactoEmail || capturaEmail;
     const nueva={
       titulo:form.titulo, fecha:form.fecha, tipo:form.tipo, prioridad:form.prioridad, done:false,
+      notas:form.notas||null,
       contacto_nombre:form.contactoNombre||null,
       contacto_tel:telFinal||null,
       contacto_email:emailFinal||null,
@@ -6106,12 +6107,13 @@ function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
     if(tareasOps) await tareasOps.insertar(nueva);
     else setTareas(prev=>[...prev,{...nueva,id:Date.now()}]);
 
-    // Google Calendar — automático para citas y tareas con fecha
-    if(form.fecha && (form.tipo==="cita"||form.tipo==="llamada"||form.tipo==="email")){
-      const iconos={cita:"📅",llamada:"📞",email:"✉️"};
+    // Google Calendar — llamada, email, cita, recordatorio con fecha
+    if(form.fecha && form.tipo!=="doc"){
+      const iconos={cita:"📅",llamada:"📞",email:"✉️",recordatorio:"🔔"};
       const titulo=`${iconos[form.tipo]||""} ${form.titulo}${form.contactoNombre?" · "+form.contactoNombre:""}`;
       const desc=form.tipo==="llamada"&&telFinal?`Tel: ${telFinal}`
         :form.tipo==="email"&&emailFinal?`Email: ${emailFinal}`
+        :form.tipo==="recordatorio"&&form.notas?form.notas
         :form.contactoNombre||"";
       try {
         const res=await agregarEventoCalendar(titulo,desc,form.fecha);
@@ -6131,7 +6133,7 @@ function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
 
   const prioColor={alta:"#dc2626",media:"#d97706",baja:"#059669"};
   const prioTextColor={alta:"#991b1b",media:"#92400e",baja:"#065f46"};
-  const tipoIcon={llamada:"📞",email:"✉️",cita:"📅",doc:"📄"};
+  const tipoIcon={llamada:"📞",email:"✉️",cita:"📅",recordatorio:"🔔"};
 
   const pendientes=tareas.filter(t=>!t.done);
   const completadas=tareas.filter(t=>t.done);
@@ -6166,6 +6168,7 @@ function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
                     {t.tipo==="email"&&t.contacto_email&&<span style={{marginLeft:6,color:"#2563eb"}}>✉️ {t.contacto_email}</span>}
                   </div>
                 )}
+                {t.notas&&<div style={{fontSize:11,color:"#6b7280",marginTop:2,fontStyle:"italic"}}>📝 {t.notas}</div>}
                 <div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>📅 {t.fecha||"Sin fecha"}</div>
               </div>
               <span style={{fontSize:11,fontWeight:600,color:prioTextColor[t.prioridad]||"#374151",flexShrink:0}}>{t.prioridad}</span>
@@ -6253,7 +6256,7 @@ function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
                   </div>
                 )}
                 {form.tipo==="cita"&&<div style={{fontSize:12,color:"#059669",fontWeight:600}}>📅 Se agregará automáticamente a Google Calendar</div>}
-                {form.tipo==="doc"&&<div style={{fontSize:12,color:"#6b7280"}}>📄 Recordatorio de documento</div>}
+                {form.tipo==="recordatorio"&&<div style={{fontSize:12,color:"#7c3aed",fontWeight:600}}>🔔 Se guardará en el calendario del sistema y Google Calendar</div>}
               </div>
             )}
 
@@ -6275,7 +6278,7 @@ function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
                 <option value="llamada">📞 Llamada</option>
                 <option value="email">✉️ Email</option>
                 <option value="cita">📅 Cita</option>
-                <option value="doc">📄 Doc</option>
+                <option value="recordatorio">🔔 Recordatorio</option>
               </Sel>
               <Sel label="Prioridad" value={form.prioridad} onChange={e=>setForm(p=>({...p,prioridad:e.target.value}))}>
                 <option value="alta">🔴 Alta</option>
@@ -6287,7 +6290,22 @@ function Tareas({ tareas, setTareas, tareasOps, clientes, pipeline }) {
             {/* 4. Fecha */}
             <Inp label="Fecha" type="date" value={form.fecha} onChange={e=>setForm(p=>({...p,fecha:e.target.value}))}/>
 
-            {form.fecha&&form.tipo!=="doc"&&(
+            {/* Notas — visible siempre, destacado en recordatorio */}
+            <div style={{display:"flex",flexDirection:"column",gap:5}}>
+              <label style={{fontSize:12,fontWeight:600,color:"#374151"}}>
+                Notas {form.tipo==="recordatorio"&&<span style={{color:"#7c3aed"}}>(recomendado)</span>}
+              </label>
+              <textarea
+                value={form.notas}
+                onChange={e=>setForm(p=>({...p,notas:e.target.value}))}
+                placeholder={form.tipo==="recordatorio"?"Describe el recordatorio...":"Notas adicionales (opcional)"}
+                rows={3}
+                style={{border:"1.5px solid #e5e7eb",borderRadius:9,padding:"9px 13px",fontSize:13,outline:"none",fontFamily:"inherit",width:"100%",boxSizing:"border-box",resize:"vertical",
+                  borderColor:form.tipo==="recordatorio"?"#c4b5fd":"#e5e7eb"}}
+              />
+            </div>
+
+            {form.fecha&&(
               <div style={{background:"#eff6ff",borderRadius:9,padding:"9px 13px",fontSize:12,color:"#1e40af",display:"flex",alignItems:"center",gap:7}}>
                 <Icon name="calendar" size={14}/> Se sincronizará con Google Calendar al guardar
               </div>
